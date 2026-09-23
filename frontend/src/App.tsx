@@ -39,7 +39,6 @@ const Home = lazy(() => import("./components/Home.tsx"));
 const Login = lazy(() => import("./components/Login.tsx"));
 const Quote = lazy(() => import("./components/Quote.tsx"));
 const Signup = lazy(() => import("./components/Signup.tsx"));
-const Materials = lazy(() => import("./components/Materials.tsx"));
 const Gallery = lazy(() => import("./components/Gallery.tsx"));
 const ProductDetail = lazy(() => import("./components/ProductDetail.tsx"));
 const FAQ = lazy(() => import("./components/FAQ.tsx"));
@@ -205,7 +204,6 @@ export default function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/materials" element={<Materials />} />
 
           {ALLOWED_PRODUCT_ORDER && (
             <>

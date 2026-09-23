@@ -37,12 +37,7 @@ const Navbar = () => {
     navigate("/");
   };
 
-  let navLinks = [
-    { name: t("nav.home"), path: "/" },
-    { name: t("nav.materials"), path: "/materials" },
-    { name: t("nav.gallery"), path: "/products" },
-    { name: t("nav.faq"), path: "/faq" },
-  ];
+  let navLinks = [{ name: t("nav.gallery"), path: "/products" }];
 
   if (!ALLOWED_PRODUCT_ORDER) {
     navLinks = navLinks.filter((link) => link.path !== "/products");
@@ -115,9 +110,6 @@ const Navbar = () => {
           </>
         ) : (
           <div className="flex items-center gap-3">
-            <Link to="/" className="site-btn-primary">
-              {t("nav.newPrint")}
-            </Link>
             <button
               onClick={handleLogout}
               className="p-2.5 text-[#647972] hover:text-red-700 hover:bg-red-50 rounded-lg transition-all"

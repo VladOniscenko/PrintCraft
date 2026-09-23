@@ -68,6 +68,9 @@ export default function Footer() {
           <Link to="/shipping-policy" className="hover:text-[#0f766e]">
             {t("footer.shippingPolicy")}
           </Link>
+          <Link to="/faq" className="hover:text-[#0f766e]">
+            {t("footer.faq")}
+          </Link>
         </div>
       </div>
 

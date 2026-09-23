@@ -1,35 +1,37 @@
 import { Box, PackageCheck, SlidersHorizontal } from "lucide-react";
+import { useI18n } from "../../i18n/I18nContext";
 
 const steps = [
   {
     number: "01",
-    title: "Upload of beschrijf",
-    text: "Deel je bestand of vertel wat je wilt laten maken.",
+    title: "home.steps.uploadTitle",
+    text: "home.steps.uploadText",
     icon: Box,
   },
   {
     number: "02",
-    title: "Kies je materiaal",
-    text: "Selecteer de eigenschappen die belangrijk zijn voor jouw toepassing.",
+    title: "home.steps.materialTitle",
+    text: "home.steps.materialText",
     icon: SlidersHorizontal,
   },
   {
     number: "03",
-    title: "Wij printen & bezorgen",
-    text: "We stemmen de details af, printen zorgvuldig en sturen het naar je op.",
+    title: "home.steps.printTitle",
+    text: "home.steps.printText",
     icon: PackageCheck,
   },
 ];
 
 export default function HomeSteps() {
+  const { t } = useI18n();
   return (
     <section className="space-y-7">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">
-          Van idee naar onderdeel
+          {t("home.steps.eyebrow")}
         </p>
         <h2 className="site-heading mt-2 text-4xl font-black">
-          Zo simpel is het
+          {t("home.steps.title")}
         </h2>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
@@ -40,8 +42,8 @@ export default function HomeSteps() {
           >
             <span className="text-sm font-black text-amber-600">{number}</span>
             <Icon size={28} className="mt-8 text-emerald-800" />
-            <h3 className="mt-5 text-xl font-black text-[#17231f]">{title}</h3>
-            <p className="mt-2 text-sm leading-6 text-[#5f736d]">{text}</p>
+            <h3 className="mt-5 text-xl font-black text-[#17231f]">{t(title)}</h3>
+            <p className="mt-2 text-sm leading-6 text-[#5f736d]">{t(text)}</p>
           </article>
         ))}
       </div>

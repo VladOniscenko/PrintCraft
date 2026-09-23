@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Check, FileUp, Loader2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import { useI18n } from "../../i18n/I18nContext";
 
 type AuthMode = "login" | "register";
 type Draft = {
@@ -20,6 +21,7 @@ const materials = [
 ];
 
 export default function QuickQuoteFlow() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState<Draft | null>(() => {
@@ -70,7 +72,7 @@ export default function QuickQuoteFlow() {
 
   const submitDescription = async () => {
     if (description.trim().length < 10) {
-      setAuthError("Beschrijf je project in minimaal 10 tekens.");
+      setAuthError(t("home.quickQuote.descriptionTooShort"));
       return;
     }
     setUploading(true);
@@ -90,7 +92,7 @@ export default function QuickQuoteFlow() {
       setDraft(nextDraft);
       localStorage.setItem(DRAFT_KEY, JSON.stringify(nextDraft));
     } catch {
-      setAuthError("Je aanvraag kon niet worden opgeslagen. Probeer opnieuw.");
+      setAuthError(t("home.quickQuote.saveFailed"));
     } finally {
       setUploading(false);
     }
@@ -153,14 +155,14 @@ export default function QuickQuoteFlow() {
               onClick={() => setEntryMode("file")}
               className={`flex-1 rounded-md px-3 py-2 font-bold ${entryMode === "file" ? "bg-white text-emerald-950" : "text-white/70"}`}
             >
-              Ik heb een bestand
+              {t("home.quickQuote.fileMode")}
             </button>
             <button
               type="button"
               onClick={() => setEntryMode("description")}
               className={`flex-1 rounded-md px-3 py-2 font-bold ${entryMode === "description" ? "bg-white text-emerald-950" : "text-white/70"}`}
             >
-              Ik heb een idee
+              {t("home.quickQuote.ideaMode")}
             </button>
           </div>
           {entryMode === "file" ? (
@@ -185,10 +187,8 @@ export default function QuickQuoteFlow() {
                 <FileUp size={24} />
               )}
               <span>
-                <strong className="block">Sleep je 3D-bestand hierheen</strong>
-                <small className="text-white/65">
-                  of klik om een STL, OBJ, 3MF of STEP te kiezen
-                </small>
+                <strong className="block">{t("home.quickQuote.dropTitle")}</strong>
+                <small className="text-white/65">{t("home.quickQuote.dropHint")}</small>
               </span>
             </button>
           ) : (
@@ -196,7 +196,7 @@ export default function QuickQuoteFlow() {
               <textarea
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="Vertel wat je wilt laten maken, waarvoor je het gebruikt en wat belangrijk is..."
+                placeholder={t("home.quickQuote.descriptionPlaceholder")}
                 className="min-h-28 w-full rounded-xl border border-white/25 bg-white/10 p-3 text-sm text-white outline-none placeholder:text-white/50 focus:border-amber-300"
               />
               <button
@@ -205,7 +205,7 @@ export default function QuickQuoteFlow() {
                 disabled={uploading}
                 className="w-full rounded-xl bg-amber-300 px-4 py-3 font-bold text-emerald-950 disabled:opacity-60"
               >
-                {uploading ? "Aanvraag opslaan..." : "Start je aanvraag"}
+                {uploading ? t("home.quickQuote.saving") : t("home.quickQuote.startRequest")}
               </button>
             </div>
           )}

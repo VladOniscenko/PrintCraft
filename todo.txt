@@ -1,6 +1,4 @@
-- allow manual status override to all available statuses in admin order details
-- the current admin order details are not overviewble it has to many in the front. (need to split up the actions into categories like (customer, order, logs, finance, communication, etc.))
-- fully remove stripe from the project
-- allow user to notify us if he made an manual payment (like button that sends us a message that he made a payment so we can check it)
-- decrease statuses in user order detail by removing all steps after sent if sent order is completed to prevent extra manual job for admins to check statuses and adjust them.
-- mogelijk maken om een factuur te maken voor de order als admin
+- unused logic on the fronted should be removed like - products page, product checkout etc (everything that is not used and outdated) CLEANUP PROJECT
+- aswell all the redundant and unused api endpoint that have no need or not helping the project CLEANUP
+- not all components are using translation they have hardcoded text in it like "Dagelijks gebruik" or "Super sterk"
+- quote.agreementText is not added to translations as quote.agreementLink
