@@ -28,7 +28,6 @@ import type { OrderItem, Filament } from "../types";
 import { useI18n } from "../i18n/I18nContext";
 import Footer from "./Footer";
 import { useNotify } from "../context/NotifyContext";
-import ModelDiscoveryCards from "./ModelDiscoveryCards";
 import { getOrCreateVisitorId } from "../services/api";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import {
@@ -151,7 +150,31 @@ export default function Quote() {
   const { notifyError } = useNotify();
   const navigate = useNavigate();
 
-  const [items, setItems] = useState<OrderItem[]>([]);
+  const [items, setItems] = useState<OrderItem[]>(() => {
+    try {
+      const draft = JSON.parse(
+        localStorage.getItem("printcraft-home-quote") || "null",
+      );
+      if (!draft?.fileUrl && !draft?.description) return [];
+      return [
+        {
+          fileUrl: draft.fileUrl || "",
+          fileName: draft.fileName,
+          imageUrl: "",
+          material: draft.material || "PLA",
+          color: "",
+          count: 1,
+          price: 0,
+          notes: draft.description || "",
+          files: draft.fileUrl
+            ? [{ url: draft.fileUrl, name: draft.fileName, kind: "model" }]
+            : [],
+        },
+      ];
+    } catch {
+      return [];
+    }
+  });
   const [filaments, setFilaments] = useState<Filament[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -918,6 +941,7 @@ export default function Quote() {
 
       const res = await api.post("/orders/quote", payload);
       submittedRef.current = true;
+      localStorage.removeItem("printcraft-home-quote");
       uploadedFileUrlsRef.current.clear();
 
       for (const originalUrl of replacedOriginalModelUrls) {
@@ -992,10 +1016,6 @@ export default function Quote() {
             {t("quote.title")}
           </h2>
           <p className="site-subheading text-lg">{t("quote.subtitle")}</p>
-        </div>
-
-        <div className="mb-8">
-          <ModelDiscoveryCards compact lowEmphasis inlineMinimal />
         </div>
 
         {/* Improved Step Progress Indicator */}

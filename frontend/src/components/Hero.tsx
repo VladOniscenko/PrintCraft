@@ -1,7 +1,7 @@
-import { Upload, Box, Clock, Leaf } from "lucide-react";
+import { Box, Clock, Leaf } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext";
+import QuickQuoteFlow from "./home/QuickQuoteFlow";
 
 const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
 
@@ -79,11 +79,7 @@ export default function Hero() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-4">
-          <Link to="/quote" className="site-btn-primary gap-2">
-            <Upload size={20} /> {t("hero.ctaQuote")}
-          </Link>
-        </div>
+        <QuickQuoteFlow />
 
         {/* Feature highlights: Fast turnaround, Quality print, Professional finishing */}
         <div className="flex flex-wrap gap-6 pt-6 border-t border-white/10">

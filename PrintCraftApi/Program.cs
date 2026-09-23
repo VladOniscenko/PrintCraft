@@ -40,6 +40,7 @@ var frontendBaseUrl = builder.Configuration["FrontendBaseUrl"]!.TrimEnd('/');
 builder.Services.AddDbContext<PrintCraftDb>(opt => opt.UseNpgsql(connectionString));
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IDiscordWebhookService, DiscordWebhookService>();
+builder.Services.AddScoped<IQuoteDraftService, QuoteDraftService>();
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
 builder.Services.AddTransient<IEmailService, GmailSmtpEmailService>();
 builder.Services.AddEndpointsApiExplorer();

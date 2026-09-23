@@ -22,6 +22,7 @@ public class PrintCraftDb : DbContext
     public DbSet<UserAddress> UserAddresses => Set<UserAddress>();
     public DbSet<VisitEvent> VisitEvents => Set<VisitEvent>();
     public DbSet<ManualPaymentNotification> ManualPaymentNotifications => Set<ManualPaymentNotification>();
+    public DbSet<QuoteDraft> QuoteDrafts => Set<QuoteDraft>();
     public DbSet<Cart> Carts => Set<Cart>();
     public DbSet<CartItem> CartItems => Set<CartItem>();
 
@@ -107,6 +108,9 @@ public class PrintCraftDb : DbContext
             .WithMany()
             .HasForeignKey(n => n.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<QuoteDraft>().HasIndex(d => d.TokenHash).IsUnique();
+        modelBuilder.Entity<QuoteDraft>().HasIndex(d => new { d.UserId, d.ExpiresAt });
 
         modelBuilder.Entity<Payment>()
             .HasIndex(p => new { p.OrderId, p.CreatedAt });

@@ -115,7 +115,7 @@ const Navbar = () => {
           </>
         ) : (
           <div className="flex items-center gap-3">
-            <Link to="/quote" className="site-btn-primary">
+            <Link to="/" className="site-btn-primary">
               {t("nav.newPrint")}
             </Link>
             <button
