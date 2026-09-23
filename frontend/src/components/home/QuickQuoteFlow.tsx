@@ -187,8 +187,12 @@ export default function QuickQuoteFlow() {
                 <FileUp size={24} />
               )}
               <span>
-                <strong className="block">{t("home.quickQuote.dropTitle")}</strong>
-                <small className="text-white/65">{t("home.quickQuote.dropHint")}</small>
+                <strong className="block">
+                  {t("home.quickQuote.dropTitle")}
+                </strong>
+                <small className="text-white/65">
+                  {t("home.quickQuote.dropHint")}
+                </small>
               </span>
             </button>
           ) : (
@@ -205,7 +209,9 @@ export default function QuickQuoteFlow() {
                 disabled={uploading}
                 className="w-full rounded-xl bg-amber-300 px-4 py-3 font-bold text-emerald-950 disabled:opacity-60"
               >
-                {uploading ? t("home.quickQuote.saving") : t("home.quickQuote.startRequest")}
+                {uploading
+                  ? t("home.quickQuote.saving")
+                  : t("home.quickQuote.startRequest")}
               </button>
             </div>
           )}

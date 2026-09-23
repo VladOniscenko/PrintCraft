@@ -33,7 +33,9 @@ export default function MaterialFeatures() {
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">
           {t("home.materials.eyebrow")}
         </p>
-        <h2 className="mt-2 text-4xl font-black">{t("home.materials.title")}</h2>
+        <h2 className="mt-2 text-4xl font-black">
+          {t("home.materials.title")}
+        </h2>
         <p className="mt-3 text-sm leading-6 text-white/65">
           {t("home.materials.subtitle")}
         </p>

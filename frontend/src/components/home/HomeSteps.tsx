@@ -42,7 +42,9 @@ export default function HomeSteps() {
           >
             <span className="text-sm font-black text-amber-600">{number}</span>
             <Icon size={28} className="mt-8 text-emerald-800" />
-            <h3 className="mt-5 text-xl font-black text-[#17231f]">{t(title)}</h3>
+            <h3 className="mt-5 text-xl font-black text-[#17231f]">
+              {t(title)}
+            </h3>
             <p className="mt-2 text-sm leading-6 text-[#5f736d]">{t(text)}</p>
           </article>
         ))}
