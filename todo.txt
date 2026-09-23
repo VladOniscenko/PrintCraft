@@ -2,3 +2,4 @@
 - aswell all the redundant and unused api endpoint that have no need or not helping the project CLEANUP
 - not all components are using translation they have hardcoded text in it like "Dagelijks gebruik" or "Super sterk"
 - quote.agreementText is not added to translations as quote.agreementLink
+- admin invoice should be pdf instead of html + add logo and redesign it more professional research what info should go on it
