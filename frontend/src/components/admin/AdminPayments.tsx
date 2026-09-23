@@ -60,7 +60,7 @@ export default function AdminPayments() {
   const [isReconciling, setIsReconciling] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
-  const [provider, setProvider] = useState("stripe");
+  const [provider, setProvider] = useState("bank_transfer");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [page, setPage] = useState(1);

@@ -183,6 +183,7 @@ export default function Quote() {
   });
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [agreementAccepted, setAgreementAccepted] = useState(false);
   const totalSteps = 3;
 
   // Step 1 is now Models
@@ -269,6 +270,9 @@ export default function Quote() {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const validateAgreement = () =>
+    agreementAccepted ? null : t("quote.agreementRequired");
 
   // Fetch Filaments & Saved Addresses
   useEffect(() => {
@@ -765,6 +769,12 @@ export default function Quote() {
       return;
     }
 
+    const agreementError = validateAgreement();
+    if (agreementError) {
+      notifyError(agreementError);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       if (!isLoggedIn) {
@@ -896,6 +906,8 @@ export default function Quote() {
         shippingAddressLine1: shippingDetails.addressLine1,
         shippingCity: shippingDetails.city,
         shippingPostalCode: shippingDetails.postalCode,
+        agreementAccepted,
+        agreementVersion: "2026-09-23",
       };
 
       if (!isLoggedIn) {
@@ -1708,6 +1720,28 @@ export default function Quote() {
                 </p>
 
                 <div className="flex flex-col gap-3">
+                  {currentStep === totalSteps && (
+                    <label className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-left text-sm text-emerald-950">
+                      <input
+                        type="checkbox"
+                        checked={agreementAccepted}
+                        onChange={(event) =>
+                          setAgreementAccepted(event.target.checked)
+                        }
+                        className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
+                      />
+                      <span>
+                        {t("quote.agreementText")}{" "}
+                        <Link
+                          to="/terms"
+                          target="_blank"
+                          className="font-bold underline"
+                        >
+                          {t("quote.agreementLink")}
+                        </Link>
+                      </span>
+                    </label>
+                  )}
                   <button
                     type="button"
                     onClick={

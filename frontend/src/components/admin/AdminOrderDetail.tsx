@@ -26,7 +26,6 @@ import {
   getOrderStatusPillClass,
   isOrderPricingLocked,
   normalizeOrderStatus,
-  normalizePaymentFlow,
 } from "../../utils/orderStatus";
 import { formatCurrencyAmount } from "../../utils/currency";
 
@@ -66,7 +65,7 @@ export default function AdminOrderDetail() {
   const [emailTemplate, setEmailTemplate] = useState("custom");
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
-  const [paymentFlow, setPaymentFlow] = useState("stripe");
+  const [paymentFlow, setPaymentFlow] = useState("bank_transfer");
   const [trackingCode, setTrackingCode] = useState("");
   const [trackingUrl, setTrackingUrl] = useState("");
   const [savingTracking, setSavingTracking] = useState(false);
@@ -108,7 +107,7 @@ export default function AdminOrderDetail() {
       setOrderDiscountAmount(data.orderDiscountAmount || 0);
       setQuoteMessage(data.quoteMessage || "");
       setSelectedStatus(data.status || "pending");
-      setPaymentFlow(data.paymentFlow || "stripe");
+      setPaymentFlow(data.paymentFlow || "bank_transfer");
       setTrackingCode(data.trackingCode || "");
       setTrackingUrl(data.trackingUrl || "");
 
@@ -149,7 +148,7 @@ export default function AdminOrderDetail() {
     setOrder(res.data);
     setTrackingCode(res.data.trackingCode || "");
     setTrackingUrl(res.data.trackingUrl || "");
-    setPaymentFlow(res.data.paymentFlow || "stripe");
+    setPaymentFlow(res.data.paymentFlow || "bank_transfer");
     setQuoteMessage(res.data.quoteMessage || "");
 
     if (emailType !== "custom") {
@@ -470,36 +469,6 @@ export default function AdminOrderDetail() {
     }
   };
 
-  const reconcileOrderPayments = async () => {
-    if (!id) return;
-
-    setReconcilingPayments(true);
-    try {
-      const res = await api.post<{ started: boolean; message: string }>(
-        `/admin/orders/${id}/payments/reconcile`,
-      );
-      await refresh();
-
-      if (res.data?.started) {
-        notifySuccess(
-          res.data?.message || t("admin.order.reconcilePaymentsSuccess"),
-        );
-      } else {
-        notifyError(
-          res.data?.message || t("admin.order.reconcilePaymentsAlreadyRunning"),
-        );
-      }
-    } catch (err: any) {
-      console.error(err);
-      notifyError(
-        err?.response?.data?.message ||
-          t("admin.order.reconcilePaymentsFailed"),
-      );
-    } finally {
-      setReconcilingPayments(false);
-    }
-  };
-
   const markOrderPaid = async () => {
     if (!id) return;
 
@@ -621,7 +590,6 @@ export default function AdminOrderDetail() {
   const hasLegacyCustomerNote =
     customerNotes.length === 0 &&
     String(order.customerNotes || "").trim().length > 0;
-  const normalizedPaymentFlow = normalizePaymentFlow(order.paymentFlow);
 
   return (
     <AdminLayout>
@@ -669,7 +637,41 @@ export default function AdminOrderDetail() {
           <option value="returned">Mark Returned</option>
           <option value="refunded">Mark Refunded</option>
         </select>
+        <button
+          type="button"
+          className="admin-btn admin-btn-secondary"
+          onClick={async () => {
+            const response = await api.get(`/admin/orders/${id}/invoice`, {
+              responseType: "blob",
+            });
+            const url = URL.createObjectURL(response.data);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `invoice-${id}.html`;
+            link.click();
+            URL.revokeObjectURL(url);
+          }}
+        >
+          Download Invoice
+        </button>
       </div>
+
+      <nav
+        className="mb-6 flex flex-wrap gap-2 rounded-xl border border-gray-200 bg-white p-3"
+        aria-label="Order detail sections"
+      >
+        {["customer", "order", "finance", "communication", "activity"].map(
+          (section) => (
+            <a
+              key={section}
+              href={`#admin-order-${section}`}
+              className="rounded-lg bg-gray-50 px-3 py-2 text-xs font-bold capitalize text-gray-700 hover:bg-emerald-50 hover:text-emerald-700"
+            >
+              {section}
+            </a>
+          ),
+        )}
+      </nav>
 
       {/* SMART ACTION PANEL */}
       <div className="bg-white border-2 border-emerald-100 rounded-2xl shadow-sm mb-8 overflow-hidden">
@@ -772,8 +774,9 @@ export default function AdminOrderDetail() {
                       value={paymentFlow}
                       onChange={(e) => setPaymentFlow(e.target.value)}
                     >
-                      <option value="stripe">Online (Stripe)</option>
-                      <option value="bank_transfer">Bank Transfer</option>
+                      <option value="bank_transfer">
+                        Bank transfer / invoice
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -1026,39 +1029,45 @@ export default function AdminOrderDetail() {
       {/* DETAILED PANELS */}
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
         <div className="space-y-5 xl:col-span-2">
-          <OrderPricingPanel
-            order={order}
-            t={t}
-            itemPrices={itemPrices}
-            setItemPrices={setItemPrices}
-            savingItemId={savingItemId}
-            updateItemPrice={updateItemPrice}
-            deliveryPrice={deliveryPrice}
-            setDeliveryPrice={setDeliveryPrice}
-            savingDelivery={savingDelivery}
-            updateDeliveryPrice={updateDeliveryPrice}
-            serviceFee={serviceFee}
-            setServiceFee={setServiceFee}
-            savingServiceFee={savingServiceFee}
-            updateServiceFee={updateServiceFee}
-            orderDiscountAmount={orderDiscountAmount}
-            setOrderDiscountAmount={setOrderDiscountAmount}
-            savingOrderDiscount={savingOrderDiscount}
-            updateOrderDiscount={updateOrderDiscount}
-            subtotal={subtotal}
-            totalPrice={totalPrice}
-            pricingLocked={pricingLocked}
-          />
+          <section id="admin-order-finance">
+            <section id="admin-order-order">
+              <OrderPricingPanel
+                order={order}
+                t={t}
+                itemPrices={itemPrices}
+                setItemPrices={setItemPrices}
+                savingItemId={savingItemId}
+                updateItemPrice={updateItemPrice}
+                deliveryPrice={deliveryPrice}
+                setDeliveryPrice={setDeliveryPrice}
+                savingDelivery={savingDelivery}
+                updateDeliveryPrice={updateDeliveryPrice}
+                serviceFee={serviceFee}
+                setServiceFee={setServiceFee}
+                savingServiceFee={savingServiceFee}
+                updateServiceFee={updateServiceFee}
+                orderDiscountAmount={orderDiscountAmount}
+                setOrderDiscountAmount={setOrderDiscountAmount}
+                savingOrderDiscount={savingOrderDiscount}
+                updateOrderDiscount={updateOrderDiscount}
+                subtotal={subtotal}
+                totalPrice={totalPrice}
+                pricingLocked={pricingLocked}
+              />
+            </section>
+          </section>
 
-          <OrderHistoryPanel
-            t={t}
-            statusHistory={statusHistory}
-            communications={communications}
-          />
+          <section id="admin-order-communication">
+            <OrderHistoryPanel
+              t={t}
+              statusHistory={statusHistory}
+              communications={communications}
+            />
+          </section>
         </div>
 
         <div className="space-y-5">
-          <article className="admin-panel p-4">
+          <article id="admin-order-customer" className="admin-panel p-4">
             <div className="mb-2 flex items-center justify-between">
               <h2 className="font-bold text-[#1b2b25]">
                 {t("admin.order.customerInfoTitle")}
@@ -1316,9 +1325,6 @@ export default function AdminOrderDetail() {
                       onChange={(e) => setPaymentFlow(e.target.value)}
                       className="admin-select"
                     >
-                      <option value="stripe">
-                        {t("admin.order.paymentFlowStripe")}
-                      </option>
                       <option value="bank_transfer">
                         {t("admin.order.paymentFlowBankTransfer")}
                       </option>
@@ -1385,7 +1391,7 @@ export default function AdminOrderDetail() {
             </div>
           </article>
 
-          <article className="admin-panel p-4">
+          <article id="admin-order-activity" className="admin-panel p-4">
             <h3 className="font-bold mb-2 text-[#1b2b25]">
               {t("admin.order.notesTitle")}
             </h3>
@@ -1548,146 +1554,128 @@ export default function AdminOrderDetail() {
             </div>
           </article>
 
-          <article className="admin-panel p-4">
-            <h3 className="font-bold mb-2 text-[#1b2b25]">
-              {t("admin.order.paymentAttempts")}
-            </h3>
-            {normalizedPaymentFlow === "stripe" ? (
-              <>
-                <p className="mb-3 text-xs text-[#5f736d]">
-                  {t("admin.order.paymentAttemptsHelpStripe")}
-                </p>
-                <button
-                  type="button"
-                  onClick={reconcileOrderPayments}
-                  disabled={reconcilingPayments}
-                  className="admin-btn admin-btn-secondary mb-3"
-                >
-                  {reconcilingPayments ? (
-                    <span className="inline-flex items-center gap-2">
-                      <Loader2 className="animate-spin" size={16} />
-                      {t("admin.order.reconcilingPayments")}
-                    </span>
-                  ) : (
-                    t("admin.order.checkPaymentStatusButton")
-                  )}
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="mb-3 text-xs text-[#5f736d]">
-                  {t("admin.order.paymentAttemptsHelpBankTransfer")}
-                </p>
-                <button
-                  type="button"
-                  onClick={markOrderPaid}
-                  disabled={reconcilingPayments}
-                  className="admin-btn admin-btn-secondary mb-3"
-                >
-                  {reconcilingPayments ? (
-                    <span className="inline-flex items-center gap-2">
-                      <Loader2 className="animate-spin" size={16} />
-                      {t("admin.order.markingPaid")}
-                    </span>
-                  ) : (
-                    t("admin.order.markPaidButton")
-                  )}
-                </button>
-              </>
-            )}
-            <div className="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2">
-              <input
-                value={paymentSearch}
-                onChange={(e) => setPaymentSearch(e.target.value)}
-                className="admin-field"
-                placeholder={t("admin.order.paymentSearchPlaceholder")}
-              />
-              <select
-                value={paymentStatusFilter}
-                onChange={(e) => setPaymentStatusFilter(e.target.value)}
-                className="admin-select"
+          {payments.length > 0 && (
+            <article className="admin-panel p-4">
+              <h3 className="font-bold mb-2 text-[#1b2b25]">
+                {t("admin.order.paymentAttempts")}
+              </h3>
+              <p className="mb-3 text-xs text-[#5f736d]">
+                {t("admin.order.paymentAttemptsHelpBankTransfer")}
+              </p>
+              <button
+                type="button"
+                onClick={markOrderPaid}
+                disabled={reconcilingPayments}
+                className="admin-btn admin-btn-secondary mb-3"
               >
-                <option value="all">{t("admin.payments.status.all")}</option>
-                <option value="paid">{t("admin.payments.status.paid")}</option>
-                <option value="failed">
-                  {t("admin.payments.status.failed")}
-                </option>
-                <option value="expired">
-                  {t("admin.payments.status.expired")}
-                </option>
-                <option value="canceled">
-                  {t("admin.payments.status.canceled")}
-                </option>
-                <option value="pending">
-                  {t("admin.payments.status.pending")}
-                </option>
-                <option value="open">{t("admin.payments.status.open")}</option>
-              </select>
-              <input
-                type="date"
-                value={paymentFromDate}
-                onChange={(e) => setPaymentFromDate(e.target.value)}
-                className="admin-field"
-              />
-              <input
-                type="date"
-                value={paymentToDate}
-                onChange={(e) => setPaymentToDate(e.target.value)}
-                className="admin-field"
-              />
-            </div>
-            {payments.length === 0 ? (
-              <p className="text-sm text-[#5b706a]">
-                {t("admin.order.noPaymentAttempts")}
-              </p>
-            ) : filteredPayments.length === 0 ? (
-              <p className="text-sm text-[#5b706a]">
-                {t("admin.order.noPaymentAttemptsFiltered")}
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {filteredPayments.map((payment) => (
-                  <div
-                    key={payment.id}
-                    className="rounded-lg border border-[#dce7e2] bg-[#f7fbf9] p-3"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs font-semibold text-[#2e423d]">
-                        {payment.reference}
-                      </p>
-                      <span className="text-xs uppercase rounded-full bg-white border border-[#c9d8d1] px-2 py-0.5 text-[#29433a]">
-                        {payment.status}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm text-[#2e423d]">
-                      {`${payment.currency || ""} ${Number(payment.amount || 0).toFixed(2)}`.trim()}
-                    </p>
-                    <p className="text-xs text-[#6c817a] mt-1">
-                      {t("admin.order.webhookAttempts")}:{" "}
-                      {payment.webhookAttemptCount || 0}
-                    </p>
-                    {payment.providerPaymentId && (
-                      <p className="text-xs text-[#6c817a] mt-1 break-all">
-                        {t("admin.order.providerId")}:{" "}
-                        {payment.providerPaymentId}
-                      </p>
-                    )}
-                    {payment.lastWebhookPayloadHash && (
-                      <p className="text-xs text-[#6c817a] mt-1 break-all">
-                        {t("admin.order.payloadHash")}:{" "}
-                        {payment.lastWebhookPayloadHash}
-                      </p>
-                    )}
-                    {payment.lastWebhookError && (
-                      <p className="text-xs text-rose-700 mt-1 break-words">
-                        {t("admin.order.lastError")}: {payment.lastWebhookError}
-                      </p>
-                    )}
-                  </div>
-                ))}
+                {reconcilingPayments ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="animate-spin" size={16} />
+                    {t("admin.order.markingPaid")}
+                  </span>
+                ) : (
+                  t("admin.order.markPaidButton")
+                )}
+              </button>
+              <div className="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+                <input
+                  value={paymentSearch}
+                  onChange={(e) => setPaymentSearch(e.target.value)}
+                  className="admin-field"
+                  placeholder={t("admin.order.paymentSearchPlaceholder")}
+                />
+                <select
+                  value={paymentStatusFilter}
+                  onChange={(e) => setPaymentStatusFilter(e.target.value)}
+                  className="admin-select"
+                >
+                  <option value="all">{t("admin.payments.status.all")}</option>
+                  <option value="paid">
+                    {t("admin.payments.status.paid")}
+                  </option>
+                  <option value="failed">
+                    {t("admin.payments.status.failed")}
+                  </option>
+                  <option value="expired">
+                    {t("admin.payments.status.expired")}
+                  </option>
+                  <option value="canceled">
+                    {t("admin.payments.status.canceled")}
+                  </option>
+                  <option value="pending">
+                    {t("admin.payments.status.pending")}
+                  </option>
+                  <option value="open">
+                    {t("admin.payments.status.open")}
+                  </option>
+                </select>
+                <input
+                  type="date"
+                  value={paymentFromDate}
+                  onChange={(e) => setPaymentFromDate(e.target.value)}
+                  className="admin-field"
+                />
+                <input
+                  type="date"
+                  value={paymentToDate}
+                  onChange={(e) => setPaymentToDate(e.target.value)}
+                  className="admin-field"
+                />
               </div>
-            )}
-          </article>
+              {payments.length === 0 ? (
+                <p className="text-sm text-[#5b706a]">
+                  {t("admin.order.noPaymentAttempts")}
+                </p>
+              ) : filteredPayments.length === 0 ? (
+                <p className="text-sm text-[#5b706a]">
+                  {t("admin.order.noPaymentAttemptsFiltered")}
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {filteredPayments.map((payment) => (
+                    <div
+                      key={payment.id}
+                      className="rounded-lg border border-[#dce7e2] bg-[#f7fbf9] p-3"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-semibold text-[#2e423d]">
+                          {payment.reference}
+                        </p>
+                        <span className="text-xs uppercase rounded-full bg-white border border-[#c9d8d1] px-2 py-0.5 text-[#29433a]">
+                          {payment.status}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-[#2e423d]">
+                        {`${payment.currency || ""} ${Number(payment.amount || 0).toFixed(2)}`.trim()}
+                      </p>
+                      <p className="text-xs text-[#6c817a] mt-1">
+                        {t("admin.order.webhookAttempts")}:{" "}
+                        {payment.webhookAttemptCount || 0}
+                      </p>
+                      {payment.providerPaymentId && (
+                        <p className="text-xs text-[#6c817a] mt-1 break-all">
+                          {t("admin.order.providerId")}:{" "}
+                          {payment.providerPaymentId}
+                        </p>
+                      )}
+                      {payment.lastWebhookPayloadHash && (
+                        <p className="text-xs text-[#6c817a] mt-1 break-all">
+                          {t("admin.order.payloadHash")}:{" "}
+                          {payment.lastWebhookPayloadHash}
+                        </p>
+                      )}
+                      {payment.lastWebhookError && (
+                        <p className="text-xs text-rose-700 mt-1 break-words">
+                          {t("admin.order.lastError")}:{" "}
+                          {payment.lastWebhookError}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </article>
+          )}
         </div>
       </div>
     </AdminLayout>

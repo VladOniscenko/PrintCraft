@@ -57,18 +57,15 @@ public class AdminController : ControllerBase
     private readonly PrintCraftDb _db;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
-    private readonly StripePendingPaymentReconciler? _stripePendingPaymentReconciler;
 
     public AdminController(
         PrintCraftDb db,
         IEmailService emailService,
-        IConfiguration configuration,
-        StripePendingPaymentReconciler? stripePendingPaymentReconciler = null)
+        IConfiguration configuration)
     {
         _db = db;
         _emailService = emailService;
         _configuration = configuration;
-        _stripePendingPaymentReconciler = stripePendingPaymentReconciler;
     }
 
     private static bool IsPendingStatus(string? status)
@@ -88,7 +85,7 @@ public class AdminController : ControllerBase
 
         return normalized is "bank_transfer" or "manual" or "invoice"
             ? "bank_transfer"
-            : "stripe";
+            : "bank_transfer";
     }
 
     private static bool IsBankTransferFlow(string? paymentFlow)
@@ -122,12 +119,6 @@ public class AdminController : ControllerBase
 
         // Allow jumping to cancelled, returned, or refunded from almost anywhere
         if (next is "cancelled" || next is "returned" || next is "refunded") return true;
-
-        if (current is "cancelled" or "completed" or "returned" or "refunded")
-            return false;
-
-        if (isPaid || string.Equals(current, "paid", StringComparison.OrdinalIgnoreCase))
-            return PostPaymentStatuses.Contains(next);
 
         return true;
     }
@@ -251,50 +242,6 @@ public class AdminController : ControllerBase
         return Ok(order);
     }
 
-    [HttpPost("payments/reconcile-pending")]
-    public async Task<IActionResult> ReconcilePendingPayments(CancellationToken cancellationToken)
-    {
-        if (_stripePendingPaymentReconciler == null)
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "Stripe pending payment reconciler is unavailable." });
-
-        var started = await _stripePendingPaymentReconciler.RunOnceAsync(cancellationToken);
-        return Ok(new
-        {
-            started,
-            message = started
-                ? "Stripe pending payment reconciliation completed."
-                : "Stripe pending payment reconciliation is already running."
-        });
-    }
-
-    [HttpPost("orders/{id:guid}/payments/reconcile")]
-    public async Task<IActionResult> ReconcileOrderPayments([FromRoute] Guid id, CancellationToken cancellationToken)
-    {
-        if (_stripePendingPaymentReconciler == null)
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "Stripe pending payment reconciler is unavailable." });
-
-        var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
-        if (order == null)
-            return NotFound(new { message = "Order not found" });
-
-        if (!string.Equals(NormalizePaymentFlow(order.PaymentFlow), "stripe", StringComparison.OrdinalIgnoreCase))
-            return BadRequest(new { message = "Payment reconciliation is only available for Stripe payment flow." });
-
-        var started = await _stripePendingPaymentReconciler.RunOnceForOrderAsync(id, cancellationToken);
-
-        if (started)
-        {
-            await LogAdminActionAsync(order, "Triggered manual payment reconciliation for order");
-        }
-
-        return Ok(new
-        {
-            started,
-            message = started
-                ? "Order payment reconciliation completed."
-                : "Stripe pending payment reconciliation is already running."
-        });
-    }
 
     [HttpGet("summary")]
     public async Task<IActionResult> GetSummary()
@@ -309,6 +256,19 @@ public class AdminController : ControllerBase
             totalOrders,
             pendingOrders
         });
+    }
+
+    [HttpGet("orders/{id:guid}/invoice")]
+    public async Task<IActionResult> DownloadInvoice([FromRoute] Guid id)
+    {
+        var order = await _db.Orders.Include(o => o.Items).Include(o => o.Payments).FirstOrDefaultAsync(o => o.Id == id);
+        if (order == null) return NotFound(new { message = "Order not found" });
+
+        var customer = order.UserId.HasValue ? await _db.Users.FindAsync(order.UserId.Value) : null;
+        var currency = System.Net.WebUtility.HtmlEncode(_configuration["CurrencyCode"] ?? "EUR");
+        var rows = string.Join("", order.Items.Select(item => "<tr><td>" + System.Net.WebUtility.HtmlEncode(item.fileName ?? item.FileUrl ?? "Item") + "</td><td>" + item.Count + "</td><td>" + item.Price.ToString("F2") + "</td><td>" + (item.Price * item.Count).ToString("F2") + "</td></tr>"));
+        var html = "<!doctype html><html><head><meta charset=\"utf-8\"><title>Invoice</title><style>body{font-family:Arial;background:#f4f7f5;padding:40px;color:#173229}.sheet{max-width:860px;margin:auto;background:white;padding:56px;box-shadow:0 18px 60px #17322918}.top{display:flex;justify-content:space-between;border-bottom:3px solid #1f8068;padding-bottom:28px}table{width:100%;border-collapse:collapse;margin-top:24px}th,td{padding:14px 12px;border-bottom:1px solid #dce8e2;text-align:left}td:not(:first-child),th:not(:first-child){text-align:right}.total{text-align:right;font-size:20px;font-weight:800;margin-top:28px}</style></head><body><main class=\"sheet\"><header class=\"top\"><div><div>PRINTCRAFT</div><h1>Invoice</h1><p>Thank you for your business.</p></div><div><strong>Invoice " + order.Id.ToString()[..8].ToUpperInvariant() + "</strong><br>Issued " + order.CreatedAt.ToString("yyyy-MM-dd") + "<br>" + (order.IsPaid ? "Paid" : "Payment pending") + "</div></header><h2>Bill to</h2><p>" + System.Net.WebUtility.HtmlEncode(customer?.Name ?? order.FullName) + "<br>" + System.Net.WebUtility.HtmlEncode(customer?.Email ?? "") + "<br>" + System.Net.WebUtility.HtmlEncode(order.AddressLine1) + ", " + System.Net.WebUtility.HtmlEncode(order.City) + " " + System.Net.WebUtility.HtmlEncode(order.PostalCode) + "</p><table><thead><tr><th>Description</th><th>Qty</th><th>Unit (" + currency + ")</th><th>Amount (" + currency + ")</th></tr></thead><tbody>" + rows + "</tbody></table><div class=\"total\">Subtotal: " + order.SubtotalAmount.ToString("F2") + " " + currency + "<br>Service fee: " + order.ServiceFeePrice.ToString("F2") + " " + currency + "<br>Delivery: " + order.DeliveryPrice.ToString("F2") + " " + currency + "<br>Discount: -" + order.DiscountAmount.ToString("F2") + " " + currency + "<br>Total: " + order.FinalTotalAmount.ToString("F2") + " " + currency + "</div><p>Order reference: " + order.Id + "<br>Payment method: bank transfer.</p></main></body></html>";
+        return File(System.Text.Encoding.UTF8.GetBytes(html), "text/html", "invoice-" + order.Id.ToString("N") + ".html");
     }
 
     [HttpGet("analytics/visits")]
@@ -984,13 +944,36 @@ public class AdminController : ControllerBase
     [HttpGet("users/{id:guid}")]
     public async Task<IActionResult> GetUserById([FromRoute] Guid id)
     {
-        var user = await _db.Users
-            .Where(u => u.Id == id)
-            .Select(u => new AdminUserDto(u.Id, u.Name, u.Email, u.Role))
-            .FirstOrDefaultAsync();
+        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+        if (user == null) return NotFound(new { message = "User not found" });
 
-        return user == null ? NotFound(new { message = "User not found" }) : Ok(user);
+        var orders = await _db.Orders.AsNoTracking()
+            .Where(o => o.UserId == id)
+            .OrderByDescending(o => o.CreatedAt)
+            .Select(o => new
+            {
+                o.Id,
+                o.Status,
+                o.OrderType,
+                o.PaymentFlow,
+                o.IsPaid,
+                o.QuotedPrice,
+                o.FinalTotalAmount,
+                o.CreatedAt,
+                o.UpdatedAt,
+                Payments = o.Payments.OrderByDescending(p => p.CreatedAt).Select(p => new { p.Id, p.Provider, p.Reference, p.Amount, p.Currency, p.Status, p.PaidAt, p.CreatedAt })
+            }).ToListAsync();
+        var addresses = await _db.UserAddresses.AsNoTracking().Where(a => a.UserId == id).OrderByDescending(a => a.IsDefault).ThenByDescending(a => a.LastUsedAt).ToListAsync();
+
+        return Ok(new
+        {
+            user = new AdminUserDto(user.Id, user.Name, user.Email, user.Role),
+            orders,
+            addresses,
+            payments = orders.SelectMany(o => o.Payments).OrderByDescending(p => p.CreatedAt)
+        });
     }
+
 
     [HttpPut("users/{id:guid}")]
     public async Task<IActionResult> UpdateUser([FromRoute] Guid id, [FromBody] UpdateUserRequest updated)

@@ -670,7 +670,7 @@ export const translations: Record<
         reconcilePaymentsFailed:
           "Could not reconcile this order payment right now.",
         paymentAttemptsHelpStripe:
-          "Use this to ask Stripe for the latest state of this order's payment attempts.",
+          "Use this to review the customer's manual payment record.",
         paymentAttemptsHelpBankTransfer:
           "This order uses manual payment confirmation. Review the incoming transfer and mark the order paid when it arrives.",
         markPaidButton: "Mark as paid",
@@ -733,7 +733,7 @@ export const translations: Record<
         emailTypeTracking: "Order Sent + Track & Trace",
         emailTypeCustom: "Custom email",
         paymentFlowLabel: "Payment Flow",
-        paymentFlowStripe: "Stripe checkout",
+        paymentFlowStripe: "Bank transfer",
         paymentFlowBankTransfer: "Bank transfer / invoice",
         emailConfirmationNote:
           "This email includes the quoted price and final order details.",
@@ -745,7 +745,7 @@ export const translations: Record<
           "Pick a template, then edit the subject and body before sending.",
         emailTemplateLabel: "Template",
         emailTemplateQuoteRequested: "Quote requested",
-        emailTemplateQuoteStripe: "Quote confirmation for Stripe",
+        emailTemplateQuoteStripe: "Quote confirmation for bank transfer",
         emailTemplateQuoteBankTransfer: "Quote confirmation for bank transfer",
         emailTemplateTracking: "Tracking email",
         emailTemplateBlank: "Blank custom email",
@@ -1115,7 +1115,7 @@ export const translations: Record<
       color: "Color",
       quantity: "Quantity",
       paymentMethod: "Payment Method",
-      paymentOnline: "Online Payment (Stripe)",
+      paymentOnline: "Bank Transfer",
       paymentOptions: "iDEAL, Credit Card, Bancontact, etc.",
       summary: "Summary",
       subtotal: "Subtotal",
@@ -1123,7 +1123,7 @@ export const translations: Record<
       total: "Total",
       shipping: "Shipping",
       processing: "Processing...",
-      payStripe: "Pay with Stripe",
+      payStripe: "Pay by bank transfer",
       checkoutFailed:
         "Something went wrong. Please check your address and try again.",
       conflict:
@@ -1200,9 +1200,9 @@ export const translations: Record<
       tryAgain: "Try again",
       payAgain: "Pay again",
       bankTransferNotice:
-        "Bank transfer payment instructions were sent by email.",
+        "Use the payment details above and include the payment reference with your transfer.",
       bankTransferEmailHint:
-        "Use the payment reference from the email when transferring the amount.",
+        "The payment reference and bank details are shown on this page.",
       bankTransferReference: "Payment reference",
       bankTransferTitle: "Bank transfer details",
       bankTransferInstructions:
@@ -1212,6 +1212,17 @@ export const translations: Record<
       bankTransferBic: "BIC / SWIFT",
       bankTransferMissingDetails:
         "Bank details are not configured yet. Please contact support for payment instructions.",
+      manualPaymentNotificationButton: "I made the bank transfer",
+      manualPaymentNotificationMessage:
+        "Customer reports that the bank transfer was made.",
+      manualPaymentNotificationSent:
+        "Payment notification sent. We will verify your transfer shortly.",
+      manualPaymentNotificationCooldown: "Payment notification recently sent",
+      agreementRequired:
+        "Please accept the service agreement before submitting.",
+      agreementText:
+        "I agree to the service terms and conditions for this service request.",
+      agreementLink: "Read the terms",
       requestNewQuote: "Request New Quote",
       newQuoteRequested: "New quote request sent.",
       newQuoteRequestFailed: "Could not request a new quote.",
@@ -2083,7 +2094,7 @@ export const translations: Record<
         reconcilePaymentsFailed:
           "Deze orderbetaling kon nu niet worden bijgewerkt.",
         paymentAttemptsHelpStripe:
-          "Gebruik dit om Stripe om de nieuwste status van deze betalingspogingen te vragen.",
+          "Gebruik dit om de handmatige betalingsmelding van de klant te bekijken.",
         paymentAttemptsHelpBankTransfer:
           "Deze order gebruikt handmatige betaalbevestiging. Controleer de inkomende overschrijving en markeer de order als betaald zodra deze binnen is.",
         markPaidButton: "Markeer als betaald",
@@ -2146,7 +2157,7 @@ export const translations: Record<
         emailTypeTracking: "Order Verzonden + Track & Trace",
         emailTypeCustom: "Aangepaste e-mail",
         paymentFlowLabel: "Betaalroute",
-        paymentFlowStripe: "Stripe checkout",
+        paymentFlowStripe: "Bankoverschrijving",
         paymentFlowBankTransfer: "Bankoverschrijving / factuur",
         emailConfirmationNote:
           "Deze e-mail bevat de geoffreerde prijs en definitieve ordergegevens.",
@@ -2158,7 +2169,7 @@ export const translations: Record<
           "Kies een sjabloon en pas daarna onderwerp en inhoud aan voordat je verzendt.",
         emailTemplateLabel: "Sjabloon",
         emailTemplateQuoteRequested: "Offerte aangevraagd",
-        emailTemplateQuoteStripe: "Offertebevestiging voor Stripe",
+        emailTemplateQuoteStripe: "Offertebevestiging voor bankoverschrijving",
         emailTemplateQuoteBankTransfer:
           "Offertebevestiging voor bankoverschrijving",
         emailTemplateTracking: "Tracking e-mail",
@@ -2536,7 +2547,7 @@ export const translations: Record<
       color: "Kleur",
       quantity: "Aantal",
       paymentMethod: "Betaalmethode",
-      paymentOnline: "Online Betaling (Stripe)",
+      paymentOnline: "Bankoverschrijving",
       paymentOptions: "iDEAL, Credit Card, Bancontact, enz.",
       summary: "Overzicht",
       subtotal: "Subtotaal",
@@ -2544,7 +2555,7 @@ export const translations: Record<
       total: "Totaal",
       shipping: "Verzending",
       processing: "Verwerken...",
-      payStripe: "Betaal met Stripe",
+      payStripe: "Betaal via bankoverschrijving",
       checkoutFailed:
         "Er ging iets mis. Controleer je adres en probeer opnieuw.",
       conflict:
@@ -2621,9 +2632,9 @@ export const translations: Record<
       tryAgain: "Opnieuw proberen",
       payAgain: "Opnieuw betalen",
       bankTransferNotice:
-        "Betaalinstructies voor bankoverschrijving zijn per e-mail verstuurd.",
+        "Gebruik de bovenstaande betaalgegevens en vermeld de betalingsreferentie bij je overschrijving.",
       bankTransferEmailHint:
-        "Gebruik de betalingsreferentie uit de e-mail bij het overmaken van het bedrag.",
+        "De betalingsreferentie en bankgegevens staan op deze pagina.",
       bankTransferReference: "Betalingsreferentie",
       bankTransferTitle: "Bankoverschrijvingsgegevens",
       bankTransferInstructions:
@@ -2633,6 +2644,16 @@ export const translations: Record<
       bankTransferBic: "BIC / SWIFT",
       bankTransferMissingDetails:
         "Bankgegevens zijn nog niet ingesteld. Neem contact op met support voor betaalinstructies.",
+      manualPaymentNotificationButton: "Ik heb de bankoverschrijving gedaan",
+      manualPaymentNotificationMessage:
+        "De klant meldt dat de bankoverschrijving is gedaan.",
+      manualPaymentNotificationSent:
+        "Betalingsmelding verzonden. We controleren de overschrijving.",
+      manualPaymentNotificationCooldown: "Betalingsmelding onlangs verzonden",
+      agreementRequired: "Accepteer de servicevoorwaarden voordat je verzendt.",
+      agreementText:
+        "Ik ga akkoord met de servicevoorwaarden voor deze aanvraag.",
+      agreementLink: "Lees de voorwaarden",
       requestNewQuote: "Vraag Nieuwe Offerte Aan",
       newQuoteRequested: "Nieuwe offerteaanvraag verstuurd.",
       newQuoteRequestFailed: "Nieuwe offerte aanvragen is niet gelukt.",

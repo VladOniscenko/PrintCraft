@@ -20,7 +20,7 @@ const DELIVERY_PRICE = 6.95;
 
 export default function CheckoutPage() {
   const { t } = useI18n();
-  const { notifyError } = useNotify();
+  const { notifyError, notifySuccess } = useNotify();
   const {
     cart,
     removeFromCart,
@@ -86,7 +86,7 @@ export default function CheckoutPage() {
       if (!item) return;
 
       const updatedCount = field === "count" ? Number(value) : item.count;
-      let updatedMaterial =
+      const updatedMaterial =
         field === "material" ? String(value) : item.material;
       let updatedColor = field === "color" ? String(value) : item.color;
 
@@ -124,11 +124,10 @@ export default function CheckoutPage() {
       const payload = normalizeShippingInfo(address);
       const res = await api.post("/payments/create", payload);
 
-      if (res.data.checkoutUrl) {
-        window.location.href = res.data.checkoutUrl;
-      } else {
-        throw new Error("No checkout URL received from server");
-      }
+      navigate(`/orders/${res.data.orderId}`);
+      notifySuccess(
+        "Order created. Please complete the bank transfer using the instructions on your order.",
+      );
     } catch (err) {
       console.error("Checkout Error:", err);
       notifyError(t("cart.checkoutFailed"));

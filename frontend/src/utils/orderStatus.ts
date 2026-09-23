@@ -12,6 +12,8 @@ export const ADMIN_ORDER_STATUS_OPTIONS = [
   { value: "completed", label: "Completed" },
   { value: "failed", label: "Failed" },
   { value: "cancelled", label: "Cancelled" },
+  { value: "returned", label: "Returned" },
+  { value: "refunded", label: "Refunded" },
 ] as const;
 
 const POST_PAYMENT_STATUSES = new Set([
@@ -23,7 +25,6 @@ const POST_PAYMENT_STATUSES = new Set([
   "completed",
 ]);
 
-const TERMINAL_STATUSES = new Set(["cancelled", "completed"]);
 const CUSTOMER_PAYMENT_RETRYABLE_STATUSES = new Set([
   "quoted",
   "pending_payment",
@@ -44,7 +45,7 @@ export function normalizePaymentFlow(flow?: string | null): string {
     normalized === "manual" ||
     normalized === "invoice"
     ? "bank_transfer"
-    : "stripe";
+    : "bank_transfer";
 }
 
 export function formatOrderStatusLabel(status?: string | null): string {
@@ -187,15 +188,14 @@ export function getOrderTerminalState(
 export function canTransitionOrderStatus(
   currentStatus: string,
   nextStatus: string,
-  isPaid: boolean,
+  _isPaid: boolean,
 ): boolean {
+  void _isPaid;
   const current = normalizeOrderStatus(currentStatus);
   const next = normalizeOrderStatus(nextStatus);
 
   if (!next) return false;
   if (current === next) return true;
-  if (TERMINAL_STATUSES.has(current)) return false;
-  if (isPaid || current === "paid") return POST_PAYMENT_STATUSES.has(next);
   return true;
 }
 
@@ -212,7 +212,7 @@ export function canCustomerRetryPayment(
   paymentFlow?: string | null,
 ): boolean {
   if (isPaid) return false;
-  if (normalizePaymentFlow(paymentFlow) !== "stripe") return false;
+  if (normalizePaymentFlow(paymentFlow) !== "bank_transfer") return false;
 
   const normalized = normalizeOrderStatus(status);
   return CUSTOMER_PAYMENT_RETRYABLE_STATUSES.has(normalized);
@@ -222,7 +222,7 @@ export function getCustomerPaymentActionVariant(
   status: string,
   paymentFlow?: string | null,
 ): "pay_now" | "try_again" | "pay_again" | null {
-  if (normalizePaymentFlow(paymentFlow) !== "stripe") return null;
+  if (normalizePaymentFlow(paymentFlow) !== "bank_transfer") return null;
 
   const normalized = normalizeOrderStatus(status);
 

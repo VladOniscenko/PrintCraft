@@ -141,6 +141,8 @@ public class OrdersController : ControllerBase
     [EnableRateLimiting("QuoteLimit")]
     public async Task<IActionResult> CreateQuote([FromBody] QuoteRequest request)
     {
+        if (!request.AgreementAccepted)
+            return BadRequest(new { message = "You must accept the service agreement and conditions before submitting a quote." });
         var isAuthenticated = User?.Identity?.IsAuthenticated == true;
         var userIdStr = User?.FindFirstValue(ClaimTypes.NameIdentifier);
         Guid? userId = null;
@@ -281,6 +283,9 @@ public class OrdersController : ControllerBase
             Status = "pending_quote",
             OrderType = "quote",
             IsPaid = false,
+            AgreementAccepted = true,
+            AgreementVersion = string.IsNullOrWhiteSpace(request.AgreementVersion) ? "2026-09-23" : request.AgreementVersion.Trim(),
+            AgreementAcceptedAt = DateTime.UtcNow,
             QuotedPrice = null,
             QuoteMessage = null,
             FullName = shippingValidation.FullName,
@@ -618,6 +623,44 @@ public class OrdersController : ControllerBase
         return Ok(MapOrderForCustomer(order));
     }
 
+    [HttpPost("{id:guid}/manual-payment-notification")]
+    [EnableRateLimiting("AuthBurst")]
+    public async Task<IActionResult> NotifyManualPayment([FromRoute] Guid id, [FromBody] ManualPaymentNotificationRequest request)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userId, out var parsedUserId)) return Unauthorized();
+
+        var order = await _db.Orders.Include(o => o.Payments).FirstOrDefaultAsync(o => o.Id == id && o.UserId == parsedUserId);
+        if (order == null) return NotFound(new { message = "Order not found." });
+        if (!string.Equals(order.PaymentFlow, "bank_transfer", StringComparison.OrdinalIgnoreCase))
+            return BadRequest(new { message = "This order does not use manual payment." });
+        if (order.IsPaid) return BadRequest(new { message = "This order is already marked as paid." });
+
+        var cooldownUntil = DateTime.UtcNow.AddHours(-1);
+        var recent = await _db.ManualPaymentNotifications
+            .Where(n => n.OrderId == id)
+            .OrderByDescending(n => n.CreatedAt)
+            .Select(n => (DateTime?)n.CreatedAt)
+            .FirstOrDefaultAsync();
+        if (recent.HasValue && recent.Value > cooldownUntil)
+            return Conflict(new { message = "Please wait before sending another payment notification.", nextAllowedAt = recent.Value.AddHours(1) });
+
+        var notification = new ManualPaymentNotification { OrderId = id, Message = string.IsNullOrWhiteSpace(request.Message) ? null : request.Message.Trim() };
+        _db.ManualPaymentNotifications.Add(notification);
+        _db.OrderNotes.Add(new OrderNote { OrderId = id, Visibility = "internal", CreatedBy = "customer", Content = $"Customer reported manual payment.{(string.IsNullOrWhiteSpace(notification.Message) ? string.Empty : $" Message: {notification.Message}")}" });
+        await _db.SaveChangesAsync();
+
+        try
+        {
+            var user = await _db.Users.FindAsync(parsedUserId);
+            var payment = order.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
+            await _discordWebhookService.SendPaymentIssueAsync(order, user, payment?.Amount ?? order.FinalTotalAmount, "manual_payment_reported", payment?.Reference, notification.Message);
+        }
+        catch (Exception ex) { _logger.LogWarning(ex, "Manual payment notification alert failed for order {OrderId}", id); }
+
+        return Ok(new { message = "Payment notification received. We will verify your transfer shortly." });
+    }
+
     private async Task RefreshQuoteStatusesAsync(IEnumerable<Order> orders, string changedBy)
     {
         var transitions = new List<(Guid OrderId, string PreviousStatus, string NewStatus, string Note)>();
@@ -920,6 +963,8 @@ public class OrdersController : ControllerBase
 
 }
 
+public record ManualPaymentNotificationRequest(string? Message);
+
 public record QuoteRequest(
     List<QuoteItemRequest> Items,
     string? GuestName,
@@ -929,7 +974,9 @@ public record QuoteRequest(
     string ShippingPhoneNumber,
     string ShippingAddressLine1,
     string ShippingCity,
-    string ShippingPostalCode
+    string ShippingPostalCode,
+    bool AgreementAccepted = false,
+    string? AgreementVersion = null
 );
 
 public record QuoteItemRequest(

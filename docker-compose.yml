@@ -36,8 +36,6 @@ services:
       Discord__QuoteWebhookUrl: ${Discord__QuoteWebhookUrl}
       Discord__BookingWebhookUrl: ${Discord__BookingWebhookUrl}
       Discord__PaymentReceivedWebhookUrl: ${Discord__PaymentReceivedWebhookUrl}
-      StripeSecretKey: ${StripeSecretKey:?StripeSecretKey is required}
-      StripeWebhookSecret: ${StripeWebhookSecret:?StripeWebhookSecret is required}
       CurrencyCode: ${CurrencyCode:-EUR}
       Email__SenderName: ${Email__SenderName}
       Email__SmtpPort: ${Email__SmtpPort}

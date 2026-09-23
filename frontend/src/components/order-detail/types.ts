@@ -46,4 +46,6 @@ export interface StatusSummary {
 export interface OrderSectionProps {
   order: Order;
   t: TranslateFn;
+  onManualPaymentNotification?: () => void;
+  manualPaymentNotificationDisabled?: boolean;
 }

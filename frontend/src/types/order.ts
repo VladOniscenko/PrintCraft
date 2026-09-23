@@ -15,7 +15,7 @@ export interface Order {
     | "failed"
     | "cancelled";
   orderType: "quote" | "online";
-  paymentFlow?: "stripe" | "bank_transfer";
+  paymentFlow?: "bank_transfer";
   fullName: string;
   addressLine1: string;
   addressLine2?: string;

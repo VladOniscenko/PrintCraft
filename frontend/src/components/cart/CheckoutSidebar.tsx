@@ -144,7 +144,7 @@ export default function CheckoutSidebar({
         ) : (
           <>
             <CreditCard size={20} />
-            {t("cart.payStripe")}
+            Pay by bank transfer
           </>
         )}
       </button>

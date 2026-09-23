@@ -21,6 +21,7 @@ public class PrintCraftDb : DbContext
     public DbSet<OrderItemAttachment> OrderItemAttachments => Set<OrderItemAttachment>();
     public DbSet<UserAddress> UserAddresses => Set<UserAddress>();
     public DbSet<VisitEvent> VisitEvents => Set<VisitEvent>();
+    public DbSet<ManualPaymentNotification> ManualPaymentNotifications => Set<ManualPaymentNotification>();
     public DbSet<Cart> Carts => Set<Cart>();
     public DbSet<CartItem> CartItems => Set<CartItem>();
 
@@ -92,7 +93,20 @@ public class PrintCraftDb : DbContext
         modelBuilder.Entity<Order>()
             .Property(o => o.PaymentFlow)
             .HasMaxLength(32)
-            .HasDefaultValue("stripe");
+            .HasDefaultValue("bank_transfer");
+
+        modelBuilder.Entity<Order>()
+            .Property(o => o.AgreementVersion)
+            .HasMaxLength(32);
+
+        modelBuilder.Entity<ManualPaymentNotification>()
+            .HasIndex(n => new { n.OrderId, n.CreatedAt });
+
+        modelBuilder.Entity<ManualPaymentNotification>()
+            .HasOne<Order>()
+            .WithMany()
+            .HasForeignKey(n => n.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Payment>()
             .HasIndex(p => new { p.OrderId, p.CreatedAt });

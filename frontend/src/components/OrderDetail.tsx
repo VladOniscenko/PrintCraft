@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import Navbar from "./Navbar";
 import api from "../services/api";
@@ -29,7 +29,6 @@ import {
 import {
   canCustomerRetryPayment,
   getCustomerPaymentActionVariant,
-  normalizePaymentFlow,
 } from "../utils/orderStatus";
 import { normalizeOrderStatus } from "../utils/orderStatus";
 
@@ -95,10 +94,8 @@ export default function OrderDetail() {
   const { notifyError, notifySuccess } = useNotify();
   const { id } = useParams();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isSyncingPayment, setIsSyncingPayment] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [showShippingModal, setShowShippingModal] = useState(false);
@@ -115,7 +112,8 @@ export default function OrderDetail() {
     null,
   );
   const [payments, setPayments] = useState<PaymentAttempt[]>([]);
-  const handledRedirectRef = useRef<string | null>(null);
+  const [paymentNotificationCooldown, setPaymentNotificationCooldown] =
+    useState<string | null>(null);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -205,68 +203,7 @@ export default function OrderDetail() {
     setPayments(Array.isArray(paymentRes.data) ? paymentRes.data : []);
   };
 
-  useEffect(() => {
-    const paymentState = searchParams.get("payment");
-    const sessionId = searchParams.get("session_id");
-    const redirectKey = `${id ?? ""}:${paymentState ?? ""}:${sessionId ?? ""}`;
-
-    if (!id || !paymentState) return;
-
-    if (handledRedirectRef.current === redirectKey) return;
-
-    const resolveSessionId = (): string | null => {
-      if (sessionId) return sessionId;
-
-      const latestCheckoutPayment =
-        payments.find((payment) =>
-          String(payment.providerPaymentId || "").startsWith("cs_"),
-        ) ??
-        payments[0] ??
-        null;
-
-      return latestCheckoutPayment?.providerPaymentId || null;
-    };
-
-    if (paymentState !== "return" && paymentState !== "cancel") return;
-
-    if (!sessionId && payments.length === 0) return;
-
-    const resolvedSessionId = resolveSessionId();
-    if (!resolvedSessionId) {
-      if (paymentState === "cancel" && payments.length > 0) {
-        notifyError(t("orderDetail.paymentCancelled"));
-      }
-      navigate(`/orders/${id}`, { replace: true });
-      return;
-    }
-
-    handledRedirectRef.current = redirectKey;
-
-    const syncPayment = async () => {
-      setIsSyncingPayment(true);
-      try {
-        await api.post(`/payments/orders/${id}/sync`, {
-          sessionId: resolvedSessionId,
-        });
-        await refreshOrderData();
-        notifySuccess(
-          paymentState === "cancel"
-            ? t("orderDetail.paymentSyncSuccessAfterCancel")
-            : t("orderDetail.paymentSyncSuccess"),
-        );
-      } catch (err: any) {
-        console.error("Payment sync after redirect failed", err);
-        notifyError(
-          err?.response?.data?.message || t("orderDetail.paymentSyncPending"),
-        );
-      } finally {
-        setIsSyncingPayment(false);
-        navigate(`/orders/${id}`, { replace: true });
-      }
-    };
-
-    syncPayment();
-  }, [id, navigate, notifyError, notifySuccess, payments, searchParams, t]);
+  useEffect(() => {}, [id]);
 
   const handleRequestNewQuote = async () => {
     if (!id) return;
@@ -335,14 +272,10 @@ export default function OrderDetail() {
       const shippingPayload = normalizeShippingInfo(shippingDetails);
       await api.put(`/orders/${id}/shipping`, shippingPayload);
 
-      const res = await api.post(`/payments/orders/${id}/create`);
-      if (res.data?.checkoutUrl) {
-        setShowShippingModal(false);
-        window.location.href = res.data.checkoutUrl;
-        return;
-      }
-
-      throw new Error("No checkout URL received from server");
+      await api.post(`/payments/orders/${id}/create`);
+      setShowShippingModal(false);
+      await refreshOrderData();
+      notifySuccess("Payment instructions are ready on this order.");
     } catch (err: any) {
       console.error("Quoted payment checkout error", err);
 
@@ -359,21 +292,27 @@ export default function OrderDetail() {
     }
   };
 
+  const handleManualPaymentNotification = async () => {
+    if (!id) return;
+    try {
+      await api.post(`/orders/${id}/manual-payment-notification`, {
+        message: t("orderDetail.manualPaymentNotificationMessage"),
+      });
+      setPaymentNotificationCooldown(
+        new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      );
+      notifySuccess(t("orderDetail.manualPaymentNotificationSent"));
+    } catch (err: any) {
+      notifyError(
+        err?.response?.data?.message || "Unable to send payment notification.",
+      );
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa]">
         <Loader2 className="animate-spin text-emerald-600" size={40} />
-      </div>
-    );
-  }
-
-  if (isSyncingPayment) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8f9fa] gap-3 p-6 text-center">
-        <Loader2 className="animate-spin text-emerald-600" size={40} />
-        <p className="text-sm font-semibold text-gray-700">
-          {t("orderDetail.paymentSyncing")}
-        </p>
       </div>
     );
   }
@@ -397,7 +336,6 @@ export default function OrderDetail() {
   const reachedDate = getReachedDate(order);
   const paymentAttempts = payments.length > 0 ? payments : order.payments || [];
   const normalizedStatus = normalizeOrderStatus(order.status);
-  const normalizedPaymentFlow = normalizePaymentFlow(order.paymentFlow);
   const quoteExpiresAt = order.quoteExpiresAt
     ? new Date(order.quoteExpiresAt)
     : null;
@@ -479,27 +417,6 @@ export default function OrderDetail() {
               </button>
             )}
 
-            {normalizedPaymentFlow === "bank_transfer" && !order.isPaid && (
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                <p className="font-semibold">
-                  {t("orderDetail.bankTransferNotice")}
-                </p>
-                <p className="mt-1">{t("orderDetail.bankTransferEmailHint")}</p>
-                {paymentAttempts.find(
-                  (payment) => payment.provider === "bank_transfer",
-                )?.reference && (
-                  <p className="mt-2 font-mono text-xs text-amber-800">
-                    {t("orderDetail.bankTransferReference")}:{" "}
-                    {
-                      paymentAttempts.find(
-                        (payment) => payment.provider === "bank_transfer",
-                      )?.reference
-                    }
-                  </p>
-                )}
-              </div>
-            )}
-
             {normalizedStatus === "expired_quote" && (
               <button
                 onClick={handleRequestNewQuote}
@@ -566,50 +483,57 @@ export default function OrderDetail() {
             priceSummary={priceSummary}
             statusLabel={statusSummary.label}
             t={t}
+            onManualPaymentNotification={handleManualPaymentNotification}
+            manualPaymentNotificationDisabled={
+              paymentNotificationCooldown != null &&
+              new Date(paymentNotificationCooldown) > new Date()
+            }
           />
 
-          <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <h3 className="text-sm font-black uppercase tracking-wide text-gray-900 mb-3">
-              {t("orderDetail.paymentAttempts")}
-            </h3>
-            {paymentAttempts.length === 0 ? (
-              <p className="text-sm text-gray-500">
-                {t("orderDetail.noPaymentAttempts")}
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {paymentAttempts.map((payment) => (
-                  <div
-                    key={payment.id}
-                    className="rounded-xl border border-gray-100 bg-gray-50 p-3"
-                  >
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">
-                        {payment.reference}
+          {paymentAttempts.length > 0 && (
+            <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <h3 className="text-sm font-black uppercase tracking-wide text-gray-900 mb-3">
+                {t("orderDetail.paymentAttempts")}
+              </h3>
+              {paymentAttempts.length === 0 ? (
+                <p className="text-sm text-gray-500">
+                  {t("orderDetail.noPaymentAttempts")}
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {paymentAttempts.map((payment) => (
+                    <div
+                      key={payment.id}
+                      className="rounded-xl border border-gray-100 bg-gray-50 p-3"
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">
+                          {payment.reference}
+                        </p>
+                        <span
+                          className={`text-[10px] uppercase font-black px-2 py-1 rounded-full ${getPaymentStatusClass(payment.status)}`}
+                        >
+                          {payment.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700">
+                        {payment.currency}{" "}
+                        {Number(payment.amount || 0).toFixed(2)}
                       </p>
-                      <span
-                        className={`text-[10px] uppercase font-black px-2 py-1 rounded-full ${getPaymentStatusClass(payment.status)}`}
-                      >
-                        {payment.status}
-                      </span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Created {new Date(payment.createdAt).toLocaleString()}
+                      </p>
+                      {payment.paidAt && (
+                        <p className="text-xs text-emerald-700 mt-1">
+                          Paid {new Date(payment.paidAt).toLocaleString()}
+                        </p>
+                      )}
                     </div>
-                    <p className="text-sm text-gray-700">
-                      {payment.currency}{" "}
-                      {Number(payment.amount || 0).toFixed(2)}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Created {new Date(payment.createdAt).toLocaleString()}
-                    </p>
-                    {payment.paidAt && (
-                      <p className="text-xs text-emerald-700 mt-1">
-                        Paid {new Date(payment.paidAt).toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
         </div>
       </main>
 

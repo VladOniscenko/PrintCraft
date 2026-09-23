@@ -18,7 +18,7 @@ public class Order
 
     public string Status { get; set; } = "pending_quote";
     public string OrderType { get; set; } = "quote"; // "quote" or "online"
-    public string PaymentFlow { get; set; } = "stripe"; // "stripe" or "bank_transfer"
+    public string PaymentFlow { get; set; } = "bank_transfer";
     public decimal DeliveryPrice { get; set; } = 4.95m;
     public decimal ServiceFeePrice { get; set; } = 5.00m;
     public decimal OrderDiscountAmount { get; set; } = 0m;
@@ -31,6 +31,9 @@ public class Order
     public string? InternalNotes { get; set; }
     public string? CustomerNotes { get; set; }
     public bool IsPaid { get; set; }
+    public bool AgreementAccepted { get; set; }
+    public string? AgreementVersion { get; set; }
+    public DateTime? AgreementAcceptedAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

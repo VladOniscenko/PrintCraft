@@ -56,6 +56,9 @@ const AdminPayments = lazy(
   () => import("./components/admin/AdminPayments.tsx"),
 );
 const AdminUsers = lazy(() => import("./components/admin/AdminUsers.tsx"));
+const AdminUserDetail = lazy(
+  () => import("./components/admin/AdminUserDetail.tsx"),
+);
 const AdminProducts = lazy(
   () => import("./components/admin/AdminProducts.tsx"),
 );
@@ -295,6 +298,14 @@ export default function App() {
             element={
               <AdminRoute>
                 <AdminOrderDetail />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users/:id"
+            element={
+              <AdminRoute>
+                <AdminUserDetail />
               </AdminRoute>
             }
           />

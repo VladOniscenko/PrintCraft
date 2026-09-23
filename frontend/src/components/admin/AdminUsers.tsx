@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import AdminBreadcrumb from "./AdminBreadcrumb";
 import AdminLayout from "./AdminLayout";
 import api from "../../services/api";
@@ -182,12 +183,20 @@ export default function AdminUsers() {
                 <td>{user.email}</td>
                 <td>{user.role}</td>
                 <td>
-                  <button
-                    onClick={() => startEdit(user)}
-                    className="admin-btn admin-btn-secondary"
-                  >
-                    {t("admin.products.edit")}
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      to={`/admin/users/${user.id}`}
+                      className="admin-btn admin-btn-secondary"
+                    >
+                      View details
+                    </Link>
+                    <button
+                      onClick={() => startEdit(user)}
+                      className="admin-btn admin-btn-secondary"
+                    >
+                      {t("admin.products.edit")}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

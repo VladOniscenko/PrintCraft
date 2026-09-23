@@ -361,7 +361,7 @@ public class AdminControllerPricingSyncTests
     }
 
     [Fact]
-    public async Task UpdateOrderStatus_PaidOrder_CannotRollbackToQuoted()
+    public async Task UpdateOrderStatus_PaidOrder_CanRollbackToQuoted()
     {
         await using var db = CreateDbContext();
         var order = CreateOrder(delivery: 6m, discount: 0m, itemPrice: 8, itemCount: 3);
@@ -373,11 +373,11 @@ public class AdminControllerPricingSyncTests
         var sut = CreateAdminController(db);
         var result = await sut.UpdateOrderStatus(order.Id, new AdminController.UpdateOrderStatusRequest("quoted"));
 
-        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
-    public async Task UpdateOrderStatus_CancelledOrder_CannotTransition()
+    public async Task UpdateOrderStatus_CancelledOrder_CanTransition()
     {
         await using var db = CreateDbContext();
         var order = CreateOrder(delivery: 6m, discount: 0m, itemPrice: 8, itemCount: 3);
@@ -388,11 +388,11 @@ public class AdminControllerPricingSyncTests
         var sut = CreateAdminController(db);
         var result = await sut.UpdateOrderStatus(order.Id, new AdminController.UpdateOrderStatusRequest("pending_quote"));
 
-        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
-    public async Task UpdateOrderStatus_CompletedOrder_CannotTransition()
+    public async Task UpdateOrderStatus_CompletedOrder_CanTransition()
     {
         await using var db = CreateDbContext();
         var order = CreateOrder(delivery: 6m, discount: 0m, itemPrice: 8, itemCount: 3);
@@ -403,7 +403,7 @@ public class AdminControllerPricingSyncTests
         var sut = CreateAdminController(db);
         var result = await sut.UpdateOrderStatus(order.Id, new AdminController.UpdateOrderStatusRequest("delivered"));
 
-        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]

@@ -11,7 +11,7 @@ public class Payment
 
     [Required]
     [MaxLength(32)]
-    public string Provider { get; set; } = "stripe";
+    public string Provider { get; set; } = "bank_transfer";
 
     // Internal payment reference for correlation across logs and webhooks.
     [Required]

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PrintCraftApi.Data;
@@ -11,9 +12,11 @@ using PrintCraftApi.Data;
 namespace PrintCraftApi.Migrations
 {
     [DbContext(typeof(PrintCraftDb))]
-    partial class PrintCraftDbModelSnapshot : ModelSnapshot
+    [Migration("20260923160224_RepairManualPaymentNotificationMigration")]
+    partial class RepairManualPaymentNotificationMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -233,16 +236,6 @@ namespace PrintCraftApi.Migrations
 
                     b.Property<string>("AddressLine2")
                         .HasColumnType("text");
-
-                    b.Property<bool>("AgreementAccepted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("AgreementAcceptedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("AgreementVersion")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
 
                     b.Property<string>("City")
                         .IsRequired()

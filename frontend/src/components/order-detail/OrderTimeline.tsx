@@ -75,18 +75,6 @@ export default function OrderTimeline({
           date={statusStep >= 5 ? reachedDate : t("orderDetail.pending")}
           active={statusStep >= 5}
         />
-        <TimelineItem
-          icon={<CheckCircle2 size={16} />}
-          title={t("orderStatus.delivered")}
-          date={statusStep >= 6 ? reachedDate : t("orderDetail.pending")}
-          active={statusStep >= 6}
-        />
-        <TimelineItem
-          icon={<CheckCircle2 size={16} />}
-          title={t("orderStatus.completed")}
-          date={statusStep >= 7 ? reachedDate : t("orderDetail.pending")}
-          active={statusStep >= 7}
-        />
         {terminalState && terminalTitle && (
           <TimelineItem
             icon={<AlertTriangle size={16} />}
