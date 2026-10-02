@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
+import {
+  useParams,
+  useNavigate,
+  Link,
+  useSearchParams,
+} from "react-router-dom";
 import {
   Loader2,
   Package,
@@ -698,410 +703,414 @@ export default function AdminOrderDetail() {
                 setSearchParams(nextParams);
               }}
             >
-              {view === "overview" ? "Overview" : view}
+              {t(`admin.order.views.${view}`)}
             </button>
           );
         })}
       </nav>
 
-      {/* SMART ACTION PANEL */}
-      <div className="bg-white border-2 border-emerald-100 rounded-2xl shadow-sm mb-8 overflow-hidden">
-        <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex items-center gap-2">
-          <AlertTriangle className="text-emerald-600" size={20} />
-          <h2 className="font-bold text-emerald-900 text-lg">
-            Recommended Next Action
-          </h2>
-        </div>
+      {activeView === "overview" && (
+        <>
+          {/* SMART ACTION PANEL */}
+          <div className="bg-white border-2 border-emerald-100 rounded-2xl shadow-sm mb-8 overflow-hidden">
+            <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex items-center gap-2">
+              <AlertTriangle className="text-emerald-600" size={20} />
+              <h2 className="font-bold text-emerald-900 text-lg">
+                Recommended Next Action
+              </h2>
+            </div>
 
-        <div className="p-6">
-          {currentStatus === "pending_quote" && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
-                    1. Set Item Prices
-                  </h3>
-                  {order.items.map((item, idx) => (
-                    <div
-                      key={item.id}
-                      className="flex justify-between items-center mb-3 bg-gray-50 p-3 rounded-lg border border-gray-100"
-                    >
-                      <div className="flex flex-col pr-4 overflow-hidden">
-                        <span className="text-sm font-semibold text-gray-800 truncate">
-                          {item.fileName || `Item ${idx + 1}`}
+            <div className="p-6">
+              {currentStatus === "pending_quote" && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <div>
+                      <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
+                        1. Set Item Prices
+                      </h3>
+                      {order.items.map((item, idx) => (
+                        <div
+                          key={item.id}
+                          className="flex justify-between items-center mb-3 bg-gray-50 p-3 rounded-lg border border-gray-100"
+                        >
+                          <div className="flex flex-col pr-4 overflow-hidden">
+                            <span className="text-sm font-semibold text-gray-800 truncate">
+                              {item.fileName || `Item ${idx + 1}`}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              Qty: {item.count} | Mat: {item.material}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-gray-500 font-bold">€</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              className="admin-field w-24 text-right py-1.5"
+                              value={itemPrices[item.id!] || 0}
+                              onChange={(e) =>
+                                setItemPrices({
+                                  ...itemPrices,
+                                  [item.id!]: parseFloat(e.target.value) || 0,
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-4">
+                      <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
+                        2. Additional Fees & Flow
+                      </h3>
+                      <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <span className="text-sm font-semibold text-gray-800">
+                          Delivery Price (€)
                         </span>
-                        <span className="text-xs text-gray-500">
-                          Qty: {item.count} | Mat: {item.material}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-gray-500 font-bold">€</span>
                         <input
                           type="number"
-                          min="0"
-                          step="0.01"
                           className="admin-field w-24 text-right py-1.5"
-                          value={itemPrices[item.id!] || 0}
+                          value={deliveryPrice}
                           onChange={(e) =>
-                            setItemPrices({
-                              ...itemPrices,
-                              [item.id!]: parseFloat(e.target.value) || 0,
-                            })
+                            setDeliveryPrice(parseFloat(e.target.value) || 0)
                           }
                         />
                       </div>
+                      <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <span className="text-sm font-semibold text-gray-800">
+                          Service Fee (€)
+                        </span>
+                        <input
+                          type="number"
+                          className="admin-field w-24 text-right py-1.5"
+                          value={serviceFee}
+                          onChange={(e) =>
+                            setServiceFee(parseFloat(e.target.value) || 0)
+                          }
+                        />
+                      </div>
+                      <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <span className="text-sm font-semibold text-gray-800">
+                          Discount (€)
+                        </span>
+                        <input
+                          type="number"
+                          className="admin-field w-24 text-right py-1.5"
+                          value={orderDiscountAmount}
+                          onChange={(e) =>
+                            setOrderDiscountAmount(
+                              parseFloat(e.target.value) || 0,
+                            )
+                          }
+                        />
+                      </div>
+                      <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <span className="text-sm font-semibold text-gray-800">
+                          Payment Flow
+                        </span>
+                        <select
+                          className="admin-select w-40 py-1.5"
+                          value={paymentFlow}
+                          onChange={(e) => setPaymentFlow(e.target.value)}
+                        >
+                          <option value="bank_transfer">
+                            Bank transfer / invoice
+                          </option>
+                        </select>
+                      </div>
                     </div>
-                  ))}
-                </div>
-                <div className="space-y-4">
-                  <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
-                    2. Additional Fees & Flow
-                  </h3>
-                  <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    <span className="text-sm font-semibold text-gray-800">
-                      Delivery Price (€)
-                    </span>
-                    <input
-                      type="number"
-                      className="admin-field w-24 text-right py-1.5"
-                      value={deliveryPrice}
-                      onChange={(e) =>
-                        setDeliveryPrice(parseFloat(e.target.value) || 0)
-                      }
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-6">
+                    <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
+                      3. Customer Message
+                    </h3>
+                    <textarea
+                      className="admin-textarea"
+                      rows={3}
+                      placeholder="Optional message to include in the quote email..."
+                      value={quoteMessage}
+                      onChange={(e) => setQuoteMessage(e.target.value)}
                     />
                   </div>
-                  <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    <span className="text-sm font-semibold text-gray-800">
-                      Service Fee (€)
-                    </span>
-                    <input
-                      type="number"
-                      className="admin-field w-24 text-right py-1.5"
-                      value={serviceFee}
-                      onChange={(e) =>
-                        setServiceFee(parseFloat(e.target.value) || 0)
-                      }
-                    />
-                  </div>
-                  <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    <span className="text-sm font-semibold text-gray-800">
-                      Discount (€)
-                    </span>
-                    <input
-                      type="number"
-                      className="admin-field w-24 text-right py-1.5"
-                      value={orderDiscountAmount}
-                      onChange={(e) =>
-                        setOrderDiscountAmount(parseFloat(e.target.value) || 0)
-                      }
-                    />
-                  </div>
-                  <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    <span className="text-sm font-semibold text-gray-800">
-                      Payment Flow
-                    </span>
-                    <select
-                      className="admin-select w-40 py-1.5"
-                      value={paymentFlow}
-                      onChange={(e) => setPaymentFlow(e.target.value)}
+
+                  <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-900 text-white p-5 rounded-xl gap-4">
+                    <div>
+                      <p className="text-gray-400 text-sm font-semibold uppercase tracking-wider">
+                        Quote Total
+                      </p>
+                      <p className="text-3xl font-black text-emerald-400">
+                        €{totalPrice.toFixed(2)}
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleProcessQuote}
+                      disabled={isProcessing || totalPrice <= 0}
+                      className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-gray-900 font-bold py-3.5 px-8 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                     >
-                      <option value="bank_transfer">
-                        Bank transfer / invoice
-                      </option>
-                    </select>
+                      {isProcessing ? (
+                        <Loader2 className="animate-spin" size={20} />
+                      ) : (
+                        <>
+                          <Package size={20} /> Process & Send Quote
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div className="border-t border-gray-100 pt-6">
-                <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
-                  3. Customer Message
-                </h3>
-                <textarea
-                  className="admin-textarea"
-                  rows={3}
-                  placeholder="Optional message to include in the quote email..."
-                  value={quoteMessage}
-                  onChange={(e) => setQuoteMessage(e.target.value)}
-                />
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-900 text-white p-5 rounded-xl gap-4">
-                <div>
-                  <p className="text-gray-400 text-sm font-semibold uppercase tracking-wider">
-                    Quote Total
-                  </p>
-                  <p className="text-3xl font-black text-emerald-400">
-                    €{totalPrice.toFixed(2)}
-                  </p>
+              {(currentStatus === "quoted" ||
+                currentStatus === "pending_payment") && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div>
+                    <p className="text-gray-700 mb-1 text-lg">
+                      Waiting for customer payment of{" "}
+                      <strong className="text-emerald-700">
+                        €{(order.quotedPrice || 0).toFixed(2)}
+                      </strong>
+                      .
+                    </p>
+                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                      Payment flow:{" "}
+                      {paymentFlow === "bank_transfer"
+                        ? "Manual Bank Transfer"
+                        : "Online Checkout"}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() =>
+                      handleQuickStatusChange("paid", "Order marked as paid!")
+                    }
+                    disabled={isProcessing}
+                    className="admin-btn bg-emerald-600 text-white hover:bg-emerald-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      "Verify Payment & Mark as Paid"
+                    )}
+                  </button>
                 </div>
-                <button
-                  onClick={handleProcessQuote}
-                  disabled={isProcessing || totalPrice <= 0}
-                  className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-gray-900 font-bold py-3.5 px-8 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {isProcessing ? (
-                    <Loader2 className="animate-spin" size={20} />
-                  ) : (
-                    <>
-                      <Package size={20} /> Process & Send Quote
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
+              )}
 
-          {(currentStatus === "quoted" ||
-            currentStatus === "pending_payment") && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <p className="text-gray-700 mb-1 text-lg">
-                  Waiting for customer payment of{" "}
-                  <strong className="text-emerald-700">
-                    €{(order.quotedPrice || 0).toFixed(2)}
-                  </strong>
-                  .
-                </p>
-                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                  Payment flow:{" "}
-                  {paymentFlow === "bank_transfer"
-                    ? "Manual Bank Transfer"
-                    : "Online Checkout"}
-                </p>
-              </div>
-              <button
-                onClick={() =>
-                  handleQuickStatusChange("paid", "Order marked as paid!")
-                }
-                disabled={isProcessing}
-                className="admin-btn bg-emerald-600 text-white hover:bg-emerald-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
-              >
-                {isProcessing ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  "Verify Payment & Mark as Paid"
-                )}
-              </button>
-            </div>
-          )}
-
-          {currentStatus === "paid" && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-gray-700 text-lg">
-                Payment received. Ready to start 3D printing.
-              </p>
-              <button
-                onClick={() =>
-                  handleQuickStatusChange("printing", "Production started!")
-                }
-                disabled={isProcessing}
-                className="admin-btn bg-blue-600 text-white hover:bg-blue-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
-              >
-                {isProcessing ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  "Start Production (Printing)"
-                )}
-              </button>
-            </div>
-          )}
-
-          {currentStatus === "printing" && (
-            <div className="flex flex-col md:flex-row items-start justify-between gap-6">
-              <div className="flex-1 w-full space-y-3">
-                <p className="text-gray-700 font-medium text-lg">
-                  Ready to ship? Enter tracking info below.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <input
-                    type="text"
-                    placeholder="Tracking Code"
-                    className="admin-field flex-1"
-                    value={trackingCode}
-                    onChange={(e) => setTrackingCode(e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Tracking URL (Optional)"
-                    className="admin-field flex-1"
-                    value={trackingUrl}
-                    onChange={(e) => setTrackingUrl(e.target.value)}
-                  />
+              {currentStatus === "paid" && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <p className="text-gray-700 text-lg">
+                    Payment received. Ready to start 3D printing.
+                  </p>
+                  <button
+                    onClick={() =>
+                      handleQuickStatusChange("printing", "Production started!")
+                    }
+                    disabled={isProcessing}
+                    className="admin-btn bg-blue-600 text-white hover:bg-blue-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      "Start Production (Printing)"
+                    )}
+                  </button>
                 </div>
-              </div>
-              <button
-                onClick={() =>
-                  handleQuickStatusChange(
-                    "shipped",
-                    "Order shipped & Email Sent!",
-                  )
-                }
-                disabled={isProcessing}
-                className="admin-btn bg-indigo-600 text-white hover:bg-indigo-700 py-3.5 px-8 text-base h-full md:mt-10 disabled:opacity-50 shadow-sm w-full md:w-auto"
-              >
-                {isProcessing ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <>
-                    <Truck size={20} /> Ship & Send Email
-                  </>
-                )}
-              </button>
-            </div>
-          )}
+              )}
 
-          {(currentStatus === "shipped" || currentStatus === "sent") && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-gray-700 text-lg">
-                Order is currently in transit with tracking:{" "}
-                <strong className="text-indigo-700">
-                  {order.trackingCode || "N/A"}
-                </strong>
+              {currentStatus === "printing" && (
+                <div className="flex flex-col md:flex-row items-start justify-between gap-6">
+                  <div className="flex-1 w-full space-y-3">
+                    <p className="text-gray-700 font-medium text-lg">
+                      Ready to ship? Enter tracking info below.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        type="text"
+                        placeholder="Tracking Code"
+                        className="admin-field flex-1"
+                        value={trackingCode}
+                        onChange={(e) => setTrackingCode(e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Tracking URL (Optional)"
+                        className="admin-field flex-1"
+                        value={trackingUrl}
+                        onChange={(e) => setTrackingUrl(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={() =>
+                      handleQuickStatusChange(
+                        "shipped",
+                        "Order shipped & Email Sent!",
+                      )
+                    }
+                    disabled={isProcessing}
+                    className="admin-btn bg-indigo-600 text-white hover:bg-indigo-700 py-3.5 px-8 text-base h-full md:mt-10 disabled:opacity-50 shadow-sm w-full md:w-auto"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <>
+                        <Truck size={20} /> Ship & Send Email
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {(currentStatus === "shipped" || currentStatus === "sent") && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <p className="text-gray-700 text-lg">
+                    Order is currently in transit with tracking:{" "}
+                    <strong className="text-indigo-700">
+                      {order.trackingCode || "N/A"}
+                    </strong>
+                  </p>
+                  <button
+                    onClick={() =>
+                      handleQuickStatusChange(
+                        "delivered",
+                        "Order marked as delivered.",
+                      )
+                    }
+                    disabled={isProcessing}
+                    className="admin-btn bg-emerald-600 text-white hover:bg-emerald-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <>
+                        <CheckCircle size={20} /> Mark as Delivered
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {currentStatus === "delivered" && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <p className="text-gray-700 text-lg">
+                    Package arrived safely. Close the order.
+                  </p>
+                  <button
+                    onClick={() =>
+                      handleQuickStatusChange("completed", "Order completed.")
+                    }
+                    disabled={isProcessing}
+                    className="admin-btn bg-gray-900 text-white hover:bg-gray-800 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      "Archive / Mark Completed"
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {(currentStatus === "completed" ||
+                currentStatus === "cancelled" ||
+                currentStatus === "returned" ||
+                currentStatus === "refunded") && (
+                <p className="text-gray-500 italic text-center py-2">
+                  No further actions required. Order is{" "}
+                  {formatOrderStatusLabel(currentStatus)}.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* METRICS ROW */}
+          <section className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-5">
+            <article className="admin-panel p-4">
+              <p className="text-xs uppercase text-[#6c817a]">
+                {t("admin.orderDetail.statusLabel")}
               </p>
-              <button
-                onClick={() =>
-                  handleQuickStatusChange(
-                    "delivered",
-                    "Order marked as delivered.",
-                  )
-                }
-                disabled={isProcessing}
-                className="admin-btn bg-emerald-600 text-white hover:bg-emerald-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
+              <p
+                className={`${getOrderStatusPillClass(order.status)} mt-2 w-fit`}
               >
-                {isProcessing ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <>
-                    <CheckCircle size={20} /> Mark as Delivered
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-
-          {currentStatus === "delivered" && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-gray-700 text-lg">
-                Package arrived safely. Close the order.
+                {formatOrderStatusLabel(order.status)}
               </p>
-              <button
-                onClick={() =>
-                  handleQuickStatusChange("completed", "Order completed.")
-                }
-                disabled={isProcessing}
-                className="admin-btn bg-gray-900 text-white hover:bg-gray-800 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
-              >
-                {isProcessing ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  "Archive / Mark Completed"
-                )}
-              </button>
-            </div>
-          )}
-
-          {(currentStatus === "completed" ||
-            currentStatus === "cancelled" ||
-            currentStatus === "returned" ||
-            currentStatus === "refunded") && (
-            <p className="text-gray-500 italic text-center py-2">
-              No further actions required. Order is{" "}
-              {formatOrderStatusLabel(currentStatus)}.
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* METRICS ROW */}
-      <section className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-5">
-        <article className="admin-panel p-4">
-          <p className="text-xs uppercase text-[#6c817a]">
-            {t("admin.orderDetail.statusLabel")}
-          </p>
-          <p className={`${getOrderStatusPillClass(order.status)} mt-2 w-fit`}>
-            {formatOrderStatusLabel(order.status)}
-          </p>
-        </article>
-        <article className="admin-panel p-4">
-          <p className="text-xs uppercase text-[#6c817a]">
-            {t("admin.orderDetail.createdLabel")}
-          </p>
-          <p className="mt-2 text-sm text-[#2e423d]">
-            {new Date(order.createdAt).toLocaleString()}
-          </p>
-        </article>
-        <article className="admin-panel p-4">
-          <p className="text-xs uppercase text-[#6c817a]">
-            {t("admin.orderDetail.itemsLabel")}
-          </p>
-          <p className="mt-2 text-xl font-semibold text-[#1b2b25]">
-            {order.items.length}
-          </p>
-        </article>
-        <article className="admin-panel p-4">
-          <p className="text-xs uppercase text-[#6c817a]">
-            {t("admin.orderDetail.totalLabel")}
-          </p>
-          <p className="mt-2 text-xl font-semibold text-[#1b2b25]">
-            {formatCurrencyAmount(totalPrice)}
-          </p>
-        </article>
-        <article className="admin-panel p-4">
-          <p className="text-xs uppercase text-[#6c817a]">
-            {t("admin.order.quoteExpires")}
-          </p>
-          <p className="mt-2 text-sm text-[#2e423d]">
-            {hasQuoteExpiry ? quoteExpiresAt.toLocaleString() : "-"}
-          </p>
-        </article>
-      </section>
+            </article>
+            <article className="admin-panel p-4">
+              <p className="text-xs uppercase text-[#6c817a]">
+                {t("admin.orderDetail.createdLabel")}
+              </p>
+              <p className="mt-2 text-sm text-[#2e423d]">
+                {new Date(order.createdAt).toLocaleString()}
+              </p>
+            </article>
+            <article className="admin-panel p-4">
+              <p className="text-xs uppercase text-[#6c817a]">
+                {t("admin.orderDetail.itemsLabel")}
+              </p>
+              <p className="mt-2 text-xl font-semibold text-[#1b2b25]">
+                {order.items.length}
+              </p>
+            </article>
+            <article className="admin-panel p-4">
+              <p className="text-xs uppercase text-[#6c817a]">
+                {t("admin.orderDetail.totalLabel")}
+              </p>
+              <p className="mt-2 text-xl font-semibold text-[#1b2b25]">
+                {formatCurrencyAmount(totalPrice)}
+              </p>
+            </article>
+            <article className="admin-panel p-4">
+              <p className="text-xs uppercase text-[#6c817a]">
+                {t("admin.order.quoteExpires")}
+              </p>
+              <p className="mt-2 text-sm text-[#2e423d]">
+                {hasQuoteExpiry ? quoteExpiresAt.toLocaleString() : "-"}
+              </p>
+            </article>
+          </section>
+        </>
+      )}
 
       {/* DETAILED PANELS */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
-        <div className="space-y-5 xl:col-span-2">
-          <section id="admin-order-finance" className="scroll-mt-24">
-            <section id="admin-order-order" className="scroll-mt-24">
-              <OrderPricingPanel
-                order={order}
-                t={t}
-                itemPrices={itemPrices}
-                setItemPrices={setItemPrices}
-                savingItemId={savingItemId}
-                updateItemPrice={updateItemPrice}
-                deliveryPrice={deliveryPrice}
-                setDeliveryPrice={setDeliveryPrice}
-                savingDelivery={savingDelivery}
-                updateDeliveryPrice={updateDeliveryPrice}
-                serviceFee={serviceFee}
-                setServiceFee={setServiceFee}
-                savingServiceFee={savingServiceFee}
-                updateServiceFee={updateServiceFee}
-                orderDiscountAmount={orderDiscountAmount}
-                setOrderDiscountAmount={setOrderDiscountAmount}
-                savingOrderDiscount={savingOrderDiscount}
-                updateOrderDiscount={updateOrderDiscount}
-                subtotal={subtotal}
-                totalPrice={totalPrice}
-                pricingLocked={pricingLocked}
-              />
-            </section>
+      <div className="admin-order-view-content">
+        {activeView === "finance" && (
+          <section id="admin-order-finance">
+            <OrderPricingPanel
+              order={order}
+              t={t}
+              itemPrices={itemPrices}
+              setItemPrices={setItemPrices}
+              savingItemId={savingItemId}
+              updateItemPrice={updateItemPrice}
+              deliveryPrice={deliveryPrice}
+              setDeliveryPrice={setDeliveryPrice}
+              savingDelivery={savingDelivery}
+              updateDeliveryPrice={updateDeliveryPrice}
+              serviceFee={serviceFee}
+              setServiceFee={setServiceFee}
+              savingServiceFee={savingServiceFee}
+              updateServiceFee={updateServiceFee}
+              orderDiscountAmount={orderDiscountAmount}
+              setOrderDiscountAmount={setOrderDiscountAmount}
+              savingOrderDiscount={savingOrderDiscount}
+              updateOrderDiscount={updateOrderDiscount}
+              subtotal={subtotal}
+              totalPrice={totalPrice}
+              pricingLocked={pricingLocked}
+            />
           </section>
+        )}
 
-          <section id="admin-order-communication" className="scroll-mt-24">
+        {activeView === "activity" && (
+          <section id="admin-order-history">
             <OrderHistoryPanel
               t={t}
               statusHistory={statusHistory}
               communications={communications}
             />
           </section>
-        </div>
-
-        <div className="space-y-5">
-          <article
-            id="admin-order-customer"
-            className="admin-panel scroll-mt-24 p-4"
-          >
+        )}
+        {activeView === "customer" && (
+          <article id="admin-order-customer" className="admin-panel p-4">
             <div className="mb-2 flex items-center justify-between">
               <h2 className="font-bold text-[#1b2b25]">
                 {t("admin.order.customerInfoTitle")}
@@ -1206,7 +1215,9 @@ export default function AdminOrderDetail() {
               </div>
             )}
           </article>
+        )}
 
+        {activeView === "activity" && (
           <article className="admin-panel p-4">
             <h3 className="font-bold mb-2 text-[#1b2b25]">
               Manual Status Override
@@ -1271,7 +1282,9 @@ export default function AdminOrderDetail() {
               )}
             </div>
           </article>
+        )}
 
+        {activeView === "activity" && (
           <article className="admin-panel p-4">
             <h3 className="font-bold mb-2 text-[#1b2b25]">
               {t("admin.order.trackingTitle")}
@@ -1311,7 +1324,9 @@ export default function AdminOrderDetail() {
               </button>
             </div>
           </article>
+        )}
 
+        {activeView === "communication" && (
           <article className="admin-panel p-4">
             <h3 className="font-bold mb-2 text-[#1b2b25]">
               {t("admin.order.communicationTitle")}
@@ -1424,11 +1439,10 @@ export default function AdminOrderDetail() {
               </button>
             </div>
           </article>
+        )}
 
-          <article
-            id="admin-order-activity"
-            className="admin-panel scroll-mt-24 p-4"
-          >
+        {activeView === "activity" && (
+          <article id="admin-order-activity" className="admin-panel p-4">
             <h3 className="font-bold mb-2 text-[#1b2b25]">
               {t("admin.order.notesTitle")}
             </h3>
@@ -1590,130 +1604,125 @@ export default function AdminOrderDetail() {
               )}
             </div>
           </article>
+        )}
 
-          {payments.length > 0 && (
-            <article className="admin-panel p-4">
-              <h3 className="font-bold mb-2 text-[#1b2b25]">
-                {t("admin.order.paymentAttempts")}
-              </h3>
-              <p className="mb-3 text-xs text-[#5f736d]">
-                {t("admin.order.paymentAttemptsHelpBankTransfer")}
-              </p>
-              <button
-                type="button"
-                onClick={markOrderPaid}
-                disabled={reconcilingPayments}
-                className="admin-btn admin-btn-secondary mb-3"
-              >
-                {reconcilingPayments ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="animate-spin" size={16} />
-                    {t("admin.order.markingPaid")}
-                  </span>
-                ) : (
-                  t("admin.order.markPaidButton")
-                )}
-              </button>
-              <div className="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2">
-                <input
-                  value={paymentSearch}
-                  onChange={(e) => setPaymentSearch(e.target.value)}
-                  className="admin-field"
-                  placeholder={t("admin.order.paymentSearchPlaceholder")}
-                />
-                <select
-                  value={paymentStatusFilter}
-                  onChange={(e) => setPaymentStatusFilter(e.target.value)}
-                  className="admin-select"
-                >
-                  <option value="all">{t("admin.payments.status.all")}</option>
-                  <option value="paid">
-                    {t("admin.payments.status.paid")}
-                  </option>
-                  <option value="failed">
-                    {t("admin.payments.status.failed")}
-                  </option>
-                  <option value="expired">
-                    {t("admin.payments.status.expired")}
-                  </option>
-                  <option value="canceled">
-                    {t("admin.payments.status.canceled")}
-                  </option>
-                  <option value="pending">
-                    {t("admin.payments.status.pending")}
-                  </option>
-                  <option value="open">
-                    {t("admin.payments.status.open")}
-                  </option>
-                </select>
-                <input
-                  type="date"
-                  value={paymentFromDate}
-                  onChange={(e) => setPaymentFromDate(e.target.value)}
-                  className="admin-field"
-                />
-                <input
-                  type="date"
-                  value={paymentToDate}
-                  onChange={(e) => setPaymentToDate(e.target.value)}
-                  className="admin-field"
-                />
-              </div>
-              {payments.length === 0 ? (
-                <p className="text-sm text-[#5b706a]">
-                  {t("admin.order.noPaymentAttempts")}
-                </p>
-              ) : filteredPayments.length === 0 ? (
-                <p className="text-sm text-[#5b706a]">
-                  {t("admin.order.noPaymentAttemptsFiltered")}
-                </p>
+        {activeView === "finance" && payments.length > 0 && (
+          <article className="admin-panel p-4">
+            <h3 className="font-bold mb-2 text-[#1b2b25]">
+              {t("admin.order.paymentAttempts")}
+            </h3>
+            <p className="mb-3 text-xs text-[#5f736d]">
+              {t("admin.order.paymentAttemptsHelpBankTransfer")}
+            </p>
+            <button
+              type="button"
+              onClick={markOrderPaid}
+              disabled={reconcilingPayments}
+              className="admin-btn admin-btn-secondary mb-3"
+            >
+              {reconcilingPayments ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="animate-spin" size={16} />
+                  {t("admin.order.markingPaid")}
+                </span>
               ) : (
-                <div className="space-y-3">
-                  {filteredPayments.map((payment) => (
-                    <div
-                      key={payment.id}
-                      className="rounded-lg border border-[#dce7e2] bg-[#f7fbf9] p-3"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-semibold text-[#2e423d]">
-                          {payment.reference}
-                        </p>
-                        <span className="text-xs uppercase rounded-full bg-white border border-[#c9d8d1] px-2 py-0.5 text-[#29433a]">
-                          {payment.status}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-sm text-[#2e423d]">
-                        {`${payment.currency || ""} ${Number(payment.amount || 0).toFixed(2)}`.trim()}
-                      </p>
-                      <p className="text-xs text-[#6c817a] mt-1">
-                        {t("admin.order.webhookAttempts")}:{" "}
-                        {payment.webhookAttemptCount || 0}
-                      </p>
-                      {payment.providerPaymentId && (
-                        <p className="text-xs text-[#6c817a] mt-1 break-all">
-                          {t("admin.order.providerId")}:{" "}
-                          {payment.providerPaymentId}
-                        </p>
-                      )}
-                      {payment.lastWebhookPayloadHash && (
-                        <p className="text-xs text-[#6c817a] mt-1 break-all">
-                          {t("admin.order.payloadHash")}:{" "}
-                          {payment.lastWebhookPayloadHash}
-                        </p>
-                      )}
-                      {payment.lastWebhookError && (
-                        <p className="text-xs text-rose-700 mt-1 break-words">
-                          {t("admin.order.lastError")}:{" "}
-                          {payment.lastWebhookError}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                t("admin.order.markPaidButton")
               )}
-            </article>
-          )}
-        </div>
+            </button>
+            <div className="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+              <input
+                value={paymentSearch}
+                onChange={(e) => setPaymentSearch(e.target.value)}
+                className="admin-field"
+                placeholder={t("admin.order.paymentSearchPlaceholder")}
+              />
+              <select
+                value={paymentStatusFilter}
+                onChange={(e) => setPaymentStatusFilter(e.target.value)}
+                className="admin-select"
+              >
+                <option value="all">{t("admin.payments.status.all")}</option>
+                <option value="paid">{t("admin.payments.status.paid")}</option>
+                <option value="failed">
+                  {t("admin.payments.status.failed")}
+                </option>
+                <option value="expired">
+                  {t("admin.payments.status.expired")}
+                </option>
+                <option value="canceled">
+                  {t("admin.payments.status.canceled")}
+                </option>
+                <option value="pending">
+                  {t("admin.payments.status.pending")}
+                </option>
+                <option value="open">{t("admin.payments.status.open")}</option>
+              </select>
+              <input
+                type="date"
+                value={paymentFromDate}
+                onChange={(e) => setPaymentFromDate(e.target.value)}
+                className="admin-field"
+              />
+              <input
+                type="date"
+                value={paymentToDate}
+                onChange={(e) => setPaymentToDate(e.target.value)}
+                className="admin-field"
+              />
+            </div>
+            {payments.length === 0 ? (
+              <p className="text-sm text-[#5b706a]">
+                {t("admin.order.noPaymentAttempts")}
+              </p>
+            ) : filteredPayments.length === 0 ? (
+              <p className="text-sm text-[#5b706a]">
+                {t("admin.order.noPaymentAttemptsFiltered")}
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {filteredPayments.map((payment) => (
+                  <div
+                    key={payment.id}
+                    className="rounded-lg border border-[#dce7e2] bg-[#f7fbf9] p-3"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs font-semibold text-[#2e423d]">
+                        {payment.reference}
+                      </p>
+                      <span className="text-xs uppercase rounded-full bg-white border border-[#c9d8d1] px-2 py-0.5 text-[#29433a]">
+                        {payment.status}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-[#2e423d]">
+                      {`${payment.currency || ""} ${Number(payment.amount || 0).toFixed(2)}`.trim()}
+                    </p>
+                    <p className="text-xs text-[#6c817a] mt-1">
+                      {t("admin.order.webhookAttempts")}:{" "}
+                      {payment.webhookAttemptCount || 0}
+                    </p>
+                    {payment.providerPaymentId && (
+                      <p className="text-xs text-[#6c817a] mt-1 break-all">
+                        {t("admin.order.providerId")}:{" "}
+                        {payment.providerPaymentId}
+                      </p>
+                    )}
+                    {payment.lastWebhookPayloadHash && (
+                      <p className="text-xs text-[#6c817a] mt-1 break-all">
+                        {t("admin.order.payloadHash")}:{" "}
+                        {payment.lastWebhookPayloadHash}
+                      </p>
+                    )}
+                    {payment.lastWebhookError && (
+                      <p className="text-xs text-rose-700 mt-1 break-words">
+                        {t("admin.order.lastError")}: {payment.lastWebhookError}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </article>
+        )}
       </div>
     </AdminLayout>
   );

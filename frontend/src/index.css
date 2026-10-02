@@ -289,6 +289,75 @@ body {
   max-width: 82rem;
 }
 
+.admin-order-view-nav {
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding: 0.45rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 8px 20px rgba(14, 35, 31, 0.06);
+  scrollbar-width: thin;
+}
+
+.admin-order-view-tab {
+  min-height: 2.75rem;
+  flex: 1 0 auto;
+  border: 1px solid transparent;
+  border-radius: 0.7rem;
+  padding: 0.65rem 1rem;
+  color: #4e665f;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.admin-order-view-tab:hover {
+  border-color: #c8ddd5;
+  background: #f3faf7;
+  color: var(--admin-accent-strong);
+}
+
+.admin-order-view-tab.is-active {
+  border-color: var(--admin-accent);
+  background: var(--admin-accent);
+  color: #fff;
+  box-shadow: 0 7px 14px rgba(15, 118, 110, 0.2);
+}
+
+.admin-order-view-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.admin-order-view-content > * {
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .admin-main {
+    padding-top: 1.5rem;
+  }
+
+  .admin-order-view-nav {
+    margin-inline: -0.25rem;
+  }
+
+  .admin-order-view-tab {
+    min-width: 8.5rem;
+  }
+}
+
 .admin-panel {
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid var(--admin-border);
