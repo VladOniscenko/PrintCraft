@@ -15,7 +15,6 @@ type ModelFile = {
   url: string;
   orderId?: string | null;
   itemIndex?: number | null;
-  linkedToProduct?: boolean;
   linkedToOrder?: boolean;
   linkedToActiveOrder?: boolean;
   canDelete?: boolean;
@@ -31,11 +30,9 @@ export default function ModelFilesBrowser() {
   const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [files, setFiles] = useState<ModelFile[]>([]);
   const [deletingFileName, setDeletingFileName] = useState<string | null>(null);
-  const [cleaningOrphans, setCleaningOrphans] = useState(false);
 
   const fetchFiles = async () => {
     setLoading(true);
@@ -77,37 +74,6 @@ export default function ModelFilesBrowser() {
     }
   };
 
-  const cleanupOrphanFiles = async () => {
-    const orphanCount = files.filter((file) => file.canDelete).length;
-
-    if (orphanCount === 0) {
-      setInfo(t("models.cleanupNone"));
-      return;
-    }
-
-    const confirmed = window.confirm(t("models.cleanupConfirm"));
-    if (!confirmed) return;
-
-    setCleaningOrphans(true);
-    setError(null);
-    setInfo(null);
-
-    try {
-      const response = await api.post<{
-        requestedCount: number;
-        deletedCount: number;
-      }>("/upload/models/cleanup-orphans");
-
-      const deletedCount = response.data?.deletedCount ?? 0;
-      setInfo(t("models.cleanupDone").replace("{count}", String(deletedCount)));
-      await fetchFiles();
-    } catch {
-      setError(t("models.cleanupFailed"));
-    } finally {
-      setCleaningOrphans(false);
-    }
-  };
-
   const visibleFiles = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     if (!normalized) return files;
@@ -144,17 +110,6 @@ export default function ModelFilesBrowser() {
 
             <div className="flex items-center gap-3">
               <button
-                onClick={() => void cleanupOrphanFiles()}
-                className="site-btn-soft inline-flex items-center gap-2"
-                type="button"
-                disabled={cleaningOrphans || loading}
-              >
-                <Boxes size={16} />
-                {cleaningOrphans
-                  ? t("models.cleanupRunning")
-                  : t("models.cleanupOrphans")}
-              </button>
-              <button
                 onClick={() => void fetchFiles()}
                 className="site-btn-soft inline-flex items-center gap-2"
                 type="button"
@@ -184,12 +139,6 @@ export default function ModelFilesBrowser() {
               <span className="font-semibold">{visibleFiles.length}</span>
             </div>
           </div>
-
-          {info ? (
-            <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">
-              {info}
-            </div>
-          ) : null}
 
           {loading ? (
             <div className="py-16 text-center text-[#5e746d]">

@@ -164,7 +164,6 @@ export default function SeoManager() {
       "/orders/:id/models/:itemIndex",
       "/admin/orders/:id",
       "/admin/orders/:id/models/:itemIndex",
-      "/admin/products/:id",
       "/admin/models/view/:fileName",
     ];
 
@@ -187,15 +186,11 @@ export default function SeoManager() {
     };
 
     const isOrderDetail = pathname.startsWith("/orders/");
-    const isProductDetail = pathname.startsWith("/products/");
-
     const routeSeo = !isKnownRoute
       ? notFoundSeo
       : isOrderDetail
         ? { ...seoByRoute["/orders"], index: false }
-        : isProductDetail
-          ? { ...seoByRoute["/products"], index: true }
-          : seoByRoute[pathname] || defaultSeo;
+        : seoByRoute[pathname] || defaultSeo;
 
     const canonicalUrl = `${window.location.origin}${pathname}`;
 

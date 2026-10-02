@@ -85,7 +85,6 @@ export interface PaymentAttempt {
 export interface OrderItem {
   id?: string;
   orderId?: string;
-  productId?: string;
   imageUrl: string;
   fileUrl?: string;
   fileName: string;

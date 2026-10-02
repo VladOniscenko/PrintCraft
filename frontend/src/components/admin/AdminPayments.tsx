@@ -12,7 +12,6 @@ type AdminPaymentRecord = {
   orderId: string;
   provider: string;
   reference: string;
-  providerPaymentId?: string;
   currency: string;
   amount: number;
   status: string;
@@ -22,8 +21,6 @@ type AdminPaymentRecord = {
   canceledAt?: string;
   expiredAt?: string;
   failedAt?: string;
-  lastWebhookAt?: string;
-  webhookAttemptCount?: number;
   createdAt: string;
   updatedAt?: string;
   order?: {
@@ -80,7 +77,6 @@ export default function AdminPayments() {
         if (status !== "all") query.set("status", status);
         if (search.trim()) {
           query.set("reference", search.trim());
-          query.set("providerPaymentId", search.trim());
         }
         if (fromDate) query.set("fromUtc", `${fromDate}T00:00:00.000Z`);
         if (toDate) query.set("toUtc", `${toDate}T23:59:59.999Z`);
@@ -129,7 +125,6 @@ export default function AdminPayments() {
       if (status !== "all") query.set("status", status);
       if (search.trim()) {
         query.set("reference", search.trim());
-        query.set("providerPaymentId", search.trim());
       }
       if (fromDate) query.set("fromUtc", `${fromDate}T00:00:00.000Z`);
       if (toDate) query.set("toUtc", `${toDate}T23:59:59.999Z`);
@@ -246,10 +241,8 @@ export default function AdminPayments() {
                 <th>{t("admin.payments.columnCreated")}</th>
                 <th>{t("admin.payments.columnOrder")}</th>
                 <th>{t("admin.payments.columnReference")}</th>
-                <th>{t("admin.payments.columnProviderPaymentId")}</th>
                 <th>{t("admin.payments.columnStatus")}</th>
                 <th>{t("admin.payments.columnAmount")}</th>
-                <th>{t("admin.payments.columnWebhookAttempts")}</th>
               </tr>
             </thead>
             <tbody>
@@ -270,14 +263,10 @@ export default function AdminPayments() {
                     )}
                   </td>
                   <td className="font-mono text-xs">{payment.reference}</td>
-                  <td className="font-mono text-xs">
-                    {payment.providerPaymentId || "-"}
-                  </td>
                   <td>{payment.status}</td>
                   <td>
                     {payment.currency} {Number(payment.amount || 0).toFixed(2)}
                   </td>
-                  <td>{payment.webhookAttemptCount || 0}</td>
                 </tr>
               ))}
             </tbody>

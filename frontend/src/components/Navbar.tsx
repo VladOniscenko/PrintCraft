@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { ShoppingCart, Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./logos/Logo";
 import { useI18n } from "../i18n/I18nContext";
-import { ALLOWED_PRODUCT_ORDER } from "../constants";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,11 +36,7 @@ const Navbar = () => {
     navigate("/");
   };
 
-  let navLinks = [{ name: t("nav.gallery"), path: "/products" }];
-
-  if (!ALLOWED_PRODUCT_ORDER) {
-    navLinks = navLinks.filter((link) => link.path !== "/products");
-  }
+  const navLinks: Array<{ name: string; path: string }> = [];
 
   // If logged in, add "My Orders" and admin dashboard (for admins) to the navigation
   const visibleLinks = isLoggedIn
@@ -92,15 +87,6 @@ const Navbar = () => {
             </button>
           ))}
         </div>
-
-        {ALLOWED_PRODUCT_ORDER && (
-          <button
-            onClick={() => navigate("/cart")}
-            className="p-2 text-[#49625b] hover:text-[#16322a] transition-colors relative"
-          >
-            <ShoppingCart size={20} />
-          </button>
-        )}
 
         {!isLoggedIn ? (
           <>

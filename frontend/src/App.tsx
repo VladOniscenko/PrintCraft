@@ -54,12 +54,6 @@ const AdminUsers = lazy(() => import("./components/admin/AdminUsers.tsx"));
 const AdminUserDetail = lazy(
   () => import("./components/admin/AdminUserDetail.tsx"),
 );
-const AdminProducts = lazy(
-  () => import("./components/admin/AdminProducts.tsx"),
-);
-const AdminProductEdit = lazy(
-  () => import("./components/admin/AdminProductEdit.tsx"),
-);
 const AdminFilaments = lazy(
   () => import("./components/admin/AdminFilaments.tsx"),
 );
@@ -321,22 +315,6 @@ export default function App() {
             element={
               <AdminRoute>
                 <AdminUsers />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/products"
-            element={
-              <AdminRoute>
-                <AdminProducts />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/products/:id"
-            element={
-              <AdminRoute>
-                <AdminProductEdit />
               </AdminRoute>
             }
           />

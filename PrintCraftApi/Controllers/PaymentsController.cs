@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using PrintCraftApi.Configuration;
 using PrintCraftApi.Data;
 using PrintCraftApi.Models;
 using PrintCraftApi.Services;
@@ -26,55 +25,6 @@ public class PaymentsController : ControllerBase
         _configuration = configuration;
         _discord = discord;
         _logger = logger;
-    }
-
-    [HttpPost("create")]
-    [Authorize]
-    [EnableRateLimiting("CheckoutLimit")]
-    public async Task<IActionResult> CreateCheckout([FromBody] CheckoutRequest request)
-    {
-        var userId = GetUserId();
-        if (userId == null) return Unauthorized();
-        var cart = await _db.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == userId.Value);
-        if (cart == null || cart.Items.Count == 0) return BadRequest(new { message = "Cart is empty" });
-        var shipping = ShippingInfoValidator.Validate(request.FullName, request.PhoneNumber, request.AddressLine1, request.City, request.PostalCode);
-        if (!shipping.IsValid) return BadRequest(new { message = "Please correct shipping info and try again.", errors = shipping.Errors });
-
-        var items = new List<OrderItem>();
-        decimal subtotal = 0m;
-        foreach (var cartItem in cart.Items)
-        {
-            if (cartItem.Count <= 0 || cartItem.Count > AppLimits.MaxItemQuantity) return BadRequest(new { message = "Invalid cart item quantity." });
-            var product = await _db.Products.FindAsync(cartItem.ProductId);
-            if (product == null) return BadRequest(new { message = $"Product {cartItem.ProductId} not found" });
-            var price = ProductPricing.EffectivePrice(product.Price, product.DiscountPercentage);
-            subtotal += price * cartItem.Count;
-            items.Add(new OrderItem { fileName = product.Name ?? "Unknown Item", FileUrl = product.ImageUrl ?? string.Empty, Material = cartItem.Material, Color = cartItem.Color, Count = cartItem.Count, Price = (double)price });
-        }
-
-        var order = new Order
-        {
-            UserId = userId,
-            FullName = shipping.FullName,
-            AddressLine1 = shipping.AddressLine1,
-            City = shipping.City,
-            PostalCode = shipping.PostalCode,
-            PhoneNumber = shipping.PhoneNumber,
-            PaymentFlow = "bank_transfer",
-            DeliveryPrice = 6.95m,
-            Status = "pending_payment",
-            OrderType = "online",
-            Items = items,
-        };
-        _db.Orders.Add(order);
-        await _db.SaveChangesAsync();
-        var payment = await EnsureBankTransferPaymentAsync(order, subtotal + order.DeliveryPrice);
-        _db.CartItems.RemoveRange(cart.Items);
-        await _db.SaveChangesAsync();
-
-        var user = await _db.Users.FindAsync(userId.Value);
-        try { await _discord.SendBookingCreatedAsync(order, user); } catch (Exception ex) { _logger.LogWarning(ex, "Booking notification failed for {OrderId}", order.Id); }
-        return Ok(new { orderId = order.Id, paymentReference = payment.Reference, paymentFlow = "bank_transfer", bankTransferDetails = BankTransferDetails() });
     }
 
     [HttpPost("orders/{orderId:guid}/create")]
@@ -119,4 +69,3 @@ public class PaymentsController : ControllerBase
     private Guid? GetUserId() => Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 }
 
-public record CheckoutRequest(string FullName, string PhoneNumber, string AddressLine1, string City, string PostalCode);

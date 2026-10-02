@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import AdminBreadcrumb from "./AdminBreadcrumb";
 import AdminLayout from "./AdminLayout";
 import api from "../../services/api";
-import type { Filament, Order, Product } from "../../types";
+import type { Filament, Order } from "../../types";
 import { useI18n } from "../../i18n/I18nContext";
 import { formatCurrencyAmount } from "../../utils/currency";
 
@@ -50,7 +50,6 @@ type DashboardData = {
   summary: Summary;
   orders: Order[];
   usersCount: number;
-  products: Product[];
   filaments: Filament[];
   analytics: VisitAnalytics;
 };
@@ -113,29 +112,21 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [
-          summaryRes,
-          ordersRes,
-          usersRes,
-          productsRes,
-          filamentsRes,
-          analyticsRes,
-        ] = await Promise.all([
-          api.get<Summary>("/admin/summary"),
-          api.get<OrdersResponse>(
-            "/admin/orders?page=1&pageSize=5000&sortBy=createdAt&sortDir=desc",
-          ),
-          api.get<{ totalCount: number }>("/admin/users?page=1&pageSize=1"),
-          api.get<Product[]>("/products"),
-          api.get<Filament[]>("/filaments"),
-          api.get<VisitAnalytics>("/admin/analytics/visits"),
-        ]);
+        const [summaryRes, ordersRes, usersRes, filamentsRes, analyticsRes] =
+          await Promise.all([
+            api.get<Summary>("/admin/summary"),
+            api.get<OrdersResponse>(
+              "/admin/orders?page=1&pageSize=5000&sortBy=createdAt&sortDir=desc",
+            ),
+            api.get<{ totalCount: number }>("/admin/users?page=1&pageSize=1"),
+            api.get<Filament[]>("/filaments"),
+            api.get<VisitAnalytics>("/admin/analytics/visits"),
+          ]);
 
         setData({
           summary: summaryRes.data,
           orders: ordersRes.data.results || [],
           usersCount: usersRes.data.totalCount || 0,
-          products: Array.isArray(productsRes.data) ? productsRes.data : [],
           filaments: Array.isArray(filamentsRes.data) ? filamentsRes.data : [],
           analytics: analyticsRes.data,
         });
@@ -170,7 +161,7 @@ export default function AdminDashboard() {
     return null;
   }
 
-  const { summary, orders, usersCount, products, filaments, analytics } = data;
+  const { summary, orders, usersCount, filaments, analytics } = data;
 
   const statusCounts = orders.reduce<Record<string, number>>((acc, order) => {
     const key = order.status || "unknown";
@@ -373,11 +364,6 @@ export default function AdminDashboard() {
   ];
 
   const inventoryRows = [
-    {
-      label: t("admin.dashboard.products"),
-      value: products.length,
-      hint: t("admin.dashboard.hintCatalogSize"),
-    },
     {
       label: t("admin.dashboard.filamentSkus"),
       value: filaments.length,

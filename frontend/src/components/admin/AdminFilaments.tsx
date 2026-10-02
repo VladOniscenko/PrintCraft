@@ -441,8 +441,8 @@ export default function AdminFilaments() {
                         className="admin-btn admin-btn-danger"
                       >
                         {deletingId === f.id
-                          ? t("admin.products.deleting")
-                          : t("admin.products.delete")}
+                          ? t("admin.filaments.deleting")
+                          : t("admin.filaments.delete")}
                       </button>
                     </div>
                   </td>

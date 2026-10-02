@@ -194,7 +194,7 @@ export default function AdminUsers() {
                       onClick={() => startEdit(user)}
                       className="admin-btn admin-btn-secondary"
                     >
-                      {t("admin.products.edit")}
+                      {t("admin.users.edit")}
                     </button>
                   </div>
                 </td>

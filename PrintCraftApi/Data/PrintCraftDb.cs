@@ -10,8 +10,6 @@ public class PrintCraftDb : DbContext
     // These represent the actual tables in your database
     public DbSet<User> Users => Set<User>();
     public DbSet<Filament> Filaments => Set<Filament>();
-    public DbSet<Product> Products => Set<Product>();
-    public DbSet<ProductImage> ProductImages => Set<ProductImage>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<OrderCommunication> OrderCommunications => Set<OrderCommunication>();
@@ -23,25 +21,10 @@ public class PrintCraftDb : DbContext
     public DbSet<VisitEvent> VisitEvents => Set<VisitEvent>();
     public DbSet<ManualPaymentNotification> ManualPaymentNotifications => Set<ManualPaymentNotification>();
     public DbSet<QuoteDraft> QuoteDrafts => Set<QuoteDraft>();
-    public DbSet<Cart> Carts => Set<Cart>();
-    public DbSet<CartItem> CartItems => Set<CartItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<Cart>()
-            .HasIndex(c => c.UserId)
-            .IsUnique();
-
-        modelBuilder.Entity<ProductImage>()
-            .HasOne(pi => pi.Product)
-            .WithMany(p => p.Images)
-            .HasForeignKey(pi => pi.ProductId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<ProductImage>()
-            .HasIndex(pi => new { pi.ProductId, pi.SortOrder });
 
         modelBuilder.Entity<OrderCommunication>()
             .HasIndex(c => new { c.OrderId, c.SentAt });
@@ -114,10 +97,6 @@ public class PrintCraftDb : DbContext
 
         modelBuilder.Entity<Payment>()
             .HasIndex(p => new { p.OrderId, p.CreatedAt });
-
-        modelBuilder.Entity<Payment>()
-            .HasIndex(p => p.ProviderPaymentId)
-            .IsUnique();
 
         modelBuilder.Entity<Payment>()
             .HasIndex(p => p.Reference)

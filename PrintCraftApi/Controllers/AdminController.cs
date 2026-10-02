@@ -448,7 +448,6 @@ public class AdminController : ControllerBase
         [FromQuery] string? provider,
         [FromQuery] string? status,
         [FromQuery] string? reference,
-        [FromQuery] string? providerPaymentId,
         [FromQuery] DateTime? fromUtc,
         [FromQuery] DateTime? toUtc,
         [FromQuery] int page = 1,
@@ -484,12 +483,6 @@ public class AdminController : ControllerBase
             query = query.Where(p => EF.Functions.ILike(p.Reference, $"%{referenceNorm}%"));
         }
 
-        if (!string.IsNullOrWhiteSpace(providerPaymentId))
-        {
-            var providerPaymentNorm = providerPaymentId.Trim().ToLower();
-            query = query.Where(p => p.ProviderPaymentId != null && EF.Functions.ILike(p.ProviderPaymentId, $"%{providerPaymentNorm}%"));
-        }
-
         if (fromUtc.HasValue)
             query = query.Where(p => p.CreatedAt >= fromUtc.Value);
 
@@ -508,21 +501,15 @@ public class AdminController : ControllerBase
                 p.OrderId,
                 p.Provider,
                 p.Reference,
-                p.ProviderPaymentId,
                 p.Currency,
                 p.Amount,
                 p.Status,
-                p.CheckoutUrl,
                 p.Method,
                 p.FailureReason,
                 p.PaidAt,
                 p.CanceledAt,
                 p.ExpiredAt,
                 p.FailedAt,
-                p.LastWebhookAt,
-                p.WebhookAttemptCount,
-                p.LastWebhookPayloadHash,
-                p.LastWebhookError,
                 p.CreatedAt,
                 p.UpdatedAt,
                 Order = p.Order == null
@@ -1386,7 +1373,6 @@ public class AdminController : ControllerBase
         payment.Currency = string.IsNullOrWhiteSpace(_configuration["CurrencyCode"]) ? payment.Currency : _configuration["CurrencyCode"]!.Trim().ToUpperInvariant();
         payment.Status = string.Equals(payment.Status, "paid", StringComparison.OrdinalIgnoreCase) ? payment.Status : "pending";
         payment.Method = "bank_transfer";
-        payment.CheckoutUrl = null;
         payment.FailureReason = null;
         payment.CanceledAt = null;
         payment.ExpiredAt = null;

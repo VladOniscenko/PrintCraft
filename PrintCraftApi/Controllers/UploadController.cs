@@ -147,19 +147,6 @@ public class UploadController : ControllerBase
         if (!Directory.Exists(uploadsFolder))
             return Ok(Array.Empty<object>());
 
-        var productFileNames = _db.Products
-            .AsNoTracking()
-            .Include(p => p.Images)
-            .AsEnumerable()
-            .SelectMany(p => new[]
-            {
-                ExtractFileNameFromAssetUrl(p.FileUrl),
-                ExtractFileNameFromAssetUrl(p.ImageUrl),
-            }.Concat(p.Images.Select(i => ExtractFileNameFromAssetUrl(i.Url))))
-            .Where(name => !string.IsNullOrWhiteSpace(name))
-            .Cast<string>()
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
         var activeOrderFileNames = _db.Orders
             .AsNoTracking()
             .Include(o => o.Items)
@@ -222,7 +209,6 @@ public class UploadController : ControllerBase
             .Select(info =>
             {
                 orderLinksByFileName.TryGetValue(info.Name, out var link);
-                var linkedToProduct = productFileNames.Contains(info.Name);
                 var linkedToActiveOrder = activeOrderFileNames.Contains(info.Name);
                 var linkedToOrder = linkedOrderFileNames.Contains(info.Name);
 
@@ -235,10 +221,9 @@ public class UploadController : ControllerBase
                     url = $"/uploads/{info.Name}",
                     orderId = link?.orderId,
                     itemIndex = link?.itemIndex,
-                    linkedToProduct,
                     linkedToOrder,
                     linkedToActiveOrder,
-                    canDelete = !linkedToProduct && !linkedToOrder,
+                    canDelete = !linkedToOrder,
                 };
             })
             .ToArray();
@@ -262,26 +247,6 @@ public class UploadController : ControllerBase
         var extension = Path.GetExtension(normalizedFileName);
         if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
             return BadRequest(new { message = "Only uploaded model or image files can be deleted from this endpoint." });
-
-        var linkedToProduct = _db.Products
-            .AsNoTracking()
-            .Include(p => p.Images)
-            .AsEnumerable()
-            .Any(p => string.Equals(
-                    ExtractFileNameFromAssetUrl(p.FileUrl),
-                    normalizedFileName,
-                    StringComparison.OrdinalIgnoreCase)
-                || string.Equals(
-                    ExtractFileNameFromAssetUrl(p.ImageUrl),
-                    normalizedFileName,
-                    StringComparison.OrdinalIgnoreCase)
-                || p.Images.Any(i => string.Equals(
-                    ExtractFileNameFromAssetUrl(i.Url),
-                    normalizedFileName,
-                    StringComparison.OrdinalIgnoreCase)));
-
-        if (linkedToProduct)
-            return Conflict(new { message = "File is linked to a product and cannot be deleted." });
 
         var linkedToAnyOrder = _db.Orders
             .AsNoTracking()
@@ -335,18 +300,6 @@ public class UploadController : ControllerBase
 
         if (!IsOwnedTempUpload(fileName, ownerKey))
             return Forbid();
-
-        var linkedToProduct = _db.Products
-            .AsNoTracking()
-            .Select(p => p.FileUrl)
-            .AsEnumerable()
-            .Any(url => string.Equals(
-                ExtractFileNameFromAssetUrl(url),
-                fileName,
-                StringComparison.OrdinalIgnoreCase));
-
-        if (linkedToProduct)
-            return Conflict(new { message = "File is linked to a product and cannot be deleted." });
 
         var linkedToAnyOrder = _db.Orders
             .AsNoTracking()
