@@ -15,9 +15,9 @@ type Draft = {
 
 const DRAFT_KEY = "printcraft-home-quote";
 const materials = [
-  { id: "PLA", label: "PLA", detail: "Dagelijks gebruik" },
-  { id: "PETG", label: "PETG", detail: "Super sterk" },
-  { id: "TPU", label: "TPU", detail: "Flexibel" },
+  { id: "PLA", label: "PLA", detail: "home.quickQuote.pla" },
+  { id: "PETG", label: "PETG", detail: "home.quickQuote.petg" },
+  { id: "TPU", label: "TPU", detail: "home.quickQuote.tpu" },
 ];
 
 export default function QuickQuoteFlow() {
@@ -62,9 +62,7 @@ export default function QuickQuoteFlow() {
       setDraft(nextDraft);
       localStorage.setItem(DRAFT_KEY, JSON.stringify(nextDraft));
     } catch {
-      setAuthError(
-        "Uploaden is niet gelukt. Controleer het bestand en probeer opnieuw.",
-      );
+      setAuthError(t("home.quickQuote.uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -84,7 +82,7 @@ export default function QuickQuoteFlow() {
         material: "PLA",
       });
       const nextDraft: Draft = {
-        fileName: "Beschrijving van je project",
+        fileName: t("home.quickQuote.descriptionFile"),
         description: description.trim(),
         material: "PLA",
         quoteToken: response.data.quoteToken,
@@ -139,8 +137,8 @@ export default function QuickQuoteFlow() {
     } catch {
       setAuthError(
         authMode === "login"
-          ? "Inloggen is niet gelukt."
-          : "Registreren is niet gelukt.",
+          ? t("home.quickQuote.loginFailed")
+          : t("home.quickQuote.registerFailed"),
       );
     }
   };
@@ -199,10 +197,15 @@ export default function QuickQuoteFlow() {
             <div className="space-y-3">
               <textarea
                 value={description}
-                onChange={(event) => setDescription(event.target.value)}
+                minLength={10}
+                onChange={(event) => {
+                  setDescription(event.target.value);
+                  setAuthError("");
+                }}
                 placeholder={t("home.quickQuote.descriptionPlaceholder")}
                 className="min-h-28 w-full rounded-xl border border-white/25 bg-white/10 p-3 text-sm text-white outline-none placeholder:text-white/50 focus:border-amber-300"
               />
+              {authError && <p className="text-sm text-red-200">{authError}</p>}
               <button
                 type="button"
                 onClick={() => void submitDescription()}
@@ -231,7 +234,7 @@ export default function QuickQuoteFlow() {
                 setDraft(null);
                 localStorage.removeItem(DRAFT_KEY);
               }}
-              aria-label="Bestand verwijderen"
+              aria-label={t("home.quickQuote.removeFile")}
             >
               <X size={18} />
             </button>
@@ -245,7 +248,7 @@ export default function QuickQuoteFlow() {
                 className={`rounded-lg border p-2 text-left ${draft.material === material.id ? "border-amber-300 bg-amber-300/20" : "border-white/20 bg-white/5"}`}
               >
                 <strong className="block text-sm">{material.label}</strong>
-                <small className="text-white/60">{material.detail}</small>
+                <small className="text-white/60">{t(material.detail)}</small>
               </button>
             ))}
           </div>
@@ -258,7 +261,7 @@ export default function QuickQuoteFlow() {
               onClick={continueToOrder}
               className="rounded-xl bg-amber-300 px-4 py-3 font-bold text-emerald-950 hover:bg-amber-200"
             >
-              Doorgaan met aanvraag
+              {t("home.quickQuote.continue")}
             </button>
           </div>
         </div>
@@ -282,15 +285,17 @@ export default function QuickQuoteFlow() {
           >
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-black">Bijna klaar</h2>
+                <h2 className="text-2xl font-black">
+                  {t("home.quickQuote.almostReady")}
+                </h2>
                 <p className="text-sm text-gray-500">
-                  Je bestand blijft bewaard tijdens het inloggen.
+                  {t("home.quickQuote.preserved")}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setAuthOpen(false)}
-                aria-label="Sluiten"
+                aria-label={t("home.quickQuote.close")}
               >
                 <X />
               </button>
@@ -300,7 +305,7 @@ export default function QuickQuoteFlow() {
                 required
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="Naam"
+                placeholder={t("home.quickQuote.name")}
                 className="mb-3 w-full rounded-lg border p-3"
               />
             )}
@@ -309,7 +314,7 @@ export default function QuickQuoteFlow() {
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="E-mailadres"
+              placeholder={t("home.quickQuote.email")}
               className="mb-3 w-full rounded-lg border p-3"
             />
             <input
@@ -318,7 +323,7 @@ export default function QuickQuoteFlow() {
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="Wachtwoord (minimaal 8 tekens)"
+              placeholder={t("home.quickQuote.password")}
               className="mb-3 w-full rounded-lg border p-3"
             />
             {authError && (
@@ -326,8 +331,8 @@ export default function QuickQuoteFlow() {
             )}
             <button className="w-full rounded-lg bg-emerald-800 p-3 font-bold text-white">
               {authMode === "login"
-                ? "Inloggen en doorgaan"
-                : "Account maken en doorgaan"}
+                ? t("home.quickQuote.loginContinue")
+                : t("home.quickQuote.registerContinue")}
             </button>
             <button
               type="button"
@@ -337,8 +342,8 @@ export default function QuickQuoteFlow() {
               className="mt-3 w-full text-sm font-semibold text-emerald-800 underline"
             >
               {authMode === "login"
-                ? "Nog geen account? Registreren"
-                : "Al een account? Inloggen"}
+                ? t("home.quickQuote.switchRegister")
+                : t("home.quickQuote.switchLogin")}
             </button>
           </form>
         </div>

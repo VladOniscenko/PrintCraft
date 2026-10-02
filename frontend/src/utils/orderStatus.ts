@@ -25,11 +25,7 @@ const POST_PAYMENT_STATUSES = new Set([
   "completed",
 ]);
 
-const CUSTOMER_PAYMENT_RETRYABLE_STATUSES = new Set([
-  "quoted",
-  "pending_payment",
-  "failed",
-]);
+const CUSTOMER_PAYMENT_RETRYABLE_STATUSES = new Set(["quoted", "failed"]);
 
 const STATUS_LABEL_BY_VALUE = new Map<string, string>(
   ADMIN_ORDER_STATUS_OPTIONS.map((option) => [option.value, option.label]),
@@ -221,7 +217,7 @@ export function canCustomerRetryPayment(
 export function getCustomerPaymentActionVariant(
   status: string,
   paymentFlow?: string | null,
-): "pay_now" | "try_again" | "pay_again" | null {
+): "pay_now" | "pay_again" | null {
   if (normalizePaymentFlow(paymentFlow) !== "bank_transfer") return null;
 
   const normalized = normalizeOrderStatus(status);
@@ -229,8 +225,6 @@ export function getCustomerPaymentActionVariant(
   switch (normalized) {
     case "quoted":
       return "pay_now";
-    case "pending_payment":
-      return "try_again";
     case "failed":
       return "pay_again";
     default:

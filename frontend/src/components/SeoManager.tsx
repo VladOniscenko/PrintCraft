@@ -119,12 +119,6 @@ export default function SeoManager() {
         keywords: t("seo.home.keywords"),
         index: true,
       },
-      "/products": {
-        title: t("seo.gallery.title"),
-        description: t("seo.gallery.description"),
-        keywords: t("seo.gallery.keywords"),
-        index: true,
-      },
       "/faq": {
         title: t("seo.faq.title"),
         description: t("seo.faq.description"),
@@ -161,18 +155,11 @@ export default function SeoManager() {
         keywords: "orders",
         index: false,
       },
-      "/cart": {
-        title: "Cart | PrintCraft",
-        description: "Cart PrintCraft",
-        keywords: "cart",
-        index: false,
-      },
     };
 
     const pathname = location.pathname;
 
     const knownDynamicPatterns = [
-      "/products/:id",
       "/orders/:id",
       "/orders/:id/models/:itemIndex",
       "/admin/orders/:id",

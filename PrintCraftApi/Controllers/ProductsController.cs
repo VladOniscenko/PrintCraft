@@ -175,12 +175,6 @@ public class ProductsController : ControllerBase
         return Ok(categories);
     }
 
-    [HttpGet("types")]
-    public IActionResult GetProductTypes()
-    {
-        return Ok(AllowedProductTypes.OrderBy(x => x).ToList());
-    }
-
     [HttpPost]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> Create([FromBody] UpsertProductRequest request)

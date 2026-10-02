@@ -647,12 +647,12 @@ export default function AdminOrderDetail() {
             const url = URL.createObjectURL(response.data);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `invoice-${id}.html`;
+            link.download = `invoice-${id}.pdf`;
             link.click();
             URL.revokeObjectURL(url);
           }}
         >
-          Download Invoice
+          {t("admin.downloadInvoice")}
         </button>
       </div>
 

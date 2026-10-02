@@ -343,6 +343,10 @@ export default function OrderDetail() {
     normalizedStatus === "quoted" &&
     quoteExpiresAt instanceof Date &&
     !Number.isNaN(quoteExpiresAt.getTime());
+  const showPendingQuoteNotice =
+    priceSummary.isPendingQuote ||
+    normalizedStatus === "pending" ||
+    normalizedStatus === "pending_quote";
   const customerNotes = Array.isArray(order.notes)
     ? order.notes
         .filter((note) => note.visibility === "customer")
@@ -361,11 +365,9 @@ export default function OrderDetail() {
     order.paymentFlow,
   );
   const paymentActionLabel =
-    paymentActionVariant === "try_again"
-      ? t("orderDetail.tryAgain")
-      : paymentActionVariant === "pay_again"
-        ? t("orderDetail.payAgain")
-        : t("orderDetail.payNow");
+    paymentActionVariant === "pay_again"
+      ? t("orderDetail.payAgain")
+      : t("orderDetail.payNow");
 
   return (
     <div className="min-h-screen bg-[#f8f9fa]">
@@ -427,6 +429,12 @@ export default function OrderDetail() {
             )}
           </div>
         </div>
+
+        {showPendingQuoteNotice && (
+          <p className="mb-6 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+            {t("orderDetail.pendingQuoteInfo")}
+          </p>
+        )}
 
         {showQuoteExpiryNotice && (
           <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">

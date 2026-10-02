@@ -33,6 +33,16 @@ export default function OrderSidebar({
 
   return (
     <div className="space-y-6">
+      <div className="bg-white rounded-2xl p-6 border border-gray-200">
+        <h4 className="font-bold text-sm text-gray-900 mb-2 flex items-center gap-2">
+          <Calendar size={16} className="text-emerald-600" />{" "}
+          {t("orderDetail.referenceId")}
+        </h4>
+        <p className="text-[10px] font-mono text-gray-400 break-all">
+          {order.id}
+        </p>
+      </div>
+
       <div className="bg-[#133827] text-white rounded-2xl p-8 shadow-lg">
         <h3 className="font-bold mb-6 flex items-center gap-2 text-emerald-400">
           <MapPin size={20} />
@@ -221,15 +231,32 @@ export default function OrderSidebar({
           </div>
         )}
 
-      <div className="bg-white rounded-2xl p-6 border border-gray-200">
-        <h4 className="font-bold text-sm text-gray-900 mb-2 flex items-center gap-2">
-          <Calendar size={16} className="text-emerald-600" />{" "}
-          {t("orderDetail.referenceId")}
-        </h4>
-        <p className="text-[10px] font-mono text-gray-400 break-all">
-          {order.id}
-        </p>
-      </div>
+      {(order.trackingCode || order.trackingUrl) && (
+        <div className="rounded-2xl border border-sky-200 bg-sky-50 p-6 shadow-sm">
+          <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-sky-950">
+            <Truck size={16} className="text-sky-700" />
+            {t("orderDetail.trackingTitle")}
+          </h4>
+          {order.trackingCode && (
+            <p className="text-sm text-sky-950">
+              <span className="font-semibold">
+                {t("orderDetail.trackingCode")}:
+              </span>{" "}
+              <span className="font-mono">{order.trackingCode}</span>
+            </p>
+          )}
+          {order.trackingUrl && (
+            <a
+              href={order.trackingUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-block text-sm font-bold text-sky-800 underline"
+            >
+              {t("orderDetail.openTracking")}
+            </a>
+          )}
+        </div>
+      )}
     </div>
   );
 }

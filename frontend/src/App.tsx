@@ -10,7 +10,6 @@ import {
 } from "react-router-dom";
 import SeoManager from "./components/SeoManager";
 import api from "./services/api";
-import { ALLOWED_PRODUCT_ORDER } from "./constants.tsx";
 
 const recentVisitDispatches = new Map<string, number>();
 
@@ -39,13 +38,10 @@ const Home = lazy(() => import("./components/Home.tsx"));
 const Login = lazy(() => import("./components/Login.tsx"));
 const Quote = lazy(() => import("./components/Quote.tsx"));
 const Signup = lazy(() => import("./components/Signup.tsx"));
-const Gallery = lazy(() => import("./components/Gallery.tsx"));
-const ProductDetail = lazy(() => import("./components/ProductDetail.tsx"));
 const FAQ = lazy(() => import("./components/FAQ.tsx"));
 const Orders = lazy(() => import("./components/user/Orders.tsx"));
 const Profile = lazy(() => import("./components/user/Profile.tsx"));
 const OrderDetail = lazy(() => import("./components/OrderDetail.tsx"));
-const Cart = lazy(() => import("./components/Cart.tsx"));
 const AdminDashboard = lazy(() => import("./components/admin/AdminDashboard"));
 const AdminOrders = lazy(() => import("./components/admin/AdminOrders.tsx"));
 const AdminOrderDetail = lazy(
@@ -205,13 +201,6 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
-          {ALLOWED_PRODUCT_ORDER && (
-            <>
-              <Route path="/products" element={<Gallery />} />
-              <Route path="/products/:id" element={<ProductDetail />} />
-            </>
-          )}
-
           <Route path="/how-it-works" element={<Navigate to="/" replace />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -253,19 +242,6 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
-          {ALLOWED_PRODUCT_ORDER && (
-            <>
-              <Route
-                path="/cart"
-                element={
-                  <ProtectedRoute>
-                    <Cart />
-                  </ProtectedRoute>
-                }
-              />
-            </>
-          )}
 
           <Route
             path="/orders/:id/models/:itemIndex"

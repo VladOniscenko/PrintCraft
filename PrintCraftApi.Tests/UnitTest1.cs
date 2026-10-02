@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using PrintCraftApi.Controllers;
 using PrintCraftApi.Data;
 using PrintCraftApi.Models;
@@ -291,7 +292,9 @@ public class AdminControllerPricingSyncTests
 {
     private static AdminController CreateAdminController(PrintCraftDb db)
     {
-        return new AdminController(db, new NoopEmailService(), new ConfigurationBuilder().Build());
+        var invoiceService = new InvoiceService(
+            Options.Create(new InvoiceOptions()));
+        return new AdminController(db, new NoopEmailService(), new ConfigurationBuilder().Build(), invoiceService);
     }
 
     [Fact]
@@ -450,6 +453,25 @@ public class AdminControllerPricingSyncTests
         Assert.Equal(30m, order.FinalTotalAmount);
     }
 
+    [Fact]
+    public async Task DownloadInvoice_ReturnsPdfFile()
+    {
+        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+        await using var db = CreateDbContext();
+        var order = CreateOrder(delivery: 6m, discount: 5m, itemPrice: 8, itemCount: 3);
+        db.Orders.Add(order);
+        await db.SaveChangesAsync();
+
+        var sut = CreateAdminController(db);
+        var result = await sut.DownloadInvoice(order.Id);
+
+        var file = Assert.IsType<FileContentResult>(result);
+        Assert.Equal("application/pdf", file.ContentType);
+        Assert.Equal($"invoice-{order.Id:N}.pdf", file.FileDownloadName);
+        Assert.NotEmpty(file.FileContents);
+        Assert.Equal("%PDF-", System.Text.Encoding.ASCII.GetString(file.FileContents[..5]));
+    }
+
     private static PrintCraftDb CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<PrintCraftDb>()
@@ -493,4 +515,5 @@ public class AdminControllerPricingSyncTests
         public Task SendOrderPaidEmailAsync(string toEmail, string toName, Guid orderId, decimal amount) => Task.CompletedTask;
         public Task SendCustomEmailAsync(string toEmail, string toName, string subject, string body) => Task.CompletedTask;
     }
+
 }

@@ -1,6 +1,5 @@
 export * from "./product";
 export * from "./order";
 export * from "./address";
-export * from "./cart";
 export * from "./user";
 export * from "./ui";

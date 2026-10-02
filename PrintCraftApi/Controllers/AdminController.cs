@@ -57,15 +57,18 @@ public class AdminController : ControllerBase
     private readonly PrintCraftDb _db;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
+    private readonly IInvoiceService _invoiceService;
 
     public AdminController(
         PrintCraftDb db,
         IEmailService emailService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IInvoiceService invoiceService)
     {
         _db = db;
         _emailService = emailService;
         _configuration = configuration;
+        _invoiceService = invoiceService;
     }
 
     private static bool IsPendingStatus(string? status)
@@ -265,10 +268,8 @@ public class AdminController : ControllerBase
         if (order == null) return NotFound(new { message = "Order not found" });
 
         var customer = order.UserId.HasValue ? await _db.Users.FindAsync(order.UserId.Value) : null;
-        var currency = System.Net.WebUtility.HtmlEncode(_configuration["CurrencyCode"] ?? "EUR");
-        var rows = string.Join("", order.Items.Select(item => "<tr><td>" + System.Net.WebUtility.HtmlEncode(item.fileName ?? item.FileUrl ?? "Item") + "</td><td>" + item.Count + "</td><td>" + item.Price.ToString("F2") + "</td><td>" + (item.Price * item.Count).ToString("F2") + "</td></tr>"));
-        var html = "<!doctype html><html><head><meta charset=\"utf-8\"><title>Invoice</title><style>body{font-family:Arial;background:#f4f7f5;padding:40px;color:#173229}.sheet{max-width:860px;margin:auto;background:white;padding:56px;box-shadow:0 18px 60px #17322918}.top{display:flex;justify-content:space-between;border-bottom:3px solid #1f8068;padding-bottom:28px}table{width:100%;border-collapse:collapse;margin-top:24px}th,td{padding:14px 12px;border-bottom:1px solid #dce8e2;text-align:left}td:not(:first-child),th:not(:first-child){text-align:right}.total{text-align:right;font-size:20px;font-weight:800;margin-top:28px}</style></head><body><main class=\"sheet\"><header class=\"top\"><div><div>PRINTCRAFT</div><h1>Invoice</h1><p>Thank you for your business.</p></div><div><strong>Invoice " + order.Id.ToString()[..8].ToUpperInvariant() + "</strong><br>Issued " + order.CreatedAt.ToString("yyyy-MM-dd") + "<br>" + (order.IsPaid ? "Paid" : "Payment pending") + "</div></header><h2>Bill to</h2><p>" + System.Net.WebUtility.HtmlEncode(customer?.Name ?? order.FullName) + "<br>" + System.Net.WebUtility.HtmlEncode(customer?.Email ?? "") + "<br>" + System.Net.WebUtility.HtmlEncode(order.AddressLine1) + ", " + System.Net.WebUtility.HtmlEncode(order.City) + " " + System.Net.WebUtility.HtmlEncode(order.PostalCode) + "</p><table><thead><tr><th>Description</th><th>Qty</th><th>Unit (" + currency + ")</th><th>Amount (" + currency + ")</th></tr></thead><tbody>" + rows + "</tbody></table><div class=\"total\">Subtotal: " + order.SubtotalAmount.ToString("F2") + " " + currency + "<br>Service fee: " + order.ServiceFeePrice.ToString("F2") + " " + currency + "<br>Delivery: " + order.DeliveryPrice.ToString("F2") + " " + currency + "<br>Discount: -" + order.DiscountAmount.ToString("F2") + " " + currency + "<br>Total: " + order.FinalTotalAmount.ToString("F2") + " " + currency + "</div><p>Order reference: " + order.Id + "<br>Payment method: bank transfer.</p></main></body></html>";
-        return File(System.Text.Encoding.UTF8.GetBytes(html), "text/html", "invoice-" + order.Id.ToString("N") + ".html");
+        var pdf = _invoiceService.Generate(order, customer);
+        return File(pdf, "application/pdf", $"invoice-{order.Id:N}.pdf");
     }
 
     [HttpGet("analytics/visits")]
@@ -688,70 +689,6 @@ public class AdminController : ControllerBase
         return Ok(payments);
     }
 
-    [HttpPut("orders/{id:guid}")]
-    public async Task<IActionResult> UpdateOrder([FromRoute] Guid id, [FromBody] Order updated)
-    {
-        var order = await _db.Orders
-            .Include(o => o.Items)
-            .ThenInclude(i => i.Attachments)
-            .FirstOrDefaultAsync(o => o.Id == id);
-        if (order == null)
-            return NotFound(new { message = "Order not found" });
-
-        if (!CanTransitionStatus(order.Status, updated.Status, order.IsPaid))
-            return BadRequest(new { message = "Invalid status transition for this order." });
-
-        if (order.IsPaid && !updated.IsPaid)
-            return BadRequest(new { message = "Paid flag cannot be reverted once payment is completed." });
-
-        if (IsPricingLocked(order)
-            && (updated.DeliveryPrice != order.DeliveryPrice
-                || updated.OrderDiscountAmount != order.OrderDiscountAmount))
-        {
-            return BadRequest(new { message = "Pricing cannot be changed after payment or production progress." });
-        }
-
-        var previousStatus = order.Status;
-        order.FullName = updated.FullName;
-        order.AddressLine1 = updated.AddressLine1;
-        order.AddressLine2 = updated.AddressLine2;
-        order.City = updated.City;
-        order.PostalCode = updated.PostalCode;
-        order.PhoneNumber = updated.PhoneNumber;
-        order.Status = updated.Status;
-        if (string.Equals(NormalizeStatus(order.Status), "quoted", StringComparison.OrdinalIgnoreCase))
-        {
-            QuoteLifecycle.MarkQuoteConfirmed(order, DateTime.UtcNow);
-        }
-        else if (string.Equals(NormalizeStatus(order.Status), "pending_quote", StringComparison.OrdinalIgnoreCase))
-        {
-            QuoteLifecycle.ClearQuoteWindow(order);
-        }
-
-        if (!IsPricingLocked(order))
-        {
-            order.DeliveryPrice = updated.DeliveryPrice < 0 ? 0 : updated.DeliveryPrice;
-            order.OrderDiscountAmount = updated.OrderDiscountAmount < 0 ? 0 : updated.OrderDiscountAmount;
-            RecalculateQuotedPrice(order);
-        }
-        order.QuoteMessage = updated.QuoteMessage;
-        order.TrackingCode = string.IsNullOrWhiteSpace(updated.TrackingCode)
-            ? null
-            : updated.TrackingCode.Trim();
-        order.TrackingUrl = string.IsNullOrWhiteSpace(updated.TrackingUrl)
-            ? null
-            : updated.TrackingUrl.Trim();
-        order.InternalNotes = updated.InternalNotes;
-        order.CustomerNotes = updated.CustomerNotes;
-        order.IsPaid = updated.IsPaid;
-        order.UpdatedAt = DateTime.UtcNow;
-
-        await _db.SaveChangesAsync();
-        await LogStatusHistoryAsync(order.Id, previousStatus, order.Status, "admin", "Order updated");
-
-        return Ok(order);
-    }
-
     [HttpPatch("orders/{id:guid}/status")]
     public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid id, [FromBody] UpdateOrderStatusRequest payload)
     {
@@ -799,85 +736,6 @@ public class AdminController : ControllerBase
 
         await _db.SaveChangesAsync();
         await LogAdminActionAsync(order, "Updated customer shipping details");
-        return Ok(order);
-    }
-
-    [HttpPut("orders/{id:guid}/quote")]
-    public async Task<IActionResult> DoQuote([FromRoute] Guid id, [FromBody] AdminQuoteRequest payload)
-    {
-        var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == id);
-        if (order == null) return NotFound(new { message = "Order not found" });
-
-        if (IsPricingLocked(order))
-            return BadRequest(new { message = "Pricing cannot be changed after payment or production progress." });
-
-        var previousStatus = order.Status;
-        order.QuotedPrice = payload.Price;
-        order.QuoteMessage = payload.Message;
-        order.Status = "quoted";
-        QuoteLifecycle.MarkQuoteConfirmed(order, DateTime.UtcNow);
-        order.UpdatedAt = DateTime.UtcNow;
-
-        await _db.SaveChangesAsync();
-        await LogStatusHistoryAsync(order.Id, previousStatus, order.Status, "admin", "Quote prepared");
-
-        return Ok(order);
-    }
-
-    [HttpPut("orders/{id:guid}/confirm")]
-    public async Task<IActionResult> ConfirmOrder([FromRoute] Guid id)
-    {
-        var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == id);
-        if (order == null) return NotFound(new { message = "Order not found" });
-
-        if (!CanTransitionStatus(order.Status, "printing", order.IsPaid))
-            return BadRequest(new { message = "Cannot confirm this order." });
-
-        var previousStatus = order.Status;
-        order.Status = "printing";
-        order.UpdatedAt = DateTime.UtcNow;
-
-        await _db.SaveChangesAsync();
-        await LogStatusHistoryAsync(order.Id, previousStatus, order.Status, "admin", "Started printing");
-
-        return Ok(order);
-    }
-
-    [HttpPut("orders/{id:guid}/sent")]
-    public async Task<IActionResult> MarkSent([FromRoute] Guid id)
-    {
-        var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == id);
-        if (order == null) return NotFound(new { message = "Order not found" });
-
-        if (!CanTransitionStatus(order.Status, "sent", order.IsPaid))
-            return BadRequest(new { message = "Cannot mark this order as sent from the current status." });
-
-        var previousStatus = order.Status;
-        order.Status = "sent";
-        order.UpdatedAt = DateTime.UtcNow;
-
-        await _db.SaveChangesAsync();
-        await LogStatusHistoryAsync(order.Id, previousStatus, order.Status, "admin", "Order sent");
-
-        return Ok(order);
-    }
-
-    [HttpPut("orders/{id:guid}/delivered")]
-    public async Task<IActionResult> MarkDelivered([FromRoute] Guid id)
-    {
-        var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == id);
-        if (order == null) return NotFound(new { message = "Order not found" });
-
-        if (!CanTransitionStatus(order.Status, "delivered", order.IsPaid))
-            return BadRequest(new { message = "Cannot mark this order as delivered from the current status." });
-
-        var previousStatus = order.Status;
-        order.Status = "delivered";
-        order.UpdatedAt = DateTime.UtcNow;
-
-        await _db.SaveChangesAsync();
-        await LogStatusHistoryAsync(order.Id, previousStatus, order.Status, "admin", "Order delivered");
-
         return Ok(order);
     }
 
@@ -1132,43 +990,6 @@ public class AdminController : ControllerBase
         return Ok(order);
     }
 
-    [HttpPut("orders/{id:guid}/notes")]
-    public async Task<IActionResult> UpdateNotes([FromRoute] Guid id, [FromBody] NotesRequest payload)
-    {
-        var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == id);
-        if (order == null) return NotFound(new { message = "Order not found" });
-
-        if (!string.IsNullOrWhiteSpace(payload.InternalNotes))
-        {
-            _db.OrderNotes.Add(new OrderNote
-            {
-                OrderId = order.Id,
-                Content = payload.InternalNotes.Trim(),
-                Visibility = "internal",
-                CreatedBy = "admin",
-                CreatedAt = DateTime.UtcNow,
-            });
-        }
-
-        if (!string.IsNullOrWhiteSpace(payload.CustomerNotes))
-        {
-            _db.OrderNotes.Add(new OrderNote
-            {
-                OrderId = order.Id,
-                Content = payload.CustomerNotes.Trim(),
-                Visibility = "customer",
-                CreatedBy = "admin",
-                CreatedAt = DateTime.UtcNow,
-            });
-        }
-
-        order.UpdatedAt = DateTime.UtcNow;
-
-        await _db.SaveChangesAsync();
-        await LogAdminActionAsync(order, "Updated order notes");
-        return Ok(order);
-    }
-
     [HttpPost("orders/{id:guid}/notes")]
     public async Task<IActionResult> AddOrderNote([FromRoute] Guid id, [FromBody] CreateOrderNoteRequest payload)
     {
@@ -1403,8 +1224,6 @@ public class AdminController : ControllerBase
         return null;
     }
 
-    public record AdminQuoteRequest(decimal Price, string Message);
-    public record NotesRequest(string? InternalNotes, string? CustomerNotes);
     public record CreateOrderNoteRequest(string Content, string Visibility);
     public record UpdateItemRequest(double Price);
     public record DeliveryPriceRequest(decimal DeliveryPrice);

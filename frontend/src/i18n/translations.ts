@@ -69,8 +69,11 @@ export const translations: Record<
         switchLogin: "Already have an account? Sign in",
         descriptionTooShort: "Describe your project in at least 10 characters.",
         saveFailed: "We could not save your request. Please try again.",
+        uploadFailed: "Upload failed. Check the file and try again.",
         loginFailed: "Sign in failed.",
         registerFailed: "Registration failed.",
+        removeFile: "Remove file",
+        close: "Close",
         descriptionFile: "Project description",
         pla: "Everyday use",
         petg: "Extra strong",
@@ -272,6 +275,7 @@ export const translations: Record<
     admin: {
       loadingDashboard: "Loading dashboard...",
       noRecentOrders: "No recent orders found.",
+      downloadInvoice: "Download PDF invoice",
       common: {
         page: "Page",
         of: "of",
@@ -1294,6 +1298,11 @@ export const translations: Record<
       quoteExpiresOn: "Quote expires on",
       quoteExpiredInfo:
         "This quote has expired after 7 days. Request a new quote to continue.",
+      pendingQuoteInfo:
+        "Your request is being reviewed. We will send your quote as soon as possible.",
+      trackingTitle: "Shipping tracking",
+      trackingCode: "Tracking code",
+      openTracking: "Open tracking page",
       shippingModalTitle: "Confirm Shipping Details",
       shippingModalSubtitle:
         "We need your delivery address before continuing to payment.",
@@ -1550,8 +1559,12 @@ export const translations: Record<
         switchLogin: "Al een account? Inloggen",
         descriptionTooShort: "Beschrijf je project in minimaal 10 tekens.",
         saveFailed: "Je aanvraag kon niet worden opgeslagen. Probeer opnieuw.",
+        uploadFailed:
+          "Uploaden is niet gelukt. Controleer het bestand en probeer opnieuw.",
         loginFailed: "Inloggen is niet gelukt.",
         registerFailed: "Registreren is niet gelukt.",
+        removeFile: "Bestand verwijderen",
+        close: "Sluiten",
         descriptionFile: "Beschrijving van je project",
         pla: "Dagelijks gebruik",
         petg: "Super sterk",
@@ -1758,6 +1771,7 @@ export const translations: Record<
     admin: {
       loadingDashboard: "Dashboard laden...",
       noRecentOrders: "Geen recente orders gevonden.",
+      downloadInvoice: "PDF-factuur downloaden",
       common: {
         page: "Pagina",
         of: "van",
@@ -2794,6 +2808,11 @@ export const translations: Record<
       quoteExpiresOn: "Offerte verloopt op",
       quoteExpiredInfo:
         "Deze offerte is na 7 dagen verlopen. Vraag een nieuwe offerte aan om verder te gaan.",
+      pendingQuoteInfo:
+        "Je aanvraag wordt beoordeeld. We sturen je offerte zo snel mogelijk.",
+      trackingTitle: "Verzending volgen",
+      trackingCode: "Track & trace-code",
+      openTracking: "Open track & trace",
       shippingModalTitle: "Bevestig Verzendgegevens",
       shippingModalSubtitle:
         "We hebben je afleveradres nodig voordat je verdergaat naar betalen.",

@@ -4,16 +4,19 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using PrintCraftApi.Data;
 using PrintCraftApi.Services;
+using QuestPDF.Infrastructure;
 
 LoadDotEnv(
     Path.Combine(Directory.GetCurrentDirectory(), ".env"),
     Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env")));
 
 var builder = WebApplication.CreateBuilder(args);
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Explicitly add environment variables with double underscore support
 builder.Configuration.AddEnvironmentVariables();
@@ -42,7 +45,9 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IDiscordWebhookService, DiscordWebhookService>();
 builder.Services.AddScoped<IQuoteDraftService, QuoteDraftService>();
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+builder.Services.Configure<InvoiceOptions>(builder.Configuration.GetSection("Invoice"));
 builder.Services.AddTransient<IEmailService, GmailSmtpEmailService>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -229,7 +234,16 @@ app.UseCors("AllowReact");
 app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
-app.UseStaticFiles();
+var staticFileContentTypes = new FileExtensionContentTypeProvider();
+staticFileContentTypes.Mappings[".3mf"] = "model/3mf";
+staticFileContentTypes.Mappings[".stl"] = "model/stl";
+staticFileContentTypes.Mappings[".obj"] = "model/obj";
+staticFileContentTypes.Mappings[".step"] = "model/step";
+staticFileContentTypes.Mappings[".stp"] = "model/step";
+app.UseStaticFiles(new StaticFileOptions
+{
+    ContentTypeProvider = staticFileContentTypes,
+});
 
 // --- ROUTES ---
 app.MapControllers();

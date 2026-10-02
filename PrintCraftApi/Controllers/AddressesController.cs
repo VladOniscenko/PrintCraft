@@ -51,37 +51,6 @@ public class AddressesController : ControllerBase
         return Ok(addresses);
     }
 
-    [HttpGet("default")]
-    public async Task<IActionResult> GetDefault()
-    {
-        var userId = GetUserId();
-        if (userId == null) return Unauthorized(new { message = "User not authenticated" });
-
-        var address = await _db.UserAddresses
-            .AsNoTracking()
-            .Where(a => a.UserId == userId.Value)
-            .OrderByDescending(a => a.IsDefault)
-            .ThenByDescending(a => a.LastUsedAt ?? a.UpdatedAt)
-            .ThenByDescending(a => a.CreatedAt)
-            .Select(a => new AddressResponse(
-                a.Id,
-                a.UserId,
-                a.FullName,
-                a.PhoneNumber,
-                a.AddressLine1,
-                a.AddressLine2,
-                a.City,
-                a.PostalCode,
-                a.Label,
-                a.IsDefault,
-                a.CreatedAt,
-                a.UpdatedAt,
-                a.LastUsedAt))
-            .FirstOrDefaultAsync();
-
-        return address == null ? NotFound(new { message = "No saved address found." }) : Ok(address);
-    }
-
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] UpsertUserAddressRequest request)
     {
