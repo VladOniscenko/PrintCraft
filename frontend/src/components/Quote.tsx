@@ -1751,13 +1751,13 @@ export default function Quote() {
                         className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
                       />
                       <span>
-                        {t("quote.agreementText")}{" "}
+                        {t("orderDetail.agreementText")}{" "}
                         <Link
                           to="/terms"
                           target="_blank"
                           className="font-bold underline"
                         >
-                          {t("quote.agreementLink")}
+                          {t("orderDetail.agreementLink")}
                         </Link>
                       </span>
                     </label>

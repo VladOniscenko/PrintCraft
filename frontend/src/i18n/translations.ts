@@ -18,7 +18,6 @@ export const translations: Record<
     nav: {
       home: "Home",
       materials: "Materials",
-      gallery: "Products",
       faq: "FAQ",
       myOrders: "My Orders",
       myProfile: "My Profile",
@@ -288,7 +287,6 @@ export const translations: Record<
         payments: "Payments",
         models: "Files",
         users: "Users",
-        products: "Products",
         filaments: "Filaments",
       },
       dashboard: {
@@ -320,7 +318,6 @@ export const translations: Record<
         quotedRevenue: "Quoted Revenue",
         paidRevenue: "Paid Revenue",
         avgQuoteValue: "Avg Quote Value",
-        products: "Products",
         filamentSkus: "Filament SKUs",
         inStockFilaments: "In-stock Filaments",
         lowStockFilaments: "Low-stock Filaments",
@@ -1037,8 +1034,9 @@ export const translations: Record<
       title: "Frequently Asked Questions",
       subtitle:
         "Got questions about 3D printing, shipping, or materials? We have got you covered.",
-      contactText: "Still can't find the answer you're looking for?",
-      contactCta: "Send us a message",
+      contactText:
+        "Still looking for an answer? See our privacy policy for contact details.",
+      contactCta: "View other pages",
       q1: "What type of 3D files do you accept?",
       a1: "We accept the most common 3D files: .STL, .OBJ, and .3MF. If you have a different file type from your design software, you can usually use the Export or Save As option to convert it before uploading.",
       q2: "How much does a custom print cost?",
@@ -1362,7 +1360,6 @@ export const translations: Record<
     nav: {
       home: "Home",
       materials: "Materialen",
-      gallery: "Producten",
       faq: "FAQ",
       myOrders: "Mijn Orders",
       myProfile: "Mijn Profiel",
@@ -1638,7 +1635,6 @@ export const translations: Record<
         payments: "Betalingen",
         models: "Bestanden",
         users: "Gebruikers",
-        products: "Producten",
         filaments: "Filamenten",
       },
       dashboard: {
@@ -1671,7 +1667,6 @@ export const translations: Record<
         quotedRevenue: "Geoffreerde omzet",
         paidRevenue: "Betaalde omzet",
         avgQuoteValue: "Gem. offertelwaarde",
-        products: "Producten",
         filamentSkus: "Filament SKU's",
         inStockFilaments: "Filamenten op voorraad",
         lowStockFilaments: "Filamenten lage voorraad",
@@ -2402,8 +2397,9 @@ export const translations: Record<
       title: "Veelgestelde Vragen",
       subtitle:
         "Vragen over 3D printen, levering of materialen? We helpen je graag.",
-      contactText: "Nog steeds niet gevonden wat je zoekt?",
-      contactCta: "Stuur ons een bericht",
+      contactText:
+        "Nog steeds op zoek naar een antwoord? Bekijk ons privacybeleid voor contactgegevens.",
+      contactCta: "Bekijk andere pagina's",
       q1: "Welke 3D-bestanden accepteren jullie?",
       a1: "We accepteren de meest gebruikte bestandsformaten: .STL, .OBJ en .3MF. Andere formaten kun je meestal exporteren naar STL.",
       q2: "Wat kost een maatwerk print?",

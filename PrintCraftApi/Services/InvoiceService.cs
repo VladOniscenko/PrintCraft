@@ -3,6 +3,7 @@ using PrintCraftApi.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System.Globalization;
 
 namespace PrintCraftApi.Services;
 
@@ -23,16 +24,18 @@ public sealed class InvoiceOptions
 
 public interface IInvoiceService
 {
-    byte[] Generate(Order order, User? customer);
+    byte[] Generate(Order order, User? customer, string? language = "en");
 }
 
 public sealed class InvoiceService(IOptions<InvoiceOptions> options) : IInvoiceService
 {
     private readonly InvoiceOptions _options = options.Value;
 
-    public byte[] Generate(Order order, User? customer)
+    public byte[] Generate(Order order, User? customer, string? language = "en")
     {
         var currency = string.IsNullOrWhiteSpace(_options.CurrencyCode) ? "EUR" : _options.CurrencyCode;
+        var labels = InvoiceLabels.For(language);
+        var culture = labels.Culture;
         var invoiceNumber = $"INV-{order.Id.ToString("N")[..8].ToUpperInvariant()}";
         var customerName = string.IsNullOrWhiteSpace(customer?.Name) ? order.FullName : customer!.Name;
         var customerEmail = customer?.Email ?? string.Empty;
@@ -42,19 +45,19 @@ public sealed class InvoiceService(IOptions<InvoiceOptions> options) : IInvoiceS
             page.Size(PageSizes.A4);
             page.Margin(42);
             page.DefaultTextStyle(style => style.FontFamily("Lato").FontSize(9).FontColor("24352F"));
-            page.Header().Element(container => ComposeHeader(container, invoiceNumber, order));
-            page.Content().Element(container => ComposeContent(container, order, customerName, customerEmail, payment, currency));
+            page.Header().Element(container => ComposeHeader(container, invoiceNumber, order, labels, culture));
+            page.Content().Element(container => ComposeContent(container, order, customerName, customerEmail, payment, currency, labels, culture));
             page.Footer().AlignCenter().Text(text =>
             {
                 text.Span(_options.SellerName).SemiBold();
                 text.Span("  |  ");
-                text.Span("Page ");
+                text.Span(labels.Page);
                 text.CurrentPageNumber();
             });
         })).GeneratePdf();
     }
 
-    private void ComposeHeader(IContainer container, string invoiceNumber, Order order)
+    private void ComposeHeader(IContainer container, string invoiceNumber, Order order, InvoiceLabels labels, CultureInfo culture)
     {
         container.PaddingBottom(18).BorderBottom(2).BorderColor("2B8A70").Row(row =>
         {
@@ -62,20 +65,31 @@ public sealed class InvoiceService(IOptions<InvoiceOptions> options) : IInvoiceS
             {
                 column.Item().Row(brand =>
                 {
-                    brand.ConstantItem(28).Height(28).Background("176B57").AlignCenter().AlignMiddle()
-                        .Text("P").FontSize(16).Bold().FontColor("F5C451");
+                    brand.ConstantItem(28).Height(28).Background("10B981").Padding(4).Column(mark =>
+                    {
+                        mark.Item().Row(cells =>
+                        {
+                            cells.RelativeItem().Background("FFFFFF").Height(8);
+                            cells.RelativeItem().Background("FFFFFF").Height(8);
+                        });
+                        mark.Item().Row(cells =>
+                        {
+                            cells.RelativeItem().Background("FFFFFF").Height(8);
+                            cells.RelativeItem().Background("047857").Height(8);
+                        });
+                    });
                     brand.AutoItem().PaddingLeft(8).AlignMiddle().Text(_options.SellerName)
                         .FontSize(18).Bold().FontColor("176B57");
                 });
 
-                column.Item().PaddingTop(5).Text("Invoice").FontSize(22).Bold();
+                column.Item().PaddingTop(5).Text(labels.Invoice).FontSize(22).Bold();
             });
 
             row.ConstantItem(190).AlignRight().Column(column =>
             {
                 column.Item().Text(invoiceNumber).Bold();
-                column.Item().Text($"Issued {order.CreatedAt:yyyy-MM-dd}");
-                column.Item().Text(order.IsPaid ? "Paid" : "Payment pending").FontColor(order.IsPaid ? "176B57" : "A15C00");
+                column.Item().Text($"{labels.Issued} {order.CreatedAt.ToString("d", culture)}");
+                column.Item().Text(order.IsPaid ? labels.Paid : labels.PaymentPending).FontColor(order.IsPaid ? "176B57" : "A15C00");
             });
         });
     }
@@ -86,14 +100,16 @@ public sealed class InvoiceService(IOptions<InvoiceOptions> options) : IInvoiceS
         string customerName,
         string customerEmail,
         Payment? payment,
-        string currency)
+        string currency,
+        InvoiceLabels labels,
+        CultureInfo culture)
     {
         container.Column(column =>
         {
             column.Spacing(18);
             column.Item().Row(row =>
             {
-                row.RelativeItem().Element(item => ComposeAddress(item, "From", new[]
+                row.RelativeItem().Element(item => ComposeAddress(item, labels.From, new[]
                 {
                     _options.SellerName,
                     _options.SellerAddress,
@@ -101,7 +117,7 @@ public sealed class InvoiceService(IOptions<InvoiceOptions> options) : IInvoiceS
                     _options.SellerPhone,
                     string.IsNullOrWhiteSpace(_options.VatNumber) ? string.Empty : $"VAT: {_options.VatNumber}"
                 }));
-                row.RelativeItem().Element(item => ComposeAddress(item, "Bill to", new[]
+                row.RelativeItem().Element(item => ComposeAddress(item, labels.BillTo, new[]
                 {
                     customerName,
                     customerEmail,
@@ -124,10 +140,10 @@ public sealed class InvoiceService(IOptions<InvoiceOptions> options) : IInvoiceS
 
                 table.Header(header =>
                 {
-                    header.Cell().Element(HeaderCell).Text("Description");
-                    header.Cell().Element(HeaderCell).AlignRight().Text("Qty");
-                    header.Cell().Element(HeaderCell).AlignRight().Text($"Unit ({currency})");
-                    header.Cell().Element(HeaderCell).AlignRight().Text($"Amount ({currency})");
+                    header.Cell().Element(HeaderCell).Text(labels.Description);
+                    header.Cell().Element(HeaderCell).AlignRight().Text(labels.Quantity);
+                    header.Cell().Element(HeaderCell).AlignRight().Text($"{labels.Unit} ({currency})");
+                    header.Cell().Element(HeaderCell).AlignRight().Text($"{labels.Amount} ({currency})");
                 });
 
                 foreach (var item in order.Items)
@@ -136,34 +152,34 @@ public sealed class InvoiceService(IOptions<InvoiceOptions> options) : IInvoiceS
                     var name = string.IsNullOrWhiteSpace(item.fileName) ? item.FileUrl ?? "3D print item" : item.fileName;
                     table.Cell().Element(BodyCell).Text(name);
                     table.Cell().Element(BodyCell).AlignRight().Text(quantity.ToString());
-                    table.Cell().Element(BodyCell).AlignRight().Text(item.Price.ToString("F2"));
-                    table.Cell().Element(BodyCell).AlignRight().Text((item.Price * quantity).ToString("F2"));
+                    table.Cell().Element(BodyCell).AlignRight().Text(item.Price.ToString("F2", culture));
+                    table.Cell().Element(BodyCell).AlignRight().Text((item.Price * quantity).ToString("F2", culture));
                 }
             });
 
             column.Item().AlignRight().Width(270).Column(totals =>
             {
-                AddTotal(totals, "Subtotal", order.SubtotalAmount, currency);
-                AddTotal(totals, "Service fee", Math.Max(order.ServiceFeePrice, 0m), currency);
-                AddTotal(totals, "Delivery", Math.Max(order.DeliveryPrice, 0m), currency);
-                AddTotal(totals, "Discount", -order.DiscountAmount, currency);
+                AddTotal(totals, labels.Subtotal, order.SubtotalAmount, currency, culture);
+                AddTotal(totals, labels.ServiceFee, Math.Max(order.ServiceFeePrice, 0m), currency, culture);
+                AddTotal(totals, labels.Delivery, Math.Max(order.DeliveryPrice, 0m), currency, culture);
+                AddTotal(totals, labels.Discount, -order.DiscountAmount, currency, culture);
                 totals.Item().PaddingTop(6).BorderTop(1).BorderColor("D6E3DE").Row(row =>
                 {
-                    row.RelativeItem().Text("Total").Bold().FontSize(12);
-                    row.ConstantItem(100).AlignRight().Text($"{order.FinalTotalAmount:F2} {currency}").Bold().FontSize(12);
+                    row.RelativeItem().Text(labels.Total).Bold().FontSize(12);
+                    row.ConstantItem(100).AlignRight().Text($"{order.FinalTotalAmount.ToString("F2", culture)} {currency}").Bold().FontSize(12);
                 });
             });
 
             column.Item().Row(row =>
             {
-                row.RelativeItem().Element(item => ComposeAddress(item, "Payment", new[]
+                row.RelativeItem().Element(item => ComposeAddress(item, labels.Payment, new[]
                 {
-                    $"Method: {FormatPaymentMethod(order.PaymentFlow)}",
-                    string.IsNullOrWhiteSpace(payment?.Reference) ? string.Empty : $"Reference: {payment.Reference}",
+                    $"{labels.Method}: {FormatPaymentMethod(order.PaymentFlow, labels)}",
+                    string.IsNullOrWhiteSpace(payment?.Reference) ? string.Empty : $"{labels.Reference}: {payment.Reference}",
                     _options.PaymentTerms,
                     _options.TaxLabel
                 }));
-                row.RelativeItem().Element(item => ComposeAddress(item, "Bank details", new[]
+                row.RelativeItem().Element(item => ComposeAddress(item, labels.BankDetails, new[]
                 {
                     _options.BankAccountName,
                     string.IsNullOrWhiteSpace(_options.BankIban) ? string.Empty : $"IBAN: {_options.BankIban}",
@@ -183,12 +199,12 @@ public sealed class InvoiceService(IOptions<InvoiceOptions> options) : IInvoiceS
         });
     }
 
-    private static void AddTotal(ColumnDescriptor column, string label, decimal amount, string currency)
+    private static void AddTotal(ColumnDescriptor column, string label, decimal amount, string currency, CultureInfo culture)
     {
         column.Item().Row(row =>
         {
             row.RelativeItem().Text(label);
-            row.ConstantItem(100).AlignRight().Text($"{amount:F2} {currency}");
+            row.ConstantItem(100).AlignRight().Text($"{amount.ToString("F2", culture)} {currency}");
         });
     }
 
@@ -198,9 +214,40 @@ public sealed class InvoiceService(IOptions<InvoiceOptions> options) : IInvoiceS
     private static IContainer BodyCell(IContainer container)
         => container.BorderBottom(1).BorderColor("D6E3DE").PaddingVertical(7);
 
-    private static string FormatPaymentMethod(string? paymentFlow)
+    private static string FormatPaymentMethod(string? paymentFlow, InvoiceLabels labels)
         => string.Equals(paymentFlow, "bank_transfer", StringComparison.OrdinalIgnoreCase)
-            ? "Bank transfer"
-            : "Online payment";
+            ? labels.BankTransfer
+            : labels.OnlinePayment;
+
+    private sealed record InvoiceLabels(
+        CultureInfo Culture,
+        string Invoice,
+        string Issued,
+        string Paid,
+        string PaymentPending,
+        string From,
+        string BillTo,
+        string Description,
+        string Quantity,
+        string Unit,
+        string Amount,
+        string Subtotal,
+        string ServiceFee,
+        string Delivery,
+        string Discount,
+        string Total,
+        string Payment,
+        string Method,
+        string Reference,
+        string BankDetails,
+        string BankTransfer,
+        string OnlinePayment,
+        string Page)
+    {
+        public static InvoiceLabels For(string? language)
+            => string.Equals(language, "nl", StringComparison.OrdinalIgnoreCase)
+                ? new(CultureInfo.GetCultureInfo("nl-NL"), "Factuur", "Uitgegeven", "Betaald", "Betaling in behandeling", "Van", "Factuuradres", "Omschrijving", "Aantal", "Prijs", "Bedrag", "Subtotaal", "Servicekosten", "Bezorging", "Korting", "Totaal", "Betaling", "Methode", "Referentie", "Bankgegevens", "Overschrijving", "Online betaling", "Pagina")
+                : new(CultureInfo.GetCultureInfo("en-US"), "Invoice", "Issued", "Paid", "Payment pending", "From", "Bill to", "Description", "Qty", "Unit", "Amount", "Subtotal", "Service fee", "Delivery", "Discount", "Total", "Payment", "Method", "Reference", "Bank details", "Bank transfer", "Online payment", "Page");
+    }
 
 }

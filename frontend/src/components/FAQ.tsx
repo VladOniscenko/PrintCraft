@@ -8,7 +8,6 @@ import { Link } from "react-router-dom";
 
 export default function FAQ() {
   const { t } = useI18n();
-  const supportPath = localStorage.getItem("token") ? "/quote" : "/signup";
   const faqData = [
     { question: t("faq.q1"), answer: t("faq.a1") },
     { question: t("faq.q2"), answer: t("faq.a2") },
@@ -94,7 +93,7 @@ export default function FAQ() {
         {/* Contact Support Box */}
         <div className="site-card reveal-up stagger-4 mt-10 text-center p-8">
           <p className="text-[#5f726c] mb-4">{t("faq.contactText")}</p>
-          <Link to={supportPath} className="site-btn-primary">
+          <Link to="/privacy" className="site-btn-primary">
             {t("faq.contactCta")}
           </Link>
         </div>

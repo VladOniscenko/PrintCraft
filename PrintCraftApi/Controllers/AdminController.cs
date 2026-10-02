@@ -262,13 +262,13 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("orders/{id:guid}/invoice")]
-    public async Task<IActionResult> DownloadInvoice([FromRoute] Guid id)
+    public async Task<IActionResult> DownloadInvoice([FromRoute] Guid id, [FromQuery] string? language = "en")
     {
         var order = await _db.Orders.Include(o => o.Items).Include(o => o.Payments).FirstOrDefaultAsync(o => o.Id == id);
         if (order == null) return NotFound(new { message = "Order not found" });
 
         var customer = order.UserId.HasValue ? await _db.Users.FindAsync(order.UserId.Value) : null;
-        var pdf = _invoiceService.Generate(order, customer);
+        var pdf = _invoiceService.Generate(order, customer, language);
         return File(pdf, "application/pdf", $"invoice-{order.Id:N}.pdf");
     }
 

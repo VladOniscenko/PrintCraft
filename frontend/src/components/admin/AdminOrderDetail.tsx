@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import {
   Loader2,
   Package,
@@ -29,11 +29,29 @@ import {
 } from "../../utils/orderStatus";
 import { formatCurrencyAmount } from "../../utils/currency";
 
+const ADMIN_ORDER_VIEWS = [
+  "overview",
+  "customer",
+  "finance",
+  "communication",
+  "activity",
+] as const;
+
+type AdminOrderView = (typeof ADMIN_ORDER_VIEWS)[number];
+
+const isAdminOrderView = (value: string | null): value is AdminOrderView =>
+  ADMIN_ORDER_VIEWS.includes(value as AdminOrderView);
+
 export default function AdminOrderDetail() {
   const { notifyError, notifySuccess } = useNotify();
-  const { t } = useI18n();
+  const { language, t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedView = searchParams.get("view");
+  const activeView: AdminOrderView = isAdminOrderView(requestedView)
+    ? requestedView
+    : "overview";
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -592,7 +610,7 @@ export default function AdminOrderDetail() {
     String(order.customerNotes || "").trim().length > 0;
 
   return (
-    <AdminLayout>
+    <AdminLayout wide>
       <AdminBreadcrumb
         title={`${t("admin.order.titlePrefix")} ${order.id.slice(0, 8)}`}
         items={[
@@ -642,6 +660,7 @@ export default function AdminOrderDetail() {
           className="admin-btn admin-btn-secondary"
           onClick={async () => {
             const response = await api.get(`/admin/orders/${id}/invoice`, {
+              params: { language },
               responseType: "blob",
             });
             const url = URL.createObjectURL(response.data);
@@ -657,20 +676,32 @@ export default function AdminOrderDetail() {
       </div>
 
       <nav
-        className="mb-6 flex flex-wrap gap-2 rounded-xl border border-gray-200 bg-white p-3"
-        aria-label="Order detail sections"
+        className="admin-order-view-nav mb-6"
+        aria-label="Order detail views"
       >
-        {["customer", "order", "finance", "communication", "activity"].map(
-          (section) => (
-            <a
-              key={section}
-              href={`#admin-order-${section}`}
-              className="rounded-lg bg-gray-50 px-3 py-2 text-xs font-bold capitalize text-gray-700 hover:bg-emerald-50 hover:text-emerald-700"
+        {ADMIN_ORDER_VIEWS.map((view) => {
+          const isActive = activeView === view;
+
+          return (
+            <button
+              key={view}
+              type="button"
+              aria-current={isActive ? "page" : undefined}
+              className={`admin-order-view-tab${isActive ? " is-active" : ""}`}
+              onClick={() => {
+                const nextParams = new URLSearchParams(searchParams);
+                if (view === "overview") {
+                  nextParams.delete("view");
+                } else {
+                  nextParams.set("view", view);
+                }
+                setSearchParams(nextParams);
+              }}
             >
-              {section}
-            </a>
-          ),
-        )}
+              {view === "overview" ? "Overview" : view}
+            </button>
+          );
+        })}
       </nav>
 
       {/* SMART ACTION PANEL */}
@@ -1029,8 +1060,8 @@ export default function AdminOrderDetail() {
       {/* DETAILED PANELS */}
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
         <div className="space-y-5 xl:col-span-2">
-          <section id="admin-order-finance">
-            <section id="admin-order-order">
+          <section id="admin-order-finance" className="scroll-mt-24">
+            <section id="admin-order-order" className="scroll-mt-24">
               <OrderPricingPanel
                 order={order}
                 t={t}
@@ -1057,7 +1088,7 @@ export default function AdminOrderDetail() {
             </section>
           </section>
 
-          <section id="admin-order-communication">
+          <section id="admin-order-communication" className="scroll-mt-24">
             <OrderHistoryPanel
               t={t}
               statusHistory={statusHistory}
@@ -1067,7 +1098,10 @@ export default function AdminOrderDetail() {
         </div>
 
         <div className="space-y-5">
-          <article id="admin-order-customer" className="admin-panel p-4">
+          <article
+            id="admin-order-customer"
+            className="admin-panel scroll-mt-24 p-4"
+          >
             <div className="mb-2 flex items-center justify-between">
               <h2 className="font-bold text-[#1b2b25]">
                 {t("admin.order.customerInfoTitle")}
@@ -1391,7 +1425,10 @@ export default function AdminOrderDetail() {
             </div>
           </article>
 
-          <article id="admin-order-activity" className="admin-panel p-4">
+          <article
+            id="admin-order-activity"
+            className="admin-panel scroll-mt-24 p-4"
+          >
             <h3 className="font-bold mb-2 text-[#1b2b25]">
               {t("admin.order.notesTitle")}
             </h3>

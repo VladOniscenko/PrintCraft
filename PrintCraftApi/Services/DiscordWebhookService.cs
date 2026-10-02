@@ -19,15 +19,18 @@ public sealed class DiscordWebhookService : IDiscordWebhookService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
     private readonly ILogger<DiscordWebhookService> _logger;
+    private readonly string _environmentLabel;
 
     public DiscordWebhookService(
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
-        ILogger<DiscordWebhookService> logger)
+        ILogger<DiscordWebhookService> logger,
+        IHostEnvironment hostEnvironment)
     {
         _httpClientFactory = httpClientFactory;
         _configuration = configuration;
         _logger = logger;
+        _environmentLabel = GetEnvironmentLabel(hostEnvironment.EnvironmentName);
     }
 
     public Task SendUnhandledExceptionAsync(HttpContext context, Exception exception, CancellationToken cancellationToken = default)
@@ -211,7 +214,11 @@ public sealed class DiscordWebhookService : IDiscordWebhookService
     {
         try
         {
-            var payload = new { embeds = new[] { embed } };
+            var payload = new
+            {
+                content = $"**[{_environmentLabel}]**",
+                embeds = new[] { embed }
+            };
             using var request = new HttpRequestMessage(HttpMethod.Post, webhookUrl)
             {
                 Content = new StringContent(JsonSerializer.Serialize(payload, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull }), Encoding.UTF8, "application/json")
@@ -248,6 +255,19 @@ public sealed class DiscordWebhookService : IDiscordWebhookService
         }));
 
         return itemList.Length > 1024 ? itemList.Substring(0, 1020) + "..." : itemList;
+    }
+
+    private static string GetEnvironmentLabel(string? environmentName)
+    {
+        if (string.Equals(environmentName, Environments.Development, StringComparison.OrdinalIgnoreCase))
+            return "DEV";
+
+        if (string.Equals(environmentName, Environments.Production, StringComparison.OrdinalIgnoreCase))
+            return "PROD";
+
+        return string.IsNullOrWhiteSpace(environmentName)
+            ? "UNKNOWN"
+            : environmentName.Trim().ToUpperInvariant();
     }
 }
 

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import Navbar from "./Navbar";
 import api from "../services/api";
-import type { Order, PaymentAttempt } from "../types";
+import type { Order } from "../types";
 import type { UserAddress } from "../types/address";
 import {
   normalizeShippingInfo,
@@ -49,7 +49,6 @@ function getShippingDetailsFromOrder(order: Order | null): ShippingDetails {
     postalCode: order?.postalCode || "",
   };
 }
-
 function getShippingDetailsFromAddress(
   address: SavedAddressOption | null,
 ): ShippingDetails {
@@ -61,7 +60,6 @@ function getShippingDetailsFromAddress(
     postalCode: address?.postalCode || "",
   };
 }
-
 function mergeShippingDetails(
   base: ShippingDetails,
   fallback: ShippingDetails,
@@ -111,20 +109,15 @@ export default function OrderDetail() {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null,
   );
-  const [payments, setPayments] = useState<PaymentAttempt[]>([]);
   const [paymentNotificationCooldown, setPaymentNotificationCooldown] =
     useState<string | null>(null);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const [orderRes, paymentRes] = await Promise.all([
-          api.get(`/orders/${id}`),
-          api.get(`/orders/${id}/payments`),
-        ]);
+        const orderRes = await api.get(`/orders/${id}`);
         setOrder(orderRes.data);
         setShippingDetails(getShippingDetailsFromOrder(orderRes.data));
-        setPayments(Array.isArray(paymentRes.data) ? paymentRes.data : []);
 
         try {
           const addressesRes = await api.get<UserAddress[]>("/me/addresses");
@@ -193,14 +186,10 @@ export default function OrderDetail() {
   const refreshOrderData = async () => {
     if (!id) return;
 
-    const [orderRes, paymentRes] = await Promise.all([
-      api.get(`/orders/${id}`),
-      api.get(`/orders/${id}/payments`),
-    ]);
+    const orderRes = await api.get(`/orders/${id}`);
 
     setOrder(orderRes.data);
     setShippingDetails(getShippingDetailsFromOrder(orderRes.data));
-    setPayments(Array.isArray(paymentRes.data) ? paymentRes.data : []);
   };
 
   useEffect(() => {}, [id]);
@@ -334,7 +323,6 @@ export default function OrderDetail() {
   const priceSummary = buildPriceSummary(order);
   const statusSummary = buildStatusSummary(order, t);
   const reachedDate = getReachedDate(order);
-  const paymentAttempts = payments.length > 0 ? payments : order.payments || [];
   const normalizedStatus = normalizeOrderStatus(order.status);
   const quoteExpiresAt = order.quoteExpiresAt
     ? new Date(order.quoteExpiresAt)
@@ -497,51 +485,6 @@ export default function OrderDetail() {
               new Date(paymentNotificationCooldown) > new Date()
             }
           />
-
-          {paymentAttempts.length > 0 && (
-            <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-              <h3 className="text-sm font-black uppercase tracking-wide text-gray-900 mb-3">
-                {t("orderDetail.paymentAttempts")}
-              </h3>
-              {paymentAttempts.length === 0 ? (
-                <p className="text-sm text-gray-500">
-                  {t("orderDetail.noPaymentAttempts")}
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {paymentAttempts.map((payment) => (
-                    <div
-                      key={payment.id}
-                      className="rounded-xl border border-gray-100 bg-gray-50 p-3"
-                    >
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">
-                          {payment.reference}
-                        </p>
-                        <span
-                          className={`text-[10px] uppercase font-black px-2 py-1 rounded-full ${getPaymentStatusClass(payment.status)}`}
-                        >
-                          {payment.status}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-700">
-                        {payment.currency}{" "}
-                        {Number(payment.amount || 0).toFixed(2)}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Created {new Date(payment.createdAt).toLocaleString()}
-                      </p>
-                      {payment.paidAt && (
-                        <p className="text-xs text-emerald-700 mt-1">
-                          Paid {new Date(payment.paidAt).toLocaleString()}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
         </div>
       </main>
 
@@ -561,13 +504,4 @@ export default function OrderDetail() {
       <Footer />
     </div>
   );
-}
-
-function getPaymentStatusClass(status: string) {
-  const normalized = String(status || "").toLowerCase();
-  if (normalized === "paid") return "bg-emerald-100 text-emerald-800";
-  if (normalized === "failed") return "bg-rose-100 text-rose-800";
-  if (normalized === "expired" || normalized === "canceled")
-    return "bg-amber-100 text-amber-800";
-  return "bg-slate-100 text-slate-700";
 }
