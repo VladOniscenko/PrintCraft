@@ -5,8 +5,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
+    # ports:
+    #   - "5432:5432"
     volumes:
       - printcraft_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -48,8 +48,8 @@ services:
       BankTransfer__AccountName: ${BankTransfer__AccountName}
       BankTransfer__Iban: ${BankTransfer__Iban}
       BankTransfer__Bic: ${BankTransfer__Bic}
-    ports:
-      - "5001:5001"
+    # ports:
+    #   - "5001:5001"
     volumes:
       - printcraft_uploads:/app/wwwroot/uploads
     restart: unless-stopped
@@ -62,8 +62,8 @@ services:
         VITE_CURRENCY_CODE: ${VITE_CURRENCY_CODE:-EUR}
     depends_on:
       - printcraft-api
-    ports:
-      - "5173:80"
+    # ports:
+    #   - "5173:80"
     restart: unless-stopped
 
   cloudflared:
