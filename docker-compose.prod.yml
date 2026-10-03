@@ -1,0 +1,78 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - printcraft_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  printcraft-api:
+    build:
+      context: .
+      dockerfile: PrintCraftApi/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: http://+:5001
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      FrontendBaseUrl: ${FrontendBaseUrl:?FrontendBaseUrl is required}
+      BackendBaseUrl: ${BackendBaseUrl:?BackendBaseUrl is required}
+      JwtSecret: ${JwtSecret}
+      JwtIssuer: ${JwtIssuer}
+      JwtAudience: ${JwtAudience}
+      Discord__ErrorWebhookUrl: ${Discord__ErrorWebhookUrl}
+      Discord__QuoteWebhookUrl: ${Discord__QuoteWebhookUrl}
+      Discord__BookingWebhookUrl: ${Discord__BookingWebhookUrl}
+      Discord__PaymentReceivedWebhookUrl: ${Discord__PaymentReceivedWebhookUrl}
+      CurrencyCode: ${CurrencyCode:-EUR}
+      Email__SenderName: ${Email__SenderName}
+      Email__SmtpPort: ${Email__SmtpPort}
+      Email__EnableSsl: ${Email__EnableSsl}
+      Email__Username: ${Email__Username:?Email username is required}
+      Email__Password: ${Email__Password:?Email password is required}
+      Email__SenderEmail: ${Email__SenderEmail:?Sender email required}
+      Email__SmtpHost: ${Email__SmtpHost:?SMTP host required}
+
+      BankTransfer__AccountName: ${BankTransfer__AccountName}
+      BankTransfer__Iban: ${BankTransfer__Iban}
+      BankTransfer__Bic: ${BankTransfer__Bic}
+    ports:
+      - "5001:5001"
+    volumes:
+      - printcraft_uploads:/app/wwwroot/uploads
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_CURRENCY_CODE: ${VITE_CURRENCY_CODE:-EUR}
+    depends_on:
+      - printcraft-api
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${Tunnel_Token}
+volumes:
+  printcraft_postgres_data:
+  printcraft_uploads:

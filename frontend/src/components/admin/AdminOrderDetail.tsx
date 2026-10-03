@@ -36,10 +36,10 @@ import { formatCurrencyAmount } from "../../utils/currency";
 
 const ADMIN_ORDER_VIEWS = [
   "overview",
+  "items",
   "customer",
-  "finance",
+  "fulfillment",
   "communication",
-  "activity",
 ] as const;
 
 type AdminOrderView = (typeof ADMIN_ORDER_VIEWS)[number];
@@ -625,60 +625,145 @@ export default function AdminOrderDetail() {
         ]}
       />
 
-      {/* HEADER WITH DANGER ZONE */}
-      <div className="flex flex-col md:flex-row justify-between md:items-end gap-4 mb-6">
+      <div className="admin-order-command-bar mb-5">
         <div>
-          <p className="text-sm text-gray-500 mb-1">
-            Customer: {order.fullName} ({order.phoneNumber})
-          </p>
-          <div
-            className={`text-lg font-bold ${getOrderStatusPillClass(order.status)}`}
-          >
+          <p className="admin-order-eyebrow">Order workspace</p>
+          <p className="admin-order-customer-name">{order.fullName}</p>
+          <p className="admin-order-contact-line">{order.phoneNumber}</p>
+        </div>
+        <div className="admin-order-command-status">
+          <span className={`${getOrderStatusPillClass(order.status)}`}>
             {formatOrderStatusLabel(order.status)}
-          </div>
+          </span>
+          <span className="admin-order-command-id">
+            #{order.id.slice(0, 8)}
+          </span>
         </div>
 
-        <select
-          className="admin-select w-full md:w-48 border-red-200 text-red-700 bg-red-50 focus:ring-red-500"
-          value=""
-          onChange={(e) => {
-            if (
-              e.target.value &&
-              window.confirm(
-                `Are you sure you want to change status to ${e.target.value}?`,
-              )
-            ) {
-              handleQuickStatusChange(
-                e.target.value,
-                `Order marked as ${e.target.value}`,
-              );
-            }
-          }}
-        >
-          <option value="">-- Danger Zone --</option>
-          <option value="cancelled">Cancel Order</option>
-          <option value="returned">Mark Returned</option>
-          <option value="refunded">Mark Refunded</option>
-        </select>
+        <div className="admin-order-command-actions">
+          <button
+            type="button"
+            className="admin-btn admin-btn-secondary"
+            onClick={async () => {
+              const response = await api.get(`/admin/orders/${id}/invoice`, {
+                params: { language },
+                responseType: "blob",
+              });
+              const url = URL.createObjectURL(response.data);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `invoice-${id}.pdf`;
+              link.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            {t("admin.downloadInvoice")}
+          </button>
+          <select
+            className="admin-select admin-order-danger-select"
+            value=""
+            aria-label="Dangerous order actions"
+            onChange={(e) => {
+              if (
+                e.target.value &&
+                window.confirm(
+                  `Are you sure you want to change status to ${e.target.value}?`,
+                )
+              ) {
+                handleQuickStatusChange(
+                  e.target.value,
+                  `Order marked as ${e.target.value}`,
+                );
+              }
+            }}
+          >
+            <option value="">More actions</option>
+            <option value="cancelled">Cancel order</option>
+            <option value="returned">Mark returned</option>
+            <option value="refunded">Mark refunded</option>
+          </select>
+        </div>
+      </div>
+
+      <section
+        className="admin-order-summary-strip mb-5"
+        aria-label="Order summary"
+      >
+        <div>
+          <span>Status</span>
+          <strong>{formatOrderStatusLabel(order.status)}</strong>
+        </div>
+        <div>
+          <span>Created</span>
+          <strong>{new Date(order.createdAt).toLocaleDateString()}</strong>
+        </div>
+        <div>
+          <span>Items</span>
+          <strong>{order.items.length}</strong>
+        </div>
+        <div>
+          <span>Current total</span>
+          <strong>{formatCurrencyAmount(totalPrice)}</strong>
+        </div>
+        <div>
+          <span>Quote deadline</span>
+          <strong>
+            {hasQuoteExpiry ? quoteExpiresAt.toLocaleDateString() : "No expiry"}
+          </strong>
+        </div>
+      </section>
+
+      <section className="admin-order-persistent-action admin-panel mb-5">
+        <div className="admin-order-section-heading">
+          <div>
+            <p className="admin-order-eyebrow">Recommended Next Action</p>
+            <h2>
+              {currentStatus === "pending_quote"
+                ? "Prepare the customer quote"
+                : currentStatus === "pending_payment" ||
+                    currentStatus === "quoted"
+                  ? "Verify the customer payment"
+                  : currentStatus === "paid"
+                    ? "Start production"
+                    : currentStatus === "printing"
+                      ? "Ship this order"
+                      : currentStatus === "shipped" || currentStatus === "sent"
+                        ? "Confirm delivery"
+                        : "Review the order record"}
+            </h2>
+          </div>
+          <AlertTriangle size={20} aria-hidden="true" />
+        </div>
+        <p className="admin-order-next-action-copy">
+          {currentStatus === "pending_quote"
+            ? "Review the files, set pricing, and send the quote from Items & Quote."
+            : currentStatus === "pending_payment" || currentStatus === "quoted"
+              ? "Check the payment record and confirm the order before production."
+              : currentStatus === "paid"
+                ? "Move the order into production when the payment is confirmed."
+                : currentStatus === "printing"
+                  ? "Add a tracking code and send the shipping notification."
+                  : currentStatus === "shipped" || currentStatus === "sent"
+                    ? "Mark the order delivered once the package has arrived."
+                    : "Use the workflow views below to review or update this order."}
+        </p>
         <button
           type="button"
-          className="admin-btn admin-btn-secondary"
-          onClick={async () => {
-            const response = await api.get(`/admin/orders/${id}/invoice`, {
-              params: { language },
-              responseType: "blob",
-            });
-            const url = URL.createObjectURL(response.data);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `invoice-${id}.pdf`;
-            link.click();
-            URL.revokeObjectURL(url);
+          className="admin-btn admin-btn-primary"
+          onClick={() => {
+            const nextParams = new URLSearchParams(searchParams);
+            nextParams.set(
+              "view",
+              currentStatus === "pending_quote" ? "items" : "fulfillment",
+            );
+            setSearchParams(nextParams);
           }}
         >
-          {t("admin.downloadInvoice")}
+          {currentStatus === "pending_quote"
+            ? "Open Items & Quote"
+            : "Open Payments & Fulfillment"}
         </button>
-      </div>
+      </section>
 
       <nav
         className="admin-order-view-nav mb-6"
@@ -710,370 +795,384 @@ export default function AdminOrderDetail() {
       </nav>
 
       {activeView === "overview" && (
-        <>
-          {/* SMART ACTION PANEL */}
-          <div className="bg-white border-2 border-emerald-100 rounded-2xl shadow-sm mb-8 overflow-hidden">
-            <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex items-center gap-2">
-              <AlertTriangle className="text-emerald-600" size={20} />
-              <h2 className="font-bold text-emerald-900 text-lg">
-                Recommended Next Action
-              </h2>
+        <section className="admin-order-overview-grid">
+          <article className="admin-order-overview-card admin-panel">
+            <div className="admin-order-section-heading">
+              <div>
+                <p className="admin-order-eyebrow">At a glance</p>
+                <h2>Order context</h2>
+              </div>
+              <Package size={20} aria-hidden="true" />
             </div>
+            <dl className="admin-order-context-list">
+              <div>
+                <dt>Payment flow</dt>
+                <dd>
+                  {paymentFlow === "bank_transfer"
+                    ? "Bank transfer / invoice"
+                    : paymentFlow}
+                </dd>
+              </div>
+              <div>
+                <dt>Customer phone</dt>
+                <dd>{order.phoneNumber || "Not provided"}</dd>
+              </div>
+              <div>
+                <dt>Last updated</dt>
+                <dd>
+                  {order.updatedAt
+                    ? new Date(order.updatedAt).toLocaleString()
+                    : "Not available"}
+                </dd>
+              </div>
+            </dl>
+          </article>
 
-            <div className="p-6">
-              {currentStatus === "pending_quote" && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                    <div>
-                      <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
-                        1. Set Item Prices
-                      </h3>
-                      {order.items.map((item, idx) => (
-                        <div
-                          key={item.id}
-                          className="flex justify-between items-center mb-3 bg-gray-50 p-3 rounded-lg border border-gray-100"
-                        >
-                          <div className="flex flex-col pr-4 overflow-hidden">
-                            <span className="text-sm font-semibold text-gray-800 truncate">
-                              {item.fileName || `Item ${idx + 1}`}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              Qty: {item.count} | Mat: {item.material}
-                            </span>
+          <article className="admin-order-overview-card admin-panel">
+            <div className="admin-order-section-heading">
+              <div>
+                <p className="admin-order-eyebrow">Recent signal</p>
+                <h2>Latest activity</h2>
+              </div>
+              <CheckCircle size={20} aria-hidden="true" />
+            </div>
+            <p className="admin-order-activity-line">
+              {statusHistory[0]
+                ? `${statusHistory[0].previousStatus || "Created"} -> ${statusHistory[0].newStatus}`
+                : "No status changes recorded yet."}
+            </p>
+            <p className="admin-order-activity-meta">
+              {communications[0]
+                ? `Last email: ${communications[0].subject || communications[0].communicationType}`
+                : "No customer communication recorded yet."}
+            </p>
+          </article>
+        </section>
+      )}
+
+      {activeView === "items" &&
+        (currentStatus as string) === "pending_quote" && (
+          <>
+            {/* SMART ACTION PANEL */}
+            <div className="bg-white border-2 border-emerald-100 rounded-2xl shadow-sm mb-8 overflow-hidden">
+              <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex items-center gap-2">
+                <AlertTriangle className="text-emerald-600" size={20} />
+                <h2 className="font-bold text-emerald-900 text-lg">
+                  Quote preparation
+                </h2>
+              </div>
+
+              <div className="p-6">
+                {currentStatus === "pending_quote" && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                      <div>
+                        <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
+                          1. Set Item Prices
+                        </h3>
+                        {order.items.map((item, idx) => (
+                          <div
+                            key={item.id}
+                            className="flex justify-between items-center mb-3 bg-gray-50 p-3 rounded-lg border border-gray-100"
+                          >
+                            <div className="flex flex-col pr-4 overflow-hidden">
+                              <span className="text-sm font-semibold text-gray-800 truncate">
+                                {item.fileName || `Item ${idx + 1}`}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                Qty: {item.count} | Mat: {item.material}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="text-gray-500 font-bold">€</span>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                className="admin-field w-24 text-right py-1.5"
+                                value={itemPrices[item.id!] || 0}
+                                onChange={(e) =>
+                                  setItemPrices({
+                                    ...itemPrices,
+                                    [item.id!]: parseFloat(e.target.value) || 0,
+                                  })
+                                }
+                              />
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <span className="text-gray-500 font-bold">€</span>
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              className="admin-field w-24 text-right py-1.5"
-                              value={itemPrices[item.id!] || 0}
-                              onChange={(e) =>
-                                setItemPrices({
-                                  ...itemPrices,
-                                  [item.id!]: parseFloat(e.target.value) || 0,
-                                })
-                              }
-                            />
-                          </div>
+                        ))}
+                      </div>
+                      <div className="space-y-4">
+                        <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
+                          2. Additional Fees & Flow
+                        </h3>
+                        <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                          <span className="text-sm font-semibold text-gray-800">
+                            Delivery Price (€)
+                          </span>
+                          <input
+                            type="number"
+                            className="admin-field w-24 text-right py-1.5"
+                            value={deliveryPrice}
+                            onChange={(e) =>
+                              setDeliveryPrice(parseFloat(e.target.value) || 0)
+                            }
+                          />
                         </div>
-                      ))}
+                        <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                          <span className="text-sm font-semibold text-gray-800">
+                            Service Fee (€)
+                          </span>
+                          <input
+                            type="number"
+                            className="admin-field w-24 text-right py-1.5"
+                            value={serviceFee}
+                            onChange={(e) =>
+                              setServiceFee(parseFloat(e.target.value) || 0)
+                            }
+                          />
+                        </div>
+                        <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                          <span className="text-sm font-semibold text-gray-800">
+                            Discount (€)
+                          </span>
+                          <input
+                            type="number"
+                            className="admin-field w-24 text-right py-1.5"
+                            value={orderDiscountAmount}
+                            onChange={(e) =>
+                              setOrderDiscountAmount(
+                                parseFloat(e.target.value) || 0,
+                              )
+                            }
+                          />
+                        </div>
+                        <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                          <span className="text-sm font-semibold text-gray-800">
+                            Payment Flow
+                          </span>
+                          <select
+                            className="admin-select w-40 py-1.5"
+                            value={paymentFlow}
+                            onChange={(e) => setPaymentFlow(e.target.value)}
+                          >
+                            <option value="bank_transfer">
+                              Bank transfer / invoice
+                            </option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-4">
+
+                    <div className="border-t border-gray-100 pt-6">
                       <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
-                        2. Additional Fees & Flow
+                        3. Customer Message
                       </h3>
-                      <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                        <span className="text-sm font-semibold text-gray-800">
-                          Delivery Price (€)
-                        </span>
-                        <input
-                          type="number"
-                          className="admin-field w-24 text-right py-1.5"
-                          value={deliveryPrice}
-                          onChange={(e) =>
-                            setDeliveryPrice(parseFloat(e.target.value) || 0)
-                          }
-                        />
+                      <textarea
+                        className="admin-textarea"
+                        rows={3}
+                        placeholder="Optional message to include in the quote email..."
+                        value={quoteMessage}
+                        onChange={(e) => setQuoteMessage(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-900 text-white p-5 rounded-xl gap-4">
+                      <div>
+                        <p className="text-gray-400 text-sm font-semibold uppercase tracking-wider">
+                          Quote Total
+                        </p>
+                        <p className="text-3xl font-black text-emerald-400">
+                          €{totalPrice.toFixed(2)}
+                        </p>
                       </div>
-                      <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                        <span className="text-sm font-semibold text-gray-800">
-                          Service Fee (€)
-                        </span>
-                        <input
-                          type="number"
-                          className="admin-field w-24 text-right py-1.5"
-                          value={serviceFee}
-                          onChange={(e) =>
-                            setServiceFee(parseFloat(e.target.value) || 0)
-                          }
-                        />
-                      </div>
-                      <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                        <span className="text-sm font-semibold text-gray-800">
-                          Discount (€)
-                        </span>
-                        <input
-                          type="number"
-                          className="admin-field w-24 text-right py-1.5"
-                          value={orderDiscountAmount}
-                          onChange={(e) =>
-                            setOrderDiscountAmount(
-                              parseFloat(e.target.value) || 0,
-                            )
-                          }
-                        />
-                      </div>
-                      <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                        <span className="text-sm font-semibold text-gray-800">
-                          Payment Flow
-                        </span>
-                        <select
-                          className="admin-select w-40 py-1.5"
-                          value={paymentFlow}
-                          onChange={(e) => setPaymentFlow(e.target.value)}
-                        >
-                          <option value="bank_transfer">
-                            Bank transfer / invoice
-                          </option>
-                        </select>
-                      </div>
+                      <button
+                        onClick={handleProcessQuote}
+                        disabled={isProcessing || totalPrice <= 0}
+                        className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-gray-900 font-bold py-3.5 px-8 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                        {isProcessing ? (
+                          <Loader2 className="animate-spin" size={20} />
+                        ) : (
+                          <>
+                            <Package size={20} /> Process & Send Quote
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
+                )}
 
-                  <div className="border-t border-gray-100 pt-6">
-                    <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
-                      3. Customer Message
-                    </h3>
-                    <textarea
-                      className="admin-textarea"
-                      rows={3}
-                      placeholder="Optional message to include in the quote email..."
-                      value={quoteMessage}
-                      onChange={(e) => setQuoteMessage(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-900 text-white p-5 rounded-xl gap-4">
+                {(currentStatus === "quoted" ||
+                  currentStatus === "pending_payment") && (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
-                      <p className="text-gray-400 text-sm font-semibold uppercase tracking-wider">
-                        Quote Total
+                      <p className="text-gray-700 mb-1 text-lg">
+                        Waiting for customer payment of{" "}
+                        <strong className="text-emerald-700">
+                          €{(order.quotedPrice || 0).toFixed(2)}
+                        </strong>
+                        .
                       </p>
-                      <p className="text-3xl font-black text-emerald-400">
-                        €{totalPrice.toFixed(2)}
+                      <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                        Payment flow:{" "}
+                        {paymentFlow === "bank_transfer"
+                          ? "Manual Bank Transfer"
+                          : "Online Checkout"}
                       </p>
                     </div>
                     <button
-                      onClick={handleProcessQuote}
-                      disabled={isProcessing || totalPrice <= 0}
-                      className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-gray-900 font-bold py-3.5 px-8 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                      onClick={() =>
+                        handleQuickStatusChange("paid", "Order marked as paid!")
+                      }
+                      disabled={isProcessing}
+                      className="admin-btn bg-emerald-600 text-white hover:bg-emerald-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
                     >
                       {isProcessing ? (
-                        <Loader2 className="animate-spin" size={20} />
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        "Verify Payment & Mark as Paid"
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {currentStatus === "paid" && (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p className="text-gray-700 text-lg">
+                      Payment received. Ready to start 3D printing.
+                    </p>
+                    <button
+                      onClick={() =>
+                        handleQuickStatusChange(
+                          "printing",
+                          "Production started!",
+                        )
+                      }
+                      disabled={isProcessing}
+                      className="admin-btn bg-blue-600 text-white hover:bg-blue-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
+                    >
+                      {isProcessing ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        "Start Production (Printing)"
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {currentStatus === "printing" && (
+                  <div className="flex flex-col md:flex-row items-start justify-between gap-6">
+                    <div className="flex-1 w-full space-y-3">
+                      <p className="text-gray-700 font-medium text-lg">
+                        Ready to ship? Enter tracking info below.
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <input
+                          type="text"
+                          placeholder="Tracking Code"
+                          className="admin-field flex-1"
+                          value={trackingCode}
+                          onChange={(e) => setTrackingCode(e.target.value)}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Tracking URL (Optional)"
+                          className="admin-field flex-1"
+                          value={trackingUrl}
+                          onChange={(e) => setTrackingUrl(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={() =>
+                        handleQuickStatusChange(
+                          "shipped",
+                          "Order shipped & Email Sent!",
+                        )
+                      }
+                      disabled={isProcessing}
+                      className="admin-btn bg-indigo-600 text-white hover:bg-indigo-700 py-3.5 px-8 text-base h-full md:mt-10 disabled:opacity-50 shadow-sm w-full md:w-auto"
+                    >
+                      {isProcessing ? (
+                        <Loader2 className="animate-spin" />
                       ) : (
                         <>
-                          <Package size={20} /> Process & Send Quote
+                          <Truck size={20} /> Ship & Send Email
                         </>
                       )}
                     </button>
                   </div>
-                </div>
-              )}
+                )}
 
-              {(currentStatus === "quoted" ||
-                currentStatus === "pending_payment") && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div>
-                    <p className="text-gray-700 mb-1 text-lg">
-                      Waiting for customer payment of{" "}
-                      <strong className="text-emerald-700">
-                        €{(order.quotedPrice || 0).toFixed(2)}
+                {(currentStatus === "shipped" || currentStatus === "sent") && (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p className="text-gray-700 text-lg">
+                      Order is currently in transit with tracking:{" "}
+                      <strong className="text-indigo-700">
+                        {order.trackingCode || "N/A"}
                       </strong>
-                      .
                     </p>
-                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                      Payment flow:{" "}
-                      {paymentFlow === "bank_transfer"
-                        ? "Manual Bank Transfer"
-                        : "Online Checkout"}
-                    </p>
+                    <button
+                      onClick={() =>
+                        handleQuickStatusChange(
+                          "delivered",
+                          "Order marked as delivered.",
+                        )
+                      }
+                      disabled={isProcessing}
+                      className="admin-btn bg-emerald-600 text-white hover:bg-emerald-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
+                    >
+                      {isProcessing ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        <>
+                          <CheckCircle size={20} /> Mark as Delivered
+                        </>
+                      )}
+                    </button>
                   </div>
-                  <button
-                    onClick={() =>
-                      handleQuickStatusChange("paid", "Order marked as paid!")
-                    }
-                    disabled={isProcessing}
-                    className="admin-btn bg-emerald-600 text-white hover:bg-emerald-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      "Verify Payment & Mark as Paid"
-                    )}
-                  </button>
-                </div>
-              )}
+                )}
 
-              {currentStatus === "paid" && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <p className="text-gray-700 text-lg">
-                    Payment received. Ready to start 3D printing.
-                  </p>
-                  <button
-                    onClick={() =>
-                      handleQuickStatusChange("printing", "Production started!")
-                    }
-                    disabled={isProcessing}
-                    className="admin-btn bg-blue-600 text-white hover:bg-blue-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      "Start Production (Printing)"
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {currentStatus === "printing" && (
-                <div className="flex flex-col md:flex-row items-start justify-between gap-6">
-                  <div className="flex-1 w-full space-y-3">
-                    <p className="text-gray-700 font-medium text-lg">
-                      Ready to ship? Enter tracking info below.
+                {currentStatus === "delivered" && (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p className="text-gray-700 text-lg">
+                      Package arrived safely. Close the order.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <input
-                        type="text"
-                        placeholder="Tracking Code"
-                        className="admin-field flex-1"
-                        value={trackingCode}
-                        onChange={(e) => setTrackingCode(e.target.value)}
-                      />
-                      <input
-                        type="text"
-                        placeholder="Tracking URL (Optional)"
-                        className="admin-field flex-1"
-                        value={trackingUrl}
-                        onChange={(e) => setTrackingUrl(e.target.value)}
-                      />
-                    </div>
+                    <button
+                      onClick={() =>
+                        handleQuickStatusChange("completed", "Order completed.")
+                      }
+                      disabled={isProcessing}
+                      className="admin-btn bg-gray-900 text-white hover:bg-gray-800 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
+                    >
+                      {isProcessing ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        "Archive / Mark Completed"
+                      )}
+                    </button>
                   </div>
-                  <button
-                    onClick={() =>
-                      handleQuickStatusChange(
-                        "shipped",
-                        "Order shipped & Email Sent!",
-                      )
-                    }
-                    disabled={isProcessing}
-                    className="admin-btn bg-indigo-600 text-white hover:bg-indigo-700 py-3.5 px-8 text-base h-full md:mt-10 disabled:opacity-50 shadow-sm w-full md:w-auto"
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <>
-                        <Truck size={20} /> Ship & Send Email
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
+                )}
 
-              {(currentStatus === "shipped" || currentStatus === "sent") && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <p className="text-gray-700 text-lg">
-                    Order is currently in transit with tracking:{" "}
-                    <strong className="text-indigo-700">
-                      {order.trackingCode || "N/A"}
-                    </strong>
+                {(currentStatus === "completed" ||
+                  currentStatus === "cancelled" ||
+                  currentStatus === "returned" ||
+                  currentStatus === "refunded") && (
+                  <p className="text-gray-500 italic text-center py-2">
+                    No further actions required. Order is{" "}
+                    {formatOrderStatusLabel(currentStatus)}.
                   </p>
-                  <button
-                    onClick={() =>
-                      handleQuickStatusChange(
-                        "delivered",
-                        "Order marked as delivered.",
-                      )
-                    }
-                    disabled={isProcessing}
-                    className="admin-btn bg-emerald-600 text-white hover:bg-emerald-700 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <>
-                        <CheckCircle size={20} /> Mark as Delivered
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {currentStatus === "delivered" && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <p className="text-gray-700 text-lg">
-                    Package arrived safely. Close the order.
-                  </p>
-                  <button
-                    onClick={() =>
-                      handleQuickStatusChange("completed", "Order completed.")
-                    }
-                    disabled={isProcessing}
-                    className="admin-btn bg-gray-900 text-white hover:bg-gray-800 py-3.5 px-8 text-base shadow-sm whitespace-nowrap"
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      "Archive / Mark Completed"
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {(currentStatus === "completed" ||
-                currentStatus === "cancelled" ||
-                currentStatus === "returned" ||
-                currentStatus === "refunded") && (
-                <p className="text-gray-500 italic text-center py-2">
-                  No further actions required. Order is{" "}
-                  {formatOrderStatusLabel(currentStatus)}.
-                </p>
-              )}
+                )}
+              </div>
             </div>
-          </div>
-
-          {/* METRICS ROW */}
-          <section className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-5">
-            <article className="admin-panel p-4">
-              <p className="text-xs uppercase text-[#6c817a]">
-                {t("admin.orderDetail.statusLabel")}
-              </p>
-              <p
-                className={`${getOrderStatusPillClass(order.status)} mt-2 w-fit`}
-              >
-                {formatOrderStatusLabel(order.status)}
-              </p>
-            </article>
-            <article className="admin-panel p-4">
-              <p className="text-xs uppercase text-[#6c817a]">
-                {t("admin.orderDetail.createdLabel")}
-              </p>
-              <p className="mt-2 text-sm text-[#2e423d]">
-                {new Date(order.createdAt).toLocaleString()}
-              </p>
-            </article>
-            <article className="admin-panel p-4">
-              <p className="text-xs uppercase text-[#6c817a]">
-                {t("admin.orderDetail.itemsLabel")}
-              </p>
-              <p className="mt-2 text-xl font-semibold text-[#1b2b25]">
-                {order.items.length}
-              </p>
-            </article>
-            <article className="admin-panel p-4">
-              <p className="text-xs uppercase text-[#6c817a]">
-                {t("admin.orderDetail.totalLabel")}
-              </p>
-              <p className="mt-2 text-xl font-semibold text-[#1b2b25]">
-                {formatCurrencyAmount(totalPrice)}
-              </p>
-            </article>
-            <article className="admin-panel p-4">
-              <p className="text-xs uppercase text-[#6c817a]">
-                {t("admin.order.quoteExpires")}
-              </p>
-              <p className="mt-2 text-sm text-[#2e423d]">
-                {hasQuoteExpiry ? quoteExpiresAt.toLocaleString() : "-"}
-              </p>
-            </article>
-          </section>
-        </>
-      )}
+          </>
+        )}
 
       {/* DETAILED PANELS */}
       <div className="admin-order-view-content">
-        {activeView === "finance" && (
-          <section id="admin-order-finance">
+        {activeView === "items" && (
+          <section id="admin-order-items">
             <OrderPricingPanel
               order={order}
               t={t}
@@ -1100,7 +1199,7 @@ export default function AdminOrderDetail() {
           </section>
         )}
 
-        {activeView === "activity" && (
+        {activeView === "communication" && (
           <section id="admin-order-history">
             <OrderHistoryPanel
               t={t}
@@ -1217,7 +1316,7 @@ export default function AdminOrderDetail() {
           </article>
         )}
 
-        {activeView === "activity" && (
+        {activeView === "fulfillment" && (
           <article className="admin-panel p-4">
             <h3 className="font-bold mb-2 text-[#1b2b25]">
               Manual Status Override
@@ -1284,7 +1383,7 @@ export default function AdminOrderDetail() {
           </article>
         )}
 
-        {activeView === "activity" && (
+        {activeView === "fulfillment" && (
           <article className="admin-panel p-4">
             <h3 className="font-bold mb-2 text-[#1b2b25]">
               {t("admin.order.trackingTitle")}
@@ -1441,8 +1540,11 @@ export default function AdminOrderDetail() {
           </article>
         )}
 
-        {activeView === "activity" && (
-          <article id="admin-order-activity" className="admin-panel p-4">
+        {activeView === "communication" && (
+          <article
+            id="admin-order-communication-activity"
+            className="admin-panel p-4"
+          >
             <h3 className="font-bold mb-2 text-[#1b2b25]">
               {t("admin.order.notesTitle")}
             </h3>
@@ -1606,7 +1708,7 @@ export default function AdminOrderDetail() {
           </article>
         )}
 
-        {activeView === "finance" && payments.length > 0 && (
+        {activeView === "fulfillment" && payments.length > 0 && (
           <article className="admin-panel p-4">
             <h3 className="font-bold mb-2 text-[#1b2b25]">
               {t("admin.order.paymentAttempts")}
