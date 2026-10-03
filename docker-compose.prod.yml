@@ -76,3 +76,7 @@ services:
 volumes:
   printcraft_postgres_data:
   printcraft_uploads:
+
+networks:
+  default:
+    name: printcraft_network
