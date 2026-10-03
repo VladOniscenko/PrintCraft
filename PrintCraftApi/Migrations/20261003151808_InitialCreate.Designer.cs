@@ -12,8 +12,8 @@ using PrintCraftApi.Data;
 namespace PrintCraftApi.Migrations
 {
     [DbContext(typeof(PrintCraftDb))]
-    [Migration("20260329124127_AddOrderNotes")]
-    partial class AddOrderNotes
+    [Migration("20261003151808_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,6 +41,9 @@ namespace PrintCraftApi.Migrations
                     b.Property<string>("FileUrl")
                         .HasColumnType("text");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
                     b.Property<string>("Material")
                         .IsRequired()
                         .HasColumnType("text");
@@ -54,6 +57,9 @@ namespace PrintCraftApi.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("double precision");
 
+                    b.Property<string>("Size")
+                        .HasColumnType("text");
+
                     b.Property<string>("fileName")
                         .HasColumnType("text");
 
@@ -64,71 +70,32 @@ namespace PrintCraftApi.Migrations
                     b.ToTable("OrderItems");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.Cart", b =>
+            modelBuilder.Entity("OrderItemAttachment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("Carts");
-                });
-
-            modelBuilder.Entity("PrintCraftApi.Models.CartItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("AddedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("CartId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Color")
+                    b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Count")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("Kind")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Material")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("ProductId")
+                    b.Property<Guid>("OrderItemId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ProductName")
+                    b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CartId");
+                    b.HasIndex("OrderItemId", "Kind");
 
-                    b.ToTable("CartItems");
+                    b.ToTable("OrderItemAttachments");
                 });
 
             modelBuilder.Entity("PrintCraftApi.Models.Filament", b =>
@@ -164,6 +131,32 @@ namespace PrintCraftApi.Migrations
                     b.ToTable("Filaments");
                 });
 
+            modelBuilder.Entity("PrintCraftApi.Models.ManualPaymentNotification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId", "CreatedAt");
+
+                    b.ToTable("ManualPaymentNotifications");
+                });
+
             modelBuilder.Entity("PrintCraftApi.Models.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -176,6 +169,16 @@ namespace PrintCraftApi.Migrations
 
                     b.Property<string>("AddressLine2")
                         .HasColumnType("text");
+
+                    b.Property<bool>("AgreementAccepted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("AgreementAcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AgreementVersion")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -207,6 +210,13 @@ namespace PrintCraftApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PaymentFlow")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("bank_transfer");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("text");
@@ -225,6 +235,9 @@ namespace PrintCraftApi.Migrations
                         .HasColumnType("text");
 
                     b.Property<decimal?>("QuotedPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("ServiceFeePrice")
                         .HasColumnType("numeric");
 
                     b.Property<string>("Status")
@@ -357,10 +370,6 @@ namespace PrintCraftApi.Migrations
                     b.Property<DateTime?>("CanceledAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CheckoutUrl")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -379,17 +388,6 @@ namespace PrintCraftApi.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.Property<DateTime?>("LastWebhookAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastWebhookError")
-                        .HasMaxLength(1024)
-                        .HasColumnType("character varying(1024)");
-
-                    b.Property<string>("LastWebhookPayloadHash")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
                     b.Property<string>("Method")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
@@ -405,10 +403,6 @@ namespace PrintCraftApi.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
 
-                    b.Property<string>("ProviderPaymentId")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
                     b.Property<string>("Reference")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -422,13 +416,7 @@ namespace PrintCraftApi.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("WebhookAttemptCount")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ProviderPaymentId")
-                        .IsUnique();
 
                     b.HasIndex("Reference")
                         .IsUnique();
@@ -438,123 +426,64 @@ namespace PrintCraftApi.Migrations
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.Product", b =>
+            modelBuilder.Entity("PrintCraftApi.Models.QuoteDraft", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
-                    b.Property<double>("DiscountPercentage")
-                        .HasColumnType("double precision");
+                    b.Property<decimal>("Estimate")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("FileUrl")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
 
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("Material")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("ProductType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("StockQuantity")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("TrackInventory")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("PrintCraftApi.Models.ProductImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId", "SortOrder");
-
-                    b.ToTable("ProductImages");
-                });
-
-            modelBuilder.Entity("PrintCraftApi.Models.QuotePromotionSettings", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("BannerTextEn")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("BannerTextNl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int>("BuyQuantity")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FreeQuantity")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("PromotionType")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasDefaultValue("buy_x_get_y");
-
-                    b.Property<decimal>("SecondItemPercentOff")
-                        .HasColumnType("numeric");
-
-                    b.Property<bool>("ShowBannerOnHome")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("RedeemedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("VisitorKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("UpdatedAt");
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
 
-                    b.ToTable("QuotePromotionSettings");
+                    b.HasIndex("UserId", "ExpiresAt");
+
+                    b.ToTable("QuoteDrafts");
                 });
 
             modelBuilder.Entity("PrintCraftApi.Models.User", b =>
@@ -584,6 +513,106 @@ namespace PrintCraftApi.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("PrintCraftApi.Models.UserAddress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AddressLine1")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AddressLine2")
+                        .HasColumnType("text");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Label")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "IsDefault");
+
+                    b.ToTable("UserAddresses");
+                });
+
+            modelBuilder.Entity("PrintCraftApi.Models.VisitEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CountryCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PagePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("VisitedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("VisitorKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VisitedAt");
+
+                    b.HasIndex("CountryCode", "VisitedAt");
+
+                    b.HasIndex("EventType", "VisitedAt");
+
+                    b.HasIndex("VisitorKey", "VisitedAt");
+
+                    b.ToTable("VisitEvents");
+                });
+
             modelBuilder.Entity("OrderItem", b =>
                 {
                     b.HasOne("PrintCraftApi.Models.Order", null)
@@ -593,15 +622,22 @@ namespace PrintCraftApi.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.CartItem", b =>
+            modelBuilder.Entity("OrderItemAttachment", b =>
                 {
-                    b.HasOne("PrintCraftApi.Models.Cart", "Cart")
-                        .WithMany("Items")
-                        .HasForeignKey("CartId")
+                    b.HasOne("OrderItem", null)
+                        .WithMany("Attachments")
+                        .HasForeignKey("OrderItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.Navigation("Cart");
+            modelBuilder.Entity("PrintCraftApi.Models.ManualPaymentNotification", b =>
+                {
+                    b.HasOne("PrintCraftApi.Models.Order", null)
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PrintCraftApi.Models.OrderCommunication", b =>
@@ -644,20 +680,20 @@ namespace PrintCraftApi.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.ProductImage", b =>
+            modelBuilder.Entity("PrintCraftApi.Models.UserAddress", b =>
                 {
-                    b.HasOne("PrintCraftApi.Models.Product", "Product")
-                        .WithMany("Images")
-                        .HasForeignKey("ProductId")
+                    b.HasOne("PrintCraftApi.Models.User", "User")
+                        .WithMany("Addresses")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.Cart", b =>
+            modelBuilder.Entity("OrderItem", b =>
                 {
-                    b.Navigation("Items");
+                    b.Navigation("Attachments");
                 });
 
             modelBuilder.Entity("PrintCraftApi.Models.Order", b =>
@@ -673,9 +709,9 @@ namespace PrintCraftApi.Migrations
                     b.Navigation("StatusHistory");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.Product", b =>
+            modelBuilder.Entity("PrintCraftApi.Models.User", b =>
                 {
-                    b.Navigation("Images");
+                    b.Navigation("Addresses");
                 });
 #pragma warning restore 612, 618
         }
