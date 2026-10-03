@@ -1,5 +1,60 @@
-- unused logic on the fronted should be removed like - products page, product checkout etc (everything that is not used and outdated) CLEANUP PROJECT
-- aswell all the redundant and unused api endpoint that have no need or not helping the project CLEANUP
-- not all components are using translation they have hardcoded text in it like "Dagelijks gebruik" or "Super sterk"
-- quote.agreementText is not added to translations as quote.agreementLink
-- admin invoice should be pdf instead of html + add logo and redesign it more professional research what info should go on it
+- remove dead components, components that are not showed at all or wrapped in false etc. also for the code that is unused in frontend as in backend,
+- fix translations pending_quote, pending_payment
+- allot of admin components are not translated and have fixed language fix it
+- centralize all business info like, phone number, email, business name, address, opening hours etc. sothat its in one place (frontend)
+- agreementRequired has no translations
+- change frontend business name from PrintCraft to Print My 3D
+- i need to specify somewhere the env (dev, tst or prod) in env?
+- make appsettings for dev, tst and prod
+- on startup select appsetings based on env in api
+- custom Traffic Analytics work very bad the same user (me) i already got 54 views but i want it to be unique (think of new solution) ip based? or cookie based sothat it will be correct i do not want double users in it
+- in some pages in tab it says page not found (fix tab namings)
+- change business email to printmy3dwork@gmail.com
+- check/fix set website language based on user settings. if i dont have its lang set to NL
+
+
+Feature Specification: Dynamic Promotional Hero Component
+1. Feature Overview
+
+A new, eye-catching promotional hero section that acts as an auto-playing slideshow. It builds on the current homepage hero design to save development time, but uses distinct styling to stand out as a special offer area. All text, media, and active slides are fully managed through the admin panel.
+2. User Interface (Frontend)
+
+    Layout Structure: A split-screen design. Text and pricing sit on the left side, while the visual media (image or 3D model) is displayed on the right.
+
+    Slideshow Timing: Slides advance automatically every 5 seconds.
+
+    Navigation Controls: Interactive dots (bullets) sit at the bottom of the hero. These highlight the current slide and allow users to click backward or forward to specific promotions.
+
+    Mixed Media Support: The media area on the right must be able to load and display both standard 2D images and interactive, floating 3D models.
+
+    Visual Distinction: While reusing the base code of the standard hero, this component needs unique visual touches (such as different background colors, varied borders, or distinct text styling) to separate it from standard content.
+
+3. Admin Panel Controls (Backend)
+
+Admins must have full control to create, read, update, and delete (CRUD) these slides in the admin dashboard.
+
+Required fields for each slide:
+
+    Text Content: Headlines, subtext, and pricing information.
+
+    Media Upload: A file uploader that accepts both standard image formats and 3D model formats.
+
+    Status Toggle: A switch to set a slide as "Active" or "Inactive" so promotions can be turned off without deleting them.
+
+    Sort Order: A way to organize which slide appears first in the 5-second rotation.
+
+    Data Delivery: The frontend will fetch these active slides directly from the backend API when the page loads.
+
+4. Planned Content Examples
+
+    Business Customization Slide:
+
+        Left Side: "Make your custom brand items and logos."
+
+        Right Side: A floating 3D model of a company logo.
+
+    Personal Gift Slide:
+
+        Left Side: "Print your memory picture for 20 Euro."
+
+        Right Side: An image or 3D model of a printed photo frame.
