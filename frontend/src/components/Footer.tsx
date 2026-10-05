@@ -28,12 +28,14 @@ export default function Footer() {
           >
             <Mail size={16} /> {businessInfo.email}
           </a>
-          <a
-            href={businessInfo.phoneHref}
-            className="flex items-center gap-2 hover:text-[#0f766e]"
-          >
-            <Phone size={16} /> {businessInfo.phone}
-          </a>
+          {businessInfo.phone && (
+            <a
+              href={businessInfo.phoneHref}
+              className="flex items-center gap-2 hover:text-[#0f766e]"
+            >
+              <Phone size={16} /> {businessInfo.phone}
+            </a>
+          )}
         </div>
 
         <div className="text-sm text-[#445853] space-y-2">
