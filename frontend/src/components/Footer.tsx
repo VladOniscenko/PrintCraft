@@ -1,6 +1,7 @@
 import { Mail, Phone, MapPin, Clock3 } from "lucide-react";
 import { useI18n } from "../i18n/I18nContext";
 import { Link } from "react-router-dom";
+import { businessInfo } from "../config/businessInfo";
 
 export default function Footer() {
   const { t } = useI18n();
@@ -22,16 +23,16 @@ export default function Footer() {
             {t("footer.contact")}
           </p>
           <a
-            href="mailto:info@printcraft.nl"
+            href={`mailto:${businessInfo.email}`}
             className="flex items-center gap-2 hover:text-[#0f766e]"
           >
-            <Mail size={16} /> info@printcraft.nl
+            <Mail size={16} /> {businessInfo.email}
           </a>
           <a
-            href="tel:+31101234567"
+            href={businessInfo.phoneHref}
             className="flex items-center gap-2 hover:text-[#0f766e]"
           >
-            <Phone size={16} /> +31 10 123 4567
+            <Phone size={16} /> {businessInfo.phone}
           </a>
         </div>
 

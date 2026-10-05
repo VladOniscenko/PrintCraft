@@ -1,3 +1,5 @@
+import { businessInfo } from "../config/businessInfo";
+
 export type SupportedLanguage = "nl" | "en";
 
 export const languageOptions: Array<{
@@ -30,23 +32,23 @@ export const translations: Record<
       logOut: "Log Out",
     },
     footer: {
-      companyName: "PrintCraft Collective",
+      companyName: businessInfo.name,
       tagline:
         "Professional 3D printing services for prototypes, parts, and custom projects across the Netherlands.",
       contact: "Contact",
       location: "Location",
-      locationValue: "Rotterdam, Netherlands",
+      locationValue: `${businessInfo.address.locality}, ${businessInfo.address.countryName.en}`,
       hours: "Opening Hours",
-      hoursValue: "Mon - Fri, 09:00 - 18:00",
+      hoursValue: `${businessInfo.openingHours.dayLabels.en}, ${businessInfo.openingHours.opens} - ${businessInfo.openingHours.closes}`,
       privacy: "Privacy Policy",
       terms: "Terms of Service",
       refunds: "Refund Policy",
       shippingPolicy: "Shipping Policy",
       faq: "FAQ",
-      copyright: "© 2026 PrintCraft Collective. All rights reserved.",
+      copyright: `© 2026 ${businessInfo.name}. All rights reserved.`,
     },
     home: {
-      footer: "© 2026 PrintCraft Collective. All rights reserved.",
+      footer: `© 2026 ${businessInfo.name}. All rights reserved.`,
       quickQuote: {
         fileMode: "I have a file",
         ideaMode: "I have an idea",
@@ -79,7 +81,7 @@ export const translations: Record<
         tpu: "Flexible",
       },
       showcase: {
-        eyebrow: "PrintCraft studio",
+        eyebrow: `${businessInfo.name} studio`,
         title: "What we can make for you",
         subtitle:
           "From a first idea to a part that performs every day. You bring the direction, we make it tangible.",
@@ -204,7 +206,7 @@ export const translations: Record<
         "We can order specialty filaments like Wood, Carbon Fiber, or Glow-in-the-dark for large projects.",
       ctaButton: "Start Your Project",
       footer:
-        "© 2026 PrintCraft Collective. Professional 3D Printing Services.",
+        `© 2026 ${businessInfo.name}. Professional 3D Printing Services.`,
     },
     recent: {
       title: "Recent Work",
@@ -1035,7 +1037,7 @@ export const translations: Record<
       shippingLaterNotice:
         "Shipping details are requested after your quote is approved, when you click confirm and pay.",
       pricingDisclaimer:
-        "Prices and quotes shown on this platform are indicative. No rights can be derived from displayed prices or quotes until explicitly confirmed by PrintCraft.",
+        `Prices and quotes shown on this platform are indicative. No rights can be derived from displayed prices or quotes until explicitly confirmed by ${businessInfo.name}.`,
     },
     faq: {
       title: "Frequently Asked Questions",
@@ -1095,7 +1097,7 @@ export const translations: Record<
       loadingModel: "Loading 3D model...",
     },
     orderDetail: {
-      customerNotesTitle: "Notes from PrintCraft",
+      customerNotesTitle: `Notes from ${businessInfo.name}`,
       paymentAttempts: "Payment Attempts",
       notFound: "Order not found",
       back: "Back to Projects",
@@ -1193,7 +1195,7 @@ export const translations: Record<
       updated: "Last updated: 27 March 2026",
       contact: {
         title: "Legal Contact",
-        body: "For legal or privacy questions, email info@printcraft.nl. We aim to respond within 5 business days.",
+        body: `For legal or privacy questions, email ${businessInfo.email}. We aim to respond within 5 business days.`,
       },
       privacy: {
         title: "Privacy Policy",
@@ -1220,7 +1222,7 @@ export const translations: Record<
           "Quotes are customized estimates based on model size, quantity, material choice, print complexity, and finishing requirements. Production starts only after explicit approval and confirmed payment.",
         pricingDisclaimerTitle: "Prices and quote validity",
         pricingDisclaimerBody:
-          "Indicative prices shown on the website are guidance only. Final pricing may differ per request because size, quantity, geometry, support usage, post-processing, and delivery method can change actual cost. Displayed prices and draft quotes are non-binding; rights only arise after written quote confirmation by PrintCraft.",
+          `Indicative prices shown on the website are guidance only. Final pricing may differ per request because size, quantity, geometry, support usage, post-processing, and delivery method can change actual cost. Displayed prices and draft quotes are non-binding; rights only arise after written quote confirmation by ${businessInfo.name}.`,
         section3Title: "Limitation of liability",
         section3Body:
           "Customers are responsible for functional suitability and safety of uploaded designs. Our liability is limited to the value of the specific order where legally allowed.",
@@ -1261,42 +1263,42 @@ export const translations: Record<
     },
     seo: {
       default: {
-        title: "3D Print Service Netherlands | PrintCraft",
+        title: `3D Print Service Netherlands | ${businessInfo.name}`,
         description:
           "Professional 3D print service for the whole Netherlands. Upload your model and receive a fast quote.",
         keywords:
           "3D print service Netherlands, 3D printing Netherlands, online 3D print service, custom 3D printing",
       },
       home: {
-        title: "3D Print Service Netherlands | PrintCraft",
+        title: `3D Print Service Netherlands | ${businessInfo.name}`,
         description:
           "Professional 3D print service for prototypes, parts and custom prints across the Netherlands.",
         keywords:
           "3D print service Netherlands, 3D printing Netherlands, custom 3D print service",
       },
       gallery: {
-        title: "3D Print Model Gallery | PrintCraft Netherlands",
+        title: `3D Print Model Gallery | ${businessInfo.name} Netherlands`,
         description:
           "Browse popular 3D print models and start your order from anywhere in the Netherlands.",
         keywords: "3D model printing, 3D print gallery, 3D print Netherlands",
       },
       materials: {
-        title: "3D Print Materials (PLA, PETG) | PrintCraft NL",
+        title: `3D Print Materials (PLA, PETG) | ${businessInfo.name} NL`,
         description:
           "Choose the right 3D print material and color for your project. Live filament overview.",
         keywords: "PLA printing, PETG printing, 3D filament Netherlands",
       },
       faq: {
-        title: "3D Printing FAQ | PrintCraft Netherlands",
+        title: `3D Printing FAQ | ${businessInfo.name} Netherlands`,
         description:
           "Frequently asked questions about lead times, materials, prices and quality.",
         keywords: "3D print FAQ Netherlands, 3D printing questions",
       },
       notFound: {
-        title: "Page Not Found | PrintCraft 3D Print Service",
+        title: `Page Not Found | ${businessInfo.name} 3D Print Service`,
         description:
-          "The requested page could not be found. Return to PrintCraft to start your next 3D print project.",
-        keywords: "404, page not found, PrintCraft",
+          `The requested page could not be found. Return to ${businessInfo.name} to start your next 3D print project.`,
+        keywords: `404, page not found, ${businessInfo.name}`,
       },
     },
     shipping: {
@@ -1379,23 +1381,23 @@ export const translations: Record<
       logOut: "Uitloggen",
     },
     footer: {
-      companyName: "PrintCraft Collective",
+      companyName: businessInfo.name,
       tagline:
         "Professionele 3D-printservice voor prototypes, onderdelen en maatwerkprojecten in heel Nederland.",
       contact: "Contact",
       location: "Locatie",
-      locationValue: "Rotterdam, Nederland",
+      locationValue: `${businessInfo.address.locality}, ${businessInfo.address.countryName.nl}`,
       hours: "Openingstijden",
-      hoursValue: "Ma - Vr, 09:00 - 18:00",
+      hoursValue: `${businessInfo.openingHours.dayLabels.nl}, ${businessInfo.openingHours.opens} - ${businessInfo.openingHours.closes}`,
       privacy: "Privacybeleid",
       terms: "Algemene Voorwaarden",
       refunds: "Retour- en Terugbetaalbeleid",
       shippingPolicy: "Verzendbeleid",
       faq: "FAQ",
-      copyright: "© 2026 PrintCraft Collective. Alle rechten voorbehouden.",
+      copyright: `© 2026 ${businessInfo.name}. Alle rechten voorbehouden.`,
     },
     home: {
-      footer: "© 2026 PrintCraft Collective. Alle rechten voorbehouden.",
+      footer: `© 2026 ${businessInfo.name}. Alle rechten voorbehouden.`,
       quickQuote: {
         fileMode: "Ik heb een bestand",
         ideaMode: "Ik heb een idee",
@@ -1429,7 +1431,7 @@ export const translations: Record<
         tpu: "Flexibel",
       },
       showcase: {
-        eyebrow: "PrintCraft studio",
+        eyebrow: `${businessInfo.name} studio`,
         title: "Wat we voor je kunnen maken",
         subtitle:
           "Van een eerste idee tot een onderdeel dat elke dag moet presteren. Jij levert de richting, wij maken het tastbaar.",
@@ -1557,7 +1559,7 @@ export const translations: Record<
       ctaDesc:
         "We kunnen speciale filamenten bestellen zoals Wood, Carbon Fiber of Glow-in-the-dark voor grotere projecten.",
       ctaButton: "Start Je Project",
-      footer: "© 2026 PrintCraft Collective. Professionele 3D-printservices.",
+      footer: `© 2026 ${businessInfo.name}. Professionele 3D-printservices.`,
     },
     recent: {
       title: "Recent Werk",
@@ -2405,7 +2407,7 @@ export const translations: Record<
       shippingLaterNotice:
         "Verzendgegevens vragen we pas nadat je offerte is goedgekeurd, wanneer je op bevestigen en betalen klikt.",
       pricingDisclaimer:
-        "Prijzen en offertes op dit platform zijn indicatief. Aan getoonde prijzen of offertes kunnen geen rechten worden ontleend totdat PrintCraft deze uitdrukkelijk heeft bevestigd.",
+        `Prijzen en offertes op dit platform zijn indicatief. Aan getoonde prijzen of offertes kunnen geen rechten worden ontleend totdat ${businessInfo.name} deze uitdrukkelijk heeft bevestigd.`,
     },
     faq: {
       title: "Veelgestelde Vragen",
@@ -2464,7 +2466,7 @@ export const translations: Record<
       loadingModel: "3D-model laden...",
     },
     orderDetail: {
-      customerNotesTitle: "Notities van PrintCraft",
+      customerNotesTitle: `Notities van ${businessInfo.name}`,
       paymentAttempts: "Betalingspogingen",
       notFound: "Order niet gevonden",
       back: "Terug naar Projecten",
@@ -2562,7 +2564,7 @@ export const translations: Record<
       updated: "Laatst bijgewerkt: 27 maart 2026",
       contact: {
         title: "Juridisch Contact",
-        body: "Voor juridische of privacyvragen kun je mailen naar info@printcraft.nl. We reageren doorgaans binnen 5 werkdagen.",
+        body: `Voor juridische of privacyvragen kun je mailen naar ${businessInfo.email}. We reageren doorgaans binnen 5 werkdagen.`,
       },
       privacy: {
         title: "Privacybeleid",
@@ -2589,7 +2591,7 @@ export const translations: Record<
           "Offertes zijn maatwerkramingen op basis van modelgrootte, aantallen, materiaalkeuze, printcomplexiteit en eventuele afwerking. Productie start uitsluitend na expliciet akkoord en bevestigde betaling.",
         pricingDisclaimerTitle: "Prijs- en offertegeldigheid",
         pricingDisclaimerBody:
-          "Getoonde richtprijzen op de website zijn indicatief. De definitieve prijs kan per aanvraag afwijken doordat grootte, aantallen, geometrie, supportgebruik, nabewerking en verzendmethode de werkelijke kostprijs beïnvloeden. Getoonde prijzen en conceptoffertes zijn niet bindend; rechten ontstaan pas na schriftelijke offertebevestiging door PrintCraft.",
+          `Getoonde richtprijzen op de website zijn indicatief. De definitieve prijs kan per aanvraag afwijken doordat grootte, aantallen, geometrie, supportgebruik, nabewerking en verzendmethode de werkelijke kostprijs beïnvloeden. Getoonde prijzen en conceptoffertes zijn niet bindend; rechten ontstaan pas na schriftelijke offertebevestiging door ${businessInfo.name}.`,
         section3Title: "Beperking van aansprakelijkheid",
         section3Body:
           "Klanten blijven verantwoordelijk voor de functionele geschiktheid en veiligheid van aangeleverde ontwerpen. Onze aansprakelijkheid is, waar wettelijk toegestaan, beperkt tot de waarde van de betreffende bestelling.",
@@ -2630,42 +2632,42 @@ export const translations: Record<
     },
     seo: {
       default: {
-        title: "3D Print Service Nederland | PrintCraft",
+        title: `3D Print Service Nederland | ${businessInfo.name}`,
         description:
           "Professionele 3D print service voor heel Nederland. Upload je model en ontvang snel een offerte.",
         keywords:
           "3D print service Nederland, 3D printen Nederland, online 3D print service, maatwerk 3D print",
       },
       home: {
-        title: "3D Print Service Nederland | PrintCraft",
+        title: `3D Print Service Nederland | ${businessInfo.name}`,
         description:
           "Professionele 3D print service voor prototypes, onderdelen en maatwerk prints in heel Nederland.",
         keywords:
           "3D print service Nederland, 3D printen Nederland, maatwerk 3D print",
       },
       gallery: {
-        title: "3D Print Modellen Galerij | PrintCraft Nederland",
+        title: `3D Print Modellen Galerij | ${businessInfo.name} Nederland`,
         description:
           "Bekijk populaire 3D print modellen en start je bestelling vanuit heel Nederland.",
         keywords: "3D modellen printen, 3D print galerij, 3D print Nederland",
       },
       materials: {
-        title: "3D Print Materialen (PLA, PETG) | PrintCraft NL",
+        title: `3D Print Materialen (PLA, PETG) | ${businessInfo.name} NL`,
         description:
           "Kies het juiste 3D print materiaal en kleur voor jouw project. Live overzicht van filamenten.",
         keywords: "PLA printen, PETG printen, 3D filament Nederland",
       },
       faq: {
-        title: "FAQ 3D Printen | PrintCraft Nederland",
+        title: `FAQ 3D Printen | ${businessInfo.name} Nederland`,
         description:
           "Veelgestelde vragen over levertijd, materialen, prijzen en kwaliteit.",
         keywords: "3D print FAQ Nederland, vragen 3D printen",
       },
       notFound: {
-        title: "Pagina niet gevonden | PrintCraft 3D Print Service",
+        title: `Pagina niet gevonden | ${businessInfo.name} 3D Print Service`,
         description:
-          "De opgevraagde pagina kon niet worden gevonden. Ga terug naar PrintCraft om je volgende 3D-printproject te starten.",
-        keywords: "404, pagina niet gevonden, PrintCraft",
+          `De opgevraagde pagina kon niet worden gevonden. Ga terug naar ${businessInfo.name} om je volgende 3D-printproject te starten.`,
+        keywords: `404, pagina niet gevonden, ${businessInfo.name}`,
       },
     },
     shipping: {

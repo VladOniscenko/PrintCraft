@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { matchPath, useLocation } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext";
+import { businessInfo } from "../config/businessInfo";
 
 type RouteSeo = {
   title: string;
@@ -65,24 +66,27 @@ function upsertJsonLd(
       "@graph": [
         {
           "@type": "WebSite",
-          name: "PrintCraft",
-          url: window.location.origin,
+          name: businessInfo.name,
+          url: businessInfo.website,
           inLanguage: language === "nl" ? "nl-NL" : "en",
         },
         {
           "@type": "LocalBusiness",
-          name: "PrintCraft",
-          url: window.location.origin,
-          areaServed: ["Netherlands"],
+          name: businessInfo.name,
+          url: businessInfo.website,
+          email: businessInfo.email,
+          telephone: businessInfo.phone,
+          areaServed: [businessInfo.address.countryCode],
           address: {
             "@type": "PostalAddress",
-            addressLocality: "Rotterdam",
-            addressCountry: "NL",
+            addressLocality: businessInfo.address.locality,
+            addressCountry: businessInfo.address.countryCode,
           },
-          geo: {
-            "@type": "GeoCoordinates",
-            latitude: 51.9244,
-            longitude: 4.4777,
+          openingHoursSpecification: {
+            "@type": "OpeningHoursSpecification",
+            dayOfWeek: businessInfo.openingHours.days,
+            opens: businessInfo.openingHours.opens,
+            closes: businessInfo.openingHours.closes,
           },
           sameAs: [],
         },
@@ -126,32 +130,32 @@ export default function SeoManager() {
         index: true,
       },
       "/login": {
-        title: `${t("nav.logIn")} | PrintCraft`,
-        description: `${t("nav.logIn")} PrintCraft`,
-        keywords: "PrintCraft login",
+        title: `${t("nav.logIn")} | ${businessInfo.name}`,
+        description: `${t("nav.logIn")} ${businessInfo.name}`,
+        keywords: `${businessInfo.name} login`,
         index: false,
       },
       "/signup": {
-        title: `${t("nav.getStarted")} | PrintCraft`,
-        description: `${t("nav.getStarted")} PrintCraft`,
-        keywords: "PrintCraft signup",
+        title: `${t("nav.getStarted")} | ${businessInfo.name}`,
+        description: `${t("nav.getStarted")} ${businessInfo.name}`,
+        keywords: `${businessInfo.name} signup`,
         index: false,
       },
       "/quote": {
-        title: `${t("hero.ctaQuote")} | PrintCraft`,
-        description: `${t("hero.ctaQuote")} PrintCraft`,
+        title: `${t("hero.ctaQuote")} | ${businessInfo.name}`,
+        description: `${t("hero.ctaQuote")} ${businessInfo.name}`,
         keywords: "3D print quote",
         index: false,
       },
       "/orders": {
-        title: `${t("nav.myOrders")} | PrintCraft`,
-        description: `${t("nav.myOrders")} PrintCraft`,
+        title: `${t("nav.myOrders")} | ${businessInfo.name}`,
+        description: `${t("nav.myOrders")} ${businessInfo.name}`,
         keywords: "orders",
         index: false,
       },
       "/profile": {
-        title: `${t("nav.myProfile")} | PrintCraft`,
-        description: `${t("nav.myProfile")} PrintCraft`,
+        title: `${t("nav.myProfile")} | ${businessInfo.name}`,
+        description: `${t("nav.myProfile")} ${businessInfo.name}`,
         keywords: "orders",
         index: false,
       },
@@ -192,19 +196,21 @@ export default function SeoManager() {
         ? { ...seoByRoute["/orders"], index: false }
         : seoByRoute[pathname] || defaultSeo;
 
-    const canonicalUrl = `${window.location.origin}${pathname}`;
+    const canonicalUrl = new URL(pathname, businessInfo.website).href;
 
     document.documentElement.lang = language === "nl" ? "nl-NL" : "en";
     document.title = routeSeo.title;
 
     upsertMetaByName("description", routeSeo.description);
     upsertMetaByName("keywords", routeSeo.keywords);
+    upsertMetaByName("author", businessInfo.name);
     upsertMetaByName(
       "robots",
       routeSeo.index ? "index, follow" : "noindex, nofollow",
     );
 
     upsertMetaByProperty("og:title", routeSeo.title);
+    upsertMetaByProperty("og:site_name", businessInfo.name);
     upsertMetaByProperty("og:description", routeSeo.description);
     upsertMetaByProperty("og:url", canonicalUrl);
     upsertMetaByProperty("og:locale", language === "nl" ? "nl_NL" : "en_US");

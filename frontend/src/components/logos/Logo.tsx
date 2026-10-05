@@ -1,6 +1,7 @@
 // src/components/Logo.tsx
 import React from "react";
 import { Link } from "react-router-dom";
+import { businessInfo } from "../../config/businessInfo";
 
 interface LogoProps {
   // Allows you to add custom classes to style the container (e.g., margins, alignment)
@@ -24,7 +25,7 @@ const Logo: React.FC<LogoProps> = ({ className = "", isLink = true }) => {
       {/* Brand Text */}
       <div>
         <h1 className="text-xl font-bold leading-none tracking-tight text-gray-900">
-          PrintCraft
+          {businessInfo.name}
         </h1>
         <p className="text-xs text-gray-500 font-medium mt-0.5">
           Powered by Oni

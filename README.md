@@ -202,6 +202,49 @@ See [PrintCraftApi.http](PrintCraftApi/PrintCraftApi.http) for a complete list o
 
 ## Configuration
 
+### Business Information and SEO
+
+Edit [frontend/src/config/businessInfo.ts](frontend/src/config/businessInfo.ts)
+for the business name, email, phone, address, opening hours, and public website URL.
+The React UI, English/Dutch translations, route metadata, and structured data use
+this configuration. Vite also uses it to populate the initial HTML metadata and
+generate `robots.txt` and `sitemap.xml` during development and production builds.
+Rebuild the frontend after changing these values for a production deployment.
+
+The phone, city-level address, and opening hours retain the previous site's values;
+confirm them before launch. No street address was supplied.
+
+### API Environments
+
+`ASPNETCORE_ENVIRONMENT` selects the API environment (case-insensitive):
+
+| Value | Settings Override |
+| --- | --- |
+| `dev` or `Development` | `PrintCraftApi/appsettings.Development.json` |
+| `tst` or `Test` | `PrintCraftApi/appsettings.Test.json` |
+| `prod` or `Production` | `PrintCraftApi/appsettings.Production.json` |
+
+Startup normalizes these aliases before creating the ASP.NET host. Common settings
+remain in `appsettings.json`, so environment files contain only their overrides.
+Configuration precedence is base JSON, environment JSON, development user secrets,
+environment variables (including `__` nested keys), then command-line arguments.
+If `ASPNETCORE_ENVIRONMENT` is absent, `DOTNET_ENVIRONMENT` is used; if neither is
+set, the default is Production. Unsupported environment names fail at startup.
+Swagger is enabled only in Development. Keep secrets and environment-specific
+database connections and base URLs in environment variables or a secret manager.
+Use a separate database and credentials for Test.
+
+PowerShell example for Test:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT = "tst"
+dotnet run --project PrintCraftApi --no-launch-profile
+```
+
+Use `--no-launch-profile` when selecting an environment yourself: the existing
+local launch profiles set `ASPNETCORE_ENVIRONMENT=Development`. The root `.env`
+is loaded for missing process variables only, so deployed environment values win.
+
 ### Environment Variables
 
 Create `.env` files (if needed):
@@ -209,7 +252,8 @@ Create `.env` files (if needed):
 **Frontend** — `.env.local`
 
 ```
-VITE_API_URL=<your-api-base-url>
+VITE_DEV_API_ORIGIN=<dev-api-origin>
+VITE_CURRENCY_CODE=EUR
 ```
 
 **Backend** — root `.env`
@@ -222,6 +266,7 @@ ConnectionStrings__DefaultConnection=Host=<db-host>;Port=<db-port>;Database=<db-
 FrontendBaseUrl=<frontend-base-url>
 BackendBaseUrl=<backend-base-url>
 ASPNETCORE_URLS=<backend-listen-url>
+ASPNETCORE_ENVIRONMENT=dev
 JwtSecret=replace-with-very-strong-dev-secret-min-32-chars
 JwtIssuer=printcraft-api
 JwtAudience=printcraft-client

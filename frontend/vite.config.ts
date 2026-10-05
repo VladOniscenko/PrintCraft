@@ -2,6 +2,18 @@ import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
+import { businessInfo } from "./src/config/businessInfo.ts";
+
+const crawlerFiles = {
+  "/robots.txt": {
+    contentType: "text/plain",
+    source: `User-agent: *\nAllow: /\n\nSitemap: ${businessInfo.website}/sitemap.xml\n`,
+  },
+  "/sitemap.xml": {
+    contentType: "application/xml",
+    source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${["/", "/faq"].map((route) => `  <url><loc>${new URL(route, businessInfo.website).href}</loc></url>`).join("\n")}\n</urlset>\n`,
+  },
+};
 
 export default defineConfig(({ mode }) => {
   const frontendEnv = loadEnv(mode, process.cwd(), "");
@@ -39,7 +51,39 @@ export default defineConfig(({ mode }) => {
   };
 
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      {
+        name: "business-metadata",
+        transformIndexHtml(html) {
+          const values = {
+            __BUSINESS_NAME__: businessInfo.name,
+            __BUSINESS_HOME_URL__: new URL("/", businessInfo.website).href,
+          };
+          for (const [token, value] of Object.entries(values)) {
+            const escapedValue = value.replace(/[&<>"']/g, (character) =>
+              ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]!,
+            );
+            html = html.replaceAll(token, escapedValue);
+          }
+          return html;
+        },
+        configureServer(devServer) {
+          devServer.middlewares.use((request, response, next) => {
+            const file = crawlerFiles[request.url?.split("?")[0] as keyof typeof crawlerFiles];
+            if (!file) return next();
+            response.setHeader("Content-Type", `${file.contentType}; charset=utf-8`);
+            response.end(file.source);
+          });
+        },
+        generateBundle() {
+          for (const [url, file] of Object.entries(crawlerFiles)) {
+            this.emitFile({ type: "asset", fileName: url.slice(1), source: file.source });
+          }
+        },
+      },
+    ],
     build: {
       rollupOptions: {
         output: {

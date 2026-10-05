@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using PrintCraftApi.Configuration;
 using PrintCraftApi.Data;
 using PrintCraftApi.Services;
 using QuestPDF.Infrastructure;
@@ -15,11 +16,15 @@ LoadDotEnv(
     Path.Combine(Directory.GetCurrentDirectory(), ".env"),
     Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env")));
 
-var builder = WebApplication.CreateBuilder(args);
+var environmentName = ApiEnvironment.ResolveName(
+    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+    ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    EnvironmentName = environmentName
+});
 QuestPDF.Settings.License = LicenseType.Community;
-
-// Explicitly add environment variables with double underscore support
-builder.Configuration.AddEnvironmentVariables();
 
 // --- SERVICES ---
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
