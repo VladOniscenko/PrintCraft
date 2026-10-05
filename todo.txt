@@ -1,60 +1,212 @@
-- remove dead components, components that are not showed at all or wrapped in false etc. also for the code that is unused in frontend as in backend,
-- fix translations pending_quote, pending_payment
-- allot of admin components are not translated and have fixed language fix it
-- centralize all business info like, phone number, email, business name, address, opening hours etc. sothat its in one place (frontend)
-- agreementRequired has no translations
-- change frontend business name from PrintCraft to Print My 3D
-- i need to specify somewhere the env (dev, tst or prod) in env?
-- make appsettings for dev, tst and prod
-- on startup select appsetings based on env in api
-- custom Traffic Analytics work very bad the same user (me) i already got 54 views but i want it to be unique (think of new solution) ip based? or cookie based sothat it will be correct i do not want double users in it
-- in some pages in tab it says page not found (fix tab namings)
-- change business email to printmy3dwork@gmail.com
-- check/fix set website language based on user settings. if i dont have its lang set to NL
+### Epic 1: Configuration, SEO & Environment Setup
+
+Act as a full-stack developer (.NET Core API, React).
+**Refactoring & Cleanup Directive:** Before writing new code, inspect the current codebase for any existing configuration, environment variables, or SEO logic. If existing implementations are found, improve or fully rebuild them to ensure better performance and scalability. Clean up and remove the old legacy code completely, and update all dependent references to use this new centralized implementation.
+Implement the following global configuration tasks:
+**1. Centralize Business Information:**
+Create a central configuration file in the React frontend (e.g., `config/businessInfo.ts`) to store: Business Name ("Print My 3D"), Email ("info@printmy3d.work"), Phone, Address, and Opening Hours. Replace all hardcoded instances across the frontend with these variables.
+**2. SEO Updates:**
+Update the `index.html` and any React Helmet/SEO components to dynamically use the new business name ("Print My 3D") and central configuration data.
+**3. Backend Environments:**
+Configure the .NET API to support multiple environments (`dev`, `tst`, `prod`).
+* Create `appsettings.Development.json`, `appsettings.Test.json`, and `appsettings.Production.json`.
+* Write the `Program.cs` startup logic to select the correct appsettings file based on the `ASPNETCORE_ENVIRONMENT` variable.
 
 
-Feature Specification: Dynamic Promotional Hero Component
-1. Feature Overview
 
-A new, eye-catching promotional hero section that acts as an auto-playing slideshow. It builds on the current homepage hero design to save development time, but uses distinct styling to stand out as a special offer area. All text, media, and active slides are fully managed through the admin panel.
-2. User Interface (Frontend)
+### Epic 2: Tech Debt, Translations & Security
 
-    Layout Structure: A split-screen design. Text and pricing sit on the left side, while the visual media (image or 3D model) is displayed on the right.
+Act as a senior full-stack developer. Review and resolve the following technical debt and security tasks for our React + .NET app:
+**Refactoring & Cleanup Directive:** Inspect the current codebase for any existing validation, routing, or localization logic. If found, improve or fully rebuild it for optimal future performance. Strip out and delete any old unused components, dead code, and obsolete references before implementing the new solutions.
+**1. Code Cleanup:**
+Analyze the frontend and backend codebase to find and remove unused components, dead code, and components perpetually wrapped in `false` conditions.
+**2. Translations (i18n):**
+* Fix missing translation keys: `pending_quote`, `pending_payment`, and `agreementRequired`.
+* Audit the Admin panel components: identify hardcoded strings and replace them with localization hooks.
+* Ensure website language defaults to Dutch (NL) if the user's browser/settings are unconfigured.
 
-    Slideshow Timing: Slides advance automatically every 5 seconds.
 
-    Navigation Controls: Interactive dots (bullets) sit at the bottom of the hero. These highlight the current slide and allow users to click backward or forward to specific promotions.
+**3. UI / UX Polish:**
+* Fix the SPA routing scroll issue: ensure React Router scrolls to the top of the page on route change.
+* Fix dynamic tab namings where the browser tab incorrectly reads "Page Not Found".
+* Fix checkout form validation: ensure error messages disappear when a user inputs valid data.
 
-    Mixed Media Support: The media area on the right must be able to load and display both standard 2D images and interactive, floating 3D models.
 
-    Visual Distinction: While reusing the base code of the standard hero, this component needs unique visual touches (such as different background colors, varied borders, or distinct text styling) to separate it from standard content.
+**4. Security Audit:**
+Implement strict sanitization and validation on file uploads (STL/images) and frontend inputs to prevent XSS, directory traversal, and SQL injection payloads.
 
-3. Admin Panel Controls (Backend)
+### Epic 3: Core Systems (Email & Analytics)
 
-Admins must have full control to create, read, update, and delete (CRUD) these slides in the admin dashboard.
+Please design and implement the following two system upgrades for my .NET Core + PostgreSQL application:
+**Refactoring & Cleanup Directive:** Inspect the current codebase for existing email dispatch logic and page view tracking. Improve or fully rebuild the architecture for better performance (e.g., preventing database bloat). Clean up and remove the old hardcoded email systems and naive counters, ensuring all references point to the new robust implementations.
+**1. Database-Driven Email Templates:**
+* Move hardcoded email bodies out of the codebase.
+* Create an EF Core entity `EmailTemplate` (Id, TemplateName, Subject, Body).
+* Build a backend service that parses "smart variables" (e.g., `{{CustomerName}}`, `{{OrderNumber}}`) inside the stored templates and replaces them with actual data before sending.
 
-Required fields for each slide:
 
-    Text Content: Headlines, subtext, and pricing information.
+**2. Unique Visitor Traffic Analytics:**
+* Redesign the current page view counter, which currently counts every refresh.
+* Propose and implement a robust tracking method (cookie-based session tracking combined with IP hashing) to track *unique* visitors efficiently without bloating the database.
 
-    Media Upload: A file uploader that accepts both standard image formats and 3D model formats.
 
-    Status Toggle: A switch to set a slide as "Active" or "Inactive" so promotions can be turned off without deleting them.
 
-    Sort Order: A way to organize which slide appears first in the 5-second rotation.
+### Epic 4: 3D Slicer & Automated Pricing Engine
 
-    Data Delivery: The frontend will fetch these active slides directly from the backend API when the page loads.
+We need to build a system to automatically calculate 3D printing costs using PrusaSlicer in a .NET Core / PostgreSQL / React stack.
+**Refactoring & Cleanup Directive:** Inspect the current codebase for any existing manual pricing logic or background tasks. Improve or fully rebuild them to integrate with this new automated slicing engine for scalability. Clean up and remove the old pricing code, and update all references to utilize the new `IPrintPricingService`.
+**1. Shared Pricing Service (.NET):**
+Create an `IPrintPricingService` (and implementation) that:
+* Accepts a file path and a `Scale` factor (e.g., 1.5).
+* Uses `System.Diagnostics.Process` to execute PrusaSlicer headlessly: `prusa-slicer --export-gcode --scale [ScaleFactor] [filepath]`.
+* Parses the generated `.gcode` file using Regex to extract:
+* Weight: `; filament used [g] = 12.34`
+* Time: `; estimated printing time (normal mode) = 1h 23m 45s`
 
-4. Planned Content Examples
 
-    Business Customization Slide:
+* Computes the `Price` based on time and weight.
+* Uses EF Core to update `EstimatedPrintTime`, `FilamentUsedGrams`, and `Price` on the `OrderItem`. Leaves the status as 'Pending Review' (no emails/webhooks).
 
-        Left Side: "Make your custom brand items and logos."
 
-        Right Side: A floating 3D model of a company logo.
+**2. Background Worker (.NET):**
+Create a `BackgroundService` or `Channel<T>` worker that listens for new order items and automatically processes them using `IPrintPricingService`.
+**3. Admin UI Override (React + .NET):**
+* Create a POST endpoint: `/api/admin/orders/{orderId}/items/{itemId}/calculate-price` that manually triggers `IPrintPricingService` and returns the updated item.
+* In React, add a "Calculate Price Now" button on the Admin Order Details page for each OrderItem. Conditionally render this only if `price` or `estimatedPrintTime` is null. Show a loading spinner during execution, and update local UI state upon completion.
 
-    Personal Gift Slide:
 
-        Left Side: "Print your memory picture for 20 Euro."
 
-        Right Side: An image or 3D model of a printed photo frame.
+### Epic 5: Customer Upload & 3D Viewer Experience
+
+I need to upgrade the customer 3D upload experience in my React application.
+**Refactoring & Cleanup Directive:** Inspect the current codebase for the existing file upload components and scale functionality. Improve or fully rebuild the logic to seamlessly support WebGL/Three.js integration. Clean up and delete the old bugged state logic between the homepage and checkout, ensuring the new components are cleanly referenced.
+**1. Fix Scale Bug:**
+Fix the state issue between the homepage file upload and the checkout step. When moving to checkout, the scale functionality incorrectly triggers the error "Upload een STL-bestand om proportioneel schalen te gebruiken" despite the model already being uploaded.
+**2. Interactive 3D Viewer Integration:**
+Implement an interactive WebGL canvas (using Three.js) to render uploaded `.stl` files immediately. Features must include:
+* **Live Color Preview:** Link the viewer's material color to the selected item from the Filaments data table.
+* **Dimension Check:** Calculate and display the exact bounding box dimensions ($X \times Y \times Z$ in mm) below the viewer.
+* **UX Instructions:** Add instructional text tooltips explaining ideal layer sizes, infill, and colors for printing.
+
+
+
+### Epic 6: Dynamic Promotional Hero Component
+
+Build a reusable, split-screen promotional slideshow component backed by a .NET API and PostgreSQL, consumed by a React frontend.
+**Refactoring & Cleanup Directive:** Inspect the current codebase for any existing hero or promotional banner components. Improve or fully rebuild the layout to support database-driven content and dynamic media rendering. Clean up and remove the old static hero components, updating the homepage and relevant routes to use the new dynamic component.
+**1. Backend API (.NET/EF Core):**
+Generate the model, migration, and CRUD controller for a `HeroSlide` entity:
+* Fields: Id (PK), Title, Subtext, PriceText, MediaUrl, MediaType (enum/string: "image" or "model3d"), InstructionTooltip, IsActive (bool), SortOrder (int).
+* Create a public GET endpoint returning active slides sorted by `SortOrder`.
+
+
+**2. Frontend Component (React):**
+* Create a split-layout component. Left side: Text, price, and instruction tooltip. Right side: Dynamic media container.
+* The media container must conditionally render an `<img>` tag or an interactive 3D canvas (Three.js) based on the `MediaType`.
+* Implement auto-play (5-second intervals) and clickable bottom navigation dots.
+* Apply custom CSS accents (distinct backgrounds, borders, typography).
+
+
+
+### Epic 7: Image-to-3D Research & Implementation
+
+I want customers to upload a standard 2D image (JPG, PNG, or SVG) and see an interactive 3D model generated directly on the page before placing an order (like an extruded logo or lithophane).
+**Refactoring & Cleanup Directive:** Inspect the current architecture to see how 2D and 3D files are currently handled. If there is existing experimental mesh generation code, improve or rebuild it for performance. Ensure any new logic integrates cleanly with the existing file upload pipeline, removing any hacky workarounds currently in place.
+**Phase 1: Architecture Consultation**
+Please answer these two questions before writing code:
+1. What is the simplest, lightweight JavaScript library to render this interactive 3D preview in the browser? (Compare Three.js vs `<model-viewer>`).
+2. How can I convert a 2D image into a printable 3D mesh? Is it better to generate the `.stl`/`.obj` in the browser via JavaScript, or on the .NET backend?
+
+
+**Phase 2: Implementation**
+Based on your recommendation for Phase 1, provide a minimal working code example or workflow to generate the extruded mesh from an uploaded image.
+
+### Epic 8: Production Kanban, Status Engine & Customer Tracker (Including Exceptions)
+
+Act as a senior full-stack developer (.NET Core, React). I need to refactor the order tracking system. This includes an Admin Kanban board backed by a strict state machine on the server, and a customer-facing vertical "Pizza Tracker" on the frontend.
+**Refactoring & Cleanup Directive:** Inspect the current codebase for existing order management, status tracking, or "Recommended Next Action" logic on both the Admin and Customer sides. Improve and fully rebuild the structure using a robust State Machine pattern for better performance and strict validation. Clean up and completely remove the old chaotic admin list view, action buttons, and the old horizontal/text-based customer order status page, ensuring all routing and components strictly use these new visual implementations.
+**1. Centralized Status Engine (.NET Backend):**
+* Create a centralized C# class (e.g., `OrderStatusStateMachine.cs`) to define strict progression rules for order statuses.
+* Implement the **Primary Workflow Stages** and strict database validation triggers:
+* **Quote Requested:** Initial state. To advance, every individual `OrderItem` must have a calculated `Price`, and the admin must have reviewed the customer notes.
+
+
+* **Awaiting Payment:** To advance, the payment be Paid.
+* **Ready to Print:** To advance, the admin must assign a printer and material, and G-code must be finalized.
+* **Printing:** To advance, the physical print job must be marked as successfully completed.
+* **Post-Processing:** To advance, quality check must pass and a tracking number must be saved.
+* **Shipped:** Final successful state.
+* make sure i do not miss anything for step process and checks
+
+* Implement the **Exception States** and their rules:
+* **On Hold:** Can be triggered from any active state before Shipped. Requires an "Admin Reason" text note to transition.
+* **Cancelled:** Can be triggered from Quote Requested, Awaiting Payment, or Ready to Print. If paid, flag for refund review.
+* **Returned:** Can only be triggered if the current state is Shipped.
+
+
+* Build an API endpoint (`PATCH /api/admin/orders/{id}/status`) that attempts to transition the status, calling this state machine. It must return clear error messages if prerequisites are unmet.
+
+
+**2. Admin Kanban Board UI (React Frontend):**
+* Build a drag-and-drop Kanban board using `dnd-kit`.
+* Create main columns for the active workflow: Quote Requested, Awaiting Payment, Ready to Print, Printing, and Post-Processing.
+* Create a distinct "Exceptions & Closed" section (or separate drop zones) for **Shipped**, **On Hold**, **Cancelled**, and **Returned** to keep the active pipeline uncluttered.
+* When an admin drags an order card to a new status, fire a request to the PATCH endpoint.
+* If the backend rejects the transition, snap the card back and display a toast notification with the validation error.
+
+
+**3. Customer "Pizza Tracker" UI (React Frontend):**
+* Redesign the customer's individual order details page into a vertical step-by-step tracker.
+* The vertical tracker must dynamically light up steps mapping to the primary workflow (Quote Requested through Shipped).
+* **Exception Handling:** If the order transitions to Cancelled, On Hold, or Returned, the tracker must halt its standard progression. Render the affected step in an error state (e.g., red color or warning icon) and display a clear, customer-friendly explanation (e.g., "Order Cancelled - Please check your email for refund details").
+
+### Epic 9: Quote Submission Validation (IP & Customization)
+
+Act as a full-stack developer. I need to update the customer-facing Quote Submission Form (React) and the corresponding backend endpoint (.NET) to capture mandatory printing instructions and legal IP indemnification.
+**Refactoring & Cleanup Directive:** Inspect the current codebase for the existing checkout and quote submission form logic. Improve or fully rebuild the validation schemas and form state management to ensure better performance and security. Clean up and remove any old unvalidated inputs, ensuring the backend exclusively uses the new request payload structures.
+**1. Frontend Requirements (React):**
+Update the checkout/quote submission form to include two new mandatory fields:
+* **Customer Notes Field:** Add a required `<textarea>` labeled "Any specific requirements?". Add helper text: "(e.g., 'Must be strong', 'Will be painted', or 'Scale to fit a 5mm screw')".
+* **IP Indemnification Toggle:** Add a mandatory checkbox with the exact text: "I confirm that I own the rights to manufacture this 3D model, or it is licensed for commercial reproduction. I accept full liability for any copyright infringement."
+* **Validation logic:** The "Submit Request" button must remain fully disabled until this checkbox is checked and the notes field is populated.
+
+
+**2. Backend & Database (.NET / EF Core):**
+* Update the `Order` or `QuoteRequest` Entity Framework model to include `CustomerNotes` (string) and `IpAgreementAccepted` (boolean).
+* Generate the corresponding EF Core migration.
+* Update the POST endpoint for quote creation to accept these new fields, enforcing backend validation so that the request is rejected (400 Bad Request) if `IpAgreementAccepted` is false or missing.
+
+
+
+
+
+I completely agree with your assessment. The current tabbed layout hides critical information. Having to click back and forth between "Items & Quotes" just to price a model, then over to "Billing & Shipping" to add tracking, and then to "Comments" to read the customer's notes creates a disjointed, frustrating workflow.
+
+Since Epic 8 introduced a strict State Machine, your new order page should be a **Context-Aware Dashboard**. Instead of showing everything at once in tabs, the page should show you exactly what you need to do *based on the order's current status*, while keeping standard info (files, address, chat) permanently pinned to the side.
+
+Here is the ready-to-use prompt for your AI to completely rebuild this page.
+
+---
+
+### Epic 10: Unified Context-Aware Admin Order Dashboard
+
+Act as a senior full-stack developer (.NET Core, React/Tailwind). I need to completely rebuild the Admin Order Details page from scratch.
+**Refactoring & Cleanup Directive:** The current page uses an overcomplicated, tabbed interface ("Summary", "Items & Quotes", "Files", "Billing & Shipping", "Comments"). **Delete all of these old tab components entirely.** Do not try to rearrange them. We are building a fresh, unified, two-column dashboard grid that integrates directly with the `OrderStatusStateMachine` built in Epic 8.
+
+**1. Global Layout & Header (React):**
+* Build a two-column CSS Grid layout (e.g., 60% Left Column for Actions, 40% Right Column for Static Context).
+* **Sticky Header:** Keep the Order ID, Customer Name, Date, and a prominent badge showing the current State Machine status.
+* Move the "More Actions" (Cancel, Refund) and "Download PDF Invoice" into a clean dropdown menu in the top right.
+
+**2. The Dynamic Action Panel (Left Column):**
+This column must conditionally render its UI based on the exact status of the order.
+* **If 'Quote Requested':** Render the newly integrated 3D Pricing Engine (from Epic 4) alongside the item list. Show the inputs for Setup Fee, Delivery Price, and item-level overrides. The primary CTA should be "Finalize Quote & Request Payment".
+* **If 'Ready to Print':** Hide the pricing forms. Render a dropdown to assign the physical Printer and Material.
+* **If 'Post-Processing':** Render the "Track & Trace" input fields (Courier, Tracking Number) and a "Mark as Shipped" CTA.
+* **If 'Shipped' or 'Cancelled':** Render a read-only summary of the finalized costs and shipping details.
+
+**3. The Persistent Context Panel (Right Column):**
+This sidebar must be always visible, regardless of the order status, eliminating the need for tabs. It should contain three vertically stacked cards:
+* **Customer & Shipping:** The full delivery address, email, and contact info.
+* **Files & Assets:** A clean list of all uploaded `.stl` or `.step` files with one-click download buttons.
+* **Communication History:** A unified timeline merging the system status history, automated email logs, and text areas for both "Customer Notes" and "Internal Admin Notes".
