@@ -1,9 +1,11 @@
-using System.Net;
-using System.Text;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using MimeKit;
 using Microsoft.Extensions.Options;
+using MimeKit;
+using PrintCraftApi.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace PrintCraftApi.Services;
 
@@ -36,119 +38,118 @@ public sealed class GmailSmtpEmailService : IEmailService
     private readonly string _bankTransferAccountName;
     private readonly string _bankTransferIban;
     private readonly string? _bankTransferBic;
+    private readonly PrintCraftDb _db;
 
     public GmailSmtpEmailService(
         IOptions<EmailOptions> options,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        PrintCraftDb db)
     {
         _options = options.Value;
         _currencyCode = NormalizeCurrencyCode(configuration["CurrencyCode"]);
         _bankTransferAccountName = configuration["BankTransfer:AccountName"] ?? string.Empty;
         _bankTransferIban = configuration["BankTransfer:Iban"] ?? string.Empty;
         _bankTransferBic = configuration["BankTransfer:Bic"];
+        _db = db;
     }
 
-    public Task SendResetPasswordEmailAsync(string toEmail, string toName, string resetLink)
+    private async Task<(string Subject, string Body)> GetTemplateAsync(string templateName, Dictionary<string, string> variables)
     {
-        var subject = "Reset your PrintCraft password";
-        var body = $"""
-            Hi {WebUtility.HtmlEncode(toName)},
+        var template = await _db.EmailTemplates
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.TemplateName == templateName);
 
-            We received a request to reset your password.
+        var subject = template?.Subject ?? $"Notification: {templateName}";
+        var body = template?.Body ?? "No template found.";
 
-            Reset link:
-            {resetLink}
+        foreach (var (key, value) in variables)
+        {
+            var placeholder = $"{{{{{key}}}}}";
+            subject = subject.Replace(placeholder, value);
+            body = body.Replace(placeholder, value);
+        }
 
-            If you did not request this, you can ignore this email.
-
-            - PrintCraft
-            """;
-
-        return SendTextEmailAsync(toEmail, subject, body);
+        return (subject, body);
     }
 
-    public Task SendQuoteRequestedEmailAsync(string toEmail, string toName, Guid orderId)
+    public async Task SendResetPasswordEmailAsync(string toEmail, string toName, string resetLink)
     {
-        var subject = "We received your quote request";
-        var body = $"""
-            Hi {WebUtility.HtmlEncode(toName)},
+        var variables = new Dictionary<string, string>
+        {
+            { "CustomerName", WebUtility.HtmlEncode(toName) },
+            { "ResetLink", resetLink }
+        };
 
-            We got your quote request (Order: {orderId}). 
-
-            Our team will review your files and send pricing soon. You can check the status of your request anytime in your portal.
-
-            - PrintCraft
-            """;
-
-        return SendTextEmailAsync(toEmail, subject, body);
+        var (subject, body) = await GetTemplateAsync("ResetPassword", variables);
+        await SendTextEmailAsync(toEmail, subject, body);
     }
 
-    public Task SendQuoteConfirmationEmailAsync(string toEmail, string toName, Guid orderId, decimal price, string? quoteMessage)
+    public async Task SendQuoteRequestedEmailAsync(string toEmail, string toName, Guid orderId)
     {
-        var subject = "Your quote is ready";
-        var body = $"""
-            Hi {WebUtility.HtmlEncode(toName)},
+        var variables = new Dictionary<string, string>
+        {
+            { "CustomerName", WebUtility.HtmlEncode(toName) },
+            { "OrderId", orderId.ToString() }
+        };
 
-            Good news! Your quote for order {orderId} is ready.
-
-            Please log in to your PrintCraft portal to view the price, read any notes from our team, and securely complete your payment.
-
-            - PrintCraft
-            """;
-
-        return SendTextEmailAsync(toEmail, subject, body);
+        var (subject, body) = await GetTemplateAsync("QuoteRequested", variables);
+        await SendTextEmailAsync(toEmail, subject, body);
     }
 
-    public Task SendQuoteConfirmationBankTransferEmailAsync(string toEmail, string toName, Guid orderId, decimal price, string? quoteMessage, string paymentReference)
+    public async Task SendQuoteConfirmationEmailAsync(string toEmail, string toName, Guid orderId, decimal price, string? quoteMessage)
     {
-        var subject = "Your quote is ready for review";
-        var body = $"""
-            Hi {WebUtility.HtmlEncode(toName)},
+        var variables = new Dictionary<string, string>
+        {
+            { "CustomerName", WebUtility.HtmlEncode(toName) },
+            { "OrderId", orderId.ToString() },
+            { "Price", price.ToString("F2") },
+            { "QuoteMessage", quoteMessage ?? "" }
+        };
 
-            Good news! Your quote for order {orderId} is ready.
-
-            Please log in to your PrintCraft portal to review the quote and get the bank transfer instructions to complete your payment.
-
-            Once your transfer is received, we will start production.
-
-            - PrintCraft
-            """;
-
-        return SendTextEmailAsync(toEmail, subject, body);
+        var (subject, body) = await GetTemplateAsync("QuoteConfirmation", variables);
+        await SendTextEmailAsync(toEmail, subject, body);
     }
 
-    public Task SendOrderSentTrackingEmailAsync(string toEmail, string toName, Guid orderId, string trackingCode, string? trackingUrl)
+    public async Task SendQuoteConfirmationBankTransferEmailAsync(string toEmail, string toName, Guid orderId, decimal price, string? quoteMessage, string paymentReference)
     {
-        var subject = "Your order has shipped";
-        var body = $"""
-            Hi {WebUtility.HtmlEncode(toName)},
+        var variables = new Dictionary<string, string>
+        {
+            { "CustomerName", WebUtility.HtmlEncode(toName) },
+            { "OrderId", orderId.ToString() },
+            { "Price", price.ToString("F2") },
+            { "QuoteMessage", quoteMessage ?? "" },
+            { "PaymentReference", paymentReference }
+        };
 
-            Your order ({orderId}) has been shipped!
-
-            Please log in to your PrintCraft portal to view your tracking number and shipping details.
-
-            Thanks for choosing PrintCraft.
-
-            - PrintCraft
-            """;
-
-        return SendTextEmailAsync(toEmail, subject, body);
+        var (subject, body) = await GetTemplateAsync("QuoteConfirmationBankTransfer", variables);
+        await SendTextEmailAsync(toEmail, subject, body);
     }
 
-    public Task SendOrderPaidEmailAsync(string toEmail, string toName, Guid orderId, decimal amount)
+    public async Task SendOrderSentTrackingEmailAsync(string toEmail, string toName, Guid orderId, string trackingCode, string? trackingUrl)
     {
-        var subject = "Payment received";
-        var body = $"""
-            Hi {WebUtility.HtmlEncode(toName)},
+        var variables = new Dictionary<string, string>
+        {
+            { "CustomerName", WebUtility.HtmlEncode(toName) },
+            { "OrderId", orderId.ToString() },
+            { "TrackingCode", trackingCode },
+            { "TrackingUrl", trackingUrl ?? "" }
+        };
 
-            We successfully received your payment for order {orderId}.
+        var (subject, body) = await GetTemplateAsync("OrderSentTracking", variables);
+        await SendTextEmailAsync(toEmail, subject, body);
+    }
 
-            Your order is now confirmed and moving into production. You can track its progress at any time in your portal.
+    public async Task SendOrderPaidEmailAsync(string toEmail, string toName, Guid orderId, decimal amount)
+    {
+        var variables = new Dictionary<string, string>
+        {
+            { "CustomerName", WebUtility.HtmlEncode(toName) },
+            { "OrderId", orderId.ToString() },
+            { "Amount", amount.ToString("F2") }
+        };
 
-            - PrintCraft
-            """;
-
-        return SendTextEmailAsync(toEmail, subject, body);
+        var (subject, body) = await GetTemplateAsync("OrderPaid", variables);
+        await SendTextEmailAsync(toEmail, subject, body);
     }
 
     public Task SendCustomEmailAsync(string toEmail, string toName, string subject, string body)

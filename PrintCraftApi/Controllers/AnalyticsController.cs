@@ -35,20 +35,67 @@ public class AnalyticsController : ControllerBase
         if (!string.IsNullOrWhiteSpace(userIdClaim) && Guid.TryParse(userIdClaim, out var userId))
             parsedUserId = userId;
 
-        var visitorSource = ResolveVisitorSource(userIdClaim, Request.Headers["X-Visitor-Id"].FirstOrDefault(), HttpContext);
-        var visitorKey = HashValue(visitorSource);
+        // 1. Try get Visitor ID from cookie
+        var cookieVisitorId = Request.Cookies["pc_vid"];
+        string visitorKey;
 
-        var duplicateWindowSeconds = eventType == "heartbeat" ? 20 : 45;
-        var duplicateWindowStart = DateTime.UtcNow.AddSeconds(-duplicateWindowSeconds);
-        var isDuplicate = await _db.VisitEvents
-            .AsNoTracking()
-            .AnyAsync(v => v.VisitorKey == visitorKey
+        if (!string.IsNullOrWhiteSpace(cookieVisitorId))
+        {
+            visitorKey = cookieVisitorId.Length > 100 ? cookieVisitorId[..100] : cookieVisitorId;
+        }
+        else
+        {
+            // 2. Fallback to IP + UserAgent hash, and issue cookie
+            var visitorSource = ResolveVisitorSource(userIdClaim, Request.Headers["X-Visitor-Id"].FirstOrDefault(), HttpContext);
+            var userAgent = Request.Headers["User-Agent"].ToString();
+            visitorKey = HashValue($"{visitorSource}|{userAgent}");
+
+            Response.Cookies.Append("pc_vid", visitorKey, new CookieOptions
+            {
+                Expires = DateTimeOffset.UtcNow.AddYears(1),
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax
+            });
+        }
+
+        // Avoid database bloat: Find existing daily session for this visitor/page
+        var today = DateTime.UtcNow.Date;
+        var existingVisit = await _db.VisitEvents
+            .FirstOrDefaultAsync(v => v.VisitorKey == visitorKey
                 && v.PagePath == pagePath
                 && v.EventType == eventType
-                && v.VisitedAt >= duplicateWindowStart);
+                && v.VisitedAt.Date == today);
 
-        if (isDuplicate)
-            return Ok(new { tracked = false });
+        if (existingVisit != null)
+        {
+            // Just increment the counter, don't insert a new row
+            // We can debounce rapid refreshes if we want, but it's just an integer update now
+            
+            // For heartbeat events, we might want to avoid spamming the DB with +1s,
+            // but let's debounce slightly:
+            if (eventType == "heartbeat" && (DateTime.UtcNow - existingVisit.VisitedAt).TotalSeconds < 20)
+            {
+                return Ok(new { tracked = false });
+            }
+
+            if (eventType != "heartbeat" && (DateTime.UtcNow - existingVisit.VisitedAt).TotalSeconds < 45)
+            {
+                // Debounce rapid page refreshes
+                return Ok(new { tracked = false });
+            }
+
+            existingVisit.Views++;
+            existingVisit.VisitedAt = DateTime.UtcNow; // Update last visited time
+            
+            if (parsedUserId != null)
+            {
+                 existingVisit.UserId = parsedUserId;
+            }
+
+            await _db.SaveChangesAsync();
+            return Ok(new { tracked = true, updated = true });
+        }
 
         var countryCode = Request.Headers["CF-IPCountry"].FirstOrDefault()?.Trim().ToUpperInvariant();
         var city = Request.Headers["CF-IPCity"].FirstOrDefault()?.Trim();
@@ -62,11 +109,12 @@ public class AnalyticsController : ControllerBase
             CountryCode = string.IsNullOrWhiteSpace(countryCode) ? "UN" : countryCode,
             City = string.IsNullOrWhiteSpace(city) ? null : city,
             UserAgent = Request.Headers["User-Agent"].ToString(),
-            VisitedAt = DateTime.UtcNow
+            VisitedAt = DateTime.UtcNow,
+            Views = 1
         });
 
         await _db.SaveChangesAsync();
-        return Ok(new { tracked = true });
+        return Ok(new { tracked = true, new_session = true });
     }
 
     private static string NormalizeEventType(string? eventType)

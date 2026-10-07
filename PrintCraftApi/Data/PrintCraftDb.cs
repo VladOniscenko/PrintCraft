@@ -21,6 +21,7 @@ public class PrintCraftDb : DbContext
     public DbSet<VisitEvent> VisitEvents => Set<VisitEvent>();
     public DbSet<ManualPaymentNotification> ManualPaymentNotifications => Set<ManualPaymentNotification>();
     public DbSet<QuoteDraft> QuoteDrafts => Set<QuoteDraft>();
+    public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -117,5 +118,6 @@ public class PrintCraftDb : DbContext
         modelBuilder.Entity<UserAddress>()
             .HasIndex(a => new { a.UserId, a.IsDefault });
 
+        EmailTemplateSeeder.Seed(modelBuilder);
     }
 }

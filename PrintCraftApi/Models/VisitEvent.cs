@@ -11,4 +11,5 @@ public class VisitEvent
     public string? City { get; set; }
     public string? UserAgent { get; set; }
     public DateTime VisitedAt { get; set; } = DateTime.UtcNow;
+    public int Views { get; set; } = 1;
 }

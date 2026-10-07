@@ -288,7 +288,7 @@ public class AdminController : ControllerBase
             .Select(g => new
             {
                 Day = g.Key,
-                Views = g.Count(),
+                Views = g.Sum(x => x.Views),
                 UniqueVisitors = g.Select(x => x.VisitorKey).Distinct().Count()
             })
             .ToListAsync();
@@ -325,7 +325,7 @@ public class AdminController : ControllerBase
             {
                 g.Key.Year,
                 g.Key.Month,
-                Views = g.Count(),
+                Views = g.Sum(x => x.Views),
                 UniqueVisitors = g.Select(x => x.VisitorKey).Distinct().Count()
             })
             .ToListAsync();
@@ -362,7 +362,7 @@ public class AdminController : ControllerBase
             .Select(g => new
             {
                 Year = g.Key,
-                Views = g.Count(),
+                Views = g.Sum(x => x.Views),
                 UniqueVisitors = g.Select(x => x.VisitorKey).Distinct().Count()
             })
             .ToListAsync();
@@ -406,7 +406,7 @@ public class AdminController : ControllerBase
             .Select(g => new
             {
                 countryCode = g.Key,
-                views = g.Count(),
+                views = g.Sum(x => x.Views),
                 uniqueVisitors = g.Select(x => x.VisitorKey).Distinct().Count()
             })
             .OrderByDescending(x => x.views)
@@ -423,7 +423,7 @@ public class AdminController : ControllerBase
             {
                 countryCode = g.Key.CountryCode,
                 city = g.Key.City,
-                views = g.Count(),
+                views = g.Sum(x => x.Views),
                 uniqueVisitors = g.Select(x => x.VisitorKey).Distinct().Count()
             })
             .OrderByDescending(x => x.views)
