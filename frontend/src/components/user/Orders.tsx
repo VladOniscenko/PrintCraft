@@ -115,7 +115,7 @@ export default function Orders() {
               {t("orders.noneDesc")}
             </p>
             <Link
-              to="/quote"
+              to="/checkout"
               className="inline-block bg-[#133827] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#1c4d37] transition-all shadow-lg shadow-emerald-900/10"
             >
               {t("orders.start")}
@@ -133,7 +133,7 @@ export default function Orders() {
               {t("orders.noneDesc")}
             </p>
             <Link
-              to="/quote"
+              to="/checkout"
               className="inline-block bg-[#133827] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#1c4d37] transition-all shadow-lg shadow-emerald-900/10"
             >
               {t("orders.start")}

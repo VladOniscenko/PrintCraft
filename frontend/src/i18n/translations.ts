@@ -1038,6 +1038,7 @@ export const translations: Record<
         "Shipping details are requested after your quote is approved, when you click confirm and pay.",
       pricingDisclaimer:
         `Prices and quotes shown on this platform are indicative. No rights can be derived from displayed prices or quotes until explicitly confirmed by ${businessInfo.name}.`,
+      agreementRequired: "Please accept the service agreement before submitting.",
     },
     faq: {
       title: "Frequently Asked Questions",
@@ -1061,9 +1062,11 @@ export const translations: Record<
     },
     orderStatus: {
       pendingQuote: "Pending Quote",
+      pending_quote: "Pending Quote",
       quoted: "Quoted",
       expiredQuote: "Expired Quote",
       pendingPayment: "Pending Payment",
+      pending_payment: "Pending Payment",
       printing: "Printing",
       completed: "Completed",
       shipped: "Shipped",
@@ -1364,6 +1367,9 @@ export const translations: Record<
       admin: "Admin",
       orders: "Orders",
     },
+    pending_quote: "Pending Quote",
+    pending_payment: "Pending Payment",
+    agreementRequired: "Please accept the service agreement before submitting.",
   },
   nl: {
     nav: {
@@ -2408,6 +2414,7 @@ export const translations: Record<
         "Verzendgegevens vragen we pas nadat je offerte is goedgekeurd, wanneer je op bevestigen en betalen klikt.",
       pricingDisclaimer:
         `Prijzen en offertes op dit platform zijn indicatief. Aan getoonde prijzen of offertes kunnen geen rechten worden ontleend totdat ${businessInfo.name} deze uitdrukkelijk heeft bevestigd.`,
+      agreementRequired: "Accepteer de servicevoorwaarden voordat je verzendt.",
     },
     faq: {
       title: "Veelgestelde Vragen",
@@ -2431,9 +2438,11 @@ export const translations: Record<
     },
     orderStatus: {
       pendingQuote: "Offerte in behandeling",
+      pending_quote: "Offerte in behandeling",
       quoted: "Geoffreerd",
       expiredQuote: "Offerte verlopen",
       pendingPayment: "In afwachting van betaling",
+      pending_payment: "In afwachting van betaling",
       printing: "In productie",
       completed: "Afgerond",
       shipped: "Verzonden",
@@ -2735,5 +2744,8 @@ export const translations: Record<
       admin: "Admin",
       orders: "Orders",
     },
+    pending_quote: "Offerte in behandeling",
+    pending_payment: "In afwachting van betaling",
+    agreementRequired: "Accepteer de servicevoorwaarden voordat je verzendt.",
   },
 };

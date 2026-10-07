@@ -253,6 +253,17 @@ public class OrdersController : ControllerBase
             {
                 return BadRequest(new { message = "Only one 3D model file is allowed per item." });
             }
+
+            if (urls.Any(InputSanitizer.ContainsDirectoryTraversal))
+                return BadRequest(new { message = "Invalid file URL." });
+
+            if (InputSanitizer.ContainsSqlInjection(item.Notes) ||
+                InputSanitizer.ContainsSqlInjection(item.FileName) ||
+                InputSanitizer.ContainsSqlInjection(item.Material) ||
+                InputSanitizer.ContainsSqlInjection(item.Color))
+            {
+                return BadRequest(new { message = "Invalid input detected." });
+            }
         }
 
         if (!isAuthenticated && user == null)
@@ -324,11 +335,11 @@ public class OrdersController : ControllerBase
                     OrderId = Guid.Empty,
                     FileUrl = fileUrl,
                     ImageUrl = imageUrl,
-                    fileName = fileName,
-                    Notes = string.IsNullOrWhiteSpace(item.Notes) ? null : item.Notes.Trim(),
-                    Size = string.IsNullOrWhiteSpace(item.Size) ? null : item.Size.Trim(),
-                    Material = string.IsNullOrWhiteSpace(item.Material) ? "Custom" : item.Material.Trim(),
-                    Color = string.IsNullOrWhiteSpace(item.Color) ? "Custom" : item.Color.Trim(),
+                    fileName = InputSanitizer.SanitizeFileName(fileName),
+                    Notes = InputSanitizer.SanitizeText(item.Notes),
+                    Size = InputSanitizer.SanitizeText(item.Size, 100),
+                    Material = InputSanitizer.SanitizeText(item.Material) ?? "Custom",
+                    Color = InputSanitizer.SanitizeText(item.Color) ?? "Custom",
                     Count = item.Count,
                     Price = 0,
                     Attachments = files.Select(f => new OrderItemAttachment
@@ -336,8 +347,8 @@ public class OrdersController : ControllerBase
                         Id = Guid.NewGuid(),
                         OrderItemId = Guid.Empty,
                         Url = f.Url,
-                        FileName = f.Name,
-                        Kind = f.Kind,
+                        FileName = InputSanitizer.SanitizeFileName(f.Name) ?? f.Name ?? string.Empty,
+                        Kind = f.Kind ?? "other",
                     }).ToList(),
                 };
 

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PrintCraftApi.Data;
 using System.Text;
 using System.Text.Json;
+using PrintCraftApi.Validation;
 
 namespace PrintCraftApi.Controllers;
 
@@ -286,13 +287,16 @@ public class UploadController : ControllerBase
     [EnableRateLimiting("UploadLimit")]
     public IActionResult DeleteTempUpload([FromQuery] string? fileUrl)
     {
+        if (InputSanitizer.ContainsDirectoryTraversal(fileUrl))
+            return BadRequest(new { message = "Invalid file path." });
+
         var fileName = ExtractFileNameFromAssetUrl(fileUrl);
         if (string.IsNullOrWhiteSpace(fileName))
             return BadRequest(new { message = "Valid file URL is required." });
 
         var extension = Path.GetExtension(fileName);
-        if (string.IsNullOrWhiteSpace(extension) || !ModelExtensions.Contains(extension))
-            return BadRequest(new { message = "Only model files can be deleted from this endpoint." });
+        if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
+            return BadRequest(new { message = "Only uploaded files can be deleted from this endpoint." });
 
         var ownerKey = ResolveUploadOwnerKey();
         if (ownerKey == null)

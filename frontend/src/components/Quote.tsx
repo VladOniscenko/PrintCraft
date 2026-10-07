@@ -204,6 +204,8 @@ export default function Quote() {
     city: "",
     postalCode: "",
   });
+  const [shippingErrors, setShippingErrors] = useState<Record<string, string>>({});
+  const [guestErrors, setGuestErrors] = useState<Record<string, string>>({});
 
   const [currentStep, setCurrentStep] = useState(1);
   const [agreementAccepted, setAgreementAccepted] = useState(false);
@@ -279,10 +281,51 @@ export default function Quote() {
   };
 
   const goToNextStep = () => {
-    const error = currentStep === 1 ? validateStepOne() : validateStepTwo();
-    if (error) {
-      notifyError(error);
-      return;
+    if (currentStep === 1) {
+      const error = validateStepOne();
+      if (error) {
+        notifyError(error);
+        return;
+      }
+    } else if (currentStep === 2) {
+      // Run field-level validation and surface errors inline
+      const fieldErrors = validateShippingInfo(shippingDetails, t);
+      let hasError = false;
+
+      if (Object.keys(fieldErrors).length > 0) {
+        setShippingErrors(fieldErrors);
+        notifyError(Object.values(fieldErrors)[0]);
+        hasError = true;
+      } else {
+        setShippingErrors({});
+      }
+
+      // Guest-only contact validation
+      if (!isLoggedIn) {
+        const nextGuestErrors: Record<string, string> = {};
+        const normalizedName = guestName.trim();
+        const normalizedEmail = guestEmail.trim();
+        if (normalizedName.length < 2) {
+          nextGuestErrors.name = t("quote.guestRequiredName");
+        }
+        if (!normalizedEmail) {
+          nextGuestErrors.email = t("quote.guestRequiredEmail");
+        } else if (!isValidEmail(normalizedEmail)) {
+          nextGuestErrors.email = t("quote.guestInvalidEmail");
+        }
+
+        if (Object.keys(nextGuestErrors).length > 0) {
+          setGuestErrors(nextGuestErrors);
+          if (!hasError) {
+            notifyError(Object.values(nextGuestErrors)[0]);
+          }
+          hasError = true;
+        } else {
+          setGuestErrors({});
+        }
+      }
+
+      if (hasError) return;
     }
 
     setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
@@ -356,6 +399,7 @@ export default function Quote() {
       city: addr.city,
       postalCode: addr.postalCode,
     });
+    setShippingErrors({});
   };
 
   const handleManualShippingChange = (
@@ -363,7 +407,47 @@ export default function Quote() {
     value: string,
   ) => {
     setSelectedAddressId("manual"); // Switch to manual mode immediately
-    setShippingDetails((prev) => ({ ...prev, [field]: value }));
+    const updated = { ...shippingDetails, [field]: value };
+    setShippingDetails(updated);
+
+    // If this field currently has an error, clear it as soon as the user enters valid data
+    if (shippingErrors[field]) {
+      const currentErrors = validateShippingInfo(updated, t);
+      if (!currentErrors[field]) {
+        setShippingErrors((prev) => {
+          const next = { ...prev };
+          delete next[field];
+          return next;
+        });
+      } else {
+        setShippingErrors((prev) => ({
+          ...prev,
+          [field]: currentErrors[field],
+        }));
+      }
+    }
+  };
+
+  const handleGuestNameChange = (value: string) => {
+    setGuestName(value);
+    if (guestErrors.name && value.trim().length >= 2) {
+      setGuestErrors((prev) => {
+        const next = { ...prev };
+        delete next.name;
+        return next;
+      });
+    }
+  };
+
+  const handleGuestEmailChange = (value: string) => {
+    setGuestEmail(value);
+    if (guestErrors.email && isValidEmail(value.trim())) {
+      setGuestErrors((prev) => {
+        const next = { ...prev };
+        delete next.email;
+        return next;
+      });
+    }
   };
 
   const uploadSelectedFilesForItem = async (
@@ -1424,10 +1508,13 @@ export default function Quote() {
                         <input
                           type="text"
                           value={guestName}
-                          onChange={(e) => setGuestName(e.target.value)}
+                          onChange={(e) => handleGuestNameChange(e.target.value)}
                           className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                           placeholder={t("quote.placeholderName")}
                         />
+                        {guestErrors.name && (
+                          <p className="text-xs text-red-600 mt-1">{guestErrors.name}</p>
+                        )}
                       </div>
 
                       <div className="space-y-1.5">
@@ -1437,10 +1524,13 @@ export default function Quote() {
                         <input
                           type="email"
                           value={guestEmail}
-                          onChange={(e) => setGuestEmail(e.target.value)}
+                          onChange={(e) => handleGuestEmailChange(e.target.value)}
                           className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                           placeholder={t("quote.placeholderEmail")}
                         />
+                        {guestErrors.email && (
+                          <p className="text-xs text-red-600 mt-1">{guestErrors.email}</p>
+                        )}
                       </div>
 
                       <div className="space-y-1.5 md:col-span-2">
@@ -1535,6 +1625,9 @@ export default function Quote() {
                         className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                         placeholder={t("quote.placeholderShippingName")}
                       />
+                      {shippingErrors.fullName && (
+                        <p className="text-xs text-red-600 mt-1">{shippingErrors.fullName}</p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5 md:col-span-2">
@@ -1553,6 +1646,9 @@ export default function Quote() {
                         className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                         placeholder={t("quote.placeholderShippingPhone")}
                       />
+                      {shippingErrors.phoneNumber && (
+                        <p className="text-xs text-red-600 mt-1">{shippingErrors.phoneNumber}</p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5 md:col-span-2">
@@ -1571,6 +1667,9 @@ export default function Quote() {
                         className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                         placeholder={t("quote.placeholderStreet")}
                       />
+                      {shippingErrors.addressLine1 && (
+                        <p className="text-xs text-red-600 mt-1">{shippingErrors.addressLine1}</p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -1586,6 +1685,9 @@ export default function Quote() {
                         className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                         placeholder={t("quote.placeholderCity")}
                       />
+                      {shippingErrors.city && (
+                        <p className="text-xs text-red-600 mt-1">{shippingErrors.city}</p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -1604,6 +1706,9 @@ export default function Quote() {
                         className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                         placeholder={t("quote.placeholderPostalCode")}
                       />
+                      {shippingErrors.postalCode && (
+                        <p className="text-xs text-red-600 mt-1">{shippingErrors.postalCode}</p>
+                      )}
                     </div>
                   </div>
                 </div>

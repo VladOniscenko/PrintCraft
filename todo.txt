@@ -1,23 +1,3 @@
-### Epic 2: Tech Debt, Translations & Security
-
-Act as a senior full-stack developer. Review and resolve the following technical debt and security tasks for our React + .NET app:
-**Refactoring & Cleanup Directive:** Inspect the current codebase for any existing validation, routing, or localization logic. If found, improve or fully rebuild it for optimal future performance. Strip out and delete any old unused components, dead code, and obsolete references before implementing the new solutions.
-**1. Code Cleanup:**
-Analyze the frontend and backend codebase to find and remove unused components, dead code, and components perpetually wrapped in `false` conditions.
-**2. Translations (i18n):**
-* Fix missing translation keys: `pending_quote`, `pending_payment`, and `agreementRequired`.
-* Audit the Admin panel components: identify hardcoded strings and replace them with localization hooks.
-* Ensure website language defaults to Dutch (NL) if the user's browser/settings are unconfigured.
-
-
-**3. UI / UX Polish:**
-* Fix the SPA routing scroll issue: ensure React Router scrolls to the top of the page on route change.
-* Fix dynamic tab namings where the browser tab incorrectly reads "Page Not Found".
-* Fix checkout form validation: ensure error messages disappear when a user inputs valid data.
-
-
-**4. Security Audit:**
-Implement strict sanitization and validation on file uploads (STL/images) and frontend inputs to prevent XSS, directory traversal, and SQL injection payloads.
 
 ### Epic 3: Core Systems (Email & Analytics)
 

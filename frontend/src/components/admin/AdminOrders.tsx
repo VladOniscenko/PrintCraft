@@ -9,6 +9,7 @@ import {
   ADMIN_ORDER_STATUS_OPTIONS,
   formatOrderStatusLabel,
   getOrderStatusPillClass,
+  getOrderStatusTranslationKey,
 } from "../../utils/orderStatus";
 
 const STATUS_OPTIONS = [
@@ -77,11 +78,19 @@ export default function AdminOrders() {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
-          {STATUS_OPTIONS.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label.startsWith("admin.") ? t(s.label) : s.label}
-            </option>
-          ))}
+          {STATUS_OPTIONS.map((s) => {
+            const statusKey = getOrderStatusTranslationKey(s.value);
+            const label = s.label.startsWith("admin.")
+              ? t(s.label)
+              : statusKey
+                ? t(statusKey)
+                : s.label;
+            return (
+              <option key={s.value} value={s.value}>
+                {label}
+              </option>
+            );
+          })}
         </select>
         <select
           className="admin-select"
@@ -119,30 +128,33 @@ export default function AdminOrders() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
-                <tr key={order.id}>
-                  <td>
-                    <Link
-                      to={`/admin/orders/${order.id}`}
-                      className="font-semibold text-[#0f766e] hover:underline"
-                    >
-                      {order.id.slice(0, 8)}
-                    </Link>
-                  </td>
-                  <td>{order.fullName}</td>
-                  <td>
-                    <span className={getOrderStatusPillClass(order.status)}>
-                      {formatOrderStatusLabel(order.status)}
-                    </span>
-                  </td>
-                  <td>
-                    {order.quotedPrice
-                      ? `€${order.quotedPrice.toFixed(2)}`
-                      : t("admin.orders.notAvailable")}
-                  </td>
-                  <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                </tr>
-              ))}
+              {orders.map((order) => {
+                const statusKey = getOrderStatusTranslationKey(order.status);
+                return (
+                  <tr key={order.id}>
+                    <td>
+                      <Link
+                        to={`/admin/orders/${order.id}`}
+                        className="font-semibold text-[#0f766e] hover:underline"
+                      >
+                        {order.id.slice(0, 8)}
+                      </Link>
+                    </td>
+                    <td>{order.fullName}</td>
+                    <td>
+                      <span className={getOrderStatusPillClass(order.status)}>
+                        {statusKey ? t(statusKey) : formatOrderStatusLabel(order.status)}
+                      </span>
+                    </td>
+                    <td>
+                      {order.quotedPrice
+                        ? `€${order.quotedPrice.toFixed(2)}`
+                        : t("admin.orders.notAvailable")}
+                    </td>
+                    <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

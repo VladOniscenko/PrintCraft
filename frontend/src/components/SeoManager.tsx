@@ -141,7 +141,7 @@ export default function SeoManager() {
         keywords: `${businessInfo.name} signup`,
         index: false,
       },
-      "/quote": {
+      "/checkout": {
         title: `${t("hero.ctaQuote")} | ${businessInfo.name}`,
         description: `${t("hero.ctaQuote")} ${businessInfo.name}`,
         keywords: "3D print quote",
@@ -159,6 +159,78 @@ export default function SeoManager() {
         keywords: "orders",
         index: false,
       },
+      "/privacy": {
+        title: `${t("footer.privacy")} | ${businessInfo.name}`,
+        description: `${t("footer.privacy")} ${businessInfo.name}`,
+        keywords: "privacy policy",
+        index: true,
+      },
+      "/terms": {
+        title: `${t("footer.terms")} | ${businessInfo.name}`,
+        description: `${t("footer.terms")} ${businessInfo.name}`,
+        keywords: "terms of service",
+        index: true,
+      },
+      "/refunds": {
+        title: `${t("footer.refunds")} | ${businessInfo.name}`,
+        description: `${t("footer.refunds")} ${businessInfo.name}`,
+        keywords: "refund policy",
+        index: true,
+      },
+      "/shipping-policy": {
+        title: `${t("footer.shippingPolicy")} | ${businessInfo.name}`,
+        description: `${t("footer.shippingPolicy")} ${businessInfo.name}`,
+        keywords: "shipping policy",
+        index: true,
+      },
+      "/forgot-password": {
+        title: `${t("forgot.title")} | ${businessInfo.name}`,
+        description: `${t("forgot.title")} ${businessInfo.name}`,
+        keywords: `${businessInfo.name} forgot password`,
+        index: false,
+      },
+      "/reset-password": {
+        title: `${t("reset.title")} | ${businessInfo.name}`,
+        description: `${t("reset.title")} ${businessInfo.name}`,
+        keywords: `${businessInfo.name} reset password`,
+        index: false,
+      },
+      "/admin": {
+        title: `${t("admin.nav.dashboard")} | ${businessInfo.name}`,
+        description: `${t("admin.nav.dashboard")} ${businessInfo.name}`,
+        keywords: "admin dashboard",
+        index: false,
+      },
+      "/admin/orders": {
+        title: `${t("admin.nav.orders")} | ${businessInfo.name}`,
+        description: `${t("admin.nav.orders")} ${businessInfo.name}`,
+        keywords: "admin orders",
+        index: false,
+      },
+      "/admin/payments": {
+        title: `${t("admin.nav.payments")} | ${businessInfo.name}`,
+        description: `${t("admin.nav.payments")} ${businessInfo.name}`,
+        keywords: "admin payments",
+        index: false,
+      },
+      "/admin/models": {
+        title: `${t("admin.nav.models")} | ${businessInfo.name}`,
+        description: `${t("admin.nav.models")} ${businessInfo.name}`,
+        keywords: "admin models",
+        index: false,
+      },
+      "/admin/users": {
+        title: `${t("admin.nav.users")} | ${businessInfo.name}`,
+        description: `${t("admin.nav.users")} ${businessInfo.name}`,
+        keywords: "admin users",
+        index: false,
+      },
+      "/admin/filaments": {
+        title: `${t("admin.nav.filaments")} | ${businessInfo.name}`,
+        description: `${t("admin.nav.filaments")} ${businessInfo.name}`,
+        keywords: "admin filaments",
+        index: false,
+      },
     };
 
     const pathname = location.pathname;
@@ -169,6 +241,7 @@ export default function SeoManager() {
       "/admin/orders/:id",
       "/admin/orders/:id/models/:itemIndex",
       "/admin/models/view/:fileName",
+      "/admin/users/:id",
     ];
 
     const isKnownDynamicRoute = knownDynamicPatterns.some((pattern) =>
@@ -189,12 +262,20 @@ export default function SeoManager() {
       index: false,
     };
 
+    const isAdmin = pathname.startsWith("/admin");
     const isOrderDetail = pathname.startsWith("/orders/");
     const routeSeo = !isKnownRoute
       ? notFoundSeo
-      : isOrderDetail
-        ? { ...seoByRoute["/orders"], index: false }
-        : seoByRoute[pathname] || defaultSeo;
+      : isAdmin
+        ? (seoByRoute[pathname] || {
+            title: `${t("breadcrumb.admin")} | ${businessInfo.name}`,
+            description: `${t("breadcrumb.admin")} ${businessInfo.name}`,
+            keywords: "admin",
+            index: false,
+          })
+        : isOrderDetail
+          ? { ...seoByRoute["/orders"], index: false }
+          : seoByRoute[pathname] || defaultSeo;
 
     const canonicalUrl = new URL(pathname, businessInfo.website).href;
 

@@ -20,8 +20,12 @@ function getInitialLanguage(): SupportedLanguage {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "nl" || stored === "en") return stored;
 
+  // Default to Dutch (NL) — the primary market.
+  // Only serve English if the browser explicitly reports an English locale
+  // and it does not also match Dutch (e.g. "en-NL" should still get Dutch).
   const browser = navigator.language.toLowerCase();
-  return browser.startsWith("nl") ? "nl" : "en";
+  if (browser.startsWith("en") && !browser.startsWith("en-nl")) return "en";
+  return "nl";
 }
 
 function getNestedTranslation(

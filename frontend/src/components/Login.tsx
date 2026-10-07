@@ -7,7 +7,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./logos/Logo";
 import api from "../services/api"; // Import your axios service
 import { useI18n } from "../i18n/I18nContext";
@@ -20,6 +20,7 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,8 +38,15 @@ export default function Login() {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      // 3. Redirect to the upload page (or dashboard)
-      navigate("/quote");
+      // 3. Redirect to destination, checkout if draft exists, or orders
+      const fromPath = (location.state as any)?.from?.pathname;
+      const target =
+        fromPath && fromPath !== "/login" && fromPath !== "/quote"
+          ? fromPath
+          : localStorage.getItem("printcraft-home-quote")
+            ? "/checkout"
+            : "/orders";
+      navigate(target, { replace: true });
     } catch (err: any) {
       console.error("Login error", err);
       setError(t("login.error.invalid"));

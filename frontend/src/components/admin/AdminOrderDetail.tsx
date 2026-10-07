@@ -29,6 +29,7 @@ import {
   canTransitionOrderStatus,
   formatOrderStatusLabel,
   getOrderStatusPillClass,
+  getOrderStatusTranslationKey,
   isOrderPricingLocked,
   normalizeOrderStatus,
 } from "../../utils/orderStatus";
@@ -627,13 +628,15 @@ export default function AdminOrderDetail() {
 
       <div className="admin-order-command-bar mb-5">
         <div>
-          <p className="admin-order-eyebrow">Order workspace</p>
+          <p className="admin-order-eyebrow">{t("admin.order.views.overview")}</p>
           <p className="admin-order-customer-name">{order.fullName}</p>
           <p className="admin-order-contact-line">{order.phoneNumber}</p>
         </div>
         <div className="admin-order-command-status">
           <span className={`${getOrderStatusPillClass(order.status)}`}>
-            {formatOrderStatusLabel(order.status)}
+            {getOrderStatusTranslationKey(order.status)
+              ? t(getOrderStatusTranslationKey(order.status)!)
+              : formatOrderStatusLabel(order.status)}
           </span>
           <span className="admin-order-command-id">
             #{order.id.slice(0, 8)}
@@ -677,8 +680,8 @@ export default function AdminOrderDetail() {
               }
             }}
           >
-            <option value="">More actions</option>
-            <option value="cancelled">Cancel order</option>
+            <option value="">{t("admin.order.orderActions")}</option>
+            <option value="cancelled">{t("admin.orderStatus.cancelled")}</option>
             <option value="returned">Mark returned</option>
             <option value="refunded">Mark refunded</option>
           </select>
@@ -690,25 +693,29 @@ export default function AdminOrderDetail() {
         aria-label="Order summary"
       >
         <div>
-          <span>Status</span>
-          <strong>{formatOrderStatusLabel(order.status)}</strong>
+          <span>{t("admin.order.status")}</span>
+          <strong>
+            {getOrderStatusTranslationKey(order.status)
+              ? t(getOrderStatusTranslationKey(order.status)!)
+              : formatOrderStatusLabel(order.status)}
+          </strong>
         </div>
         <div>
-          <span>Created</span>
+          <span>{t("admin.order.created")}</span>
           <strong>{new Date(order.createdAt).toLocaleDateString()}</strong>
         </div>
         <div>
-          <span>Items</span>
+          <span>{t("admin.order.items")}</span>
           <strong>{order.items.length}</strong>
         </div>
         <div>
-          <span>Current total</span>
+          <span>{t("admin.order.total")}</span>
           <strong>{formatCurrencyAmount(totalPrice)}</strong>
         </div>
         <div>
-          <span>Quote deadline</span>
+          <span>{t("admin.order.quoteExpires")}</span>
           <strong>
-            {hasQuoteExpiry ? quoteExpiresAt.toLocaleDateString() : "No expiry"}
+            {hasQuoteExpiry ? quoteExpiresAt.toLocaleDateString() : t("admin.order.noneValue")}
           </strong>
         </div>
       </section>
@@ -716,7 +723,7 @@ export default function AdminOrderDetail() {
       <section className="admin-order-persistent-action admin-panel mb-5">
         <div className="admin-order-section-heading">
           <div>
-            <p className="admin-order-eyebrow">Recommended Next Action</p>
+            <p className="admin-order-eyebrow">{t("admin.order.actionFlowTitle")}</p>
             <h2>
               {currentStatus === "pending_quote"
                 ? "Prepare the customer quote"

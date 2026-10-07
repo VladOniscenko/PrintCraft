@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintCraftApi.Services;
+using PrintCraftApi.Validation;
 
 namespace PrintCraftApi.Controllers;
 
@@ -20,8 +21,19 @@ public sealed class QuoteDraftsController : ControllerBase
         if (string.IsNullOrWhiteSpace(request.FileUrl) && string.IsNullOrWhiteSpace(request.Description))
             return BadRequest(new { message = "Add a file or describe your project." });
 
+        if (InputSanitizer.ContainsDirectoryTraversal(request.FileUrl))
+            return BadRequest(new { message = "Invalid file URL." });
+
+        if (InputSanitizer.ContainsSqlInjection(request.Description) || InputSanitizer.ContainsSqlInjection(request.FileName))
+            return BadRequest(new { message = "Invalid input detected." });
+
         var visitorKey = Request.Headers["X-Visitor-Id"].FirstOrDefault();
-        var result = await _drafts.CreateAsync(request.FileUrl ?? "", request.FileName ?? "", request.Description ?? "", request.Material ?? "PLA", visitorKey, cancellationToken);
+        var sanitizedFileUrl = request.FileUrl?.Trim() ?? "";
+        var sanitizedFileName = InputSanitizer.SanitizeFileName(request.FileName) ?? "";
+        var sanitizedDescription = InputSanitizer.SanitizeText(request.Description, 4000) ?? "";
+        var sanitizedMaterial = InputSanitizer.SanitizeText(request.Material, 50) ?? "PLA";
+
+        var result = await _drafts.CreateAsync(sanitizedFileUrl, sanitizedFileName, sanitizedDescription, sanitizedMaterial, visitorKey, cancellationToken);
         return Ok(result);
     }
 
