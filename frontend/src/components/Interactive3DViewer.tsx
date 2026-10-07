@@ -453,10 +453,11 @@ export default function Interactive3DViewer({
     const spacingX = sizeVec.x * 1.2 || 10;
     const spacingZ = sizeVec.z * 1.2 || 10;
 
-    const cols = Math.ceil(Math.sqrt(count));
-    const rows = Math.ceil(count / cols);
+    const safeCount = Math.max(1, Math.min(25, count || 1));
+    const cols = Math.ceil(Math.sqrt(safeCount));
+    const rows = Math.ceil(safeCount / cols);
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < safeCount; i++) {
       const clone = baseObj.clone();
       
       const r = Math.floor(i / cols);

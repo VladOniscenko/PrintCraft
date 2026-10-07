@@ -229,7 +229,7 @@ public class OrdersController : ControllerBase
 
         if (request.Items.Any(i => i.Count > AppLimits.MaxItemQuantity))
         {
-            return BadRequest(new { message = $"Item quantity cannot exceed {AppLimits.MaxItemQuantity} per model." });
+            return BadRequest(new { message = $"Item quantity cannot exceed {AppLimits.MaxItemQuantity} per item." });
         }
 
         foreach (var item in request.Items)
@@ -357,7 +357,7 @@ public class OrdersController : ControllerBase
                     Size = InputSanitizer.SanitizeText(item.Size, 100),
                     Material = string.IsNullOrWhiteSpace(item.Material) ? "PLA" : (InputSanitizer.SanitizeText(item.Material) ?? "PLA"),
                     Color = string.IsNullOrWhiteSpace(item.Color) ? "Black" : (InputSanitizer.SanitizeText(item.Color) ?? "Black"),
-                    Count = item.Count,
+                    Count = Math.Clamp(item.Count, 1, AppLimits.MaxItemQuantity),
                     Price = 0,
                     ScaleFactor = item.ScaleFactor is > 0 ? item.ScaleFactor.Value : 1.0,
                     InfillPercent = item.InfillPercent is > 0 and <= 100 ? item.InfillPercent.Value : 20,

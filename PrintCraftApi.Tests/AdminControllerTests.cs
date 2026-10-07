@@ -177,6 +177,39 @@ public class AdminControllerPricingSyncTests
         Assert.Equal("%PDF-", System.Text.Encoding.ASCII.GetString(file.FileContents[..5]));
     }
 
+    [Theory]
+    [InlineData("en")]
+    [InlineData("nl")]
+    public async Task DownloadInvoice_WithPlateSetupAndMultilingual_GeneratesPdfSuccessfully(string language)
+    {
+        await using var db = CreateDbContext();
+        var order = CreateOrder(delivery: 4.95m, discount: 0m, itemPrice: 1.91, itemCount: 1);
+        order.Items[0].fileName = "lockS2_scaled_2x.stl";
+        order.Items[0].PlateCost = 2.0;
+        order.Items[0].Material = "PLA";
+        order.Items[0].Color = "Light Blue";
+        order.Items[0].Size = "22 x 40 x 3.6 mm (2.00x)";
+        order.PaymentFlow = "bank_transfer";
+        order.Payments.Add(new Payment
+        {
+            OrderId = order.Id,
+            Reference = "PC-1E5FF86D",
+            Amount = 13.86m,
+            Currency = "EUR",
+            Status = "pending"
+        });
+
+        db.Orders.Add(order);
+        await db.SaveChangesAsync();
+
+        var result = await CreateAdminController(db).DownloadInvoice(order.Id, language);
+
+        var file = Assert.IsType<FileContentResult>(result);
+        Assert.Equal("application/pdf", file.ContentType);
+        Assert.NotEmpty(file.FileContents);
+        Assert.Equal("%PDF-", System.Text.Encoding.ASCII.GetString(file.FileContents[..5]));
+    }
+
     private static PrintCraftDb CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<PrintCraftDb>()

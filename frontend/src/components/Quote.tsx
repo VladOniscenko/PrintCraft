@@ -47,6 +47,7 @@ const IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif"]);
 const MAX_FILES_PER_ITEM = 3;
 const MAX_DIMENSION_MM = 256;
 const SCALE_STEP = 0.01;
+const MAX_ITEM_QUANTITY = 25;
 
 function getFileExtension(fileName: string): string {
   const dotIndex = fileName.lastIndexOf(".");
@@ -217,7 +218,10 @@ export default function Quote() {
           imageUrl: "",
           material: draft.material || "PLA",
           color: draft.color || "Black",
-          count: 1,
+          count: Math.max(
+            1,
+            Math.min(MAX_ITEM_QUANTITY, Number(draft.count) || 1),
+          ),
           price: 0,
           scaleFactor: baseScale,
           dimensionScale: baseScale,
@@ -998,8 +1002,15 @@ export default function Quote() {
   };
 
   const updateItem = (index: number, field: keyof OrderItem, value: any) => {
+    let nextValue = value;
+    if (field === "count") {
+      const parsed = typeof value === "number" ? value : parseInt(value, 10);
+      nextValue = isNaN(parsed)
+        ? 1
+        : Math.max(1, Math.min(MAX_ITEM_QUANTITY, parsed));
+    }
     const newItems = [...items];
-    newItems[index] = { ...newItems[index], [field]: value };
+    newItems[index] = { ...newItems[index], [field]: nextValue };
     setItems(newItems);
   };
 
@@ -1232,7 +1243,10 @@ export default function Quote() {
               item.color ||
               getColorsForMaterial(item.material || "PLA")[0] ||
               "Black",
-            count: item.count,
+            count: Math.max(
+              1,
+              Math.min(MAX_ITEM_QUANTITY, item.count || 1),
+            ),
             files: (item.files || []).map((file) => ({
               url: file.url,
               name: file.name,
@@ -1615,21 +1629,45 @@ export default function Quote() {
                           </div>
 
                           <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                              <Hash size={14} /> {t("quote.quantity")}
-                            </label>
+                            <div className="flex items-center justify-between">
+                              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <Hash size={14} /> {t("quote.quantity")}
+                              </label>
+                              <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                                {t("quote.maxQuantityHint")}
+                              </span>
+                            </div>
                             <input
                               type="number"
                               min="1"
+                              max={MAX_ITEM_QUANTITY}
                               className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                               value={item.count}
-                              onChange={(e) =>
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                if (raw === "") {
+                                  updateItem(idx, "count", 1);
+                                  return;
+                                }
+                                const val = parseInt(raw, 10);
                                 updateItem(
                                   idx,
                                   "count",
-                                  parseInt(e.target.value, 10) || 1,
-                                )
-                              }
+                                  isNaN(val)
+                                    ? 1
+                                    : Math.max(
+                                        1,
+                                        Math.min(MAX_ITEM_QUANTITY, val),
+                                      ),
+                                );
+                              }}
+                              onBlur={() => {
+                                if (!item.count || item.count < 1) {
+                                  updateItem(idx, "count", 1);
+                                } else if (item.count > MAX_ITEM_QUANTITY) {
+                                  updateItem(idx, "count", MAX_ITEM_QUANTITY);
+                                }
+                              }}
                             />
                           </div>
                         </div>
