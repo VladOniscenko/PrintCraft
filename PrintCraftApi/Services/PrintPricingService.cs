@@ -90,6 +90,7 @@ public class PrintPricingService : IPrintPricingService
         var effectiveInfill = infillPercent is > 0 and <= 100 ? infillPercent.Value : (orderItem.InfillPercent > 0 ? orderItem.InfillPercent : 20);
         var effectiveQuality = !string.IsNullOrWhiteSpace(quality) ? quality : (!string.IsNullOrWhiteSpace(orderItem.PrintQuality) ? orderItem.PrintQuality : "Standard (0.20mm)");
         var effectiveSupports = supports ?? orderItem.SupportsNeeded;
+        int count = orderItem.Count > 0 ? orderItem.Count : 1;
 
         double filamentUsedGrams = 0;
         string? estimatedPrintTime = null;
@@ -154,12 +155,25 @@ public class PrintPricingService : IPrintPricingService
 
                     if (weightMatch.Success && double.TryParse(weightMatch.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedWeight))
                     {
-                        filamentUsedGrams = parsedWeight;
+                        // Slicer returned weight for 1 item. Scale to batch.
+                        filamentUsedGrams = parsedWeight * count;
                     }
 
                     if (timeMatch.Success)
                     {
-                        estimatedPrintTime = timeMatch.Groups[1].Value.Trim();
+                        string singleItemTime = timeMatch.Groups[1].Value.Trim();
+                        double singleHours = ParsePrintTimeToHours(singleItemTime);
+                        
+                        // PrusaSlicer's estimate includes ~4 mins of bed heating/leveling.
+                        double prepHours = 4.0 / 60.0;
+                        double printHoursPerItem = Math.Max(0.01, singleHours - prepHours);
+                        
+                        double batchTotalHours = prepHours + (printHoursPerItem * count);
+                        
+                        int totalMins = (int)Math.Round(batchTotalHours * 60);
+                        int hours = totalMins / 60;
+                        int mins = totalMins % 60;
+                        estimatedPrintTime = hours > 0 ? $"{hours}h {mins}m" : $"{mins}m";
                     }
 
                     if (filamentUsedGrams > 0 && !string.IsNullOrWhiteSpace(estimatedPrintTime))
@@ -198,7 +212,8 @@ public class PrintPricingService : IPrintPricingService
                 effectiveInfill,
                 effectiveQuality,
                 effectiveSupports,
-                orderItem.Material
+                orderItem.Material,
+                count
             );
 
             filamentUsedGrams = estimate.FilamentUsedGrams;
@@ -210,16 +225,26 @@ public class PrintPricingService : IPrintPricingService
                        ?? await db.Filaments.FirstOrDefaultAsync(f => f.Material == orderItem.Material);
         decimal pricePerGram = filament?.PricePerGram ?? 0.05m;
 
-        // Pricing computation based on time and weight
+        // Pricing computation based on time and weight (for the entire batch of 'count' items)
         double totalHours = ParsePrintTimeToHours(estimatedPrintTime);
         double timeCost = totalHours * 1.5; // €1.50 per hour
         double materialCost = filamentUsedGrams * (double)pricePerGram;
 
-        var unitPrice = materialCost + timeCost;
-        if (unitPrice < 2.0) unitPrice = 2.0; // Base setup/machine floor
+        // Start cost (2 euro per plate) + time + material
+        double startCost = 2.00;
+        var totalPlatePrice = startCost + timeCost + materialCost;
 
-        orderItem.EstimatedPrintTime = estimatedPrintTime;
-        orderItem.FilamentUsedGrams = Math.Round(filamentUsedGrams, 2);
+        // Convert batch totals back to per-unit metrics for storing in OrderItem
+        var unitPrice = totalPlatePrice / count;
+        var unitFilament = filamentUsedGrams / count;
+        
+        var unitHours = totalHours / count;
+        var uH = (int)unitHours;
+        var uM = (int)Math.Round((unitHours - uH) * 60);
+        string unitEstimatedTime = uH > 0 ? $"{uH}h {uM}m" : $"{uM}m";
+
+        orderItem.EstimatedPrintTime = unitEstimatedTime;
+        orderItem.FilamentUsedGrams = Math.Round(unitFilament, 2);
         orderItem.Price = Math.Round(unitPrice, 2);
 
         await db.SaveChangesAsync();

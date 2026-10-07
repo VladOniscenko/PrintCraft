@@ -440,7 +440,8 @@ public static class ModelGeometryAnalyzer
         int infillPercent,
         string? quality,
         bool supportsNeeded,
-        string? material)
+        string? material,
+        int count = 1)
     {
         double scale = scaleFactor > 0 ? scaleFactor : 1.0;
         int infill = Math.Clamp(infillPercent, 5, 100);
@@ -457,9 +458,9 @@ public static class ModelGeometryAnalyzer
         double infillVolume = Math.Max(0.0, scaledVolume - shellVolume) * (infill / 100.0);
         double supportVolume = supportsNeeded ? (scaledVolume * 0.12) : 0.0;
 
-        double totalPrintedVolume = shellVolume + infillVolume + supportVolume;
+        double totalPrintedVolume = (shellVolume + infillVolume + supportVolume) * count;
         double filamentGrams = (totalPrintedVolume / 1000.0) * density;
-        filamentGrams = Math.Round(Math.Max(0.05, filamentGrams), 2);
+        filamentGrams = Math.Round(Math.Max(0.05 * count, filamentGrams), 2);
 
         // Layer height resolution
         var q = quality?.ToLowerInvariant() ?? "";
@@ -470,7 +471,7 @@ public static class ModelGeometryAnalyzer
         int layerCount = Math.Max(1, (int)Math.Ceiling(scaledZ / layerHeightMm));
 
         // Machine prep and warmup time (bed leveling, heating, nozzle wipe)
-        double prepMinutes = 4.0;
+        double prepMinutes = 4.0; // Paid once per build plate
 
         // Volumetric extrusion flow rate (grams per hour)
         double gramsPerHour = layerHeightMm switch
@@ -483,7 +484,7 @@ public static class ModelGeometryAnalyzer
         double extrusionMinutes = (filamentGrams / gramsPerHour) * 60.0;
 
         // Kinematic layer transitions and minimum cooling time per layer
-        double layerOverheadMinutes = layerCount * 0.10; // 6 seconds per layer
+        double layerOverheadMinutes = layerCount * 0.10 * count; // 6 seconds per layer per item
 
         double totalMins = prepMinutes + extrusionMinutes + layerOverheadMinutes;
         if (supportsNeeded) totalMins *= 1.15;

@@ -57,7 +57,7 @@ public class PrintPricingTests
         Assert.True(estimate.FilamentUsedGrams < 1.0, $"Expected < 1g, got {estimate.FilamentUsedGrams}g");
         Assert.True(estimate.FilamentUsedGrams > 0.05, $"Expected > 0.05g, got {estimate.FilamentUsedGrams}g");
 
-        // Print time must be around 6 to 10 minutes (Bambu Studio baseline)
+        // Print time must be around 6 to 10 minutes (modern slicer baseline)
         Assert.InRange(estimate.TotalMinutes, 5, 12);
         Assert.Contains("m", estimate.EstimatedPrintTime);
         Assert.DoesNotContain("1164h", estimate.EstimatedPrintTime);

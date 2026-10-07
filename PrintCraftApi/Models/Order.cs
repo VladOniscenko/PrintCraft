@@ -16,7 +16,7 @@ public class Order
     [Required] public string PostalCode { get; set; } = string.Empty;
     [Required] public string PhoneNumber { get; set; } = string.Empty;
 
-    public string Status { get; set; } = "pending_quote";
+    public string Status { get; set; } = "quote_requested";
     public string OrderType { get; set; } = "quote"; // "quote" or "online"
     public string PaymentFlow { get; set; } = "bank_transfer";
     public decimal DeliveryPrice { get; set; } = 4.95m;
@@ -36,6 +36,22 @@ public class Order
     public DateTime? AgreementAcceptedAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    // ── Production Fields (populated by state machine transitions) ────────
+    /// <summary>Printer assigned at the ReadyToPrint gate.</summary>
+    public string? AssignedPrinter { get; set; }
+
+    /// <summary>Material assigned at the ReadyToPrint gate.</summary>
+    public string? AssignedMaterial { get; set; }
+
+    /// <summary>True once admin confirms G-code is finalised.</summary>
+    public bool GCodeFinalized { get; set; }
+
+    /// <summary>Admin-supplied reason text when placing order On Hold.</summary>
+    public string? HoldReason { get; set; }
+
+    /// <summary>Set to true when a paid order is cancelled — triggers refund review.</summary>
+    public bool FlaggedForRefundReview { get; set; }
 
     // The list of items in this order
     public List<OrderItem> Items { get; set; } = new();

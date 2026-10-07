@@ -3,6 +3,7 @@ import { Check, FileUp, Loader2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useI18n } from "../../i18n/I18nContext";
+import { detectModelDimensions } from "../../utils/modelDimensions";
 
 type AuthMode = "login" | "register";
 type Draft = {
@@ -10,7 +11,15 @@ type Draft = {
   fileName: string;
   description?: string;
   material: string;
+  color?: string;
   quoteToken?: string;
+  dimensionBaseX?: number;
+  dimensionBaseY?: number;
+  dimensionBaseZ?: number;
+  dimensionX?: number;
+  dimensionY?: number;
+  dimensionZ?: number;
+  scaleFactor?: number;
 };
 
 const DRAFT_KEY = "printcraft-home-quote";
@@ -46,18 +55,30 @@ export default function QuickQuoteFlow() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const response = await api.post("/upload", form);
+      const [uploadResponse, dims] = await Promise.all([
+        api.post("/upload", form),
+        detectModelDimensions(file).catch(() => null),
+      ]);
+      const fileUrl = uploadResponse.data.url;
       const draftResponse = await api.post("/quote-drafts", {
-        fileUrl: response.data.url,
+        fileUrl,
         fileName: file.name,
         description: "",
         material: "PLA",
       });
       const nextDraft: Draft = {
-        fileUrl: response.data.url,
+        fileUrl,
         fileName: file.name,
         material: "PLA",
+        color: "Black",
         quoteToken: draftResponse.data.quoteToken,
+        scaleFactor: 1.0,
+        dimensionBaseX: dims?.x,
+        dimensionBaseY: dims?.y,
+        dimensionBaseZ: dims?.z,
+        dimensionX: dims?.x,
+        dimensionY: dims?.y,
+        dimensionZ: dims?.z,
       };
       setDraft(nextDraft);
       localStorage.setItem(DRAFT_KEY, JSON.stringify(nextDraft));
@@ -85,6 +106,7 @@ export default function QuickQuoteFlow() {
         fileName: t("home.quickQuote.descriptionFile"),
         description: description.trim(),
         material: "PLA",
+        color: "Black",
         quoteToken: response.data.quoteToken,
       };
       setDraft(nextDraft);
@@ -224,9 +246,16 @@ export default function QuickQuoteFlow() {
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <Check className="shrink-0 text-emerald-300" size={20} />
-              <span className="truncate text-sm font-semibold">
-                {draft.fileName}
-              </span>
+              <div className="min-w-0">
+                <span className="truncate text-sm font-semibold block">
+                  {draft.fileName}
+                </span>
+                {draft.dimensionBaseX && draft.dimensionBaseY && draft.dimensionBaseZ && (
+                  <span className="text-xs text-emerald-300/80 font-medium">
+                    {draft.dimensionBaseX} × {draft.dimensionBaseY} × {draft.dimensionBaseZ} mm
+                  </span>
+                )}
+              </div>
             </div>
             <button
               type="button"

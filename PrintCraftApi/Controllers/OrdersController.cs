@@ -55,17 +55,7 @@ public class OrdersController : ControllerBase
         _pricingQueue = pricingQueue;
     }
 
-    private static bool IsPendingStatus(string? status)
-    {
-        return !string.IsNullOrWhiteSpace(status)
-            && status.StartsWith("pending", StringComparison.OrdinalIgnoreCase);
-    }
 
-    private static bool CanCustomerCancelOrder(string? status)
-    {
-        if (IsPendingStatus(status)) return true;
-        return string.Equals(status, "quoted", StringComparison.OrdinalIgnoreCase);
-    }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -294,7 +284,7 @@ public class OrdersController : ControllerBase
             UserId = userId,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            Status = "pending_quote",
+            Status = OrderStatus.QuoteRequested,
             OrderType = "quote",
             IsPaid = false,
             AgreementAccepted = true,
@@ -341,8 +331,8 @@ public class OrdersController : ControllerBase
                     fileName = InputSanitizer.SanitizeFileName(fileName),
                     Notes = InputSanitizer.SanitizeText(item.Notes),
                     Size = InputSanitizer.SanitizeText(item.Size, 100),
-                    Material = InputSanitizer.SanitizeText(item.Material) ?? "Custom",
-                    Color = InputSanitizer.SanitizeText(item.Color) ?? "Custom",
+                    Material = string.IsNullOrWhiteSpace(item.Material) ? "PLA" : (InputSanitizer.SanitizeText(item.Material) ?? "PLA"),
+                    Color = string.IsNullOrWhiteSpace(item.Color) ? "Black" : (InputSanitizer.SanitizeText(item.Color) ?? "Black"),
                     Count = item.Count,
                     Price = 0,
                     ScaleFactor = item.ScaleFactor is > 0 ? item.ScaleFactor.Value : 1.0,
@@ -569,8 +559,9 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPut("{id:guid}/cancel")]
-    public async Task<IActionResult> CancelOrder([FromRoute] Guid id)
+    public async Task<IActionResult> CancelOrder([FromRoute] Guid id, [FromServices] OrderStatusStateMachine? stateMachine = null)
     {
+        stateMachine ??= new OrderStatusStateMachine(_db);
         var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
 
@@ -581,17 +572,31 @@ public class OrdersController : ControllerBase
 
         var order = await _db.Orders
             .Include(o => o.Items)
+            .Include(o => o.Payments)
             .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
 
         if (order == null)
             return NotFound(new { message = "Order not found." });
 
-        if (!CanCustomerCancelOrder(order.Status))
-            return BadRequest(new { message = "Only pending or quoted orders can be cancelled." });
-
         var previousStatus = order.Status;
-        order.Status = "cancelled";
-        order.UpdatedAt = DateTime.UtcNow;
+
+        var result = await stateMachine.TryTransitionAsync(order, new StatusTransitionRequest { TargetStatus = OrderStatus.Cancelled, HoldReason = "Cancelled by customer" });
+
+        if (!result.Success)
+            return BadRequest(new { message = "Order cannot be cancelled at this stage." });
+
+        if (result.FlagForRefundReview)
+        {
+            order.FlaggedForRefundReview = true;
+            _db.OrderNotes.Add(new OrderNote
+            {
+                OrderId = id,
+                Content = "⚠️ This order was cancelled by customer after payment. Refund review required.",
+                Visibility = "internal",
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow,
+            });
+        }
 
         await _db.SaveChangesAsync();
         await LogStatusHistoryAsync(order.Id, previousStatus, order.Status, "user", "Order cancelled by user");
@@ -639,7 +644,7 @@ public class OrdersController : ControllerBase
             return BadRequest(new { message = "A new quote can be requested only after the previous quote expires." });
 
         var previousStatus = order.Status;
-        order.Status = "pending_quote";
+        order.Status = OrderStatus.QuoteRequested;
         order.QuotedPrice = null;
         order.QuoteMessage = null;
         QuoteLifecycle.ClearQuoteWindow(order);

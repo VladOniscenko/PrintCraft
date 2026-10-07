@@ -134,7 +134,7 @@ export const translations: Record<
           "Explore trusted libraries to find printable files, then upload your favorite model to request a quote.",
         makerworld: {
           title: "MakerWorld",
-          desc: "Curated designs from the Bambu community, organized by printer-friendly quality and trending builds.",
+          desc: "Curated designs from the 3D printing community, organized by printer-friendly quality and trending builds.",
           cta: "Browse models",
         },
         printables: {
@@ -289,6 +289,7 @@ export const translations: Record<
         models: "Files",
         users: "Users",
         filaments: "Filaments",
+        heroSlides: "Hero Slides",
       },
       dashboard: {
         label: "Dashboard",
@@ -970,6 +971,7 @@ export const translations: Record<
       scale: "Scale",
       scaleHint: "One slider scales X/Y/Z together to keep proportions.",
       scaleNeedsStl: "Upload an STL file to enable proportional scaling.",
+      detectingDimensions: "Detecting 3D model dimensions...",
       scaleFailed:
         "Could not apply STL scaling. Please try uploading the model again.",
       scalePreset: "Scale Presets",
@@ -996,9 +998,9 @@ export const translations: Record<
       dimensionsMaxHint: "Build volume limit: 256 x 256 x 256 mm.",
       dimensionsAllOrNone: "If you add dimensions, please fill X, Y and Z.",
       dimensionsMaxExceeded: "Each dimension must be 256 mm or less.",
-      bambuVolumeTitle: "Build Volume",
-      bambuVolumeFits: "Fits build plate (max 256 × 256 × 256 mm)",
-      bambuVolumeExceeded: "Exceeds build volume (max 256 mm per axis)",
+      buildVolumeTitle: "Build Volume",
+      buildVolumeFits: "Fits build plate (max 256 × 256 × 256 mm)",
+      buildVolumeExceeded: "Exceeds build volume (max 256 mm per axis)",
       dimensionsMm: "Dimensions (mm)",
       dimensionsPreview: "Physical Size in mm (Length × Width × Height)",
       dimensionsNonFilePrompt:
@@ -1530,7 +1532,7 @@ export const translations: Record<
           "Ontdek betrouwbare bibliotheken om printbare bestanden te vinden en upload daarna je favoriete model voor een offerte.",
         makerworld: {
           title: "MakerWorld",
-          desc: "Geselecteerde ontwerpen uit de Bambu-community, met focus op printkwaliteit en populaire builds.",
+          desc: "Geselecteerde ontwerpen uit de 3D-printcommunity, met focus op printkwaliteit en populaire builds.",
           cta: "Bekijk modellen",
         },
         printables: {
@@ -1687,6 +1689,7 @@ export const translations: Record<
         models: "Bestanden",
         users: "Gebruikers",
         filaments: "Filamenten",
+        heroSlides: "Hero Slides",
       },
       dashboard: {
         label: "Dashboard",
@@ -2383,6 +2386,7 @@ export const translations: Record<
         "Een enkele slider schaalt X/Y/Z samen zodat verhoudingen behouden blijven.",
       scaleNeedsStl:
         "Upload een STL-bestand om proportioneel schalen te gebruiken.",
+      detectingDimensions: "3D-modelafmetingen detecteren...",
       scaleFailed:
         "Het schalen van STL is mislukt. Upload het model opnieuw en probeer het nog eens.",
       scalePreset: "Schaal Voorinstellingen",
@@ -2410,9 +2414,9 @@ export const translations: Record<
       dimensionsMaxHint: "Maximale bouwruimte: 256 x 256 x 256 mm.",
       dimensionsAllOrNone: "Als je afmetingen invult, vul dan X, Y en Z in.",
       dimensionsMaxExceeded: "Elke afmeting moet 256 mm of kleiner zijn.",
-      bambuVolumeTitle: "Bouwvolume",
-      bambuVolumeFits: "Past op het printbed (max 256 × 256 × 256 mm)",
-      bambuVolumeExceeded: "Overschrijdt bouwvolume (max 256 mm per as)",
+      buildVolumeTitle: "Bouwvolume",
+      buildVolumeFits: "Past op het printbed (max 256 × 256 × 256 mm)",
+      buildVolumeExceeded: "Overschrijdt bouwvolume (max 256 mm per as)",
       dimensionsMm: "Afmetingen (mm)",
       dimensionsPreview: "Fysieke afmetingen in mm (Lengte × Breedte × Hoogte)",
       dimensionsNonFilePrompt:

@@ -206,55 +206,80 @@ export default function AdminOrderDetail() {
     }
   };
 
-  const handleQuickStatusChange = async (
-    newStatus: string,
-    successMessage: string,
-  ) => {
+  const handleStatusTransition = async (targetStatus: string, successMessage?: string) => {
     setIsProcessing(true);
     try {
-      if (newStatus === "paid") {
+      if (targetStatus === "paid") {
         await api.put(`/admin/orders/${id}/paid`);
-      } else {
-        await api.patch(`/admin/orders/${id}/status`, { status: newStatus });
+        notifySuccess(successMessage || "Order marked as paid");
+        await refresh();
+        setIsProcessing(false);
+        return;
       }
 
-      if (newStatus === "shipped" || newStatus === "sent") {
-        if (trackingCode.trim() || trackingUrl.trim()) {
+      const finalStatus = targetStatus === "sent" ? "shipped" : targetStatus === "refunded" ? "cancelled" : targetStatus;
+      let holdReason = undefined;
+      let assignedPrinter = undefined;
+      let assignedMaterial = undefined;
+      let gCodeFinalized = false;
+      let qualityCheckPassed = false;
+      let localTracking = trackingCode;
+
+      if (finalStatus === "on_hold") {
+        const reason = window.prompt("Enter reason for placing order on hold:");
+        if (reason === null) { setIsProcessing(false); return; }
+        holdReason = reason;
+      } else if (finalStatus === "shipped") {
+        if (!window.confirm("Has the quality check passed?")) { setIsProcessing(false); return; }
+        const tracking = window.prompt("Enter Tracking Number:", trackingCode);
+        if (tracking === null) { setIsProcessing(false); return; }
+        qualityCheckPassed = true;
+        localTracking = tracking;
+        setTrackingCode(tracking);
+      }
+
+      await api.patch(`/admin/orders/${id}/status`, {
+        targetStatus: finalStatus,
+        holdReason,
+        assignedPrinter,
+        assignedMaterial,
+        gCodeFinalized,
+        qualityCheckPassed,
+        trackingNumber: localTracking
+      });
+
+      if (finalStatus === "shipped") {
+        if (localTracking.trim() || trackingUrl.trim()) {
           await api.patch(`/admin/orders/${id}/tracking`, {
-            trackingCode,
+            trackingCode: localTracking,
             trackingUrl,
           });
         }
         await api.post(`/admin/orders/${id}/email`, {
           type: "order_sent_tracking",
-          trackingCode: trackingCode.trim() || null,
+          trackingCode: localTracking.trim() || null,
           trackingUrl: trackingUrl.trim() || null,
         });
       }
 
-      notifySuccess(successMessage);
+      notifySuccess(successMessage || t("admin.order.statusUpdated"));
       await refresh();
     } catch (err: any) {
-      notifyError(err?.response?.data?.message || "Failed to update order.");
+      console.error(err);
+      notifyError(err?.response?.data?.message || t("admin.order.statusUpdateFailed"));
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const updateOrderStatus = async () => {
+  const handleQuickStatusChange = (newStatus: string, successMessage: string) => {
     if (!id) return;
-    try {
-      await api.patch(`/admin/orders/${id}/status`, {
-        status: selectedStatus,
-      });
-      await refresh();
-      notifySuccess(t("admin.order.statusUpdated"));
-    } catch (err: any) {
-      console.error(err);
-      notifyError(
-        err?.response?.data?.message || t("admin.order.statusUpdateFailed"),
-      );
-    }
+    handleStatusTransition(newStatus, successMessage);
+  };
+
+  const updateOrderStatus = () => {
+    if (!id) return;
+    handleStatusTransition(selectedStatus);
   };
 
   const saveTracking = async () => {

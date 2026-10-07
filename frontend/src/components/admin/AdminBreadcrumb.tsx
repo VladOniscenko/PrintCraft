@@ -20,6 +20,7 @@ const adminNavLinks = [
   { labelKey: "admin.nav.models", to: "/admin/models" },
   { labelKey: "admin.nav.users", to: "/admin/users" },
   { labelKey: "admin.nav.filaments", to: "/admin/filaments" },
+  { labelKey: "admin.nav.heroSlides", to: "/admin/hero-slides" },
 ];
 
 export default function AdminBreadcrumb({

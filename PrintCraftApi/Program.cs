@@ -56,6 +56,7 @@ builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<IPrintPricingService, PrintPricingService>();
 builder.Services.AddSingleton<IPricingQueue, PricingQueue>();
 builder.Services.AddHostedService<PricingBackgroundWorker>();
+builder.Services.AddScoped<OrderStatusStateMachine>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -267,6 +268,12 @@ using (var scope = app.Services.CreateScope())
     db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"InfillPercent\" integer NOT NULL DEFAULT 20;");
     db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PrintQuality\" character varying(64) NOT NULL DEFAULT 'Standard (0.20mm)';");
     db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"SupportsNeeded\" boolean NOT NULL DEFAULT FALSE;");
+    // Epic 8: State machine production fields
+    db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedPrinter\" text NULL;");
+    db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedMaterial\" text NULL;");
+    db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"GCodeFinalized\" boolean NOT NULL DEFAULT FALSE;");
+    db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"HoldReason\" text NULL;");
+    db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"FlaggedForRefundReview\" boolean NOT NULL DEFAULT FALSE;");
 }
 
 app.Run();

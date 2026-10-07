@@ -57,6 +57,9 @@ const AdminUserDetail = lazy(
 const AdminFilaments = lazy(
   () => import("./components/admin/AdminFilaments.tsx"),
 );
+const AdminHeroSlides = lazy(
+  () => import("./components/admin/AdminHeroSlides.tsx"),
+);
 const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy.tsx"));
 const TermsOfService = lazy(() => import("./components/TermsOfService.tsx"));
 const RefundPolicy = lazy(() => import("./components/RefundPolicy.tsx"));
@@ -332,6 +335,14 @@ export default function App() {
             element={
               <AdminRoute>
                 <AdminFilaments />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/hero-slides"
+            element={
+              <AdminRoute>
+                <AdminHeroSlides />
               </AdminRoute>
             }
           />

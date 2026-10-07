@@ -1,31 +1,24 @@
 export const ADMIN_ORDER_STATUS_OPTIONS = [
-  { value: "pending", label: "Pending" },
-  { value: "pending_quote", label: "Pending Quote" },
-  { value: "quoted", label: "Quoted" },
-  { value: "expired_quote", label: "Expired Quote" },
-  { value: "pending_payment", label: "Pending Payment" },
-  { value: "paid", label: "Paid" },
+  { value: "quote_requested", label: "Quote Requested" },
+  { value: "awaiting_payment", label: "Awaiting Payment" },
+  { value: "ready_to_print", label: "Ready to Print" },
   { value: "printing", label: "Printing" },
-  { value: "sent", label: "Sent" },
+  { value: "post_processing", label: "Post-Processing" },
   { value: "shipped", label: "Shipped" },
-  { value: "delivered", label: "Delivered" },
-  { value: "completed", label: "Completed" },
-  { value: "failed", label: "Failed" },
+  { value: "on_hold", label: "On Hold" },
   { value: "cancelled", label: "Cancelled" },
   { value: "returned", label: "Returned" },
-  { value: "refunded", label: "Refunded" },
 ] as const;
 
 const POST_PAYMENT_STATUSES = new Set([
-  "paid",
+  "ready_to_print",
   "printing",
-  "sent",
+  "post_processing",
   "shipped",
-  "delivered",
-  "completed",
+  "returned",
 ]);
 
-const CUSTOMER_PAYMENT_RETRYABLE_STATUSES = new Set(["quoted", "failed"]);
+const CUSTOMER_PAYMENT_RETRYABLE_STATUSES = new Set(["awaiting_payment"]);
 
 const STATUS_LABEL_BY_VALUE = new Map<string, string>(
   ADMIN_ORDER_STATUS_OPTIONS.map((option) => [option.value, option.label]),
@@ -63,20 +56,24 @@ export function getOrderStatusPillClass(status: string): string {
   const normalized = normalizeOrderStatus(status);
 
   switch (normalized) {
-    case "pending_quote":
+    case "quote_requested":
       return `${base} bg-amber-100 text-amber-800`;
-    case "quoted":
+    case "awaiting_payment":
       return `${base} bg-sky-100 text-sky-800`;
-    case "expired_quote":
-      return `${base} bg-rose-100 text-rose-800`;
+    case "ready_to_print":
+      return `${base} bg-teal-100 text-teal-800`;
     case "printing":
       return `${base} bg-indigo-100 text-indigo-800`;
-    case "completed":
+    case "post_processing":
+      return `${base} bg-purple-100 text-purple-800`;
+    case "shipped":
       return `${base} bg-emerald-100 text-emerald-800`;
-    case "paid":
-      return `${base} bg-teal-100 text-teal-800`;
+    case "on_hold":
+      return `${base} bg-orange-100 text-orange-800`;
     case "cancelled":
       return `${base} bg-rose-100 text-rose-800`;
+    case "returned":
+      return `${base} bg-rose-200 text-rose-900`;
     default:
       return `${base} bg-slate-100 text-slate-700`;
   }
@@ -86,98 +83,66 @@ export function getOrderStatusBadgeClass(status: string): string {
   const normalized = normalizeOrderStatus(status);
 
   switch (normalized) {
-    case "pending_quote":
+    case "quote_requested":
       return "bg-amber-50 text-amber-700 border-amber-100";
-    case "quoted":
+    case "awaiting_payment":
       return "bg-sky-50 text-sky-700 border-sky-100";
-    case "expired_quote":
-      return "bg-rose-50 text-rose-700 border-rose-100";
-    case "pending_payment":
-      return "bg-orange-50 text-orange-700 border-orange-100";
+    case "ready_to_print":
+      return "bg-teal-50 text-teal-700 border-teal-100";
     case "printing":
       return "bg-blue-50 text-blue-700 border-blue-100";
-    case "completed":
-      return "bg-emerald-50 text-emerald-700 border-emerald-100";
-    case "paid":
-      return "bg-teal-50 text-teal-700 border-teal-100";
-    case "shipped":
+    case "post_processing":
       return "bg-purple-50 text-purple-700 border-purple-100";
-    case "failed":
+    case "shipped":
+      return "bg-emerald-50 text-emerald-700 border-emerald-100";
+    case "on_hold":
+      return "bg-orange-50 text-orange-700 border-orange-100";
     case "cancelled":
+    case "returned":
       return "bg-rose-50 text-rose-700 border-rose-100";
     default:
       return "bg-gray-50 text-gray-600 border-gray-100";
   }
 }
 
-export function getOrderStatusTranslationKey(status: string): string | null {
-  const normalized = normalizeOrderStatus(status);
-
-  switch (normalized) {
-    case "pending_quote":
-      return "orderStatus.pendingQuote";
-    case "quoted":
-      return "orderStatus.quoted";
-    case "expired_quote":
-      return "orderStatus.expiredQuote";
-    case "pending_payment":
-      return "orderStatus.pendingPayment";
-    case "printing":
-      return "orderStatus.printing";
-    case "completed":
-      return "orderStatus.completed";
-    case "paid":
-      return "orderStatus.paid";
-    case "shipped":
-      return "orderStatus.shipped";
-    case "sent":
-      return "orderStatus.sent";
-    case "delivered":
-      return "orderStatus.delivered";
-    case "failed":
-      return "orderStatus.failed";
-    case "cancelled":
-      return "orderStatus.cancelled";
-    default:
-      return null;
-  }
+export function getOrderStatusTranslationKey(_status: string): string | null {
+  // Can expand these, but for now we map canonical ones properly or fall back to formatting
+  return null;
 }
 
 export function getOrderStatusTimelineStep(status: string): number {
   const normalized = normalizeOrderStatus(status);
 
   switch (normalized) {
-    case "pending_quote":
+    case "quote_requested":
       return 1;
-    case "quoted":
-    case "pending_payment":
-    case "expired_quote":
-    case "failed":
+    case "awaiting_payment":
       return 2;
-    case "paid":
+    case "ready_to_print":
       return 3;
     case "printing":
       return 4;
-    case "sent":
-    case "shipped":
+    case "post_processing":
       return 5;
-    case "delivered":
+    case "shipped":
       return 6;
-    case "completed":
-      return 7;
-    case "cancelled":
-      return 1;
     default:
       return 1;
   }
 }
 
+export function isExceptionState(status: string): boolean {
+  const normalized = normalizeOrderStatus(status);
+  return ["on_hold", "cancelled", "returned"].includes(normalized);
+}
+
 export function getOrderTerminalState(
   status: string,
-): "failed" | "cancelled" | null {
+): "failed" | "cancelled" | "returned" | "on_hold" | null {
   const normalized = normalizeOrderStatus(status);
-  if (normalized === "failed") return "failed";
   if (normalized === "cancelled") return "cancelled";
+  if (normalized === "returned") return "returned";
+  if (normalized === "on_hold") return "on_hold";
   return null;
 }
 
@@ -223,10 +188,8 @@ export function getCustomerPaymentActionVariant(
   const normalized = normalizeOrderStatus(status);
 
   switch (normalized) {
-    case "quoted":
+    case "awaiting_payment":
       return "pay_now";
-    case "failed":
-      return "pay_again";
     default:
       return null;
   }

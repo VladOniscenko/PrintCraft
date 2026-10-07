@@ -142,18 +142,22 @@ export default function OrderDetail() {
     if (id) fetchOrderDetails();
   }, [id]);
 
-  const handleDeleteQuote = async () => {
-    const confirmCancel = window.confirm(t("orderDetail.deleteQuote") + "?");
+  const handleCancelOrder = async () => {
+    const isPaid = order ? normalizeOrderStatus(order.status) === "ready_to_print" : false;
+    const confirmMessage = isPaid
+      ? "Are you sure you want to cancel this order? It will be flagged for refund review."
+      : "Are you sure you want to cancel this order?";
+    const confirmCancel = window.confirm(confirmMessage);
 
     if (!confirmCancel) return;
 
     setIsCancelling(true);
     try {
       await api.put(`/orders/${id}/cancel`);
-      notifySuccess(t("orderDetail.deleteQuote"));
+      notifySuccess("Order cancelled successfully");
       navigate("/orders");
-    } catch (err) {
-      notifyError(t("gallery.addFailed"));
+    } catch (err: any) {
+      notifyError(err?.response?.data?.message || "Failed to cancel order");
       console.error(err);
     } finally {
       setIsCancelling(false);
@@ -375,9 +379,9 @@ export default function OrderDetail() {
           </button>
 
           <div className="md:ml-auto flex flex-wrap items-center justify-end gap-3">
-            {(priceSummary.isPendingQuote || normalizedStatus === "quoted") && (
+            {["quote_requested", "awaiting_payment", "ready_to_print"].includes(normalizedStatus) && (
               <button
-                onClick={handleDeleteQuote}
+                onClick={handleCancelOrder}
                 disabled={isCancelling}
                 className="flex items-center gap-2 px-6 py-2.5 bg-white border border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-all shadow-sm disabled:opacity-50"
               >
@@ -386,7 +390,7 @@ export default function OrderDetail() {
                 ) : (
                   <XCircle size={18} />
                 )}
-                {t("orderDetail.deleteQuote")}
+                Cancel Order
               </button>
             )}
 

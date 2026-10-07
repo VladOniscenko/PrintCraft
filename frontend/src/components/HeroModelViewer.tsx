@@ -2,9 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
+import { useI18n } from "../i18n/I18nContext";
 
 type HeroModelViewerProps = {
   src: string;
+  className?: string;
+  onInteractionStart?: () => void;
+  onInteractionEnd?: () => void;
 };
 
 const HERO_MODEL_COLORS = [
@@ -18,26 +22,36 @@ function pickRandomColor(): number {
 }
 
 function getExt(path: string): string {
-  const cleanPath = path.split("?")[0] ?? path;
+  const cleanPath = path.split("?")[0]?.split("#")[0] ?? path;
   const parts = cleanPath.split(".");
   return (parts[parts.length - 1] ?? "").toLowerCase();
 }
 
-export default function HeroModelViewer({ src }: HeroModelViewerProps) {
+export default function HeroModelViewer({
+  src,
+  className,
+  onInteractionStart,
+  onInteractionEnd,
+}: HeroModelViewerProps) {
+  const { language } = useI18n();
+  const isNl = language === "nl";
   const ext = useMemo(() => getExt(src), [src]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [modelColor, setModelColor] = useState<number>(() => pickRandomColor());
-  const [status, setStatus] = useState<"loading" | "ready" | "error">(
-    "loading",
-  );
+  const modelColor = useMemo(() => pickRandomColor(), [src]);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+
+  const onInteractionStartRef = useRef(onInteractionStart);
+  onInteractionStartRef.current = onInteractionStart;
+  const onInteractionEndRef = useRef(onInteractionEnd);
+  onInteractionEndRef.current = onInteractionEnd;
 
   useEffect(() => {
     setStatus("loading");
-    setModelColor(pickRandomColor());
   }, [src]);
 
   useEffect(() => {
-    if (ext !== "stl" || !canvasRef.current) {
+    const isSupported = ext === "stl" || ext === "" || ext === "model3d";
+    if (!isSupported || !canvasRef.current) {
       setStatus("error");
       return;
     }
@@ -69,6 +83,11 @@ export default function HeroModelViewer({ src }: HeroModelViewerProps) {
     controls.enablePan = false;
     controls.target.set(0, 0, 0);
     controls.update();
+
+    const handleStart = () => onInteractionStartRef.current?.();
+    const handleEnd = () => onInteractionEndRef.current?.();
+    controls.addEventListener("start", handleStart);
+    controls.addEventListener("end", handleEnd);
 
     const keyLight = new THREE.DirectionalLight(0xffffff, 0.7);
     keyLight.position.set(18, 24, 14);
@@ -168,6 +187,8 @@ export default function HeroModelViewer({ src }: HeroModelViewerProps) {
       mounted = false;
       window.removeEventListener("resize", onResize);
       window.cancelAnimationFrame(frameId);
+      controls.removeEventListener("start", handleStart);
+      controls.removeEventListener("end", handleEnd);
       controls.dispose();
       renderer.dispose();
       scene.traverse((obj: any) => {
@@ -187,16 +208,21 @@ export default function HeroModelViewer({ src }: HeroModelViewerProps) {
     <>
       <canvas
         ref={canvasRef}
-        className="absolute z-30 left-1/2 -translate-x-1/2 bottom-[6%] w-[98%] h-[86%]"
+        className={
+          className ||
+          "absolute z-30 left-1/2 -translate-x-1/2 bottom-[6%] w-[98%] h-[86%]"
+        }
       />
       {status === "loading" ? (
         <p className="absolute z-40 left-1/2 -translate-x-1/2 bottom-8 text-xs text-white/75 text-center px-4">
-          Loading 3D model...
+          {isNl ? "3D-model laden..." : "Loading 3D model..."}
         </p>
       ) : null}
       {status === "error" ? (
         <p className="absolute z-40 left-1/2 -translate-x-1/2 bottom-8 text-xs text-white/75 text-center px-4">
-          This STL could not be previewed. Try another STL file.
+          {isNl
+            ? "Dit 3D-bestand kon niet worden geladen. Probeer een ander bestand."
+            : "This STL could not be previewed. Try another STL file."}
         </p>
       ) : null}
     </>

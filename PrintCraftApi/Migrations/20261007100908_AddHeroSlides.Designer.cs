@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PrintCraftApi.Data;
@@ -11,9 +12,11 @@ using PrintCraftApi.Data;
 namespace PrintCraftApi.Migrations
 {
     [DbContext(typeof(PrintCraftDb))]
-    partial class PrintCraftDbModelSnapshot : ModelSnapshot
+    [Migration("20261007100908_AddHeroSlides")]
+    partial class AddHeroSlides
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -226,9 +229,6 @@ namespace PrintCraftApi.Migrations
                     b.Property<string>("InstructionTooltip")
                         .HasColumnType("text");
 
-                    b.Property<string>("InstructionTooltipNl")
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -244,9 +244,6 @@ namespace PrintCraftApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("PriceTextNl")
-                        .HasColumnType("text");
-
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
 
@@ -254,14 +251,8 @@ namespace PrintCraftApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("SubtextNl")
-                        .HasColumnType("text");
-
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("TitleNl")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -279,17 +270,13 @@ namespace PrintCraftApi.Migrations
                             Id = new Guid("00000000-0000-0000-0000-000000000101"),
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             InstructionTooltip = "Interactive 3D model: drag to rotate 360°, scroll to zoom in and inspect geometry.",
-                            InstructionTooltipNl = "Interactief 3D-model: sleep om 360° te draaien, scroll om in te zoomen op details.",
                             IsActive = true,
                             MediaType = "model3d",
                             MediaUrl = "/uploads/hero/cable-holder.stl",
                             PriceText = "Starting from €9.95",
-                            PriceTextNl = "Vanaf €9,95",
                             SortOrder = 1,
-                            Subtext = "High-precision FDM 3D printing for functional prototypes, replacement parts, and custom enclosures in 2-5 working days.",
-                            SubtextNl = "Precisie FDM 3D-printen voor functionele prototypes, vervangende onderdelen en behuizingen binnen 2-5 werkdagen.",
+                            Subtext = "High-precision FDM 3D printing for functional prototypes, replacement parts, and custom enclosures.",
                             Title = "Rapid Prototyping & Custom Parts",
-                            TitleNl = "Snelle Prototyping & Maatwerk Onderdelen",
                             UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
@@ -297,17 +284,13 @@ namespace PrintCraftApi.Migrations
                             Id = new Guid("00000000-0000-0000-0000-000000000102"),
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             InstructionTooltip = "Available in 12+ vibrant colors, food-safe filaments, and specialty carbon fiber composites.",
-                            InstructionTooltipNl = "Beschikbaar in 12+ kleuren, voedselveilige filamenten en carbon-composieten.",
                             IsActive = true,
                             MediaType = "image",
                             MediaUrl = "/uploads/hero/materials.svg",
                             PriceText = "From €0.08 / gram",
-                            PriceTextNl = "Vanaf €0,08 / gram",
                             SortOrder = 2,
                             Subtext = "Durable PETG, heat-resistant ABS, ultra-tough Carbon Fiber, and flexible TPU engineered for real-world demands.",
-                            SubtextNl = "Duurzaam PETG, hittebestendig ABS, oersterk Carbon Fiber en flexibel TPU voor zware toepassingen.",
                             Title = "Engineering Grade Materials",
-                            TitleNl = "Technische Kwaliteitsmaterialen",
                             UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
@@ -315,17 +298,13 @@ namespace PrintCraftApi.Migrations
                             Id = new Guid("00000000-0000-0000-0000-000000000103"),
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             InstructionTooltip = "Rotate the model to check fine organic curves and surface layer fidelity.",
-                            InstructionTooltipNl = "Draai het model om organische vormen en oppervlaktekwaliteit te inspecteren.",
                             IsActive = true,
                             MediaType = "model3d",
                             MediaUrl = "/uploads/hero/dino.stl",
                             PriceText = "Starting at €14.50",
-                            PriceTextNl = "Vanaf €14,50",
                             SortOrder = 3,
                             Subtext = "Ultra-fine 0.12mm layer height reproducing intricate curves, character meshes, and miniatures with silky smoothness.",
-                            SubtextNl = "Fijne 0.12mm laaghoogte voor vloeiende rondingen, miniaturen en artistieke modellen met hoge precisie.",
                             Title = "Detailed Figurines & Art Collectibles",
-                            TitleNl = "Gedetailleerde Figuren & Kunstobjecten",
                             UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         });
                 });
@@ -379,12 +358,6 @@ namespace PrintCraftApi.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
 
-                    b.Property<string>("AssignedMaterial")
-                        .HasColumnType("text");
-
-                    b.Property<string>("AssignedPrinter")
-                        .HasColumnType("text");
-
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("text");
@@ -398,17 +371,8 @@ namespace PrintCraftApi.Migrations
                     b.Property<decimal>("DeliveryPrice")
                         .HasColumnType("numeric");
 
-                    b.Property<bool>("FlaggedForRefundReview")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("GCodeFinalized")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("HoldReason")
                         .HasColumnType("text");
 
                     b.Property<string>("InternalNotes")

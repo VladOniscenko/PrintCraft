@@ -25,6 +25,7 @@ import {
   Sliders,
 } from "lucide-react";
 import Navbar from "./Navbar";
+import Interactive3DViewer from "./Interactive3DViewer";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -207,16 +208,36 @@ export default function Quote() {
         localStorage.getItem("printcraft-home-quote") || "null",
       );
       if (!draft?.fileUrl && !draft?.description) return [];
+      const baseScale = draft.scaleFactor ?? 1.0;
       return [
         {
           fileUrl: draft.fileUrl || "",
           fileName: draft.fileName,
           imageUrl: "",
           material: draft.material || "PLA",
-          color: "",
+          color: draft.color || "Black",
           count: 1,
           price: 0,
-          scaleFactor: 1.0,
+          scaleFactor: baseScale,
+          dimensionScale: baseScale,
+          dimensionBaseX: draft.dimensionBaseX,
+          dimensionBaseY: draft.dimensionBaseY,
+          dimensionBaseZ: draft.dimensionBaseZ,
+          dimensionX:
+            draft.dimensionX ??
+            (draft.dimensionBaseX
+              ? roundMillimeters(draft.dimensionBaseX * baseScale)
+              : undefined),
+          dimensionY:
+            draft.dimensionY ??
+            (draft.dimensionBaseY
+              ? roundMillimeters(draft.dimensionBaseY * baseScale)
+              : undefined),
+          dimensionZ:
+            draft.dimensionZ ??
+            (draft.dimensionBaseZ
+              ? roundMillimeters(draft.dimensionBaseZ * baseScale)
+              : undefined),
           infillPercent: 20,
           printQuality: "Standard (0.20mm)",
           supportsNeeded: false,
@@ -476,9 +497,15 @@ export default function Quote() {
   }, []);
 
   const availableMaterials = Array.from(
-    new Set(filaments.map((f) => f.material)),
+    new Set(filaments.map((f) => f.material?.trim()).filter(Boolean)),
   );
-  const availableColors = Array.from(new Set(filaments.map((f) => f.name)));
+  const availableColors = Array.from(
+    new Set(
+      filaments
+        .map((f) => f.color?.trim() || f.name?.trim())
+        .filter(Boolean),
+    ),
+  );
 
   const finalMaterials =
     availableMaterials.length > 0 ? availableMaterials : ["PLA", "PETG"];
@@ -489,9 +516,38 @@ export default function Quote() {
     const matchingFilaments = filaments.filter(
       (f) => f.material === selectedMaterial,
     );
-    const colors = Array.from(new Set(matchingFilaments.map((f) => f.name)));
+    const colors = Array.from(
+      new Set(
+        matchingFilaments
+          .map((f) => f.color?.trim() || f.name?.trim())
+          .filter(Boolean),
+      ),
+    );
     return colors.length > 0 ? colors : finalColors;
   };
+
+  // Ensure every item has a valid color once filaments load or change
+  useEffect(() => {
+    setItems((prevItems) => {
+      let changed = false;
+      const updated = prevItems.map((item) => {
+        const validColors = getColorsForMaterial(item.material);
+        const defaultColor = validColors[0] || "Black";
+        if (!item.color || !validColors.includes(item.color)) {
+          changed = true;
+          return {
+            ...item,
+            color:
+              item.color && validColors.includes(item.color)
+                ? item.color
+                : defaultColor,
+          };
+        }
+        return item;
+      });
+      return changed ? updated : prevItems;
+    });
+  }, [filaments]);
 
   const handleSelectSavedAddress = (addr: SavedAddress) => {
     setSelectedAddressId(addr.id);
@@ -740,6 +796,7 @@ export default function Quote() {
 
           nextItems[itemIndex] = {
             ...targetItem,
+            color: targetItem.color || defaultColor,
             files: mergedFiles,
             fileUrl: firstModel?.url || firstAny?.url || "",
             fileName: firstModel?.name || firstAny?.name || "",
@@ -1158,8 +1215,8 @@ export default function Quote() {
             infillPercent: item.infillPercent ?? 20,
             printQuality: item.printQuality ?? "Standard (0.20mm)",
             supportsNeeded: !!item.supportsNeeded,
-            material: item.material,
-            color: item.color,
+            material: item.material || "PLA",
+            color: item.color || getColorsForMaterial(item.material || "PLA")[0] || "Black",
             count: item.count,
             files: (item.files || []).map((file) => ({
               url: file.url,
@@ -1524,7 +1581,7 @@ export default function Quote() {
                             </label>
                             <select
                               className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all cursor-pointer"
-                              value={item.color}
+                              value={item.color || getColorsForMaterial(item.material)[0] || "Black"}
                               onChange={(e) =>
                                 updateItem(idx, "color", e.target.value)
                               }
@@ -1556,6 +1613,55 @@ export default function Quote() {
                             />
                           </div>
                         </div>
+
+                        {/* Interactive WebGL 3D Viewer with Live Color Preview, Dimension Check, and UX Instructions */}
+                        {(() => {
+                          const modelFile = (item.files || []).find((f) => f.kind === "model");
+                          const activeModelUrl =
+                            modelFile?.url ||
+                            (item.fileUrl && MODEL_EXTENSIONS.has(getFileExtension(item.fileUrl))
+                              ? item.fileUrl
+                              : undefined);
+                          const activeModelName = modelFile?.name || item.fileName || "model.stl";
+
+                          if (!activeModelUrl && !itemHasModel(item)) return null;
+
+                          return (
+                            <div className="mb-5">
+                              <Interactive3DViewer
+                                fileUrl={activeModelUrl}
+                                fileName={activeModelName}
+                                colorName={item.color || getColorsForMaterial(item.material)[0] || "Black"}
+                                materialName={item.material}
+                                scaleFactor={item.scaleFactor ?? item.dimensionScale ?? 1.0}
+                                count={item.count}
+                                filaments={filaments}
+                                onDimensionsDetected={(dims: { x: number; y: number; z: number }) => {
+                                  if (!hasDimensionValue(item.dimensionBaseX)) {
+                                    setItems((prev) => {
+                                      const next = [...prev];
+                                      if (!next[idx] || hasDimensionValue(next[idx].dimensionBaseX)) return next;
+                                      const maxScale = getMaximumScaleForBase(dims.x, dims.y, dims.z);
+                                      const scale = clampScale(next[idx].scaleFactor ?? 1.0, maxScale);
+                                      next[idx] = {
+                                        ...next[idx],
+                                        dimensionBaseX: dims.x,
+                                        dimensionBaseY: dims.y,
+                                        dimensionBaseZ: dims.z,
+                                        dimensionScale: scale,
+                                        scaleFactor: scale,
+                                        dimensionX: roundMillimeters(dims.x * scale),
+                                        dimensionY: roundMillimeters(dims.y * scale),
+                                        dimensionZ: roundMillimeters(dims.z * scale),
+                                      };
+                                      return next;
+                                    });
+                                  }
+                                }}
+                              />
+                            </div>
+                          );
+                        })()}
 
                         {/* 3D Slicing & Print Specifications */}
                         <div className="mb-5 rounded-2xl border border-gray-200/90 bg-gradient-to-b from-gray-50/90 to-white p-5 shadow-sm space-y-4">
@@ -1608,7 +1714,7 @@ export default function Quote() {
                                     item.dimensionBaseZ! * currentScale,
                                   )
                                 : undefined);
-                            const fitsBambu =
+                            const fitsBuildVolume =
                               (!targetX || targetX <= MAX_DIMENSION_MM) &&
                               (!targetY || targetY <= MAX_DIMENSION_MM) &&
                               (!targetZ || targetZ <= MAX_DIMENSION_MM);
@@ -1623,7 +1729,7 @@ export default function Quote() {
                                   targetZ ? (
                                     <div
                                       className={`p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                                        fitsBambu
+                                        fitsBuildVolume
                                           ? "bg-emerald-50/70 border-emerald-200"
                                           : "bg-rose-50/70 border-rose-200"
                                       }`}
@@ -1631,7 +1737,7 @@ export default function Quote() {
                                       <div className="flex items-center gap-2.5">
                                         <div
                                           className={`p-2 rounded-lg ${
-                                            fitsBambu
+                                            fitsBuildVolume
                                               ? "bg-emerald-100 text-emerald-700"
                                               : "bg-rose-100 text-rose-700"
                                           }`}
@@ -1652,27 +1758,29 @@ export default function Quote() {
                                         <span className="text-xs font-bold text-gray-700 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-sm">
                                           {currentScale.toFixed(2)}x
                                         </span>
-                                        {fitsBambu ? (
+                                        {fitsBuildVolume ? (
                                           <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100/90 px-2.5 py-1 rounded-lg flex items-center gap-1">
-                                            ✓ {t("quote.bambuVolumeFits")}
+                                            ✓ {t("quote.buildVolumeFits")}
                                           </span>
                                         ) : (
                                           <span className="text-[11px] font-semibold text-rose-800 bg-rose-100/90 px-2.5 py-1 rounded-lg flex items-center gap-1">
-                                            ⚠️ {t("quote.bambuVolumeExceeded")}
+                                            ⚠️ {t("quote.buildVolumeExceeded")}
                                           </span>
                                         )}
                                       </div>
                                     </div>
                                   ) : (
-                                    <div className="flex items-center justify-between">
-                                      <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
-                                        <Ruler
-                                          size={13}
-                                          className="text-gray-500"
-                                        />{" "}
-                                        {t("quote.scale")}
-                                      </label>
-                                      <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 border border-gray-200">
+                                      <div className="flex items-center gap-2">
+                                        <Loader2
+                                          size={14}
+                                          className="animate-spin text-emerald-600"
+                                        />
+                                        <span className="text-xs font-medium text-gray-600">
+                                          {t("quote.detectingDimensions")}
+                                        </span>
+                                      </div>
+                                      <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200">
                                         {currentScale.toFixed(2)}x
                                       </span>
                                     </div>
@@ -1840,6 +1948,9 @@ export default function Quote() {
                                   </div>
                                   <p className="text-[11px] text-gray-500">
                                     {t("quote.dimensionsNonFilePrompt")}
+                                  </p>
+                                  <p className="text-[11px] text-amber-700/80 bg-amber-50/60 px-2.5 py-1.5 rounded-lg border border-amber-200/50">
+                                    💡 {t("quote.scaleNeedsStl")}
                                   </p>
                                 </div>
 
@@ -2015,9 +2126,9 @@ export default function Quote() {
                                         {(item.dimensionX ?? 0) <= 256 &&
                                         (item.dimensionY ?? 0) <= 256 &&
                                         (item.dimensionZ ?? 0) <= 256 ? (
-                                          <>✓ {t("quote.bambuVolumeFits")}</>
+                                          <>✓ {t("quote.buildVolumeFits")}</>
                                         ) : (
-                                          <>⚠️ {t("quote.bambuVolumeExceeded")}</>
+                                          <>⚠️ {t("quote.buildVolumeExceeded")}</>
                                         )}
                                       </span>
                                       <span className="font-bold">
@@ -2392,7 +2503,7 @@ export default function Quote() {
                                 <span className="font-semibold text-gray-400">
                                   {t("quote.colorLabel")}
                                 </span>{" "}
-                                {item.color}
+                                {item.color || getColorsForMaterial(item.material)[0] || "Black"}
                               </span>
                               {itemHasModel(item) ? (
                                 <>

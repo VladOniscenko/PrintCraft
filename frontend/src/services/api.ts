@@ -65,4 +65,14 @@ api.interceptors.response.use(
   },
 );
 
+export async function getActiveHeroSlides() {
+  const res = await api.get("/heroslides/active");
+  return Array.isArray(res.data) ? res.data : [];
+}
+
+export async function getHeroSlides(all?: boolean) {
+  const res = await api.get(all ? "/heroslides?all=true" : "/heroslides");
+  return Array.isArray(res.data) ? res.data : [];
+}
+
 export default api;

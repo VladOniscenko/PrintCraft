@@ -20,7 +20,7 @@ public class AdminController : ControllerBase
     private static readonly HashSet<string> KnownStatuses = new(StringComparer.OrdinalIgnoreCase)
     {
         "pending",
-        "pending_quote",
+        OrderStatus.QuoteRequested,
         "quoted",
         "expired_quote",
         "pending_payment",
@@ -322,7 +322,7 @@ public class AdminController : ControllerBase
     {
         var totalUsers = await _db.Users.CountAsync();
         var totalOrders = await _db.Orders.CountAsync();
-        var pendingOrders = await _db.Orders.CountAsync(o => o.Status == "pending_quote" || o.Status == "pending" || o.Status == "quoted");
+        var pendingOrders = await _db.Orders.CountAsync(o => o.Status == OrderStatus.QuoteRequested || o.Status == "pending" || o.Status == "quoted");
 
         return Ok(new
         {
@@ -748,7 +748,60 @@ public class AdminController : ControllerBase
     }
 
     [HttpPatch("orders/{id:guid}/status")]
-    public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid id, [FromBody] UpdateOrderStatusRequest payload)
+    public async Task<IActionResult> UpdateOrderStatus(
+        [FromRoute] Guid id,
+        [FromBody] StatusTransitionRequest payload,
+        [FromServices] OrderStatusStateMachine? stateMachine = null)
+    {
+        stateMachine ??= new OrderStatusStateMachine(_db);
+        var order = await _db.Orders
+            .Include(o => o.Items)
+            .Include(o => o.Payments)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+        if (order == null)
+            return NotFound(new { message = "Order not found" });
+
+        var previousStatus = order.Status;
+        var result = await stateMachine.TryTransitionAsync(order, payload);
+
+        if (!result.Success)
+            return BadRequest(new { message = result.ErrorMessage });
+
+        // Flag for refund review if a paid order was cancelled
+        if (result.FlagForRefundReview)
+        {
+            order.FlaggedForRefundReview = true;
+            _db.OrderNotes.Add(new OrderNote
+            {
+                OrderId = id,
+                Content = "⚠️ This order was cancelled after payment. Refund review required.",
+                Visibility = "internal",
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow,
+            });
+        }
+
+        // Clear hold reason when leaving OnHold
+        if (!string.Equals(order.Status, OrderStatus.OnHold, StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(previousStatus)
+            && string.Equals(previousStatus, OrderStatus.OnHold, StringComparison.OrdinalIgnoreCase))
+        {
+            order.HoldReason = null;
+        }
+
+        await _db.SaveChangesAsync();
+        await LogStatusHistoryAsync(order.Id, previousStatus, order.Status, "admin",
+            payload.HoldReason ?? "Status updated via Kanban");
+
+        return Ok(new
+        {
+            order,
+            flaggedForRefundReview = result.FlagForRefundReview,
+        });
+    }
+
+    public async Task<IActionResult> UpdateOrderStatus(Guid id, UpdateOrderStatusRequest payload)
     {
         var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == id);
         if (order == null) return NotFound(new { message = "Order not found" });
@@ -756,14 +809,14 @@ public class AdminController : ControllerBase
         if (!CanTransitionStatus(order.Status, payload.Status, order.IsPaid))
             return BadRequest(new { message = "Invalid status transition for this order." });
 
-        var nextStatus = NormalizeStatus(payload.Status);
         var previousStatus = order.Status;
+        var nextStatus = NormalizeStatus(payload.Status);
         order.Status = nextStatus;
         if (string.Equals(nextStatus, "quoted", StringComparison.OrdinalIgnoreCase))
         {
             QuoteLifecycle.MarkQuoteConfirmed(order, DateTime.UtcNow);
         }
-        else if (string.Equals(nextStatus, "pending_quote", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(nextStatus, OrderStatus.QuoteRequested, StringComparison.OrdinalIgnoreCase))
         {
             QuoteLifecycle.ClearQuoteWindow(order);
         }
@@ -1399,7 +1452,7 @@ public class AdminController : ControllerBase
 
     private async Task LogAdminActionAsync(Order order, string note)
     {
-        var status = string.IsNullOrWhiteSpace(order.Status) ? "pending_quote" : order.Status;
+        var status = string.IsNullOrWhiteSpace(order.Status) ? OrderStatus.QuoteRequested : order.Status;
 
         _db.OrderStatusHistory.Add(new OrderStatusHistory
         {
