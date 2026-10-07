@@ -12,10 +12,12 @@ namespace PrintCraftApi.Controllers;
 public class HeroSlidesController : ControllerBase
 {
     private readonly PrintCraftDb _db;
+    private readonly IWebHostEnvironment? _env;
 
-    public HeroSlidesController(PrintCraftDb db)
+    public HeroSlidesController(PrintCraftDb db, IWebHostEnvironment? env = null)
     {
         _db = db;
+        _env = env;
     }
 
     /// <summary>
@@ -189,6 +191,164 @@ public class HeroSlidesController : ControllerBase
         await _db.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    /// <summary>
+    /// Reseeds default hero slides and ensures all seed files exist on disk.
+    /// </summary>
+    [HttpPost("seed-defaults")]
+    [AllowAnonymous]
+    public async Task<IActionResult> SeedDefaults()
+    {
+        HeroSlideSeeder.EnsureSeedAssets(_env?.WebRootPath, _env?.ContentRootPath);
+
+        var defaults = HeroSlideSeeder.GetDefaultSlides();
+        var existingIds = await _db.HeroSlides.Select(s => s.Id).ToListAsync();
+
+        foreach (var def in defaults)
+        {
+            if (!existingIds.Contains(def.Id))
+            {
+                _db.HeroSlides.Add(def);
+            }
+        }
+
+        await _db.SaveChangesAsync();
+
+        var allSlides = await _db.HeroSlides
+            .OrderBy(s => s.SortOrder)
+            .ThenBy(s => s.CreatedAt)
+            .ToListAsync();
+
+        return Ok(allSlides);
+    }
+
+    /// <summary>
+    /// Uploads a media file (3D model or image) specifically for hero slides.
+    /// </summary>
+    [HttpPost("upload")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Upload([FromForm] IFormFile? file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(new { message = "No file uploaded." });
+        }
+
+        const long maxBytes = 50 * 1024 * 1024; // 50MB
+        if (file.Length > maxBytes)
+        {
+            return BadRequest(new { message = "File is too large. Maximum size is 50 MB." });
+        }
+
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var modelExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".stl", ".obj", ".3mf", ".step", ".stp"
+        };
+        var imageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"
+        };
+
+        if (!modelExtensions.Contains(ext) && !imageExtensions.Contains(ext))
+        {
+            return BadRequest(new { message = "Unsupported file type. Supported types: STL, OBJ, 3MF, STEP, PNG, JPG, WEBP, SVG, GIF." });
+        }
+
+        var mediaType = modelExtensions.Contains(ext) ? HeroMediaType.Model3d : HeroMediaType.Image;
+
+        var webRoot = _env?.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var heroDir = Path.Combine(webRoot, "uploads", "hero");
+        var uploadsDir = Path.Combine(webRoot, "uploads");
+
+        Directory.CreateDirectory(heroDir);
+        Directory.CreateDirectory(uploadsDir);
+
+        var originalCleanName = Path.GetFileNameWithoutExtension(file.FileName)
+            .Replace(" ", "-")
+            .Replace("_", "-");
+        // Keep clean characters
+        originalCleanName = string.Concat(originalCleanName.Where(c => char.IsLetterOrDigit(c) || c == '-'));
+        if (string.IsNullOrWhiteSpace(originalCleanName))
+        {
+            originalCleanName = "hero-asset";
+        }
+
+        var uniquePrefix = Guid.NewGuid().ToString("N")[..8];
+        var safeFileName = $"{uniquePrefix}-{originalCleanName}{ext}";
+        var heroFilePath = Path.Combine(heroDir, safeFileName);
+        var uploadFilePath = Path.Combine(uploadsDir, safeFileName);
+
+        await using (var stream = new FileStream(heroFilePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        // Also duplicate to uploads root for direct accessibility
+        try
+        {
+            System.IO.File.Copy(heroFilePath, uploadFilePath, true);
+        }
+        catch { }
+
+        return Ok(new
+        {
+            url = $"/uploads/hero/{safeFileName}",
+            fileName = safeFileName,
+            mediaType,
+            sizeBytes = file.Length
+        });
+    }
+
+    /// <summary>
+    /// Lists all candidate files (3D models and images) available in uploads.
+    /// </summary>
+    [HttpGet("files")]
+    [AllowAnonymous]
+    public IActionResult GetAvailableFiles()
+    {
+        var webRoot = _env?.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var uploadsDir = Path.Combine(webRoot, "uploads");
+
+        if (!Directory.Exists(uploadsDir))
+        {
+            return Ok(Array.Empty<object>());
+        }
+
+        var modelExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".stl", ".obj", ".3mf", ".step", ".stp"
+        };
+        var imageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"
+        };
+
+        var allFiles = Directory
+            .EnumerateFiles(uploadsDir, "*", SearchOption.AllDirectories)
+            .Select(path => new FileInfo(path))
+            .Where(info => !info.Name.EndsWith(".upload-meta.json", StringComparison.OrdinalIgnoreCase))
+            .Where(info => modelExtensions.Contains(info.Extension) || imageExtensions.Contains(info.Extension))
+            .OrderByDescending(info => info.LastWriteTimeUtc)
+            .Select(info =>
+            {
+                var relPath = Path.GetRelativePath(uploadsDir, info.FullName).Replace('\\', '/');
+                var isModel = modelExtensions.Contains(info.Extension);
+                return new
+                {
+                    fileName = info.Name,
+                    relativePath = relPath,
+                    url = $"/uploads/{relPath}",
+                    mediaType = isModel ? HeroMediaType.Model3d : HeroMediaType.Image,
+                    extension = info.Extension.ToLowerInvariant(),
+                    sizeBytes = info.Length,
+                    lastModifiedUtc = info.LastWriteTimeUtc
+                };
+            })
+            .ToArray();
+
+        return Ok(allFiles);
     }
 }
 

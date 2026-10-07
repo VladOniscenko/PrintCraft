@@ -333,5 +333,33 @@ public class HeroSlidesControllerTests
             Assert.Equal("Aangepaste Titel", updated.TitleNl);
         }
     }
+
+    [Fact]
+    public async Task SeedDefaults_SeedsMissingDefaultSlidesAndReturnsAll()
+    {
+        var dbName = Guid.NewGuid().ToString();
+        await using (var db = CreateDbContext(dbName))
+        {
+            var controller = new HeroSlidesController(db);
+            var res = await controller.SeedDefaults();
+            var okResult = Assert.IsType<OkObjectResult>(res);
+            var slides = Assert.IsAssignableFrom<List<HeroSlide>>(okResult.Value);
+
+            Assert.Equal(3, slides.Count);
+            Assert.Contains(slides, s => s.MediaUrl == "/uploads/hero/cable-holder.stl");
+            Assert.Contains(slides, s => s.MediaUrl == "/uploads/hero/materials.svg");
+            Assert.Contains(slides, s => s.MediaUrl == "/uploads/hero/dino.stl");
+        }
+    }
+
+    [Fact]
+    public void GetAvailableFiles_ReturnsOkWithFileList()
+    {
+        var dbName = Guid.NewGuid().ToString();
+        using var db = CreateDbContext(dbName);
+        var controller = new HeroSlidesController(db);
+        var res = controller.GetAvailableFiles();
+        Assert.IsType<OkObjectResult>(res);
+    }
 }
 

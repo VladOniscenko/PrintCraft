@@ -75,4 +75,49 @@ export async function getHeroSlides(all?: boolean) {
   return Array.isArray(res.data) ? res.data : [];
 }
 
+export async function getHeroAvailableFiles() {
+  try {
+    const res = await api.get("/heroslides/files");
+    if (Array.isArray(res.data) && res.data.length > 0) {
+      return res.data;
+    }
+  } catch {
+    // Fallback to /upload/models if needed
+  }
+
+  const fallbackRes = await api.get("/upload/models");
+  return Array.isArray(fallbackRes.data) ? fallbackRes.data : [];
+}
+
+export async function uploadHeroMedia(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await api.post("/heroslides/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  } catch {
+    // Fallback to /upload
+    const fallbackRes = await api.post("/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    const url = fallbackRes.data.url;
+    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    const isModel = ["stl", "obj", "3mf", "step", "stp"].includes(ext);
+    return {
+      url,
+      fileName: file.name,
+      mediaType: isModel ? "model3d" : "image",
+      sizeBytes: file.size,
+    };
+  }
+}
+
+export async function seedDefaultHeroSlides() {
+  const res = await api.post("/heroslides/seed-defaults");
+  return Array.isArray(res.data) ? res.data : [];
+}
+
 export default api;

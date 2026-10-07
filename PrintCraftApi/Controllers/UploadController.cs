@@ -33,7 +33,7 @@ public class UploadController : ControllerBase
     private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".stl", ".obj", ".3mf", ".step", ".stp",
-        ".png", ".jpg", ".jpeg", ".webp", ".gif"
+        ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"
     };
 
     private static readonly Dictionary<string, HashSet<string>> AllowedContentTypesByExtension =
@@ -44,6 +44,7 @@ public class UploadController : ControllerBase
             [".jpeg"] = new(StringComparer.OrdinalIgnoreCase) { "image/jpeg" },
             [".gif"] = new(StringComparer.OrdinalIgnoreCase) { "image/gif" },
             [".webp"] = new(StringComparer.OrdinalIgnoreCase) { "image/webp" },
+            [".svg"] = new(StringComparer.OrdinalIgnoreCase) { "image/svg+xml", "application/xml", "text/xml", "image/svg" },
             [".3mf"] = new(StringComparer.OrdinalIgnoreCase)
             {
                 "model/3mf",
@@ -202,29 +203,41 @@ public class UploadController : ControllerBase
                 g => g.First(),
                 StringComparer.OrdinalIgnoreCase);
 
+        var heroSlideMediaUrls = _db.HeroSlides
+            .AsNoTracking()
+            .Select(s => s.MediaUrl)
+            .Where(m => !string.IsNullOrWhiteSpace(m))
+            .AsEnumerable()
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
         var files = Directory
-            .EnumerateFiles(uploadsFolder)
+            .EnumerateFiles(uploadsFolder, "*", SearchOption.AllDirectories)
             .Select(path => new FileInfo(path))
-            .Where(info => AllowedExtensions.Contains(info.Extension))
+            .Where(info => AllowedExtensions.Contains(info.Extension) && !info.Name.EndsWith(UploadMetadataSuffix, StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(info => info.LastWriteTimeUtc)
             .Select(info =>
             {
+                var relPath = Path.GetRelativePath(uploadsFolder, info.FullName).Replace('\\', '/');
+                var url = $"/uploads/{relPath}";
                 orderLinksByFileName.TryGetValue(info.Name, out var link);
                 var linkedToActiveOrder = activeOrderFileNames.Contains(info.Name);
                 var linkedToOrder = linkedOrderFileNames.Contains(info.Name);
+                var linkedToHeroSlide = heroSlideMediaUrls.Contains(url) || heroSlideMediaUrls.Any(m => m.EndsWith("/" + info.Name, StringComparison.OrdinalIgnoreCase));
 
                 return new
                 {
                     fileName = info.Name,
+                    relativePath = relPath,
                     extension = info.Extension.ToLowerInvariant(),
                     sizeBytes = info.Length,
                     lastModifiedUtc = info.LastWriteTimeUtc,
-                    url = $"/uploads/{info.Name}",
+                    url,
                     orderId = link?.orderId,
                     itemIndex = link?.itemIndex,
                     linkedToOrder,
                     linkedToActiveOrder,
-                    canDelete = !linkedToOrder,
+                    linkedToHeroSlide,
+                    canDelete = !linkedToOrder && !linkedToHeroSlide,
                 };
             })
             .ToArray();
@@ -237,14 +250,19 @@ public class UploadController : ControllerBase
     [EnableRateLimiting("AuthBurst")]
     public IActionResult DeleteUploadedModel([FromQuery] string? fileName)
     {
-        var trimmed = (fileName ?? string.Empty).Trim();
+        var trimmed = (fileName ?? string.Empty).Trim().Replace('\\', '/');
         if (string.IsNullOrWhiteSpace(trimmed))
             return BadRequest(new { message = "File name is required." });
 
-        var normalizedFileName = Path.GetFileName(trimmed);
-        if (!string.Equals(normalizedFileName, trimmed, StringComparison.Ordinal))
-            return BadRequest(new { message = "Invalid file name." });
+        if (InputSanitizer.ContainsDirectoryTraversal(trimmed))
+            return BadRequest(new { message = "Invalid file path." });
 
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+        var resolvedFullPath = Path.GetFullPath(Path.Combine(uploadsFolder, trimmed));
+        if (!resolvedFullPath.StartsWith(Path.GetFullPath(uploadsFolder), StringComparison.OrdinalIgnoreCase))
+            return BadRequest(new { message = "Invalid path traversal attempt." });
+
+        var normalizedFileName = Path.GetFileName(resolvedFullPath);
         var extension = Path.GetExtension(normalizedFileName);
         if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
             return BadRequest(new { message = "Only uploaded model or image files can be deleted from this endpoint." });
@@ -271,14 +289,18 @@ public class UploadController : ControllerBase
         if (linkedToAnyOrder)
             return Conflict(new { message = "File is linked to an order and cannot be deleted." });
 
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-        var filePath = Path.Combine(uploadsFolder, normalizedFileName);
+        var linkedToAnyHeroSlide = _db.HeroSlides
+            .AsNoTracking()
+            .Any(s => s.MediaUrl.EndsWith("/" + normalizedFileName) || s.MediaUrl.EndsWith(normalizedFileName));
 
-        if (!System.IO.File.Exists(filePath))
+        if (linkedToAnyHeroSlide)
+            return Conflict(new { message = "File is in use by a promotional hero slide and cannot be deleted." });
+
+        if (!System.IO.File.Exists(resolvedFullPath))
             return NotFound(new { message = "File not found." });
 
-        System.IO.File.Delete(filePath);
-        DeleteUploadMetadataIfExists(filePath);
+        System.IO.File.Delete(resolvedFullPath);
+        DeleteUploadMetadataIfExists(resolvedFullPath);
         return Ok(new { message = "File deleted." });
     }
 
@@ -389,8 +411,17 @@ public class UploadController : ControllerBase
             ".stl" => IsLikelyStl(header),
             ".obj" => IsLikelyObj(header),
             ".step" or ".stp" => IsLikelyStep(header),
+            ".svg" => IsLikelySvg(header),
             _ => false,
         };
+    }
+
+    private static bool IsLikelySvg(byte[] header)
+    {
+        var content = Encoding.UTF8.GetString(header).TrimStart('\uFEFF', ' ', '\t', '\r', '\n');
+        return content.StartsWith("<svg", StringComparison.OrdinalIgnoreCase)
+            || content.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase)
+            || content.IndexOf("<svg", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     private static bool LooksLikeExecutable(byte[] header)

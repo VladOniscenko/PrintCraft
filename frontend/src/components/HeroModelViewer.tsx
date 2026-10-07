@@ -22,8 +22,11 @@ function pickRandomColor(): number {
 }
 
 function getExt(path: string): string {
+  if (!path) return "";
   const cleanPath = path.split("?")[0]?.split("#")[0] ?? path;
-  const parts = cleanPath.split(".");
+  const lastSegment = cleanPath.split("/").pop() ?? cleanPath;
+  const parts = lastSegment.split(".");
+  if (parts.length <= 1) return "";
   return (parts[parts.length - 1] ?? "").toLowerCase();
 }
 
@@ -123,7 +126,7 @@ export default function HeroModelViewer({
     const modelGroup = new THREE.Group();
     scene.add(modelGroup);
 
-    if (ext === "stl") {
+    if (ext === "stl" || ext === "" || ext === "model3d") {
       const loader = new STLLoader();
       loader.load(
         src,
