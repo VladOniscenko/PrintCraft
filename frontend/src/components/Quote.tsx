@@ -109,7 +109,8 @@ function formatScaleForFileName(scale: number): string {
 
 function itemHasModel(item: OrderItem): boolean {
   if (item.files && item.files.some((f) => f.kind === "model")) return true;
-  if (item.fileUrl && MODEL_EXTENSIONS.has(getFileExtension(item.fileUrl))) return true;
+  if (item.fileUrl && MODEL_EXTENSIONS.has(getFileExtension(item.fileUrl)))
+    return true;
   return false;
 }
 
@@ -280,7 +281,9 @@ export default function Quote() {
     city: "",
     postalCode: "",
   });
-  const [shippingErrors, setShippingErrors] = useState<Record<string, string>>({});
+  const [shippingErrors, setShippingErrors] = useState<Record<string, string>>(
+    {},
+  );
   const [guestErrors, setGuestErrors] = useState<Record<string, string>>({});
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -470,10 +473,16 @@ export default function Quote() {
             if (dims) {
               setItems((prev) => {
                 const next = [...prev];
-                if (!next[index] || hasDimensionValue(next[index].dimensionBaseX))
+                if (
+                  !next[index] ||
+                  hasDimensionValue(next[index].dimensionBaseX)
+                )
                   return next;
                 const maxScale = getMaximumScaleForBase(dims.x, dims.y, dims.z);
-                const scale = clampScale(next[index].scaleFactor ?? 1, maxScale);
+                const scale = clampScale(
+                  next[index].scaleFactor ?? 1,
+                  maxScale,
+                );
                 next[index] = {
                   ...next[index],
                   dimensionBaseX: dims.x,
@@ -501,9 +510,7 @@ export default function Quote() {
   );
   const availableColors = Array.from(
     new Set(
-      filaments
-        .map((f) => f.color?.trim() || f.name?.trim())
-        .filter(Boolean),
+      filaments.map((f) => f.color?.trim() || f.name?.trim()).filter(Boolean),
     ),
   );
 
@@ -715,7 +722,9 @@ export default function Quote() {
           (entry) => entry.isModel,
         );
         if (firstUploadedModel) {
-          detectedDimensions = await detectModelDimensions(firstUploadedModel.file);
+          detectedDimensions = await detectModelDimensions(
+            firstUploadedModel.file,
+          );
         }
       }
 
@@ -1005,7 +1014,10 @@ export default function Quote() {
         !hasDimensionValue(item.dimensionBaseY) ||
         !hasDimensionValue(item.dimensionBaseZ)
       ) {
-        const safeScale = Math.max(0.1, Math.min(3.0, Math.round(nextScale * 100) / 100));
+        const safeScale = Math.max(
+          0.1,
+          Math.min(3.0, Math.round(nextScale * 100) / 100),
+        );
         nextItems[index] = {
           ...item,
           scaleFactor: safeScale,
@@ -1197,7 +1209,7 @@ export default function Quote() {
           );
           const hasModel = itemHasModel(item);
           const effectiveScale = hasModel
-            ? item.scaleFactor ?? item.dimensionScale ?? 1.0
+            ? (item.scaleFactor ?? item.dimensionScale ?? 1.0)
             : 1.0;
           return {
             fileUrl: item.fileUrl || undefined,
@@ -1216,7 +1228,10 @@ export default function Quote() {
             printQuality: item.printQuality ?? "Standard (0.20mm)",
             supportsNeeded: !!item.supportsNeeded,
             material: item.material || "PLA",
-            color: item.color || getColorsForMaterial(item.material || "PLA")[0] || "Black",
+            color:
+              item.color ||
+              getColorsForMaterial(item.material || "PLA")[0] ||
+              "Black",
             count: item.count,
             files: (item.files || []).map((file) => ({
               url: file.url,
@@ -1541,7 +1556,7 @@ export default function Quote() {
                               onClick={() => clearItemFiles(idx)}
                               className="text-xs font-semibold text-rose-600 hover:text-rose-800 ml-2"
                             >
-                              {t("quote.removeAllFiles")}
+                              {t("quote.removeFile")}
                             </button>
                           </div>
                         )}
@@ -1582,7 +1597,11 @@ export default function Quote() {
                             </label>
                             <select
                               className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all cursor-pointer"
-                              value={item.color || getColorsForMaterial(item.material)[0] || "Black"}
+                              value={
+                                item.color ||
+                                getColorsForMaterial(item.material)[0] ||
+                                "Black"
+                              }
                               onChange={(e) =>
                                 updateItem(idx, "color", e.target.value)
                               }
@@ -1617,34 +1636,62 @@ export default function Quote() {
 
                         {/* Interactive WebGL 3D Viewer with Live Color Preview, Dimension Check, and UX Instructions */}
                         {(() => {
-                          const modelFile = (item.files || []).find((f) => f.kind === "model");
+                          const modelFile = (item.files || []).find(
+                            (f) => f.kind === "model",
+                          );
                           const activeModelUrl =
                             modelFile?.url ||
-                            (item.fileUrl && MODEL_EXTENSIONS.has(getFileExtension(item.fileUrl))
+                            (item.fileUrl &&
+                            MODEL_EXTENSIONS.has(getFileExtension(item.fileUrl))
                               ? item.fileUrl
                               : undefined);
-                          const activeModelName = modelFile?.name || item.fileName || "model.stl";
+                          const activeModelName =
+                            modelFile?.name || item.fileName || "model.stl";
 
-                          if (!activeModelUrl && !itemHasModel(item)) return null;
+                          if (!activeModelUrl && !itemHasModel(item))
+                            return null;
 
                           return (
                             <div className="mb-5">
                               <Interactive3DViewer
                                 fileUrl={activeModelUrl}
                                 fileName={activeModelName}
-                                colorName={item.color || getColorsForMaterial(item.material)[0] || "Black"}
+                                colorName={
+                                  item.color ||
+                                  getColorsForMaterial(item.material)[0] ||
+                                  "Black"
+                                }
                                 materialName={item.material}
-                                scaleFactor={item.scaleFactor ?? item.dimensionScale ?? 1.0}
+                                scaleFactor={
+                                  item.scaleFactor ?? item.dimensionScale ?? 1.0
+                                }
                                 count={item.count}
                                 filaments={filaments}
                                 showHelp={true}
-                                onDimensionsDetected={(dims: { x: number; y: number; z: number }) => {
+                                onDimensionsDetected={(dims: {
+                                  x: number;
+                                  y: number;
+                                  z: number;
+                                }) => {
                                   if (!hasDimensionValue(item.dimensionBaseX)) {
                                     setItems((prev) => {
                                       const next = [...prev];
-                                      if (!next[idx] || hasDimensionValue(next[idx].dimensionBaseX)) return next;
-                                      const maxScale = getMaximumScaleForBase(dims.x, dims.y, dims.z);
-                                      const scale = clampScale(next[idx].scaleFactor ?? 1.0, maxScale);
+                                      if (
+                                        !next[idx] ||
+                                        hasDimensionValue(
+                                          next[idx].dimensionBaseX,
+                                        )
+                                      )
+                                        return next;
+                                      const maxScale = getMaximumScaleForBase(
+                                        dims.x,
+                                        dims.y,
+                                        dims.z,
+                                      );
+                                      const scale = clampScale(
+                                        next[idx].scaleFactor ?? 1.0,
+                                        maxScale,
+                                      );
                                       next[idx] = {
                                         ...next[idx],
                                         dimensionBaseX: dims.x,
@@ -1652,9 +1699,15 @@ export default function Quote() {
                                         dimensionBaseZ: dims.z,
                                         dimensionScale: scale,
                                         scaleFactor: scale,
-                                        dimensionX: roundMillimeters(dims.x * scale),
-                                        dimensionY: roundMillimeters(dims.y * scale),
-                                        dimensionZ: roundMillimeters(dims.z * scale),
+                                        dimensionX: roundMillimeters(
+                                          dims.x * scale,
+                                        ),
+                                        dimensionY: roundMillimeters(
+                                          dims.y * scale,
+                                        ),
+                                        dimensionZ: roundMillimeters(
+                                          dims.z * scale,
+                                        ),
                                       };
                                       return next;
                                     });
@@ -1810,8 +1863,9 @@ export default function Quote() {
                                         { scale: 2.0, label: "2.0x" },
                                       ].map((preset) => {
                                         const isCurrent =
-                                          Math.abs(currentScale - preset.scale) <
-                                          0.04;
+                                          Math.abs(
+                                            currentScale - preset.scale,
+                                          ) < 0.04;
                                         const canFit = hasBaseDimensions
                                           ? preset.scale <= maxScale + 0.001
                                           : true;
@@ -1840,10 +1894,7 @@ export default function Quote() {
                                             type="button"
                                             disabled={!canFit}
                                             onClick={() =>
-                                              updateItemScale(
-                                                idx,
-                                                preset.scale,
-                                              )
+                                              updateItemScale(idx, preset.scale)
                                             }
                                             className={`p-2 rounded-xl text-left transition-all border ${
                                               !canFit
@@ -1920,7 +1971,9 @@ export default function Quote() {
                                       }
                                     />
                                     <div className="flex justify-between items-center text-[11px] text-gray-500 pt-0.5">
-                                      <span>{t("quote.dimensionsMaxHint")}</span>
+                                      <span>
+                                        {t("quote.dimensionsMaxHint")}
+                                      </span>
                                       {targetX && targetY && targetZ && (
                                         <span className="font-semibold text-gray-800">
                                           {targetX} × {targetY} × {targetZ} mm
@@ -2022,7 +2075,8 @@ export default function Quote() {
                                               : "text-gray-500"
                                           }`}
                                         >
-                                          {preset.x} × {preset.y} × {preset.z} mm
+                                          {preset.x} × {preset.y} × {preset.z}{" "}
+                                          mm
                                         </p>
                                       </button>
                                     );
@@ -2130,7 +2184,9 @@ export default function Quote() {
                                         (item.dimensionZ ?? 0) <= 256 ? (
                                           <>✓ {t("quote.buildVolumeFits")}</>
                                         ) : (
-                                          <>⚠️ {t("quote.buildVolumeExceeded")}</>
+                                          <>
+                                            ⚠️ {t("quote.buildVolumeExceeded")}
+                                          </>
                                         )}
                                       </span>
                                       <span className="font-bold">
@@ -2158,15 +2214,31 @@ export default function Quote() {
                               </label>
                               <select
                                 value={item.infillPercent ?? 20}
-                                onChange={(e) => updateItem(idx, "infillPercent", parseInt(e.target.value, 10) || 20)}
+                                onChange={(e) =>
+                                  updateItem(
+                                    idx,
+                                    "infillPercent",
+                                    parseInt(e.target.value, 10) || 20,
+                                  )
+                                }
                                 className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
                               >
-                                <option value={15}>{t("quote.infillLight")}</option>
-                                <option value={20}>{t("quote.infillStandard")}</option>
-                                <option value={40}>{t("quote.infillStrong")}</option>
-                                <option value={80}>{t("quote.infillSolid")}</option>
+                                <option value={15}>
+                                  {t("quote.infillLight")}
+                                </option>
+                                <option value={20}>
+                                  {t("quote.infillStandard")}
+                                </option>
+                                <option value={40}>
+                                  {t("quote.infillStrong")}
+                                </option>
+                                <option value={80}>
+                                  {t("quote.infillSolid")}
+                                </option>
                               </select>
-                              <p className="text-[10px] text-gray-400">{t("quote.infillHint")}</p>
+                              <p className="text-[10px] text-gray-400">
+                                {t("quote.infillHint")}
+                              </p>
                             </div>
 
                             {/* Print Quality */}
@@ -2177,14 +2249,28 @@ export default function Quote() {
                               </label>
                               <select
                                 value={item.printQuality ?? "Standard (0.20mm)"}
-                                onChange={(e) => updateItem(idx, "printQuality", e.target.value)}
+                                onChange={(e) =>
+                                  updateItem(
+                                    idx,
+                                    "printQuality",
+                                    e.target.value,
+                                  )
+                                }
                                 className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
                               >
-                                <option value="Detail (0.12mm)">{t("quote.qualityDetail")}</option>
-                                <option value="Standard (0.20mm)">{t("quote.qualityStandard")}</option>
-                                <option value="Draft (0.28mm)">{t("quote.qualityDraft")}</option>
+                                <option value="Detail (0.12mm)">
+                                  {t("quote.qualityDetail")}
+                                </option>
+                                <option value="Standard (0.20mm)">
+                                  {t("quote.qualityStandard")}
+                                </option>
+                                <option value="Draft (0.28mm)">
+                                  {t("quote.qualityDraft")}
+                                </option>
                               </select>
-                              <p className="text-[10px] text-gray-400">{t("quote.qualityHint")}</p>
+                              <p className="text-[10px] text-gray-400">
+                                {t("quote.qualityHint")}
+                              </p>
                             </div>
                           </div>
 
@@ -2194,7 +2280,13 @@ export default function Quote() {
                               <input
                                 type="checkbox"
                                 checked={!!item.supportsNeeded}
-                                onChange={(e) => updateItem(idx, "supportsNeeded", e.target.checked)}
+                                onChange={(e) =>
+                                  updateItem(
+                                    idx,
+                                    "supportsNeeded",
+                                    e.target.checked,
+                                  )
+                                }
                                 className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                               />
                               <div>
@@ -2257,12 +2349,16 @@ export default function Quote() {
                         <input
                           type="text"
                           value={guestName}
-                          onChange={(e) => handleGuestNameChange(e.target.value)}
+                          onChange={(e) =>
+                            handleGuestNameChange(e.target.value)
+                          }
                           className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                           placeholder={t("quote.placeholderName")}
                         />
                         {guestErrors.name && (
-                          <p className="text-xs text-red-600 mt-1">{guestErrors.name}</p>
+                          <p className="text-xs text-red-600 mt-1">
+                            {guestErrors.name}
+                          </p>
                         )}
                       </div>
 
@@ -2273,12 +2369,16 @@ export default function Quote() {
                         <input
                           type="email"
                           value={guestEmail}
-                          onChange={(e) => handleGuestEmailChange(e.target.value)}
+                          onChange={(e) =>
+                            handleGuestEmailChange(e.target.value)
+                          }
                           className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                           placeholder={t("quote.placeholderEmail")}
                         />
                         {guestErrors.email && (
-                          <p className="text-xs text-red-600 mt-1">{guestErrors.email}</p>
+                          <p className="text-xs text-red-600 mt-1">
+                            {guestErrors.email}
+                          </p>
                         )}
                       </div>
 
@@ -2375,7 +2475,9 @@ export default function Quote() {
                         placeholder={t("quote.placeholderShippingName")}
                       />
                       {shippingErrors.fullName && (
-                        <p className="text-xs text-red-600 mt-1">{shippingErrors.fullName}</p>
+                        <p className="text-xs text-red-600 mt-1">
+                          {shippingErrors.fullName}
+                        </p>
                       )}
                     </div>
 
@@ -2396,7 +2498,9 @@ export default function Quote() {
                         placeholder={t("quote.placeholderShippingPhone")}
                       />
                       {shippingErrors.phoneNumber && (
-                        <p className="text-xs text-red-600 mt-1">{shippingErrors.phoneNumber}</p>
+                        <p className="text-xs text-red-600 mt-1">
+                          {shippingErrors.phoneNumber}
+                        </p>
                       )}
                     </div>
 
@@ -2417,7 +2521,9 @@ export default function Quote() {
                         placeholder={t("quote.placeholderStreet")}
                       />
                       {shippingErrors.addressLine1 && (
-                        <p className="text-xs text-red-600 mt-1">{shippingErrors.addressLine1}</p>
+                        <p className="text-xs text-red-600 mt-1">
+                          {shippingErrors.addressLine1}
+                        </p>
                       )}
                     </div>
 
@@ -2435,7 +2541,9 @@ export default function Quote() {
                         placeholder={t("quote.placeholderCity")}
                       />
                       {shippingErrors.city && (
-                        <p className="text-xs text-red-600 mt-1">{shippingErrors.city}</p>
+                        <p className="text-xs text-red-600 mt-1">
+                          {shippingErrors.city}
+                        </p>
                       )}
                     </div>
 
@@ -2456,7 +2564,9 @@ export default function Quote() {
                         placeholder={t("quote.placeholderPostalCode")}
                       />
                       {shippingErrors.postalCode && (
-                        <p className="text-xs text-red-600 mt-1">{shippingErrors.postalCode}</p>
+                        <p className="text-xs text-red-600 mt-1">
+                          {shippingErrors.postalCode}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -2505,7 +2615,9 @@ export default function Quote() {
                                 <span className="font-semibold text-gray-400">
                                   {t("quote.colorLabel")}
                                 </span>{" "}
-                                {item.color || getColorsForMaterial(item.material)[0] || "Black"}
+                                {item.color ||
+                                  getColorsForMaterial(item.material)[0] ||
+                                  "Black"}
                               </span>
                               {itemHasModel(item) ? (
                                 <>

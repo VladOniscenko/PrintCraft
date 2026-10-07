@@ -423,7 +423,8 @@ export const translations: Record<
         kanbanBreadcrumb: "Orders Kanban",
         kanbanActivePipeline: "Active Production Pipeline",
         kanbanQuickActionsTitle: "Quick Status Drop Zones",
-        kanbanQuickActionsSubtitle: "Drag a ticket here to set its status instantly",
+        kanbanQuickActionsSubtitle:
+          "Drag a ticket here to set its status instantly",
         kanbanDropAction: "Drop to set status",
         kanbanOrdersBacklog: "Orders Backlog & All Records",
         kanbanTotal: "total",
@@ -963,7 +964,7 @@ export const translations: Record<
       subtitle: "Upload models and choose from our live inventory.",
       models: "Your 3D Models",
       addFile: "Add Files",
-      removeAllFiles: "Remove all files",
+      removeFile: "Remove file",
       guestContactTitle: "Contact details",
       guestContactSubtitle:
         "Not logged in? No problem. Add your contact details and we will create an account for you automatically.",
@@ -1883,7 +1884,8 @@ export const translations: Record<
         kanbanBreadcrumb: "Orders Kanban",
         kanbanActivePipeline: "Actieve productielijn",
         kanbanQuickActionsTitle: "Snelle status dropzones",
-        kanbanQuickActionsSubtitle: "Sleep een ticket hierheen om direct de status te wijzigen",
+        kanbanQuickActionsSubtitle:
+          "Sleep een ticket hierheen om direct de status te wijzigen",
         kanbanDropAction: "Hier loslaten voor statuswijziging",
         kanbanOrdersBacklog: "Orderarchief & Alle overzichten",
         kanbanTotal: "totaal",
@@ -2434,8 +2436,8 @@ export const translations: Record<
       title: "Vraag een Offerte Aan",
       subtitle: "Upload modellen en kies uit onze actuele voorraad.",
       models: "Jouw 3D Modellen",
-      addFile: "Bestanden Toevoegen",
-      removeAllFiles: "Alle bestanden verwijderen",
+      addFile: "Bestand Toevoegen",
+      removeFile: "Bestanden verwijderen",
       guestContactTitle: "Contactgegevens",
       guestContactSubtitle:
         "Niet ingelogd? Geen probleem. Voeg je contactgegevens toe en we maken automatisch een account voor je aan.",
