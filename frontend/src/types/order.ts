@@ -103,6 +103,12 @@ export interface OrderItem {
   color: string;
   price: number;
   count: number;
+  estimatedPrintTime?: string;
+  filamentUsedGrams?: number;
+  scaleFactor?: number;
+  infillPercent?: number;
+  printQuality?: string;
+  supportsNeeded?: boolean;
 }
 
 export interface QuoteItemFile {

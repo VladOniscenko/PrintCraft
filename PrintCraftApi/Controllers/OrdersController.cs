@@ -35,6 +35,7 @@ public class OrdersController : ControllerBase
     private readonly IDiscordWebhookService _discordWebhookService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<OrdersController> _logger;
+    private readonly IPricingQueue _pricingQueue;
 
     public OrdersController(
         PrintCraftDb db,
@@ -42,7 +43,8 @@ public class OrdersController : ControllerBase
         IEmailService emailService,
         IDiscordWebhookService discordWebhookService,
         IConfiguration configuration,
-        ILogger<OrdersController> logger)
+        ILogger<OrdersController> logger,
+        IPricingQueue pricingQueue)
     {
         _db = db;
         _env = env;
@@ -50,6 +52,7 @@ public class OrdersController : ControllerBase
         _discordWebhookService = discordWebhookService;
         _configuration = configuration;
         _logger = logger;
+        _pricingQueue = pricingQueue;
     }
 
     private static bool IsPendingStatus(string? status)
@@ -342,6 +345,10 @@ public class OrdersController : ControllerBase
                     Color = InputSanitizer.SanitizeText(item.Color) ?? "Custom",
                     Count = item.Count,
                     Price = 0,
+                    ScaleFactor = item.ScaleFactor is > 0 ? item.ScaleFactor.Value : 1.0,
+                    InfillPercent = item.InfillPercent is > 0 and <= 100 ? item.InfillPercent.Value : 20,
+                    PrintQuality = InputSanitizer.SanitizeText(item.PrintQuality, 50) ?? "Standard (0.20mm)",
+                    SupportsNeeded = item.SupportsNeeded ?? false,
                     Attachments = files.Select(f => new OrderItemAttachment
                     {
                         Id = Guid.NewGuid(),
@@ -373,6 +380,16 @@ public class OrdersController : ControllerBase
 
         _db.Orders.Add(order);
         await _db.SaveChangesAsync();
+        
+        // Queue items for pricing
+        if (order.Items != null)
+        {
+            foreach (var item in order.Items)
+            {
+                await _pricingQueue.QueueOrderItemAsync(item.Id);
+            }
+        }
+
         await LogStatusHistoryAsync(
             order.Id,
             null,
@@ -999,7 +1016,11 @@ public record QuoteItemRequest(
     string? Material,
     string? Color,
     int Count,
-    List<QuoteItemFileRequest>? Files
+    List<QuoteItemFileRequest>? Files,
+    double? ScaleFactor = 1.0,
+    int? InfillPercent = 20,
+    string? PrintQuality = "Standard (0.20mm)",
+    bool? SupportsNeeded = false
 );
 
 public record QuoteItemFileRequest(

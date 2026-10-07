@@ -11,6 +11,8 @@ interface OrderPricingPanelProps {
   setItemPrices: Dispatch<SetStateAction<Record<string, number>>>;
   savingItemId: string | null;
   updateItemPrice: (itemId: string, price: number) => Promise<void>;
+  calculateItemPrice: (itemId: string) => Promise<void>;
+  calculatingPriceId: string | null;
   deliveryPrice: number;
   setDeliveryPrice: Dispatch<SetStateAction<number>>;
   savingDelivery: boolean;
@@ -145,6 +147,8 @@ export default function OrderPricingPanel({
   setItemPrices,
   savingItemId,
   updateItemPrice,
+  calculateItemPrice,
+  calculatingPriceId,
   deliveryPrice,
   setDeliveryPrice,
   savingDelivery,
@@ -174,6 +178,7 @@ export default function OrderPricingPanel({
         <div className="space-y-5">
           {order.items.map((item, idx) => {
             const itemFiles = getItemFiles(item);
+            const hasModel = itemFiles.some((f) => f.kind === "model");
             return (
               <div
                 key={item.id || item.fileName}
@@ -310,6 +315,48 @@ export default function OrderPricingPanel({
                     </div>
                   </div>
 
+                  {/* Slicing info & Print parameters */}
+                  <div className="mb-4 bg-indigo-50/70 border border-indigo-100 p-4 rounded-xl flex flex-wrap gap-6 items-center">
+                    {hasModel && item.scaleFactor != null && (
+                      <div>
+                        <p className="text-[10px] uppercase text-indigo-900 font-semibold">Scale</p>
+                        <p className="text-sm font-semibold text-indigo-950">{item.scaleFactor.toFixed(2)}x</p>
+                      </div>
+                    )}
+                    {item.infillPercent != null && (
+                      <div>
+                        <p className="text-[10px] uppercase text-indigo-900 font-semibold">Infill</p>
+                        <p className="text-sm font-semibold text-indigo-950">{item.infillPercent}%</p>
+                      </div>
+                    )}
+                    {item.printQuality && (
+                      <div>
+                        <p className="text-[10px] uppercase text-indigo-900 font-semibold">Quality</p>
+                        <p className="text-sm font-semibold text-indigo-950">{item.printQuality}</p>
+                      </div>
+                    )}
+                    {item.supportsNeeded && (
+                      <div>
+                        <p className="text-[10px] uppercase text-indigo-900 font-semibold">Supports</p>
+                        <span className="inline-block text-xs font-bold text-indigo-800 bg-indigo-100/80 px-2 py-0.5 rounded">
+                          Required
+                        </span>
+                      </div>
+                    )}
+                    {item.estimatedPrintTime && (
+                      <div className="border-l border-indigo-200 pl-4">
+                        <p className="text-[10px] uppercase text-indigo-900 font-semibold">Print Time</p>
+                        <p className="text-sm font-bold text-indigo-700">{item.estimatedPrintTime}</p>
+                      </div>
+                    )}
+                    {item.filamentUsedGrams != null && (
+                      <div>
+                        <p className="text-[10px] uppercase text-indigo-900 font-semibold">Filament Used</p>
+                        <p className="text-sm font-bold text-indigo-700">{item.filamentUsedGrams}g</p>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Instructions section */}
                   {item.notes && (
                     <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 p-4">
@@ -323,7 +370,27 @@ export default function OrderPricingPanel({
                   )}
 
                   {/* Save button for price */}
-                  <div className="flex justify-end">
+                  <div className="flex justify-end gap-2">
+                    { hasModel && (!item.price || !item.estimatedPrintTime) && (
+                      <button
+                        type="button"
+                        disabled={!item.id || calculatingPriceId === item.id || pricingLocked}
+                        onClick={() => item.id && calculateItemPrice(item.id)}
+                        className="admin-btn admin-btn-secondary text-sm px-4 py-2 flex items-center gap-2"
+                      >
+                        {calculatingPriceId === item.id ? (
+                          <>
+                            <svg className="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Calculating...
+                          </>
+                        ) : (
+                          "Calculate Price Now"
+                        )}
+                      </button>
+                    )}
                     <button
                       type="button"
                       disabled={

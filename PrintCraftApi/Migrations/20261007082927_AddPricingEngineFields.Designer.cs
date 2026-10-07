@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PrintCraftApi.Data;
@@ -11,9 +12,11 @@ using PrintCraftApi.Data;
 namespace PrintCraftApi.Migrations
 {
     [DbContext(typeof(PrintCraftDb))]
-    partial class PrintCraftDbModelSnapshot : ModelSnapshot
+    [Migration("20261007082927_AddPricingEngineFields")]
+    partial class AddPricingEngineFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,9 +50,6 @@ namespace PrintCraftApi.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
 
-                    b.Property<int>("InfillPercent")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Material")
                         .IsRequired()
                         .HasColumnType("text");
@@ -63,18 +63,8 @@ namespace PrintCraftApi.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("double precision");
 
-                    b.Property<string>("PrintQuality")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("ScaleFactor")
-                        .HasColumnType("double precision");
-
                     b.Property<string>("Size")
                         .HasColumnType("text");
-
-                    b.Property<bool>("SupportsNeeded")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("fileName")
                         .HasColumnType("text");

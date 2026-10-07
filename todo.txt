@@ -1,3 +1,23 @@
+### Epic 2: Tech Debt, Translations & Security
+
+Act as a senior full-stack developer. Review and resolve the following technical debt and security tasks for our React + .NET app:
+**Refactoring & Cleanup Directive:** Inspect the current codebase for any existing validation, routing, or localization logic. If found, improve or fully rebuild it for optimal future performance. Strip out and delete any old unused components, dead code, and obsolete references before implementing the new solutions.
+**1. Code Cleanup:**
+Analyze the frontend and backend codebase to find and remove unused components, dead code, and components perpetually wrapped in `false` conditions.
+**2. Translations (i18n):**
+* Fix missing translation keys: `pending_quote`, `pending_payment`, and `agreementRequired`.
+* Audit the Admin panel components: identify hardcoded strings and replace them with localization hooks.
+* Ensure website language defaults to Dutch (NL) if the user's browser/settings are unconfigured.
+
+
+**3. UI / UX Polish:**
+* Fix the SPA routing scroll issue: ensure React Router scrolls to the top of the page on route change.
+* Fix dynamic tab namings where the browser tab incorrectly reads "Page Not Found".
+* Fix checkout form validation: ensure error messages disappear when a user inputs valid data.
+
+
+**4. Security Audit:**
+Implement strict sanitization and validation on file uploads (STL/images) and frontend inputs to prevent XSS, directory traversal, and SQL injection payloads.
 
 ### Epic 3: Core Systems (Email & Analytics)
 
@@ -82,8 +102,6 @@ Please answer these two questions before writing code:
 2. How can I convert a 2D image into a printable 3D mesh? Is it better to generate the `.stl`/`.obj` in the browser via JavaScript, or on the .NET backend?
 
 
-**Phase 2: Implementation**
-Based on your recommendation for Phase 1, provide a minimal working code example or workflow to generate the extruded mesh from an uploaded image.
 
 ### Epic 8: Production Kanban, Status Engine & Customer Tracker (Including Exceptions)
 
@@ -140,15 +158,6 @@ Update the checkout/quote submission form to include two new mandatory fields:
 * Generate the corresponding EF Core migration.
 * Update the POST endpoint for quote creation to accept these new fields, enforcing backend validation so that the request is rejected (400 Bad Request) if `IpAgreementAccepted` is false or missing.
 
-
-
-
-
-I completely agree with your assessment. The current tabbed layout hides critical information. Having to click back and forth between "Items & Quotes" just to price a model, then over to "Billing & Shipping" to add tracking, and then to "Comments" to read the customer's notes creates a disjointed, frustrating workflow.
-
-Since Epic 8 introduced a strict State Machine, your new order page should be a **Context-Aware Dashboard**. Instead of showing everything at once in tabs, the page should show you exactly what you need to do *based on the order's current status*, while keeping standard info (files, address, chat) permanently pinned to the side.
-
-Here is the ready-to-use prompt for your AI to completely rebuild this page.
 
 ---
 

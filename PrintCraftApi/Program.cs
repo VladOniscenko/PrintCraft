@@ -53,6 +53,9 @@ builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email
 builder.Services.Configure<InvoiceOptions>(builder.Configuration.GetSection("Invoice"));
 builder.Services.AddTransient<IEmailService, GmailSmtpEmailService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<IPrintPricingService, PrintPricingService>();
+builder.Services.AddSingleton<IPricingQueue, PricingQueue>();
+builder.Services.AddHostedService<PricingBackgroundWorker>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -258,6 +261,12 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<PrintCraftDb>();
     db.Database.Migrate();
     db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"PaymentFlow\" character varying(32) NOT NULL DEFAULT 'bank_transfer';");
+    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"EstimatedPrintTime\" text NULL;");
+    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"FilamentUsedGrams\" double precision NULL;");
+    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"ScaleFactor\" double precision NOT NULL DEFAULT 1.0;");
+    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"InfillPercent\" integer NOT NULL DEFAULT 20;");
+    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PrintQuality\" character varying(64) NOT NULL DEFAULT 'Standard (0.20mm)';");
+    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"SupportsNeeded\" boolean NOT NULL DEFAULT FALSE;");
 }
 
 app.Run();

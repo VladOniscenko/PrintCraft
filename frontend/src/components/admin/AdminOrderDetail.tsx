@@ -81,6 +81,7 @@ export default function AdminOrderDetail() {
   const [orderDiscountAmount, setOrderDiscountAmount] = useState(0);
   const [quoteMessage, setQuoteMessage] = useState("");
   const [savingItemId, setSavingItemId] = useState<string | null>(null);
+  const [calculatingPriceId, setCalculatingPriceId] = useState<string | null>(null);
   const [savingDelivery, setSavingDelivery] = useState(false);
   const [savingServiceFee, setSavingServiceFee] = useState(false);
   const [savingOrderDiscount, setSavingOrderDiscount] = useState(false);
@@ -276,6 +277,21 @@ export default function AdminOrderDetail() {
       notifyError(t("admin.order.trackingSaveFailed"));
     } finally {
       setSavingTracking(false);
+    }
+  };
+
+  const calculateItemPrice = async (itemId: string) => {
+    if (!id) return;
+    setCalculatingPriceId(itemId);
+    try {
+      await api.post(`/admin/orders/${id}/items/${itemId}/calculate-price`);
+      await refresh();
+      notifySuccess("Price calculated successfully");
+    } catch (err) {
+      console.error(err);
+      notifyError("Failed to calculate price");
+    } finally {
+      setCalculatingPriceId(null);
     }
   };
 
@@ -1187,6 +1203,8 @@ export default function AdminOrderDetail() {
               setItemPrices={setItemPrices}
               savingItemId={savingItemId}
               updateItemPrice={updateItemPrice}
+              calculateItemPrice={calculateItemPrice}
+              calculatingPriceId={calculatingPriceId}
               deliveryPrice={deliveryPrice}
               setDeliveryPrice={setDeliveryPrice}
               savingDelivery={savingDelivery}

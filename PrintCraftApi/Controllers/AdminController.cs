@@ -145,6 +145,77 @@ public class AdminController : ControllerBase
         order.QuotedPrice = total > 0 ? total : null;
     }
 
+    [HttpPost("orders/{orderId:guid}/items/{itemId:guid}/calculate-price")]
+    public async Task<IActionResult> CalculateItemPrice([FromRoute] Guid orderId, [FromRoute] Guid itemId, [FromServices] IPrintPricingService pricingService)
+    {
+        var order = await _db.Orders
+            .Include(o => o.Items)
+            .ThenInclude(i => i.Attachments)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+        if (order == null) return NotFound(new { message = "Order not found" });
+
+        var item = order.Items.FirstOrDefault(i => i.Id == itemId);
+        if (item == null) return NotFound(new { message = "Item not found" });
+
+        var fileUrl = item.FileUrl;
+        if (string.IsNullOrWhiteSpace(fileUrl) && item.Attachments != null && item.Attachments.Count > 0)
+        {
+            var modelAttachment = item.Attachments.FirstOrDefault(a => 
+                a.Url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
+                a.Url.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
+                a.Url.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
+                a.Url.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
+                a.Url.EndsWith(".stp", StringComparison.OrdinalIgnoreCase));
+            fileUrl = modelAttachment?.Url ?? item.Attachments[0].Url;
+        }
+
+        if (string.IsNullOrWhiteSpace(fileUrl))
+        {
+            return BadRequest(new { message = "Item does not have a 3D model file." });
+        }
+
+        var fileName = ExtractFileNameFromAssetUrl(fileUrl);
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return BadRequest(new { message = "Invalid model file URL." });
+        }
+
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+        var filePath = Path.Combine(uploadsFolder, fileName);
+        if (!System.IO.File.Exists(filePath))
+        {
+            var altPath = Path.Combine(AppContext.BaseDirectory, "wwwroot", "uploads", fileName);
+            if (System.IO.File.Exists(altPath))
+            {
+                filePath = altPath;
+            }
+        }
+
+        if (!System.IO.File.Exists(filePath) && string.IsNullOrWhiteSpace(item.Size))
+        {
+            return NotFound(new { message = $"File '{fileName}' was not found on server." });
+        }
+
+        double scaleFactor = PrintPricingService.ResolveScaleFactor(item);
+
+        await pricingService.CalculatePricingAsync(
+            item.Id,
+            System.IO.File.Exists(filePath) ? filePath : string.Empty,
+            scaleFactor,
+            item.InfillPercent,
+            item.PrintQuality,
+            item.SupportsNeeded
+        );
+
+        // Reload item to get updated values
+        await _db.Entry(item).ReloadAsync();
+        RecalculateQuotedPrice(order);
+        await _db.SaveChangesAsync();
+
+        return Ok(item);
+    }
+
     [HttpPost("orders/{id:guid}/process-quote")]
     public async Task<IActionResult> ProcessFullQuote([FromRoute] Guid id, [FromBody] ProcessFullQuoteRequest payload)
     {
@@ -1384,6 +1455,25 @@ public class AdminController : ControllerBase
 
     private static string BuildPaymentReference(Guid orderId)
         => $"PC-{orderId.ToString("N")[..8]}-{Guid.NewGuid().ToString("N")[..12]}";
+
+    private static string? ExtractFileNameFromAssetUrl(string? rawUrl)
+    {
+        if (string.IsNullOrWhiteSpace(rawUrl)) return null;
+
+        var path = rawUrl.Trim();
+        if (Uri.TryCreate(path, UriKind.Absolute, out var absoluteUri))
+        {
+            path = absoluteUri.AbsolutePath;
+        }
+
+        var normalizedPath = path.Replace('\\', '/');
+        var withoutQuery = normalizedPath.Split('?', '#')[0];
+        var fileName = Path.GetFileName(withoutQuery);
+        if (string.IsNullOrWhiteSpace(fileName)) return null;
+        if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) return null;
+
+        return fileName;
+    }
 
     private static void DeleteUploadFileIfExists(string? rawUrl)
     {

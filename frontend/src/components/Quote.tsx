@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Mesh, MeshStandardMaterial, Vector3 } from "three";
+import { Box3, Mesh, MeshStandardMaterial, Vector3 } from "three";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
+import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader.js";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { STLExporter } from "three/examples/jsm/exporters/STLExporter.js";
 import {
   Upload,
@@ -19,6 +21,8 @@ import {
   ChevronRight,
   ChevronLeft,
   Home,
+  Gauge,
+  Sliders,
 } from "lucide-react";
 import Navbar from "./Navbar";
 import api from "../services/api";
@@ -102,32 +106,79 @@ function formatScaleForFileName(scale: number): string {
     .replace(/(\.\d*[1-9])0$/, "$1");
 }
 
-async function detectStlDimensions(file: File): Promise<{
+function itemHasModel(item: OrderItem): boolean {
+  if (item.files && item.files.some((f) => f.kind === "model")) return true;
+  if (item.fileUrl && MODEL_EXTENSIONS.has(getFileExtension(item.fileUrl))) return true;
+  return false;
+}
+
+async function detectModelDimensionsFromBuffer(
+  buffer: ArrayBuffer,
+  fileName: string,
+): Promise<{ x: number; y: number; z: number } | null> {
+  const ext = getFileExtension(fileName);
+  if (!MODEL_EXTENSIONS.has(ext)) return null;
+
+  try {
+    if (ext === ".stl") {
+      const loader = new STLLoader();
+      const geometry = loader.parse(buffer);
+      geometry.computeBoundingBox();
+      const box = geometry.boundingBox;
+      if (!box) return null;
+      const size = new Vector3();
+      box.getSize(size);
+      const x = roundMillimeters(Math.abs(size.x));
+      const y = roundMillimeters(Math.abs(size.y));
+      const z = roundMillimeters(Math.abs(size.z));
+      if (x <= 0 || y <= 0 || z <= 0) return null;
+      return { x, y, z };
+    }
+
+    if (ext === ".3mf") {
+      const loader = new ThreeMFLoader();
+      const group = loader.parse(buffer);
+      const box = new Box3().setFromObject(group);
+      if (box.isEmpty()) return null;
+      const size = new Vector3();
+      box.getSize(size);
+      const x = roundMillimeters(Math.abs(size.x));
+      const y = roundMillimeters(Math.abs(size.y));
+      const z = roundMillimeters(Math.abs(size.z));
+      if (x <= 0 || y <= 0 || z <= 0) return null;
+      return { x, y, z };
+    }
+
+    if (ext === ".obj") {
+      const loader = new OBJLoader();
+      const text = new TextDecoder().decode(buffer);
+      const group = loader.parse(text);
+      const box = new Box3().setFromObject(group);
+      if (box.isEmpty()) return null;
+      const size = new Vector3();
+      box.getSize(size);
+      const x = roundMillimeters(Math.abs(size.x));
+      const y = roundMillimeters(Math.abs(size.y));
+      const z = roundMillimeters(Math.abs(size.z));
+      if (x <= 0 || y <= 0 || z <= 0) return null;
+      return { x, y, z };
+    }
+
+    return null;
+  } catch (err) {
+    console.warn("Could not detect model dimensions:", err);
+    return null;
+  }
+}
+
+async function detectModelDimensions(file: File): Promise<{
   x: number;
   y: number;
   z: number;
 } | null> {
-  if (getFileExtension(file.name) !== ".stl") return null;
-
   try {
     const buffer = await file.arrayBuffer();
-    const loader = new STLLoader();
-    const geometry = loader.parse(buffer);
-
-    geometry.computeBoundingBox();
-    const box = geometry.boundingBox;
-    if (!box) return null;
-
-    const size = new Vector3();
-    box.getSize(size);
-
-    const x = roundMillimeters(Math.abs(size.x));
-    const y = roundMillimeters(Math.abs(size.y));
-    const z = roundMillimeters(Math.abs(size.z));
-
-    if (x <= 0 || y <= 0 || z <= 0) return null;
-
-    return { x, y, z };
+    return await detectModelDimensionsFromBuffer(buffer, file.name);
   } catch {
     return null;
   }
@@ -165,6 +216,10 @@ export default function Quote() {
           color: "",
           count: 1,
           price: 0,
+          scaleFactor: 1.0,
+          infillPercent: 20,
+          printQuality: "Standard (0.20mm)",
+          supportsNeeded: false,
           notes: draft.description || "",
           files: draft.fileUrl
             ? [{ url: draft.fileUrl, name: draft.fileName, kind: "model" }]
@@ -372,6 +427,54 @@ export default function Quote() {
     }
   }, [isLoggedIn]);
 
+  // Auto-detect dimensions for models loaded from initial draft
+  useEffect(() => {
+    items.forEach((item, index) => {
+      if (
+        itemHasModel(item) &&
+        item.fileUrl &&
+        !hasDimensionValue(item.dimensionBaseX)
+      ) {
+        const url = resolveAssetUrl(item.fileUrl);
+        fetch(url)
+          .then((res) => {
+            if (!res.ok) throw new Error("Failed to load model file");
+            return res.arrayBuffer();
+          })
+          .then(async (buffer) => {
+            const dims = await detectModelDimensionsFromBuffer(
+              buffer,
+              item.fileName || item.fileUrl || "model.stl",
+            );
+            if (dims) {
+              setItems((prev) => {
+                const next = [...prev];
+                if (!next[index] || hasDimensionValue(next[index].dimensionBaseX))
+                  return next;
+                const maxScale = getMaximumScaleForBase(dims.x, dims.y, dims.z);
+                const scale = clampScale(next[index].scaleFactor ?? 1, maxScale);
+                next[index] = {
+                  ...next[index],
+                  dimensionBaseX: dims.x,
+                  dimensionBaseY: dims.y,
+                  dimensionBaseZ: dims.z,
+                  dimensionScale: scale,
+                  scaleFactor: scale,
+                  dimensionX: roundMillimeters(dims.x * scale),
+                  dimensionY: roundMillimeters(dims.y * scale),
+                  dimensionZ: roundMillimeters(dims.z * scale),
+                };
+                return next;
+              });
+            }
+          })
+          .catch(() => {
+            // Best-effort
+          });
+      }
+    });
+  }, []);
+
   const availableMaterials = Array.from(
     new Set(filaments.map((f) => f.material)),
   );
@@ -552,20 +655,37 @@ export default function Quote() {
       }
 
       if (!detectedDimensions) {
-        const firstUploadedStl = uploadedEntries.find(
-          (entry) => getFileExtension(entry.file.name) === ".stl",
+        const firstUploadedModel = uploadedEntries.find(
+          (entry) => entry.isModel,
         );
-        if (firstUploadedStl) {
-          detectedDimensions = await detectStlDimensions(firstUploadedStl.file);
+        if (firstUploadedModel) {
+          detectedDimensions = await detectModelDimensions(firstUploadedModel.file);
         }
       }
 
       if (uploadedEntries.length > 0) {
         setItems((prev) => {
           const nextItems = [...prev];
-          if (!nextItems[itemIndex]) return nextItems;
+          const defaultMat = finalMaterials[0] || "PLA";
+          const defaultColor = getColorsForMaterial(defaultMat)[0] || "Black";
 
-          const existingFiles = nextItems[itemIndex].files || [];
+          const targetItem = nextItems[itemIndex] || {
+            fileUrl: "",
+            fileName: "",
+            imageUrl: "",
+            material: defaultMat,
+            color: defaultColor,
+            count: 1,
+            price: 0,
+            scaleFactor: 1.0,
+            infillPercent: 20,
+            printQuality: "Standard (0.20mm)",
+            supportsNeeded: false,
+            notes: "",
+            files: [],
+          };
+
+          const existingFiles = targetItem.files || [];
           const newFiles = uploadedEntries.map((entry) => ({
             url: entry.url,
             name: entry.file.name,
@@ -581,63 +701,50 @@ export default function Quote() {
           const firstImage = mergedFiles.find((file) => file.kind === "image");
           const firstAny = mergedFiles[0];
 
+          const isModelUploaded = uploadedEntries.some((e) => e.isModel);
+
+          let dimensionState: Partial<OrderItem> = {};
+
+          if (detectedDimensions) {
+            // New model with detected dimensions: ALWAYS override dimensions with model's actual size!
+            const maxScale = getMaximumScaleForBase(
+              detectedDimensions.x,
+              detectedDimensions.y,
+              detectedDimensions.z,
+            );
+            const scale = clampScale(1, maxScale);
+            dimensionState = {
+              dimensionBaseX: detectedDimensions.x,
+              dimensionBaseY: detectedDimensions.y,
+              dimensionBaseZ: detectedDimensions.z,
+              dimensionScale: scale,
+              scaleFactor: scale,
+              dimensionX: roundMillimeters(detectedDimensions.x * scale),
+              dimensionY: roundMillimeters(detectedDimensions.y * scale),
+              dimensionZ: roundMillimeters(detectedDimensions.z * scale),
+            };
+          } else if (isModelUploaded) {
+            // A 3D model was uploaded, but bounding box couldn't be auto-detected:
+            // CLEAR stale non-file dimensions (e.g. 50 x 50 x 20) so they don't persist!
+            dimensionState = {
+              dimensionBaseX: undefined,
+              dimensionBaseY: undefined,
+              dimensionBaseZ: undefined,
+              dimensionScale: 1.0,
+              scaleFactor: 1.0,
+              dimensionX: undefined,
+              dimensionY: undefined,
+              dimensionZ: undefined,
+            };
+          }
+
           nextItems[itemIndex] = {
-            ...nextItems[itemIndex],
+            ...targetItem,
             files: mergedFiles,
             fileUrl: firstModel?.url || firstAny?.url || "",
             fileName: firstModel?.name || firstAny?.name || "",
-            imageUrl: firstImage?.url || nextItems[itemIndex].imageUrl || "",
-            ...(detectedDimensions &&
-            !hasDimensionValue(nextItems[itemIndex].dimensionX) &&
-            !hasDimensionValue(nextItems[itemIndex].dimensionY) &&
-            !hasDimensionValue(nextItems[itemIndex].dimensionZ)
-              ? {
-                  dimensionBaseX: detectedDimensions.x,
-                  dimensionBaseY: detectedDimensions.y,
-                  dimensionBaseZ: detectedDimensions.z,
-                  dimensionScale: clampScale(
-                    1,
-                    getMaximumScaleForBase(
-                      detectedDimensions.x,
-                      detectedDimensions.y,
-                      detectedDimensions.z,
-                    ),
-                  ),
-                  dimensionX: roundMillimeters(
-                    detectedDimensions.x *
-                      clampScale(
-                        1,
-                        getMaximumScaleForBase(
-                          detectedDimensions.x,
-                          detectedDimensions.y,
-                          detectedDimensions.z,
-                        ),
-                      ),
-                  ),
-                  dimensionY: roundMillimeters(
-                    detectedDimensions.y *
-                      clampScale(
-                        1,
-                        getMaximumScaleForBase(
-                          detectedDimensions.x,
-                          detectedDimensions.y,
-                          detectedDimensions.z,
-                        ),
-                      ),
-                  ),
-                  dimensionZ: roundMillimeters(
-                    detectedDimensions.z *
-                      clampScale(
-                        1,
-                        getMaximumScaleForBase(
-                          detectedDimensions.x,
-                          detectedDimensions.y,
-                          detectedDimensions.z,
-                        ),
-                      ),
-                  ),
-                }
-              : {}),
+            imageUrl: firstImage?.url || targetItem.imageUrl || "",
+            ...dimensionState,
           };
 
           return nextItems;
@@ -816,6 +923,10 @@ export default function Quote() {
       color: defaultColor,
       price: 0,
       count: 1,
+      scaleFactor: 1.0,
+      infillPercent: 20,
+      printQuality: "Standard (0.20mm)",
+      supportsNeeded: false,
     };
     setItems([...items, newItem]);
   };
@@ -837,6 +948,12 @@ export default function Quote() {
         !hasDimensionValue(item.dimensionBaseY) ||
         !hasDimensionValue(item.dimensionBaseZ)
       ) {
+        const safeScale = Math.max(0.1, Math.min(3.0, Math.round(nextScale * 100) / 100));
+        nextItems[index] = {
+          ...item,
+          scaleFactor: safeScale,
+          dimensionScale: safeScale,
+        };
         return nextItems;
       }
 
@@ -849,10 +966,36 @@ export default function Quote() {
 
       nextItems[index] = {
         ...item,
+        scaleFactor: clampedScale,
         dimensionScale: clampedScale,
         dimensionX: roundMillimeters(item.dimensionBaseX * clampedScale),
         dimensionY: roundMillimeters(item.dimensionBaseY * clampedScale),
         dimensionZ: roundMillimeters(item.dimensionBaseZ * clampedScale),
+      };
+
+      return nextItems;
+    });
+  };
+
+  const updateItemDimensions = (
+    index: number,
+    x?: number,
+    y?: number,
+    z?: number,
+  ) => {
+    setItems((prev) => {
+      const nextItems = [...prev];
+      const item = nextItems[index];
+      if (!item) return nextItems;
+
+      nextItems[index] = {
+        ...item,
+        dimensionX:
+          x !== undefined && !Number.isNaN(x) ? roundMillimeters(x) : undefined,
+        dimensionY:
+          y !== undefined && !Number.isNaN(y) ? roundMillimeters(y) : undefined,
+        dimensionZ:
+          z !== undefined && !Number.isNaN(z) ? roundMillimeters(z) : undefined,
       };
 
       return nextItems;
@@ -989,25 +1132,42 @@ export default function Quote() {
       );
 
       const payload: any = {
-        items: itemsForPayload.map((item) => ({
-          fileUrl: item.fileUrl || undefined,
-          imageUrl: item.imageUrl || undefined,
-          fileName: item.fileName || undefined,
-          notes: item.notes?.trim() || undefined,
-          size: formatDimensions(
+        items: itemsForPayload.map((item) => {
+          const dims = formatDimensions(
             item.dimensionX,
             item.dimensionY,
             item.dimensionZ,
-          ),
-          material: item.material,
-          color: item.color,
-          count: item.count,
-          files: (item.files || []).map((file) => ({
-            url: file.url,
-            name: file.name,
-            kind: file.kind || "other",
-          })),
-        })),
+          );
+          const hasModel = itemHasModel(item);
+          const effectiveScale = hasModel
+            ? item.scaleFactor ?? item.dimensionScale ?? 1.0
+            : 1.0;
+          return {
+            fileUrl: item.fileUrl || undefined,
+            imageUrl: item.imageUrl || undefined,
+            fileName: item.fileName || undefined,
+            notes: item.notes?.trim() || undefined,
+            size: dims
+              ? hasModel
+                ? `${dims} (${effectiveScale.toFixed(2)}x)`
+                : dims
+              : hasModel
+                ? `Scale: ${effectiveScale.toFixed(2)}x`
+                : undefined,
+            scaleFactor: effectiveScale,
+            infillPercent: item.infillPercent ?? 20,
+            printQuality: item.printQuality ?? "Standard (0.20mm)",
+            supportsNeeded: !!item.supportsNeeded,
+            material: item.material,
+            color: item.color,
+            count: item.count,
+            files: (item.files || []).map((file) => ({
+              url: file.url,
+              name: file.name,
+              kind: file.kind || "other",
+            })),
+          };
+        }),
         shippingFullName: shippingDetails.fullName,
         shippingPhoneNumber: shippingDetails.phoneNumber,
         shippingAddressLine1: shippingDetails.addressLine1,
@@ -1216,9 +1376,7 @@ export default function Quote() {
                   <div
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                    }}
+                    onDrop={(e) => handleDrop(e, 0)}
                     className={`border-2 border-dashed rounded-2xl py-16 text-center transition-colors ${
                       isDragOver
                         ? "border-emerald-400 bg-emerald-50/50"
@@ -1399,64 +1557,542 @@ export default function Quote() {
                           </div>
                         </div>
 
-                        <div className="mb-5 rounded-xl border border-gray-100 bg-gray-50/80 p-4">
-                          <div className="mb-3 flex items-center justify-between gap-2">
-                            <label className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
-                              <Ruler size={14} /> {t("quote.size")}
-                            </label>
+                        {/* 3D Slicing & Print Specifications */}
+                        <div className="mb-5 rounded-2xl border border-gray-200/90 bg-gradient-to-b from-gray-50/90 to-white p-5 shadow-sm space-y-4">
+                          <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                            <div>
+                              <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
+                                <Gauge size={15} className="text-emerald-600" />
+                                {t("quote.printSpecs")}
+                              </h4>
+                              <p className="text-[11px] text-gray-500 mt-0.5">
+                                {t("quote.printSpecsSubtitle")}
+                              </p>
+                            </div>
                           </div>
 
-                          {hasDimensionValue(item.dimensionBaseX) &&
-                          hasDimensionValue(item.dimensionBaseY) &&
-                          hasDimensionValue(item.dimensionBaseZ) ? (
-                            <div className="space-y-3">
-                              <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm">
-                                <div className="mb-2 flex items-center justify-between">
-                                  <span className="text-xs font-bold text-gray-700">
-                                    {t("quote.scale")}
-                                  </span>
-                                  <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
-                                    {(item.dimensionScale ?? 0).toFixed(2)}x
-                                  </span>
-                                </div>
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max={getMaximumScaleForBase(
-                                    item.dimensionBaseX,
-                                    item.dimensionBaseY,
-                                    item.dimensionBaseZ,
+                          {/* Sizing & Scale or Dimensions selection */}
+                          {(() => {
+                            const hasModel = itemHasModel(item);
+                            const hasBaseDimensions =
+                              hasDimensionValue(item.dimensionBaseX) &&
+                              hasDimensionValue(item.dimensionBaseY) &&
+                              hasDimensionValue(item.dimensionBaseZ);
+                            const currentScale =
+                              item.scaleFactor ?? item.dimensionScale ?? 1.0;
+                            const maxScale = hasBaseDimensions
+                              ? getMaximumScaleForBase(
+                                  item.dimensionBaseX!,
+                                  item.dimensionBaseY!,
+                                  item.dimensionBaseZ!,
+                                )
+                              : 3.0;
+                            const targetX =
+                              item.dimensionX ??
+                              (hasBaseDimensions
+                                ? roundMillimeters(
+                                    item.dimensionBaseX! * currentScale,
+                                  )
+                                : undefined);
+                            const targetY =
+                              item.dimensionY ??
+                              (hasBaseDimensions
+                                ? roundMillimeters(
+                                    item.dimensionBaseY! * currentScale,
+                                  )
+                                : undefined);
+                            const targetZ =
+                              item.dimensionZ ??
+                              (hasBaseDimensions
+                                ? roundMillimeters(
+                                    item.dimensionBaseZ! * currentScale,
+                                  )
+                                : undefined);
+                            const fitsBambu =
+                              (!targetX || targetX <= MAX_DIMENSION_MM) &&
+                              (!targetY || targetY <= MAX_DIMENSION_MM) &&
+                              (!targetZ || targetZ <= MAX_DIMENSION_MM);
+
+                            if (hasModel) {
+                              return (
+                                <div className="space-y-3">
+                                  {/* Sizing Header & Prominent mm Dimensions */}
+                                  {hasBaseDimensions &&
+                                  targetX &&
+                                  targetY &&
+                                  targetZ ? (
+                                    <div
+                                      className={`p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                                        fitsBambu
+                                          ? "bg-emerald-50/70 border-emerald-200"
+                                          : "bg-rose-50/70 border-rose-200"
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2.5">
+                                        <div
+                                          className={`p-2 rounded-lg ${
+                                            fitsBambu
+                                              ? "bg-emerald-100 text-emerald-700"
+                                              : "bg-rose-100 text-rose-700"
+                                          }`}
+                                        >
+                                          <Ruler size={18} />
+                                        </div>
+                                        <div>
+                                          <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                            {t("quote.dimensionsPreview")}
+                                          </p>
+                                          <p className="text-base font-extrabold text-gray-900">
+                                            {targetX} mm × {targetY} mm ×{" "}
+                                            {targetZ} mm
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        <span className="text-xs font-bold text-gray-700 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-sm">
+                                          {currentScale.toFixed(2)}x
+                                        </span>
+                                        {fitsBambu ? (
+                                          <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100/90 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                            ✓ {t("quote.bambuVolumeFits")}
+                                          </span>
+                                        ) : (
+                                          <span className="text-[11px] font-semibold text-rose-800 bg-rose-100/90 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                            ⚠️ {t("quote.bambuVolumeExceeded")}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center justify-between">
+                                      <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                                        <Ruler
+                                          size={13}
+                                          className="text-gray-500"
+                                        />{" "}
+                                        {t("quote.scale")}
+                                      </label>
+                                      <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                                        {currentScale.toFixed(2)}x
+                                      </span>
+                                    </div>
                                   )}
-                                  step={SCALE_STEP}
-                                  value={item.dimensionScale ?? 0}
-                                  className="w-full accent-emerald-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                                  onChange={(e) =>
-                                    updateItemScale(idx, Number(e.target.value))
-                                  }
-                                />
-                                <p className="mt-2 text-xs text-gray-500">
-                                  {t("quote.scaleHint")}
+
+                                  {/* Quick Scale Presets (Pills) */}
+                                  <div className="space-y-1.5">
+                                    <div className="flex items-center justify-between">
+                                      <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                                        <Sliders
+                                          size={13}
+                                          className="text-gray-500"
+                                        />{" "}
+                                        {t("quote.scalePreset")}
+                                      </label>
+                                      <span className="text-[11px] text-gray-500">
+                                        {t("quote.dimensionsMaxHint")}
+                                      </span>
+                                    </div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                      {[
+                                        { scale: 0.5, label: "0.5x" },
+                                        { scale: 1.0, label: "1.0x" },
+                                        { scale: 1.5, label: "1.5x" },
+                                        { scale: 2.0, label: "2.0x" },
+                                      ].map((preset) => {
+                                        const isCurrent =
+                                          Math.abs(currentScale - preset.scale) <
+                                          0.04;
+                                        const canFit = hasBaseDimensions
+                                          ? preset.scale <= maxScale + 0.001
+                                          : true;
+                                        const pX = hasBaseDimensions
+                                          ? roundMillimeters(
+                                              item.dimensionBaseX! *
+                                                preset.scale,
+                                            )
+                                          : null;
+                                        const pY = hasBaseDimensions
+                                          ? roundMillimeters(
+                                              item.dimensionBaseY! *
+                                                preset.scale,
+                                            )
+                                          : null;
+                                        const pZ = hasBaseDimensions
+                                          ? roundMillimeters(
+                                              item.dimensionBaseZ! *
+                                                preset.scale,
+                                            )
+                                          : null;
+
+                                        return (
+                                          <button
+                                            key={preset.scale}
+                                            type="button"
+                                            disabled={!canFit}
+                                            onClick={() =>
+                                              updateItemScale(
+                                                idx,
+                                                preset.scale,
+                                              )
+                                            }
+                                            className={`p-2 rounded-xl text-left transition-all border ${
+                                              !canFit
+                                                ? "bg-gray-100 border-gray-200 text-gray-400 opacity-60 cursor-not-allowed"
+                                                : isCurrent
+                                                  ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                                                  : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                                            }`}
+                                            title={
+                                              !canFit
+                                                ? t("quote.scaleWontFit")
+                                                : undefined
+                                            }
+                                          >
+                                            <div className="flex items-center justify-between">
+                                              <span
+                                                className={`text-xs font-bold ${
+                                                  !canFit
+                                                    ? "line-through text-gray-400"
+                                                    : ""
+                                                }`}
+                                              >
+                                                {preset.label}
+                                              </span>
+                                              {!canFit && (
+                                                <span className="text-[9px] font-bold text-rose-600 uppercase bg-rose-50 px-1 py-0.5 rounded">
+                                                  &gt;256mm
+                                                </span>
+                                              )}
+                                            </div>
+                                            {hasBaseDimensions && (
+                                              <p
+                                                className={`text-[10px] truncate mt-0.5 ${
+                                                  !canFit
+                                                    ? "text-gray-400"
+                                                    : isCurrent
+                                                      ? "text-emerald-100"
+                                                      : "text-gray-500"
+                                                }`}
+                                              >
+                                                {pX}×{pY}×{pZ} mm
+                                              </p>
+                                            )}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+
+                                  {/* Custom Scale Slider */}
+                                  <div className="space-y-1">
+                                    <div className="flex justify-between items-center">
+                                      <label className="text-xs font-bold text-gray-700">
+                                        {t("quote.scaleCustom")}
+                                      </label>
+                                      {hasBaseDimensions && (
+                                        <span className="text-xs font-semibold text-gray-600">
+                                          Max: {maxScale.toFixed(2)}x
+                                        </span>
+                                      )}
+                                    </div>
+                                    <input
+                                      type="range"
+                                      min="0.1"
+                                      max={hasBaseDimensions ? maxScale : 3.0}
+                                      step={SCALE_STEP}
+                                      value={currentScale}
+                                      className="w-full accent-emerald-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                      onChange={(e) =>
+                                        updateItemScale(
+                                          idx,
+                                          Number(e.target.value),
+                                        )
+                                      }
+                                    />
+                                    <div className="flex justify-between items-center text-[11px] text-gray-500 pt-0.5">
+                                      <span>{t("quote.dimensionsMaxHint")}</span>
+                                      {targetX && targetY && targetZ && (
+                                        <span className="font-semibold text-gray-800">
+                                          {targetX} × {targetY} × {targetZ} mm
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            // Non-file item: scale is NOT applicable! Show dimension selector in mm
+                            return (
+                              <div className="space-y-3">
+                                <div className="space-y-1">
+                                  <div className="flex items-center justify-between">
+                                    <label className="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
+                                      <Ruler
+                                        size={14}
+                                        className="text-emerald-600"
+                                      />
+                                      {t("quote.dimensionsMm")}
+                                    </label>
+                                    <span className="text-[11px] text-gray-500">
+                                      {t("quote.dimensionsMaxHint")}
+                                    </span>
+                                  </div>
+                                  <p className="text-[11px] text-gray-500">
+                                    {t("quote.dimensionsNonFilePrompt")}
+                                  </p>
+                                </div>
+
+                                {/* Quick Dimension Presets */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                  {[
+                                    {
+                                      name: t("quote.presetSmall"),
+                                      x: 50,
+                                      y: 50,
+                                      z: 20,
+                                    },
+                                    {
+                                      name: t("quote.presetMedium"),
+                                      x: 100,
+                                      y: 100,
+                                      z: 50,
+                                    },
+                                    {
+                                      name: t("quote.presetLarge"),
+                                      x: 180,
+                                      y: 180,
+                                      z: 100,
+                                    },
+                                    {
+                                      name: t("quote.presetMax"),
+                                      x: 250,
+                                      y: 250,
+                                      z: 250,
+                                    },
+                                  ].map((preset) => {
+                                    const isCurrent =
+                                      item.dimensionX === preset.x &&
+                                      item.dimensionY === preset.y &&
+                                      item.dimensionZ === preset.z;
+                                    return (
+                                      <button
+                                        key={preset.name}
+                                        type="button"
+                                        onClick={() =>
+                                          updateItemDimensions(
+                                            idx,
+                                            preset.x,
+                                            preset.y,
+                                            preset.z,
+                                          )
+                                        }
+                                        className={`p-2.5 rounded-xl text-left border transition-all ${
+                                          isCurrent
+                                            ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                                            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                                        }`}
+                                      >
+                                        <p
+                                          className={`text-xs font-bold ${
+                                            isCurrent
+                                              ? "text-white"
+                                              : "text-gray-800"
+                                          }`}
+                                        >
+                                          {preset.name.split(" ")[0]}
+                                        </p>
+                                        <p
+                                          className={`text-[11px] mt-0.5 truncate ${
+                                            isCurrent
+                                              ? "text-emerald-100"
+                                              : "text-gray-500"
+                                          }`}
+                                        >
+                                          {preset.x} × {preset.y} × {preset.z} mm
+                                        </p>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+
+                                {/* Custom Dimensions Inputs (Length X, Width Y, Height Z) */}
+                                <div className="grid grid-cols-3 gap-3">
+                                  <div>
+                                    <label className="text-[11px] font-semibold text-gray-600 mb-1 block">
+                                      {t("quote.dimensionLength")}
+                                    </label>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      max="256"
+                                      step="1"
+                                      placeholder="X mm"
+                                      value={item.dimensionX ?? ""}
+                                      onChange={(e) => {
+                                        const val =
+                                          e.target.value === ""
+                                            ? undefined
+                                            : parseFloat(e.target.value);
+                                        updateItemDimensions(
+                                          idx,
+                                          val,
+                                          item.dimensionY,
+                                          item.dimensionZ,
+                                        );
+                                      }}
+                                      className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-[11px] font-semibold text-gray-600 mb-1 block">
+                                      {t("quote.dimensionWidth")}
+                                    </label>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      max="256"
+                                      step="1"
+                                      placeholder="Y mm"
+                                      value={item.dimensionY ?? ""}
+                                      onChange={(e) => {
+                                        const val =
+                                          e.target.value === ""
+                                            ? undefined
+                                            : parseFloat(e.target.value);
+                                        updateItemDimensions(
+                                          idx,
+                                          item.dimensionX,
+                                          val,
+                                          item.dimensionZ,
+                                        );
+                                      }}
+                                      className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-[11px] font-semibold text-gray-600 mb-1 block">
+                                      {t("quote.dimensionHeight")}
+                                    </label>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      max="256"
+                                      step="1"
+                                      placeholder="Z mm"
+                                      value={item.dimensionZ ?? ""}
+                                      onChange={(e) => {
+                                        const val =
+                                          e.target.value === ""
+                                            ? undefined
+                                            : parseFloat(e.target.value);
+                                        updateItemDimensions(
+                                          idx,
+                                          item.dimensionX,
+                                          item.dimensionY,
+                                          val,
+                                        );
+                                      }}
+                                      className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Real-time Volume Fit Feedback Badge */}
+                                {hasDimensionValue(item.dimensionX) &&
+                                  hasDimensionValue(item.dimensionY) &&
+                                  hasDimensionValue(item.dimensionZ) && (
+                                    <div
+                                      className={`p-2.5 rounded-xl border flex items-center justify-between text-xs font-medium ${
+                                        (item.dimensionX ?? 0) <= 256 &&
+                                        (item.dimensionY ?? 0) <= 256 &&
+                                        (item.dimensionZ ?? 0) <= 256
+                                          ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                          : "bg-rose-50 text-rose-800 border-rose-200"
+                                      }`}
+                                    >
+                                      <span className="flex items-center gap-1.5">
+                                        {(item.dimensionX ?? 0) <= 256 &&
+                                        (item.dimensionY ?? 0) <= 256 &&
+                                        (item.dimensionZ ?? 0) <= 256 ? (
+                                          <>✓ {t("quote.bambuVolumeFits")}</>
+                                        ) : (
+                                          <>⚠️ {t("quote.bambuVolumeExceeded")}</>
+                                        )}
+                                      </span>
+                                      <span className="font-bold">
+                                        {item.dimensionX} × {item.dimensionY} ×{" "}
+                                        {item.dimensionZ} mm
+                                      </span>
+                                    </div>
+                                  )}
+                              </div>
+                            );
+                          })()}
+
+                          {/* Infill Density & Print Quality */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            {/* Infill Density */}
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-bold text-gray-700 flex items-center justify-between">
+                                <span className="flex items-center gap-1.5">
+                                  <Layers size={13} className="text-gray-500" />
+                                  {t("quote.infill")}
+                                </span>
+                                <span className="text-[11px] font-semibold text-emerald-600">
+                                  {item.infillPercent ?? 20}%
+                                </span>
+                              </label>
+                              <select
+                                value={item.infillPercent ?? 20}
+                                onChange={(e) => updateItem(idx, "infillPercent", parseInt(e.target.value, 10) || 20)}
+                                className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
+                              >
+                                <option value={15}>{t("quote.infillLight")}</option>
+                                <option value={20}>{t("quote.infillStandard")}</option>
+                                <option value={40}>{t("quote.infillStrong")}</option>
+                                <option value={80}>{t("quote.infillSolid")}</option>
+                              </select>
+                              <p className="text-[10px] text-gray-400">{t("quote.infillHint")}</p>
+                            </div>
+
+                            {/* Print Quality */}
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                                <Sliders size={13} className="text-gray-500" />
+                                {t("quote.quality")}
+                              </label>
+                              <select
+                                value={item.printQuality ?? "Standard (0.20mm)"}
+                                onChange={(e) => updateItem(idx, "printQuality", e.target.value)}
+                                className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
+                              >
+                                <option value="Detail (0.12mm)">{t("quote.qualityDetail")}</option>
+                                <option value="Standard (0.20mm)">{t("quote.qualityStandard")}</option>
+                                <option value="Draft (0.28mm)">{t("quote.qualityDraft")}</option>
+                              </select>
+                              <p className="text-[10px] text-gray-400">{t("quote.qualityHint")}</p>
+                            </div>
+                          </div>
+
+                          {/* Supports Toggle */}
+                          <div className="pt-2 border-t border-gray-100">
+                            <label className="flex items-start gap-2.5 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!item.supportsNeeded}
+                                onChange={(e) => updateItem(idx, "supportsNeeded", e.target.checked)}
+                                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                              />
+                              <div>
+                                <span className="text-xs font-semibold text-gray-800">
+                                  {t("quote.supportsLabel")}
+                                </span>
+                                <p className="text-[11px] text-gray-500">
+                                  {t("quote.supportsHint")}
                                 </p>
                               </div>
-                            </div>
-                          ) : (
-                            <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-500 text-center">
-                              {t("quote.scaleNeedsStl")}
-                            </div>
-                          )}
-
-                          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 px-1">
-                            <p className="text-xs text-gray-500">
-                              {t("quote.dimensionsMaxHint")}
-                            </p>
-                            {hasDimensionValue(item.dimensionX) &&
-                              hasDimensionValue(item.dimensionY) &&
-                              hasDimensionValue(item.dimensionZ) && (
-                                <span className="text-sm font-bold text-gray-800 tracking-tight">
-                                  {item.dimensionX} × {item.dimensionY} ×{" "}
-                                  {item.dimensionZ} mm
-                                </span>
-                              )}
+                            </label>
                           </div>
                         </div>
 
@@ -1758,6 +2394,71 @@ export default function Quote() {
                                 </span>{" "}
                                 {item.color}
                               </span>
+                              {itemHasModel(item) ? (
+                                <>
+                                  {hasDimensionValue(item.dimensionX) &&
+                                  hasDimensionValue(item.dimensionY) &&
+                                  hasDimensionValue(item.dimensionZ) ? (
+                                    <span>
+                                      <span className="font-semibold text-gray-400">
+                                        {t("quote.dimensionsMm")}:
+                                      </span>{" "}
+                                      {item.dimensionX} × {item.dimensionY} ×{" "}
+                                      {item.dimensionZ} mm
+                                      <span className="ml-1 text-gray-400 font-normal">
+                                        (
+                                        {(
+                                          item.scaleFactor ??
+                                          item.dimensionScale ??
+                                          1.0
+                                        ).toFixed(2)}
+                                        x)
+                                      </span>
+                                    </span>
+                                  ) : (
+                                    <span>
+                                      <span className="font-semibold text-gray-400">
+                                        {t("quote.scale")}:
+                                      </span>{" "}
+                                      {(
+                                        item.scaleFactor ??
+                                        item.dimensionScale ??
+                                        1.0
+                                      ).toFixed(2)}
+                                      x
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                hasDimensionValue(item.dimensionX) &&
+                                hasDimensionValue(item.dimensionY) &&
+                                hasDimensionValue(item.dimensionZ) && (
+                                  <span>
+                                    <span className="font-semibold text-gray-400">
+                                      {t("quote.dimensionsMm")}:
+                                    </span>{" "}
+                                    {item.dimensionX} × {item.dimensionY} ×{" "}
+                                    {item.dimensionZ} mm
+                                  </span>
+                                )
+                              )}
+                              <span>
+                                <span className="font-semibold text-gray-400">
+                                  {t("quote.infill")}
+                                </span>{" "}
+                                {item.infillPercent ?? 20}%
+                              </span>
+                              <span>
+                                <span className="font-semibold text-gray-400">
+                                  {t("quote.quality")}
+                                </span>{" "}
+                                {item.printQuality ?? "Standard (0.20mm)"}
+                              </span>
+                              {item.supportsNeeded && (
+                                <span className="text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                  + Supports
+                                </span>
+                              )}
                             </div>
                           </li>
                         ))}

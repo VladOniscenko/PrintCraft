@@ -14,6 +14,9 @@ WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 
+RUN apt-get update && apt-get install -y --no-install-recommends prusa-slicer || true \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/publish .
 
 EXPOSE 8080

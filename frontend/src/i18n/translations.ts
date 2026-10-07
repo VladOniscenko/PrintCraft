@@ -205,8 +205,7 @@ export const translations: Record<
       ctaDesc:
         "We can order specialty filaments like Wood, Carbon Fiber, or Glow-in-the-dark for large projects.",
       ctaButton: "Start Your Project",
-      footer:
-        `© 2026 ${businessInfo.name}. Professional 3D Printing Services.`,
+      footer: `© 2026 ${businessInfo.name}. Professional 3D Printing Services.`,
     },
     recent: {
       title: "Recent Work",
@@ -973,10 +972,49 @@ export const translations: Record<
       scaleNeedsStl: "Upload an STL file to enable proportional scaling.",
       scaleFailed:
         "Could not apply STL scaling. Please try uploading the model again.",
+      scalePreset: "Scale Presets",
+      scaleCustom: "Custom Scale",
+      printSpecs: "3D Slicing & Print Specifications",
+      printSpecsSubtitle:
+        "Specify infill density, print quality, and scale for accurate automated slicing & pricing.",
+      infill: "Infill Density",
+      infillHint: "Determines internal density, material weight, and strength.",
+      infillLight: "15% - Light (Decorative)",
+      infillStandard: "20% - Standard (Recommended)",
+      infillStrong: "40% - Strong (Mechanical)",
+      infillSolid: "80% - Solid (Heavy-Duty)",
+      quality: "Print Quality (Layer Height)",
+      qualityHint:
+        "Layer thickness directly affects print time and surface finish.",
+      qualityDetail: "0.12 mm - Fine / Detail",
+      qualityStandard: "0.20 mm - Standard (Balanced)",
+      qualityDraft: "0.28 mm - Draft / Fast",
+      supports: "Support Structures",
+      supportsLabel: "Generate support structures (for overhangs > 45°)",
+      supportsHint:
+        "Adds supports where model geometry overhangs the build plate.",
       dimensionsMaxHint: "Build volume limit: 256 x 256 x 256 mm.",
       dimensionsAllOrNone: "If you add dimensions, please fill X, Y and Z.",
       dimensionsMaxExceeded: "Each dimension must be 256 mm or less.",
-      notesPlaceholder: "Instructions (Infill, layer height, etc.)",
+      bambuVolumeTitle: "Build Volume",
+      bambuVolumeFits: "Fits build plate (max 256 × 256 × 256 mm)",
+      bambuVolumeExceeded: "Exceeds build volume (max 256 mm per axis)",
+      dimensionsMm: "Dimensions (mm)",
+      dimensionsPreview: "Physical Size in mm (Length × Width × Height)",
+      dimensionsNonFilePrompt:
+        "Specify required dimensions in mm for this custom item:",
+      dimensionsNonFileHint:
+        "Dimensions must fit within 256 × 256 × 256 mm volume.",
+      dimensionLength: "Length X (mm)",
+      dimensionWidth: "Width Y (mm)",
+      dimensionHeight: "Height Z (mm)",
+      presetSmall: "Small (50 × 50 × 20 mm)",
+      presetMedium: "Medium (100 × 100 × 50 mm)",
+      presetLarge: "Large (180 × 180 × 100 mm)",
+      presetMax: "Max Build (250 × 250 × 250 mm)",
+      scaleWontFit: "Won't fit (exceeds 256 mm)",
+      notesPlaceholder:
+        "Additional instructions (e.g. wall thickness, specific requirements)",
       fullName: "Full Name",
       phone: "Phone Number",
       street: "Street Address",
@@ -1036,9 +1074,9 @@ export const translations: Record<
       colorLabel: "Color:",
       shippingLaterNotice:
         "Shipping details are requested after your quote is approved, when you click confirm and pay.",
-      pricingDisclaimer:
-        `Prices and quotes shown on this platform are indicative. No rights can be derived from displayed prices or quotes until explicitly confirmed by ${businessInfo.name}.`,
-      agreementRequired: "Please accept the service agreement before submitting.",
+      pricingDisclaimer: `Prices and quotes shown on this platform are indicative. No rights can be derived from displayed prices or quotes until explicitly confirmed by ${businessInfo.name}.`,
+      agreementRequired:
+        "Please accept the service agreement before submitting.",
     },
     faq: {
       title: "Frequently Asked Questions",
@@ -1224,8 +1262,7 @@ export const translations: Record<
         section2Body:
           "Quotes are customized estimates based on model size, quantity, material choice, print complexity, and finishing requirements. Production starts only after explicit approval and confirmed payment.",
         pricingDisclaimerTitle: "Prices and quote validity",
-        pricingDisclaimerBody:
-          `Indicative prices shown on the website are guidance only. Final pricing may differ per request because size, quantity, geometry, support usage, post-processing, and delivery method can change actual cost. Displayed prices and draft quotes are non-binding; rights only arise after written quote confirmation by ${businessInfo.name}.`,
+        pricingDisclaimerBody: `Indicative prices shown on the website are guidance only. Final pricing may differ per request because size, quantity, geometry, support usage, post-processing, and delivery method can change actual cost. Displayed prices and draft quotes are non-binding; rights only arise after written quote confirmation by ${businessInfo.name}.`,
         section3Title: "Limitation of liability",
         section3Body:
           "Customers are responsible for functional suitability and safety of uploaded designs. Our liability is limited to the value of the specific order where legally allowed.",
@@ -1299,8 +1336,7 @@ export const translations: Record<
       },
       notFound: {
         title: `Page Not Found | ${businessInfo.name} 3D Print Service`,
-        description:
-          `The requested page could not be found. Return to ${businessInfo.name} to start your next 3D print project.`,
+        description: `The requested page could not be found. Return to ${businessInfo.name} to start your next 3D print project.`,
         keywords: `404, page not found, ${businessInfo.name}`,
       },
     },
@@ -2349,10 +2385,50 @@ export const translations: Record<
         "Upload een STL-bestand om proportioneel schalen te gebruiken.",
       scaleFailed:
         "Het schalen van STL is mislukt. Upload het model opnieuw en probeer het nog eens.",
+      scalePreset: "Schaal Voorinstellingen",
+      scaleCustom: "Aangepaste Schaal",
+      printSpecs: "3D Slicing & Printinstellingen",
+      printSpecsSubtitle:
+        "Geef infill-dichtheid, laagkwaliteit en schaal op voor een nauwkeurige automatische prijsberekening.",
+      infill: "Infill Dichtheid",
+      infillHint:
+        "Bepaalt de interne stevigheid en het materiaalverbruik van de print.",
+      infillLight: "15% - Licht (Decoratief)",
+      infillStandard: "20% - Standaard (Aanbevolen)",
+      infillStrong: "40% - Sterk (Mechanisch)",
+      infillSolid: "80% - Massief (Zware belasting)",
+      quality: "Printkwaliteit (Laaghoogte)",
+      qualityHint:
+        "Laagresolutie beïnvloedt printtijd en oppervlaktegladheid rechtstreeks.",
+      qualityDetail: "0.12 mm - Fijn / Detail",
+      qualityStandard: "0.20 mm - Standaard (Gebalanceerd)",
+      qualityDraft: "0.28 mm - Draft / Snel",
+      supports: "Ondersteuningsstructuren",
+      supportsLabel: "Genereer supports voor overhangen (> 45°)",
+      supportsHint:
+        "Voegt ondersteuningsmateriaal toe waar de geometrie overhangt.",
       dimensionsMaxHint: "Maximale bouwruimte: 256 x 256 x 256 mm.",
       dimensionsAllOrNone: "Als je afmetingen invult, vul dan X, Y en Z in.",
       dimensionsMaxExceeded: "Elke afmeting moet 256 mm of kleiner zijn.",
-      notesPlaceholder: "Instructies (Infill, laaghoogte, etc.)",
+      bambuVolumeTitle: "Bouwvolume",
+      bambuVolumeFits: "Past op het printbed (max 256 × 256 × 256 mm)",
+      bambuVolumeExceeded: "Overschrijdt bouwvolume (max 256 mm per as)",
+      dimensionsMm: "Afmetingen (mm)",
+      dimensionsPreview: "Fysieke afmetingen in mm (Lengte × Breedte × Hoogte)",
+      dimensionsNonFilePrompt:
+        "Geef gewenste afmetingen in mm op voor dit aangepaste item:",
+      dimensionsNonFileHint:
+        "Afmetingen moeten binnen het 256 × 256 × 256 mm bouwvolume passen.",
+      dimensionLength: "Lengte X (mm)",
+      dimensionWidth: "Breedte Y (mm)",
+      dimensionHeight: "Hoogte Z (mm)",
+      presetSmall: "Klein (50 × 50 × 20 mm)",
+      presetMedium: "Medium (100 × 100 × 50 mm)",
+      presetLarge: "Groot (180 × 180 × 100 mm)",
+      presetMax: "Max Bouwvolume (250 × 250 × 250 mm)",
+      scaleWontFit: "Past niet (overschrijdt 256 mm)",
+      notesPlaceholder:
+        "Aanvullende instructies (bijv. wanddikte, specifieke eisen)",
       fullName: "Volledige naam",
       phone: "Telefoonnummer",
       street: "Straat en huisnummer",
@@ -2412,8 +2488,7 @@ export const translations: Record<
       colorLabel: "Kleur:",
       shippingLaterNotice:
         "Verzendgegevens vragen we pas nadat je offerte is goedgekeurd, wanneer je op bevestigen en betalen klikt.",
-      pricingDisclaimer:
-        `Prijzen en offertes op dit platform zijn indicatief. Aan getoonde prijzen of offertes kunnen geen rechten worden ontleend totdat ${businessInfo.name} deze uitdrukkelijk heeft bevestigd.`,
+      pricingDisclaimer: `Prijzen en offertes op dit platform zijn indicatief. Aan getoonde prijzen of offertes kunnen geen rechten worden ontleend totdat ${businessInfo.name} deze uitdrukkelijk heeft bevestigd.`,
       agreementRequired: "Accepteer de servicevoorwaarden voordat je verzendt.",
     },
     faq: {
@@ -2599,8 +2674,7 @@ export const translations: Record<
         section2Body:
           "Offertes zijn maatwerkramingen op basis van modelgrootte, aantallen, materiaalkeuze, printcomplexiteit en eventuele afwerking. Productie start uitsluitend na expliciet akkoord en bevestigde betaling.",
         pricingDisclaimerTitle: "Prijs- en offertegeldigheid",
-        pricingDisclaimerBody:
-          `Getoonde richtprijzen op de website zijn indicatief. De definitieve prijs kan per aanvraag afwijken doordat grootte, aantallen, geometrie, supportgebruik, nabewerking en verzendmethode de werkelijke kostprijs beïnvloeden. Getoonde prijzen en conceptoffertes zijn niet bindend; rechten ontstaan pas na schriftelijke offertebevestiging door ${businessInfo.name}.`,
+        pricingDisclaimerBody: `Getoonde richtprijzen op de website zijn indicatief. De definitieve prijs kan per aanvraag afwijken doordat grootte, aantallen, geometrie, supportgebruik, nabewerking en verzendmethode de werkelijke kostprijs beïnvloeden. Getoonde prijzen en conceptoffertes zijn niet bindend; rechten ontstaan pas na schriftelijke offertebevestiging door ${businessInfo.name}.`,
         section3Title: "Beperking van aansprakelijkheid",
         section3Body:
           "Klanten blijven verantwoordelijk voor de functionele geschiktheid en veiligheid van aangeleverde ontwerpen. Onze aansprakelijkheid is, waar wettelijk toegestaan, beperkt tot de waarde van de betreffende bestelling.",
@@ -2674,8 +2748,7 @@ export const translations: Record<
       },
       notFound: {
         title: `Pagina niet gevonden | ${businessInfo.name} 3D Print Service`,
-        description:
-          `De opgevraagde pagina kon niet worden gevonden. Ga terug naar ${businessInfo.name} om je volgende 3D-printproject te starten.`,
+        description: `De opgevraagde pagina kon niet worden gevonden. Ga terug naar ${businessInfo.name} om je volgende 3D-printproject te starten.`,
         keywords: `404, pagina niet gevonden, ${businessInfo.name}`,
       },
     },
