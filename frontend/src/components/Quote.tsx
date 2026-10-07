@@ -1637,6 +1637,7 @@ export default function Quote() {
                                 scaleFactor={item.scaleFactor ?? item.dimensionScale ?? 1.0}
                                 count={item.count}
                                 filaments={filaments}
+                                showHelp={true}
                                 onDimensionsDetected={(dims: { x: number; y: number; z: number }) => {
                                   if (!hasDimensionValue(item.dimensionBaseX)) {
                                     setItems((prev) => {

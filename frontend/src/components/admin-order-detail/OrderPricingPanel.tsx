@@ -1,8 +1,8 @@
-import type { Dispatch, SetStateAction } from "react";
-import { Link } from "react-router-dom";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import type { Order } from "../../types";
 import { resolveAssetUrl } from "../../utils/assetUrl";
 import { CURRENCY_CODE, formatCurrencyAmount } from "../../utils/currency";
+import ModelInspectorModal from "../ModelInspectorModal";
 
 interface OrderPricingPanelProps {
   order: Order;
@@ -174,6 +174,17 @@ export default function OrderPricingPanel({
   pricingLocked,
 }: OrderPricingPanelProps) {
   const isCancelledOrder = (order.status || "").toLowerCase() === "cancelled";
+  const [inspectingModel, setInspectingModel] = useState<{
+    fileName: string;
+    fileUrl?: string;
+    material?: string;
+    color?: string;
+    printQuality?: string;
+    infillPercent?: number;
+    size?: string;
+    count?: number;
+    itemIndex?: number;
+  } | null>(null);
 
   return (
     <article className="admin-panel p-4">
@@ -271,14 +282,27 @@ export default function OrderPricingPanel({
                                   ↓ {t("admin.orderDetail.downloadFile")}
                                 </a>
                                 {canOpenInViewer && (
-                                  <Link
-                                    to={`/admin/orders/${order.id}/models/${idx}?file=${fileIndex}`}
-                                    className="text-xs font-semibold text-indigo-700 hover:text-indigo-900 hover:underline"
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setInspectingModel({
+                                        fileName: file.name || item.fileName,
+                                        fileUrl: file.url,
+                                        material: item.material,
+                                        color: item.color,
+                                        printQuality: item.printQuality,
+                                        infillPercent: item.infillPercent,
+                                        size: item.size,
+                                        count: item.count,
+                                        itemIndex: idx,
+                                      })
+                                    }
+                                    className="text-xs font-semibold text-indigo-700 hover:text-indigo-900 hover:underline cursor-pointer"
                                   >
                                     {file.kind === "image"
                                       ? t("admin.orderDetail.viewImage")
                                       : t("admin.orderDetail.viewModel")}
-                                  </Link>
+                                  </button>
                                 )}
                               </div>
                             );
@@ -649,6 +673,22 @@ export default function OrderPricingPanel({
           </div>
         </div>
       </div>
+
+      {inspectingModel && (
+        <ModelInspectorModal
+          isOpen={true}
+          onClose={() => setInspectingModel(null)}
+          fileName={inspectingModel.fileName}
+          fileUrl={inspectingModel.fileUrl}
+          material={inspectingModel.material}
+          color={inspectingModel.color}
+          printQuality={inspectingModel.printQuality}
+          infillPercent={inspectingModel.infillPercent}
+          size={inspectingModel.size}
+          count={inspectingModel.count}
+          itemIndex={inspectingModel.itemIndex}
+        />
+      )}
     </article>
   );
 }

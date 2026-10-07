@@ -69,9 +69,6 @@ const ResetPassword = lazy(() => import("./components/ResetPassword.tsx"));
 const ModelFilesBrowser = lazy(
   () => import("./components/ModelFilesBrowser.tsx"),
 );
-const OrderModelViewerPage = lazy(
-  () => import("./components/OrderModelViewerPage.tsx"),
-);
 const AdminUploadedModelViewerPage = lazy(
   () => import("./components/admin/AdminUploadedModelViewerPage.tsx"),
 );
@@ -250,15 +247,6 @@ export default function App() {
           />
 
           <Route
-            path="/orders/:id/models/:itemIndex"
-            element={
-              <ProtectedRoute>
-                <OrderModelViewerPage mode="user" />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
             path="/admin"
             element={
               <AdminRoute>
@@ -287,14 +275,6 @@ export default function App() {
             element={
               <AdminRoute>
                 <AdminUserDetail />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/orders/:id/models/:itemIndex"
-            element={
-              <AdminRoute>
-                <OrderModelViewerPage mode="admin" />
               </AdminRoute>
             }
           />

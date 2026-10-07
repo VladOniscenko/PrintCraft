@@ -52,6 +52,7 @@ export interface Interactive3DViewerProps {
   count?: number;
   compact?: boolean;
   onExpand?: () => void;
+  showHelp?: boolean;
 }
 
 export function getFilamentHexColor(colorName?: string): number {
@@ -112,6 +113,7 @@ export default function Interactive3DViewer({
   count = 1,
   compact = false,
   onExpand,
+  showHelp = false,
 }: Interactive3DViewerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -530,7 +532,9 @@ export default function Interactive3DViewer({
 
   return (
     <div
-      className={`relative flex flex-col rounded-2xl border border-gray-200/90 bg-slate-950 text-white overflow-hidden shadow-sm ${className}`}
+      className={`relative flex flex-col rounded-2xl ${
+        compact ? "border border-slate-800" : "border border-gray-200/90"
+      } bg-slate-950 text-white overflow-hidden shadow-sm ${className}`}
     >
       {/* 3D Canvas Viewport */}
       <div
@@ -637,7 +641,7 @@ export default function Interactive3DViewer({
             >
               <RotateCcw size={14} />
             </button>
-            {!compact && (
+            {!compact && showHelp && (
               <button
                 type="button"
                 onClick={() => setShowTooltips((prev) => !prev)}
@@ -743,7 +747,7 @@ export default function Interactive3DViewer({
           </div>
 
           {/* UX Instructions & Tooltips Box */}
-          {showTooltips && (
+          {showHelp && showTooltips && (
             <div className="pt-2 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-2 text-xs animate-in fade-in slide-in-from-top-1 duration-200">
               <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-emerald-400">

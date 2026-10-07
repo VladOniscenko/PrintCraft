@@ -237,9 +237,7 @@ export default function SeoManager() {
 
     const knownDynamicPatterns = [
       "/orders/:id",
-      "/orders/:id/models/:itemIndex",
       "/admin/orders/:id",
-      "/admin/orders/:id/models/:itemIndex",
       "/admin/models/view/:fileName",
       "/admin/users/:id",
     ];
