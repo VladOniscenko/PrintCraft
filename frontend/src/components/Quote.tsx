@@ -276,8 +276,6 @@ export default function Quote() {
       return null;
     }
   });
-  const [initialIsLoggedIn] = useState(() => !!localStorage.getItem("token"));
-
   // Account Step State (Login / Register)
   const [authMode, setAuthMode] = useState<"register" | "login">("register");
   const [regName, setRegName] = useState("");
@@ -313,20 +311,12 @@ export default function Quote() {
 
   type StepId = "models" | "account" | "shipping" | "review";
 
-  const includeAccountStep = !initialIsLoggedIn || !isLoggedIn;
-
-  const steps: Array<{ id: StepId; label: string }> = includeAccountStep
-    ? [
-        { id: "models", label: t("quote.stepModels") },
-        { id: "account", label: t("quote.stepAccount") },
-        { id: "shipping", label: t("quote.stepShipping") },
-        { id: "review", label: t("quote.stepReview") },
-      ]
-    : [
-        { id: "models", label: t("quote.stepModels") },
-        { id: "shipping", label: t("quote.stepShipping") },
-        { id: "review", label: t("quote.stepReview") },
-      ];
+  const steps: Array<{ id: StepId; label: string }> = [
+    { id: "models", label: t("quote.stepModels") },
+    { id: "account", label: t("quote.stepAccount") },
+    { id: "shipping", label: t("quote.stepShipping") },
+    { id: "review", label: t("quote.stepReview") },
+  ];
 
   const [currentStepId, setCurrentStepId] = useState<StepId>("models");
 
@@ -379,7 +369,10 @@ export default function Quote() {
     return null;
   };
 
-  const handleRegisterAndLogin = async () => {
+  const handleRegisterAndLogin = async (
+    e?: React.FormEvent | React.SyntheticEvent,
+  ) => {
+    if (e) e.preventDefault();
     const normalizedName = regName.trim();
     const normalizedEmail = regEmail.trim().toLowerCase();
     const password = regPassword;
@@ -430,12 +423,17 @@ export default function Quote() {
       setCurrentUser(user);
       setGuestName(normalizedName);
       setGuestEmail(normalizedEmail);
-
-      // Pre-fill shipping full name if empty
-      setShippingDetails((prev) => ({
-        ...prev,
-        fullName: prev.fullName || normalizedName,
-      }));
+      setSavedAddresses([]);
+      setSelectedAddressId(null);
+      setShippingDetails({
+        fullName: normalizedName,
+        phoneNumber: "",
+        addressLine1: "",
+        city: "",
+        postalCode: "",
+      });
+      setShippingErrors({});
+      setAgreementAccepted(false);
 
       // Redeem quote draft if present
       try {
@@ -467,7 +465,10 @@ export default function Quote() {
     }
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (
+    e?: React.FormEvent | React.SyntheticEvent,
+  ) => {
+    if (e) e.preventDefault();
     const normalizedEmail = loginEmail.trim().toLowerCase();
     const password = loginPassword;
 
@@ -503,14 +504,12 @@ export default function Quote() {
       setCurrentUser(user);
       if (user?.name) {
         setGuestName(user.name);
-        setShippingDetails((prev) => ({
-          ...prev,
-          fullName: prev.fullName || user.name,
-        }));
       }
       setGuestEmail(normalizedEmail);
+      setShippingErrors({});
+      setAgreementAccepted(false);
 
-      // Fetch saved addresses
+      // Fetch saved addresses for the newly logged in user
       try {
         const addrRes = await api.get("/me/addresses");
         if (Array.isArray(addrRes.data) && addrRes.data.length > 0) {
@@ -519,9 +518,27 @@ export default function Quote() {
             addrRes.data.find((a: SavedAddress) => a.isDefault) ||
             addrRes.data[0];
           handleSelectSavedAddress(defaultAddr);
+        } else {
+          setSavedAddresses([]);
+          setSelectedAddressId(null);
+          setShippingDetails({
+            fullName: user?.name || "",
+            phoneNumber: "",
+            addressLine1: "",
+            city: "",
+            postalCode: "",
+          });
         }
       } catch {
-        /* best-effort */
+        setSavedAddresses([]);
+        setSelectedAddressId(null);
+        setShippingDetails({
+          fullName: user?.name || "",
+          phoneNumber: "",
+          addressLine1: "",
+          city: "",
+          postalCode: "",
+        });
       }
 
       // Redeem quote draft if present
@@ -561,8 +578,27 @@ export default function Quote() {
     setCurrentUser(null);
     setSavedAddresses([]);
     setSelectedAddressId(null);
+    setShippingDetails({
+      fullName: "",
+      phoneNumber: "",
+      addressLine1: "",
+      city: "",
+      postalCode: "",
+    });
+    setShippingErrors({});
+    setGuestName("");
+    setGuestEmail("");
+    setGuestAccountCreated(false);
+    setAgreementAccepted(false);
+    setRegName("");
+    setRegEmail("");
+    setRegPassword("");
+    setLoginEmail("");
+    setLoginPassword("");
     setAuthMode("login");
     setAuthError("");
+    setCurrentStepId("account");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const goToNextStep = async () => {
@@ -639,8 +675,47 @@ export default function Quote() {
         }
       };
       fetchAddresses();
+    } else {
+      setSavedAddresses([]);
+      setSelectedAddressId(null);
     }
   }, [isLoggedIn]);
+
+  // Sync auth state when changed across tabs or via Navbar logout
+  useEffect(() => {
+    const syncAuth = () => {
+      const token = localStorage.getItem("token");
+      const userStr = localStorage.getItem("user");
+      if (!token) {
+        setIsLoggedIn(false);
+        setCurrentUser(null);
+        setSavedAddresses([]);
+        setSelectedAddressId(null);
+        setShippingDetails({
+          fullName: "",
+          phoneNumber: "",
+          addressLine1: "",
+          city: "",
+          postalCode: "",
+        });
+        setShippingErrors({});
+        setGuestName("");
+        setGuestEmail("");
+        setGuestAccountCreated(false);
+        setAgreementAccepted(false);
+      } else {
+        setIsLoggedIn(true);
+        try {
+          setCurrentUser(JSON.parse(userStr || "null"));
+        } catch {
+          setCurrentUser(null);
+        }
+      }
+    };
+
+    window.addEventListener("storage", syncAuth);
+    return () => window.removeEventListener("storage", syncAuth);
+  }, []);
 
   // Auto-detect dimensions for models loaded from initial draft
   useEffect(() => {
@@ -1248,8 +1323,14 @@ export default function Quote() {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (
+    e?: React.FormEvent | React.SyntheticEvent,
+  ) => {
+    if (e) e.preventDefault();
+
+    if (currentStepId !== "review") {
+      return;
+    }
 
     const stepOneError = validateStepOne();
     if (stepOneError) {
@@ -1602,27 +1683,7 @@ export default function Quote() {
           </div>
         )}
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (currentStepId === "review") {
-              void handleSubmit(e);
-            }
-          }}
-          onKeyDown={(e) => {
-            if (
-              e.key === "Enter" &&
-              (e.target as HTMLElement).tagName === "INPUT"
-            ) {
-              e.preventDefault();
-              if (currentStepId === "account" && !isLoggedIn) {
-                if (authMode === "register") void handleRegisterAndLogin();
-                else void handleLogin();
-              }
-            }
-          }}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start"
-        >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-6">
             {/* STEP 1: MODELS */}
@@ -1836,6 +1897,12 @@ export default function Quote() {
                               max={MAX_ITEM_QUANTITY}
                               className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                               value={item.count}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
                               onChange={(e) => {
                                 const raw = e.target.value;
                                 if (raw === "") {
@@ -2327,6 +2394,12 @@ export default function Quote() {
                                       step="1"
                                       placeholder="X mm"
                                       value={item.dimensionX ?? ""}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                          e.preventDefault();
+                                          (e.target as HTMLInputElement).blur();
+                                        }
+                                      }}
                                       onChange={(e) => {
                                         const val =
                                           e.target.value === ""
@@ -2353,6 +2426,12 @@ export default function Quote() {
                                       step="1"
                                       placeholder="Y mm"
                                       value={item.dimensionY ?? ""}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                          e.preventDefault();
+                                          (e.target as HTMLInputElement).blur();
+                                        }
+                                      }}
                                       onChange={(e) => {
                                         const val =
                                           e.target.value === ""
@@ -2379,6 +2458,12 @@ export default function Quote() {
                                       step="1"
                                       placeholder="Z mm"
                                       value={item.dimensionZ ?? ""}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                          e.preventDefault();
+                                          (e.target as HTMLInputElement).blur();
+                                        }
+                                      }}
                                       onChange={(e) => {
                                         const val =
                                           e.target.value === ""
@@ -2665,14 +2750,25 @@ export default function Quote() {
                     )}
 
                     {authMode === "register" ? (
-                      <div className="space-y-4 max-w-lg">
+                      <form
+                        method="post"
+                        onSubmit={handleRegisterAndLogin}
+                        className="space-y-4 max-w-lg"
+                        noValidate
+                      >
                         <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                          <label
+                            htmlFor="register-name"
+                            className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
+                          >
                             <User size={14} className="text-emerald-600" />
                             {t("quote.fullName")}
                           </label>
                           <input
+                            id="register-name"
+                            name="name"
                             type="text"
+                            autoComplete="name"
                             value={regName}
                             onChange={(e) => {
                               setRegName(e.target.value);
@@ -2685,12 +2781,18 @@ export default function Quote() {
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                          <label
+                            htmlFor="register-email"
+                            className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
+                          >
                             <Mail size={14} className="text-emerald-600" />
                             {t("quote.email")}
                           </label>
                           <input
+                            id="register-email"
+                            name="email"
                             type="email"
+                            autoComplete="username"
                             value={regEmail}
                             onChange={(e) => {
                               setRegEmail(e.target.value);
@@ -2704,7 +2806,10 @@ export default function Quote() {
 
                         <div className="space-y-1.5">
                           <div className="flex items-center justify-between">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <label
+                              htmlFor="register-password"
+                              className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
+                            >
                               <Lock size={14} className="text-emerald-600" />
                               {t("quote.password")}
                             </label>
@@ -2713,7 +2818,10 @@ export default function Quote() {
                             </span>
                           </div>
                           <input
+                            id="register-password"
+                            name="password"
                             type="password"
+                            autoComplete="new-password"
                             value={regPassword}
                             onChange={(e) => {
                               setRegPassword(e.target.value);
@@ -2726,8 +2834,7 @@ export default function Quote() {
 
                         <div className="pt-2 flex flex-col sm:flex-row gap-3">
                           <button
-                            type="button"
-                            onClick={handleRegisterAndLogin}
+                            type="submit"
                             disabled={authLoading}
                             className="bg-[#133827] text-white px-6 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
                           >
@@ -2741,16 +2848,27 @@ export default function Quote() {
                             )}
                           </button>
                         </div>
-                      </div>
+                      </form>
                     ) : (
-                      <div className="space-y-4 max-w-lg">
+                      <form
+                        method="post"
+                        onSubmit={handleLogin}
+                        className="space-y-4 max-w-lg"
+                        noValidate
+                      >
                         <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                          <label
+                            htmlFor="login-email"
+                            className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
+                          >
                             <Mail size={14} className="text-emerald-600" />
                             {t("quote.email")}
                           </label>
                           <input
+                            id="login-email"
+                            name="email"
                             type="email"
+                            autoComplete="username"
                             value={loginEmail}
                             onChange={(e) => {
                               setLoginEmail(e.target.value);
@@ -2763,12 +2881,18 @@ export default function Quote() {
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                          <label
+                            htmlFor="login-password"
+                            className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
+                          >
                             <Lock size={14} className="text-emerald-600" />
                             {t("quote.password")}
                           </label>
                           <input
+                            id="login-password"
+                            name="password"
                             type="password"
+                            autoComplete="current-password"
                             value={loginPassword}
                             onChange={(e) => {
                               setLoginPassword(e.target.value);
@@ -2781,8 +2905,7 @@ export default function Quote() {
 
                         <div className="pt-2 flex flex-col sm:flex-row gap-3">
                           <button
-                            type="button"
-                            onClick={handleLogin}
+                            type="submit"
                             disabled={authLoading}
                             className="bg-[#133827] text-white px-6 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
                           >
@@ -2796,7 +2919,7 @@ export default function Quote() {
                             )}
                           </button>
                         </div>
-                      </div>
+                      </form>
                     )}
                   </div>
                 )}
@@ -2821,6 +2944,26 @@ export default function Quote() {
                       </p>
                     </div>
                   </div>
+
+                  {isLoggedIn && (
+                    <div className="mb-6 flex flex-wrap items-center justify-between gap-2 p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-100 text-xs">
+                      <div className="flex items-center gap-2 text-emerald-900 font-medium">
+                        <User size={15} className="text-emerald-700 shrink-0" />
+                        <span>
+                          {t("quote.signedInAs")}:{" "}
+                          <strong>{currentUser?.name || guestName || "Customer"}</strong>{" "}
+                          ({currentUser?.email || guestEmail})
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSwitchAccount}
+                        className="font-bold text-emerald-700 hover:text-red-600 underline transition-colors ml-auto"
+                      >
+                        {t("quote.switchAccount")}
+                      </button>
+                    </div>
+                  )}
 
                   {/* Saved Address Selector (Only if logged in and has addresses) */}
                   {isLoggedIn && savedAddresses.length > 0 && (
@@ -2871,12 +3014,24 @@ export default function Quote() {
                     {/* Visual overlay if a saved address is selected, optional based on UX preference, but simply updating states works well. */}
 
                     <div className="space-y-1.5 md:col-span-2">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      <label
+                        htmlFor="shipping-name"
+                        className="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                      >
                         {t("quote.fullName")}
                       </label>
                       <input
+                        id="shipping-name"
+                        name="name"
                         type="text"
+                        autoComplete="name"
                         value={shippingDetails.fullName}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
                         onChange={(e) =>
                           handleManualShippingChange("fullName", e.target.value)
                         }
@@ -2891,12 +3046,24 @@ export default function Quote() {
                     </div>
 
                     <div className="space-y-1.5 md:col-span-2">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      <label
+                        htmlFor="shipping-phone"
+                        className="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                      >
                         {t("quote.phone")}
                       </label>
                       <input
-                        type="text"
+                        id="shipping-phone"
+                        name="tel"
+                        type="tel"
+                        autoComplete="tel"
                         value={shippingDetails.phoneNumber}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
                         onChange={(e) =>
                           handleManualShippingChange(
                             "phoneNumber",
@@ -2914,12 +3081,24 @@ export default function Quote() {
                     </div>
 
                     <div className="space-y-1.5 md:col-span-2">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      <label
+                        htmlFor="shipping-street"
+                        className="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                      >
                         {t("quote.street")}
                       </label>
                       <input
+                        id="shipping-street"
+                        name="street-address"
                         type="text"
+                        autoComplete="street-address"
                         value={shippingDetails.addressLine1}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
                         onChange={(e) =>
                           handleManualShippingChange(
                             "addressLine1",
@@ -2937,12 +3116,24 @@ export default function Quote() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      <label
+                        htmlFor="shipping-city"
+                        className="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                      >
                         {t("quote.city")}
                       </label>
                       <input
+                        id="shipping-city"
+                        name="address-level2"
                         type="text"
+                        autoComplete="address-level2"
                         value={shippingDetails.city}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
                         onChange={(e) =>
                           handleManualShippingChange("city", e.target.value)
                         }
@@ -2957,12 +3148,24 @@ export default function Quote() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      <label
+                        htmlFor="shipping-postal"
+                        className="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                      >
                         {t("quote.postalCode")}
                       </label>
                       <input
+                        id="shipping-postal"
+                        name="postal-code"
                         type="text"
+                        autoComplete="postal-code"
                         value={shippingDetails.postalCode}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
                         onChange={(e) =>
                           handleManualShippingChange(
                             "postalCode",
@@ -3267,7 +3470,7 @@ export default function Quote() {
               </div>
             </div>
           </div>
-        </form>
+        </div>
       </main>
       <Footer />
     </div>
