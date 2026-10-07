@@ -18,14 +18,17 @@ const POST_PAYMENT_STATUSES = new Set([
   "returned",
 ]);
 
-const CUSTOMER_PAYMENT_RETRYABLE_STATUSES = new Set(["awaiting_payment"]);
-
 const STATUS_LABEL_BY_VALUE = new Map<string, string>(
   ADMIN_ORDER_STATUS_OPTIONS.map((option) => [option.value, option.label]),
 );
 
 export function normalizeOrderStatus(status?: string | null): string {
-  return (status || "").trim().toLowerCase();
+  const s = (status || "").trim().toLowerCase();
+  if (s === "pending_payment" || s === "quoted") return "awaiting_payment";
+  if (s === "pending_quote" || s === "pending") return "quote_requested";
+  if (s === "paid" || s === "completed") return "ready_to_print";
+  if (s === "sent" || s === "delivered") return "shipped";
+  return s;
 }
 
 export function normalizePaymentFlow(flow?: string | null): string {
@@ -105,9 +108,9 @@ export function getOrderStatusBadgeClass(status: string): string {
   }
 }
 
-export function getOrderStatusTranslationKey(_status: string): string | null {
-  // Can expand these, but for now we map canonical ones properly or fall back to formatting
-  return null;
+export function getOrderStatusTranslationKey(status: string): string | null {
+  const normalized = normalizeOrderStatus(status);
+  return normalized ? `orderStatus.${normalized}` : null;
 }
 
 export function getOrderStatusTimelineStep(status: string): number {
@@ -165,32 +168,4 @@ export function isOrderPricingLocked(status: string, isPaid: boolean): boolean {
 
   const normalized = normalizeOrderStatus(status);
   return POST_PAYMENT_STATUSES.has(normalized);
-}
-
-export function canCustomerRetryPayment(
-  status: string,
-  isPaid: boolean,
-  paymentFlow?: string | null,
-): boolean {
-  if (isPaid) return false;
-  if (normalizePaymentFlow(paymentFlow) !== "bank_transfer") return false;
-
-  const normalized = normalizeOrderStatus(status);
-  return CUSTOMER_PAYMENT_RETRYABLE_STATUSES.has(normalized);
-}
-
-export function getCustomerPaymentActionVariant(
-  status: string,
-  paymentFlow?: string | null,
-): "pay_now" | "pay_again" | null {
-  if (normalizePaymentFlow(paymentFlow) !== "bank_transfer") return null;
-
-  const normalized = normalizeOrderStatus(status);
-
-  switch (normalized) {
-    case "awaiting_payment":
-      return "pay_now";
-    default:
-      return null;
-  }
 }

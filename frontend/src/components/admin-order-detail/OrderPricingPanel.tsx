@@ -9,10 +9,14 @@ interface OrderPricingPanelProps {
   t: (key: string) => string;
   itemPrices: Record<string, number>;
   setItemPrices: Dispatch<SetStateAction<Record<string, number>>>;
+  itemPlateCosts: Record<string, number>;
+  setItemPlateCosts: Dispatch<SetStateAction<Record<string, number>>>;
   savingItemId: string | null;
-  updateItemPrice: (itemId: string, price: number) => Promise<void>;
+  updateItemPrice: (itemId: string, updates: { unitPrice?: number; plateCost?: number }) => Promise<void>;
   calculateItemPrice: (itemId: string) => Promise<void>;
   calculatingPriceId: string | null;
+  calculateAllPrices: () => Promise<void>;
+  calculatingAllPrices: boolean;
   deliveryPrice: number;
   setDeliveryPrice: Dispatch<SetStateAction<number>>;
   savingDelivery: boolean;
@@ -145,10 +149,14 @@ export default function OrderPricingPanel({
   t,
   itemPrices,
   setItemPrices,
+  itemPlateCosts,
+  setItemPlateCosts,
   savingItemId,
   updateItemPrice,
   calculateItemPrice,
   calculatingPriceId,
+  calculateAllPrices,
+  calculatingAllPrices,
   deliveryPrice,
   setDeliveryPrice,
   savingDelivery,
@@ -169,9 +177,31 @@ export default function OrderPricingPanel({
 
   return (
     <article className="admin-panel p-4">
-      <h2 className="font-bold mb-2 text-[#1b2b25]">
-        {t("admin.orderDetail.modelFilesTitle")}
-      </h2>
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="font-bold text-[#1b2b25]">
+          {t("admin.orderDetail.modelFilesTitle")}
+        </h2>
+        {order.items.length > 0 && order.items.some(i => getItemFiles(i).some(f => f.kind === "model")) && (
+          <button
+            type="button"
+            disabled={calculatingAllPrices || pricingLocked}
+            onClick={calculateAllPrices}
+            className="admin-btn admin-btn-secondary text-xs px-3 py-1.5 flex items-center gap-2"
+          >
+            {calculatingAllPrices ? (
+              <>
+                <svg className="animate-spin h-3 w-3 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Calculating...
+              </>
+            ) : (
+              "Calculate All Prices"
+            )}
+          </button>
+        )}
+      </div>
       {order.items.length === 0 ? (
         <p className="admin-note">{t("admin.orderDetail.noItemsMessage")}</p>
       ) : (
@@ -212,6 +242,8 @@ export default function OrderPricingPanel({
                             const lowerUrl = file.url.toLowerCase();
                             const canOpenInViewer =
                               lowerUrl.includes(".stl") ||
+                              lowerUrl.includes(".obj") ||
+                              lowerUrl.includes(".3mf") ||
                               lowerUrl.includes(".png") ||
                               lowerUrl.includes(".jpg") ||
                               lowerUrl.includes(".jpeg") ||
@@ -256,7 +288,7 @@ export default function OrderPricingPanel({
                   </div>
 
                   {/* Specs grid */}
-                  <div className="grid grid-cols-5 gap-4 mb-4 pb-4 border-b border-[#eef4f1]">
+                  <div className="grid grid-cols-7 gap-4 mb-4 pb-4 border-b border-[#eef4f1]">
                     <div>
                       <p className="text-xs uppercase text-[#6c817a] font-semibold mb-2">
                         {t("admin.orderDetail.materialLabel")}
@@ -291,7 +323,31 @@ export default function OrderPricingPanel({
                     </div>
                     <div>
                       <p className="text-xs uppercase text-[#6c817a] font-semibold mb-2">
-                        {t("admin.orderDetail.priceLabel")}
+                        Plate Cost
+                      </p>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-[#6c817a]">
+                          {CURRENCY_CODE}
+                        </span>
+                        <input
+                          type="number"
+                          value={item.id ? itemPlateCosts[item.id] ?? 2 : 2}
+                          disabled={!item.id || pricingLocked}
+                          onChange={(e) => {
+                            if (!item.id) return;
+                            const newCost = parseFloat(e.target.value) || 0;
+                            setItemPlateCosts((prev) => ({
+                              ...prev,
+                              [item.id!]: newCost,
+                            }));
+                          }}
+                          className="admin-field w-16 h-8 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase text-[#6c817a] font-semibold mb-2">
+                        Price / One
                       </p>
                       <div className="flex items-center gap-1">
                         <span className="text-xs text-[#6c817a]">
@@ -312,6 +368,14 @@ export default function OrderPricingPanel({
                           className="admin-field w-20 h-8 text-sm"
                         />
                       </div>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase text-[#6c817a] font-semibold mb-2">
+                        Subtotal
+                      </p>
+                      <p className="text-sm font-bold text-[#1b2b25]">
+                        {CURRENCY_CODE} {(((item.id ? itemPrices[item.id] || 0 : 0) * item.count) + (item.id ? itemPlateCosts[item.id] ?? 2 : 2)).toFixed(2)}
+                      </p>
                     </div>
                   </div>
 
@@ -398,7 +462,10 @@ export default function OrderPricingPanel({
                       }
                       onClick={() =>
                         item.id &&
-                        updateItemPrice(item.id, itemPrices[item.id] || 0)
+                        updateItemPrice(item.id, {
+                          unitPrice: itemPrices[item.id] || 0,
+                          plateCost: itemPlateCosts[item.id] ?? 2,
+                        })
                       }
                       className="admin-btn admin-btn-primary text-sm px-4 py-2"
                     >

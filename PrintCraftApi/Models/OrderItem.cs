@@ -21,6 +21,8 @@ public class OrderItem
     public int InfillPercent { get; set; } = 20;
     public string PrintQuality { get; set; } = "Standard (0.20mm)";
     public bool SupportsNeeded { get; set; } = false;
+    public double PlateCost { get; set; } = 2.0;
+    public double UnitPrice { get; set; } = 0;
 
     public List<OrderItemAttachment> Attachments { get; set; } = new();
 }

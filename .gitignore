@@ -58,4 +58,5 @@ pnpm-debug.log*
 *.swp
 *.tmp
 wwwroot/uploads*
+.local/
 Library/

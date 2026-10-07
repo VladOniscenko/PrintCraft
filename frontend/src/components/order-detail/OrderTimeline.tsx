@@ -27,7 +27,7 @@ export default function OrderTimeline({
   statusStep,
   currentStatus,
   reachedDate,
-   
+  t,
 }: OrderTimelineProps) {
   
   const isException = isExceptionState(currentStatus);
@@ -35,17 +35,17 @@ export default function OrderTimeline({
 
   // We map the 6 primary states
   const steps = [
-    { step: 1, title: "Quote Requested", icon: <FileText size={16} /> },
-    { step: 2, title: "Awaiting Payment", icon: <Clock size={16} /> },
-    { step: 3, title: "Ready to Print", icon: <CheckCircle2 size={16} /> },
-    { step: 4, title: "Printing", icon: <Printer size={16} /> },
-    { step: 5, title: "Post-Processing", icon: <PackageCheck size={16} /> },
-    { step: 6, title: "Shipped", icon: <Truck size={16} /> },
+    { step: 1, title: t("orderStatus.quote_requested") || "Quote Requested", icon: <FileText size={16} /> },
+    { step: 2, title: t("orderStatus.awaiting_payment") || "Awaiting Payment", icon: <Clock size={16} /> },
+    { step: 3, title: t("orderStatus.ready_to_print") || "Ready to Print", icon: <CheckCircle2 size={16} /> },
+    { step: 4, title: t("orderStatus.printing") || "Printing", icon: <Printer size={16} /> },
+    { step: 5, title: t("orderStatus.post_processing") || "Post-Processing", icon: <PackageCheck size={16} /> },
+    { step: 6, title: t("orderStatus.shipped") || "Shipped", icon: <Truck size={16} /> },
   ];
 
   return (
     <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
-      <h3 className="font-bold text-lg mb-8">Order Tracker</h3>
+      <h3 className="font-bold text-lg mb-8">{t("orderDetail.timeline") || "Order Tracker"}</h3>
 
       {isException && (
         <div className={`mb-8 p-4 rounded-xl border flex gap-3 items-start ${
@@ -85,7 +85,7 @@ export default function OrderTimeline({
               key={s.step}
               icon={isCurrentExceptionStep ? getExceptionIcon(terminalState) : s.icon}
               title={s.title}
-              date={isActive || isCurrentExceptionStep ? reachedDate : "Pending"}
+              date={isActive || isCurrentExceptionStep ? reachedDate : (t("orderDetail.pending") || "Pending")}
               active={isActive}
               tone={isCurrentExceptionStep ? "danger" : "default"}
               isException={isCurrentExceptionStep}

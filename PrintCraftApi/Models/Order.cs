@@ -62,7 +62,7 @@ public class Order
 
     [NotMapped]
     public decimal SubtotalAmount
-        => Items.Sum(i => (decimal)i.Price * (i.Count <= 0 ? 1 : i.Count));
+        => Items.Sum(i => (decimal)(i.UnitPrice > 0 ? i.UnitPrice : i.Price) * (i.Count <= 0 ? 1 : i.Count) + (decimal)i.PlateCost);
 
     [NotMapped]
     public decimal DiscountAmount

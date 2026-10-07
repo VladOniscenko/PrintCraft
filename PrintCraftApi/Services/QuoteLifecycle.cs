@@ -12,7 +12,7 @@ public static class QuoteLifecycle
             return QuoteLifecycleResult.NoChanges;
 
         var normalizedStatus = Normalize(order.Status);
-        if (normalizedStatus is not ("quoted" or "pending_payment" or "expired_quote"))
+        if (normalizedStatus is not ("quoted" or "pending_payment" or "awaiting_payment" or "expired_quote"))
             return QuoteLifecycleResult.NoChanges;
 
         var hasChanges = false;
@@ -39,7 +39,7 @@ public static class QuoteLifecycle
         }
 
         var expiresAt = order.QuoteExpiresAt;
-        if ((normalizedStatus is "quoted" or "pending_payment")
+        if ((normalizedStatus is "quoted" or "pending_payment" or "awaiting_payment")
             && expiresAt.HasValue
             && expiresAt.Value <= nowUtc)
         {

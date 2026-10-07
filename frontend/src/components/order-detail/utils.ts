@@ -12,10 +12,21 @@ export function buildPriceSummary(order: Order): PriceSummary {
     (item) => item.price == null || item.price <= 0,
   );
 
-  const isPendingQuote = normalizeOrderStatus(order.status) === "pending_quote";
+  const normalizedStatus = normalizeOrderStatus(order.status);
+  const isPendingQuote =
+    normalizedStatus === "quote_requested" ||
+    normalizedStatus === "pending_quote" ||
+    normalizedStatus === "pending";
   const fallbackSubtotal = hasMissingPrice
     ? null
-    : order.items.reduce((sum, item) => sum + item.price, 0);
+    : order.items.reduce((sum, item) => {
+        const unit =
+          item.unitPrice !== undefined && item.unitPrice > 0
+            ? item.unitPrice
+            : item.price || 0;
+        const plate = item.plateCost ?? 2.0;
+        return sum + unit * (item.count || 1) + plate;
+      }, 0);
 
   const subtotalPrice =
     order.subtotalAmount != null ? order.subtotalAmount : fallbackSubtotal;
@@ -58,7 +69,10 @@ export function buildStatusSummary(
   order: Order,
   t: TranslateFn,
 ): StatusSummary {
-  const translationKey = getOrderStatusTranslationKey(order.status);
+  const normalized = normalizeOrderStatus(order.status);
+  const translationKey =
+    getOrderStatusTranslationKey(normalized) ||
+    getOrderStatusTranslationKey(order.status);
   const label = translationKey
     ? t(translationKey)
     : formatOrderStatusLabel(order.status);

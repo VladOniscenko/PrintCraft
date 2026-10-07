@@ -1,91 +1,21 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { ArrowLeft, Loader2, XCircle } from "lucide-react";
 import Navbar from "./Navbar";
 import api from "../services/api";
 import type { Order } from "../types";
-import type { UserAddress } from "../types/address";
-import {
-  normalizeShippingInfo,
-  validateShippingInfo,
-} from "../utils/shippingValidation";
 import { useI18n } from "../i18n/I18nContext";
 import Footer from "./Footer";
 import { useNotify } from "../context/NotifyContext";
 import OrderItemsCard from "./order-detail/OrderItemsCard";
 import OrderTimeline from "./order-detail/OrderTimeline";
 import OrderSidebar from "./order-detail/OrderSidebar";
-import ShippingModal from "./order-detail/ShippingModal";
-import type {
-  SavedAddressOption,
-  ShippingDetails,
-  ShippingField,
-} from "./order-detail/types";
 import {
   buildPriceSummary,
   buildStatusSummary,
   getReachedDate,
 } from "./order-detail/utils";
-import {
-  canCustomerRetryPayment,
-  getCustomerPaymentActionVariant,
-} from "../utils/orderStatus";
 import { normalizeOrderStatus } from "../utils/orderStatus";
-
-const EMPTY_SHIPPING_DETAILS: ShippingDetails = {
-  fullName: "",
-  phoneNumber: "",
-  addressLine1: "",
-  city: "",
-  postalCode: "",
-};
-
-function getShippingDetailsFromOrder(order: Order | null): ShippingDetails {
-  return {
-    fullName: order?.fullName || "",
-    phoneNumber: order?.phoneNumber || "",
-    addressLine1: order?.addressLine1 || "",
-    city: order?.city || "",
-    postalCode: order?.postalCode || "",
-  };
-}
-function getShippingDetailsFromAddress(
-  address: SavedAddressOption | null,
-): ShippingDetails {
-  return {
-    fullName: address?.fullName || "",
-    phoneNumber: address?.phoneNumber || "",
-    addressLine1: address?.addressLine1 || "",
-    city: address?.city || "",
-    postalCode: address?.postalCode || "",
-  };
-}
-function mergeShippingDetails(
-  base: ShippingDetails,
-  fallback: ShippingDetails,
-): ShippingDetails {
-  return {
-    fullName: base.fullName || fallback.fullName,
-    phoneNumber: base.phoneNumber || fallback.phoneNumber,
-    addressLine1: base.addressLine1 || fallback.addressLine1,
-    city: base.city || fallback.city,
-    postalCode: base.postalCode || fallback.postalCode,
-  };
-}
-
-function addressMatchesShippingDetails(
-  address: SavedAddressOption,
-  details: ShippingDetails,
-) {
-  const normalize = (value: string) => value.trim().toLowerCase();
-  return (
-    normalize(address.fullName) === normalize(details.fullName) &&
-    normalize(address.phoneNumber) === normalize(details.phoneNumber) &&
-    normalize(address.addressLine1) === normalize(details.addressLine1) &&
-    normalize(address.city) === normalize(details.city) &&
-    normalize(address.postalCode) === normalize(details.postalCode)
-  );
-}
 
 export default function OrderDetail() {
   const { t } = useI18n();
@@ -95,20 +25,6 @@ export default function OrderDetail() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [isCancelling, setIsCancelling] = useState(false);
-  const [isPaying, setIsPaying] = useState(false);
-  const [showShippingModal, setShowShippingModal] = useState(false);
-  const [shippingDetails, setShippingDetails] = useState<ShippingDetails>(
-    EMPTY_SHIPPING_DETAILS,
-  );
-  const [shippingErrors, setShippingErrors] = useState<Record<string, string>>(
-    {},
-  );
-  const [savedAddresses, setSavedAddresses] = useState<SavedAddressOption[]>(
-    [],
-  );
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
-    null,
-  );
   const [paymentNotificationCooldown, setPaymentNotificationCooldown] =
     useState<string | null>(null);
 
@@ -117,22 +33,6 @@ export default function OrderDetail() {
       try {
         const orderRes = await api.get(`/orders/${id}`);
         setOrder(orderRes.data);
-        setShippingDetails(getShippingDetailsFromOrder(orderRes.data));
-
-        try {
-          const addressesRes = await api.get<UserAddress[]>("/me/addresses");
-          const normalizedAddresses: SavedAddressOption[] = Array.isArray(
-            addressesRes.data,
-          )
-            ? addressesRes.data.map((address) => ({
-                ...address,
-                addressLine2: address.addressLine2 || null,
-              }))
-            : [];
-          setSavedAddresses(normalizedAddresses);
-        } catch {
-          setSavedAddresses([]);
-        }
       } catch (err) {
         console.error("Error fetching order", err);
       } finally {
@@ -164,39 +64,12 @@ export default function OrderDetail() {
     }
   };
 
-  const handleConfirmAndPay = async () => {
-    if (!id) return;
-
-    const orderDetails = getShippingDetailsFromOrder(order);
-    const defaultAddress =
-      savedAddresses.find((address) => address.isDefault) ??
-      savedAddresses[0] ??
-      null;
-
-    const fallbackDetails = getShippingDetailsFromAddress(defaultAddress);
-    const nextDetails = mergeShippingDetails(orderDetails, fallbackDetails);
-
-    setShippingDetails(nextDetails);
-    setSelectedAddressId(
-      defaultAddress &&
-        addressMatchesShippingDetails(defaultAddress, nextDetails)
-        ? defaultAddress.id
-        : null,
-    );
-    setShippingErrors({});
-    setShowShippingModal(true);
-  };
-
   const refreshOrderData = async () => {
     if (!id) return;
 
     const orderRes = await api.get(`/orders/${id}`);
-
     setOrder(orderRes.data);
-    setShippingDetails(getShippingDetailsFromOrder(orderRes.data));
   };
-
-  useEffect(() => {}, [id]);
 
   const handleRequestNewQuote = async () => {
     if (!id) return;
@@ -210,78 +83,6 @@ export default function OrderDetail() {
       notifyError(
         err?.response?.data?.message || t("orderDetail.newQuoteRequestFailed"),
       );
-    }
-  };
-
-  const handleShippingField = (field: ShippingField, value: string) => {
-    setSelectedAddressId(null);
-    setShippingDetails((prev) => ({ ...prev, [field]: value }));
-    if (shippingErrors[field]) {
-      const next = { ...shippingErrors };
-      delete next[field];
-      setShippingErrors(next);
-    }
-  };
-
-  const handleSavedAddressChange = (addressId: string) => {
-    if (!addressId) {
-      const orderDetails = getShippingDetailsFromOrder(order);
-      const defaultAddress =
-        savedAddresses.find((address) => address.isDefault) ??
-        savedAddresses[0] ??
-        null;
-      setSelectedAddressId(null);
-      setShippingDetails(
-        mergeShippingDetails(
-          orderDetails,
-          getShippingDetailsFromAddress(defaultAddress),
-        ),
-      );
-      return;
-    }
-
-    const selectedAddress = savedAddresses.find(
-      (address) => address.id === addressId,
-    );
-    if (!selectedAddress) return;
-
-    setSelectedAddressId(selectedAddress.id);
-    setShippingDetails(getShippingDetailsFromAddress(selectedAddress));
-    setShippingErrors({});
-  };
-
-  const handleSaveAddressAndCheckout = async () => {
-    if (!id) return;
-
-    const errors = validateShippingInfo(shippingDetails, t);
-    setShippingErrors(errors);
-    if (Object.keys(errors).length > 0) {
-      notifyError(t("quote.invalidShipping"));
-      return;
-    }
-
-    setIsPaying(true);
-    try {
-      const shippingPayload = normalizeShippingInfo(shippingDetails);
-      await api.put(`/orders/${id}/shipping`, shippingPayload);
-
-      await api.post(`/payments/orders/${id}/create`);
-      setShowShippingModal(false);
-      await refreshOrderData();
-      notifySuccess("Payment instructions are ready on this order.");
-    } catch (err: any) {
-      console.error("Quoted payment checkout error", err);
-
-      const apiErrors = err?.response?.data?.errors;
-      if (apiErrors && typeof apiErrors === "object") {
-        setShippingErrors(apiErrors);
-      }
-
-      notifyError(
-        err?.response?.data?.message || t("orderDetail.paymentStartFailed"),
-      );
-    } finally {
-      setIsPaying(false);
     }
   };
 
@@ -335,10 +136,7 @@ export default function OrderDetail() {
     normalizedStatus === "quoted" &&
     quoteExpiresAt instanceof Date &&
     !Number.isNaN(quoteExpiresAt.getTime());
-  const showPendingQuoteNotice =
-    priceSummary.isPendingQuote ||
-    normalizedStatus === "pending" ||
-    normalizedStatus === "pending_quote";
+  const showPendingQuoteNotice = priceSummary.isPendingQuote;
   const customerNotes = Array.isArray(order.notes)
     ? order.notes
         .filter((note) => note.visibility === "customer")
@@ -347,19 +145,14 @@ export default function OrderDetail() {
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         )
     : [];
-  const canRetryPayment = canCustomerRetryPayment(
-    order.status,
-    !!order.isPaid,
-    order.paymentFlow,
-  );
-  const paymentActionVariant = getCustomerPaymentActionVariant(
-    order.status,
-    order.paymentFlow,
-  );
-  const paymentActionLabel =
-    paymentActionVariant === "pay_again"
-      ? t("orderDetail.payAgain")
-      : t("orderDetail.payNow");
+  let isAdmin = false;
+  try {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const parsed = JSON.parse(atob(token.split(".")[1]));
+      isAdmin = parsed.role === "admin";
+    }
+  } catch (e) {}
 
   return (
     <div className="min-h-screen bg-[#f8f9fa]">
@@ -379,6 +172,16 @@ export default function OrderDetail() {
           </button>
 
           <div className="md:ml-auto flex flex-wrap items-center justify-end gap-3">
+
+            {isAdmin && (
+              <a
+                href={`/admin/orders/${id}`}
+                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 border border-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-sm"
+              >
+                Open order in admin panel
+              </a>
+            )}
+
             {["quote_requested", "awaiting_payment", "ready_to_print"].includes(normalizedStatus) && (
               <button
                 onClick={handleCancelOrder}
@@ -394,22 +197,6 @@ export default function OrderDetail() {
               </button>
             )}
 
-            {canRetryPayment && (
-              <button
-                onClick={handleConfirmAndPay}
-                disabled={isPaying}
-                className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 border border-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-sm disabled:opacity-50"
-              >
-                {isPaying ? (
-                  <Loader2 className="animate-spin" size={18} />
-                ) : (
-                  <CheckCircle2 size={18} />
-                )}
-                {isPaying
-                  ? t("orderDetail.processingPayment")
-                  : paymentActionLabel}
-              </button>
-            )}
 
             {normalizedStatus === "expired_quote" && (
               <button
@@ -444,7 +231,6 @@ export default function OrderDetail() {
           <div className="lg:col-span-2 space-y-6">
             <OrderItemsCard
               order={order}
-              isPendingQuote={priceSummary.isPendingQuote}
               t={t}
             />
             <OrderTimeline
@@ -492,19 +278,7 @@ export default function OrderDetail() {
         </div>
       </main>
 
-      <ShippingModal
-        open={showShippingModal}
-        shippingDetails={shippingDetails}
-        shippingErrors={shippingErrors}
-        savedAddresses={savedAddresses}
-        selectedAddressId={selectedAddressId}
-        isPaying={isPaying}
-        t={t}
-        onFieldChange={handleShippingField}
-        onSavedAddressChange={handleSavedAddressChange}
-        onCancel={() => setShowShippingModal(false)}
-        onCheckout={handleSaveAddressAndCheckout}
-      />
+
       <Footer />
     </div>
   );

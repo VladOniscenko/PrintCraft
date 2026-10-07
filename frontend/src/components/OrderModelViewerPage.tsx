@@ -15,7 +15,7 @@ import AdminBreadcrumb from "./admin/AdminBreadcrumb";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import { useI18n } from "../i18n/I18nContext";
 
-const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
+const Interactive3DViewer = lazy(() => import("./Interactive3DViewer"));
 
 type ViewerMode = "user" | "admin";
 
@@ -106,7 +106,8 @@ export default function OrderModelViewerPage({ mode }: { mode: ViewerMode }) {
 
   const modelUrl = resolveAssetUrl(selectedFile?.url || selectedItem?.fileUrl);
   const modelExt = getFileExtension(selectedFile?.url || selectedItem?.fileUrl);
-  const canPreview3d = modelExt === "stl" && !!modelUrl;
+  const canPreview3d =
+    ["stl", "obj", "3mf"].includes(modelExt) && !!modelUrl;
   const canPreviewImage = isImageExtension(modelExt) && !!modelUrl;
 
   useEffect(() => {
@@ -203,7 +204,7 @@ export default function OrderModelViewerPage({ mode }: { mode: ViewerMode }) {
             </div>
           )}
 
-          <div className="relative w-full h-[460px] sm:h-[560px] rounded-2xl border border-white/15 bg-[#0e3128]/35 backdrop-blur-sm overflow-hidden">
+          <div className="relative w-full min-h-[460px] sm:min-h-[560px] rounded-2xl border border-white/15 bg-[#0e3128]/35 backdrop-blur-sm overflow-hidden flex flex-col">
             {canPreview3d ? (
               <Suspense
                 fallback={
@@ -212,7 +213,19 @@ export default function OrderModelViewerPage({ mode }: { mode: ViewerMode }) {
                   </div>
                 }
               >
-                <HeroModelViewer src={modelUrl} />
+                <Interactive3DViewer
+                  fileUrl={modelUrl}
+                  fileName={
+                    selectedFile?.name ||
+                    selectedItem.fileName ||
+                    `model.${modelExt}`
+                  }
+                  colorName={selectedItem.color || "Black"}
+                  materialName={selectedItem.material || "PLA"}
+                  scaleFactor={selectedItem.scaleFactor ?? 1.0}
+                  count={selectedItem.count || 1}
+                  className="w-full flex-1 border-0 rounded-none bg-transparent"
+                />
               </Suspense>
             ) : canPreviewImage ? (
               <div className="absolute inset-0 flex items-center justify-center p-4">

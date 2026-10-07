@@ -153,7 +153,15 @@ public sealed class InvoiceService(IOptions<InvoiceOptions> options) : IInvoiceS
                     table.Cell().Element(BodyCell).Text(name);
                     table.Cell().Element(BodyCell).AlignRight().Text(quantity.ToString());
                     table.Cell().Element(BodyCell).AlignRight().Text(item.Price.ToString("F2", culture));
-                    table.Cell().Element(BodyCell).AlignRight().Text((item.Price * quantity).ToString("F2", culture));
+                    table.Cell().Element(BodyCell).AlignRight().Text(((decimal)item.Price * quantity).ToString("F2", culture));
+
+                    if (item.PlateCost > 0)
+                    {
+                        table.Cell().Element(BodyCell).Text($"  ↳ {name} (Plate Setup)");
+                        table.Cell().Element(BodyCell).AlignRight().Text("1");
+                        table.Cell().Element(BodyCell).AlignRight().Text(item.PlateCost.ToString("F2", culture));
+                        table.Cell().Element(BodyCell).AlignRight().Text(item.PlateCost.ToString("F2", culture));
+                    }
                 }
             });
 

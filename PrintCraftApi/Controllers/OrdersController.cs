@@ -106,6 +106,30 @@ public class OrdersController : ControllerBase
         return order != null ? Ok(MapOrderForCustomer(order)) : NotFound(new { message = "Order not found or access denied." });
     }
 
+    [HttpGet("{id:guid}/status")]
+    public async Task<IActionResult> GetOrderStatus([FromRoute] Guid id)
+    {
+        var userIdStr = User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+
+        var userId = Guid.Parse(userIdStr);
+        var order = await _db.Orders
+            .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+        if (order == null)
+            return NotFound(new { message = "Order not found or access denied." });
+
+        var normalizedStatus = OrderStatus.Normalize(order.Status);
+        return Ok(new
+        {
+            status = order.Status,
+            normalizedStatus,
+            updatedAt = order.UpdatedAt,
+            createdAt = order.CreatedAt,
+            isPaid = order.IsPaid
+        });
+    }
+
     [HttpGet("{id:guid}/payments")]
     public async Task<IActionResult> GetPayments([FromRoute] Guid id)
     {
@@ -914,6 +938,13 @@ public class OrdersController : ControllerBase
                     item.Color,
                     item.Count,
                     item.Price,
+                    item.UnitPrice,
+                    item.PlateCost,
+                    item.InfillPercent,
+                    item.PrintQuality,
+                    item.EstimatedPrintTime,
+                    item.FilamentUsedGrams,
+                    item.ScaleFactor,
                     files,
                     attachments = files,
                 };

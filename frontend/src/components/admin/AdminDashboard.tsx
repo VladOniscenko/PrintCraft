@@ -179,16 +179,41 @@ export default function AdminDashboard() {
   const deliveredOrders = statusCounts.delivered || 0;
   const completedOrders = statusCounts.completed || 0;
 
+  const getOrderRevenue = (order: Order) => {
+    if (order.quotedPrice != null && order.quotedPrice > 0) return order.quotedPrice;
+    if (order.finalTotalAmount != null && order.finalTotalAmount > 0) return order.finalTotalAmount;
+    if (order.items && order.items.length > 0) {
+      const itemsSubtotal = order.items.reduce((sum, item) => {
+        const unit =
+          item.unitPrice !== undefined && item.unitPrice > 0
+            ? item.unitPrice
+            : item.price || 0;
+        const plate = item.plateCost ?? 2.0;
+        return sum + unit * (item.count || 1) + plate;
+      }, 0);
+      if (itemsSubtotal > 0) {
+        return Math.max(
+          0,
+          itemsSubtotal +
+            (order.deliveryPrice || 0) +
+            (order.serviceFeePrice || 0) -
+            (order.orderDiscountAmount || 0),
+        );
+      }
+    }
+    return 0;
+  };
+
   const quotedRevenue = orders.reduce(
-    (sum, order) => sum + (order.quotedPrice || 0),
+    (sum, order) => sum + getOrderRevenue(order),
     0,
   );
   const paidRevenue = orders
     .filter((order) => order.isPaid || order.status === "paid")
-    .reduce((sum, order) => sum + (order.quotedPrice || 0), 0);
+    .reduce((sum, order) => sum + getOrderRevenue(order), 0);
 
   const ordersWithQuote = orders.filter(
-    (order) => (order.quotedPrice || 0) > 0,
+    (order) => getOrderRevenue(order) > 0,
   );
   const averageQuotedValue =
     ordersWithQuote.length > 0 ? quotedRevenue / ordersWithQuote.length : 0;

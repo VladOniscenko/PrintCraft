@@ -30,6 +30,7 @@ import {
   Loader2,
   Palette,
   Grid3X3,
+  Maximize2,
 } from "lucide-react";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import {
@@ -49,6 +50,8 @@ export interface Interactive3DViewerProps {
   onDimensionsDetected?: (dims: { x: number; y: number; z: number }) => void;
   className?: string;
   count?: number;
+  compact?: boolean;
+  onExpand?: () => void;
 }
 
 export function getFilamentHexColor(colorName?: string): number {
@@ -107,6 +110,8 @@ export default function Interactive3DViewer({
   onDimensionsDetected,
   className = "",
   count = 1,
+  compact = false,
+  onExpand,
 }: Interactive3DViewerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -530,7 +535,9 @@ export default function Interactive3DViewer({
       {/* 3D Canvas Viewport */}
       <div
         ref={containerRef}
-        className="relative w-full h-[320px] sm:h-[360px] cursor-grab active:cursor-grabbing select-none"
+        className={`relative w-full ${
+          compact ? "h-56 min-h-[220px]" : "flex-1 min-h-[320px] sm:min-h-[360px]"
+        } cursor-grab active:cursor-grabbing select-none`}
         style={{ backgroundColor: bgColor }}
       >
         <canvas ref={canvasRef} className="w-full h-full block" />
@@ -554,23 +561,25 @@ export default function Interactive3DViewer({
         )}
 
         {/* Floating Top Controls */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none gap-2">
           {/* Material & Color Live Badge */}
-          <div className="pointer-events-auto flex items-center gap-2 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-xs shadow-md">
+          <div className="pointer-events-auto flex items-center gap-1.5 bg-slate-900/80 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/10 text-xs shadow-md">
             <span
               className="w-3.5 h-3.5 rounded-full border border-white/30 shadow-inner shrink-0"
               style={{
                 backgroundColor: `#${effectiveHex.toString(16).padStart(6, "0")}`,
               }}
             />
-            <span className="font-bold text-white truncate max-w-[120px]">
+            <span className="font-bold text-white truncate max-w-[100px] text-xs">
               {colorName}
             </span>
-            <span className="text-slate-400 font-medium">({materialName})</span>
+            {!compact && (
+              <span className="text-slate-400 font-medium">({materialName})</span>
+            )}
           </div>
 
           {/* Quick Interactive Canvas Actions */}
-          <div className="pointer-events-auto flex items-center gap-1.5 bg-slate-900/80 backdrop-blur-md p-1 rounded-xl border border-white/10 shadow-md">
+          <div className="pointer-events-auto flex items-center gap-1 bg-slate-900/80 backdrop-blur-md p-1 rounded-xl border border-white/10 shadow-md">
             <button
               type="button"
               onClick={() => setAutoRotate((prev) => !prev)}
@@ -581,7 +590,7 @@ export default function Interactive3DViewer({
               }`}
               title="Toggle Auto-Rotation"
             >
-              <RotateCw size={15} />
+              <RotateCw size={14} />
             </button>
             <button
               type="button"
@@ -593,141 +602,182 @@ export default function Interactive3DViewer({
               }`}
               title="Toggle Wireframe Mesh"
             >
-              <Box size={15} />
+              <Box size={14} />
             </button>
-            <button
-              type="button"
-              onClick={() => setShowGrid((prev) => !prev)}
-              className={`p-1.5 rounded-lg transition-colors ${
-                showGrid
-                  ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
-                  : "text-slate-400 hover:text-white hover:bg-white/10"
-              }`}
-              title="Toggle Ground Grid"
-            >
-              <Grid3X3 size={15} />
-            </button>
-            <div className="flex items-center ml-1">
-              <input
-                type="color"
-                value={bgColor}
-                onChange={(e) => setBgColor(e.target.value)}
-                className="w-5 h-5 p-0 border-0 rounded cursor-pointer bg-transparent"
-                title="Change Background Color"
-              />
-            </div>
+            {!compact && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowGrid((prev) => !prev)}
+                  className={`p-1.5 rounded-lg transition-colors ${
+                    showGrid
+                      ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
+                      : "text-slate-400 hover:text-white hover:bg-white/10"
+                  }`}
+                  title="Toggle Ground Grid"
+                >
+                  <Grid3X3 size={15} />
+                </button>
+                <div className="flex items-center ml-1">
+                  <input
+                    type="color"
+                    value={bgColor}
+                    onChange={(e) => setBgColor(e.target.value)}
+                    className="w-5 h-5 p-0 border-0 rounded cursor-pointer bg-transparent"
+                    title="Change Background Color"
+                  />
+                </div>
+              </>
+            )}
             <button
               type="button"
               onClick={() => resetCameraView()}
               className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
               title="Reset Camera View"
             >
-              <RotateCcw size={15} />
+              <RotateCcw size={14} />
             </button>
-            <button
-              type="button"
-              onClick={() => setShowTooltips((prev) => !prev)}
-              className={`p-1.5 rounded-lg transition-colors ${
-                showTooltips
-                  ? "bg-emerald-500/20 text-emerald-400"
-                  : "text-slate-400 hover:text-white hover:bg-white/10"
-              }`}
-              title="Print Guidelines & Tooltips"
-            >
-              <HelpCircle size={15} />
-            </button>
+            {!compact && (
+              <button
+                type="button"
+                onClick={() => setShowTooltips((prev) => !prev)}
+                className={`p-1.5 rounded-lg transition-colors ${
+                  showTooltips
+                    ? "bg-emerald-500/20 text-emerald-400"
+                    : "text-slate-400 hover:text-white hover:bg-white/10"
+                }`}
+                title="Print Guidelines & Tooltips"
+              >
+                <HelpCircle size={15} />
+              </button>
+            )}
+            {onExpand && (
+              <button
+                type="button"
+                onClick={onExpand}
+                className="p-1.5 text-slate-300 hover:text-white hover:bg-emerald-500/30 hover:text-emerald-300 rounded-lg transition-colors"
+                title="Expand 3D Dialog"
+              >
+                <Maximize2 size={14} />
+              </button>
+            )}
           </div>
         </div>
 
         {/* Interaction Hint (Bottom Left) */}
-        <div className="absolute bottom-2.5 left-3 pointer-events-none">
-          <p className="text-[10px] text-slate-400/80 tracking-wide font-medium bg-slate-950/40 px-2 py-0.5 rounded backdrop-blur-sm">
-            Drag to rotate • Scroll to zoom • Right-click to pan
+        <div className="absolute bottom-2 left-2.5 pointer-events-none">
+          <p className="text-[9px] text-slate-400/80 tracking-wide font-medium bg-slate-950/60 px-1.5 py-0.5 rounded backdrop-blur-sm">
+            {compact ? "Drag to rotate • Scroll to zoom" : "Drag to rotate • Scroll to zoom • Right-click to pan"}
           </p>
         </div>
       </div>
 
-      {/* Dimension Check & Physical Specs Bar (Below Canvas) */}
-      <div className="bg-slate-900 border-t border-slate-800 p-3.5 space-y-2.5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          {/* Exact Bounding Box Dimensions in mm */}
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-slate-800 rounded-lg text-emerald-400 border border-slate-700">
-              <Box size={16} />
-            </div>
-            <div>
-              <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                Bounding Box Dimensions
-              </p>
-              {baseDimensions ? (
-                <p className="text-sm font-extrabold text-white tracking-tight">
-                  {scaledX} × {scaledY} × {scaledZ} mm
-                  {scaleFactor !== 1.0 && (
-                    <span className="ml-1.5 text-xs font-normal text-slate-400">
-                      (Base: {baseDimensions.x} × {baseDimensions.y} ×{" "}
-                      {baseDimensions.z} mm @ {scaleFactor.toFixed(2)}x)
-                    </span>
-                  )}
+      {compact ? (
+        <div className="bg-slate-900/90 border-t border-slate-800 px-3 py-2 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-1.5 text-slate-300 font-medium text-[11px] truncate">
+            <Box size={13} className="text-emerald-400 shrink-0" />
+            {baseDimensions ? (
+              <span>
+                {scaledX} × {scaledY} × {scaledZ} mm
+              </span>
+            ) : (
+              <span className="text-slate-400">Detecting dimensions...</span>
+            )}
+          </div>
+          {onExpand && (
+            <button
+              type="button"
+              onClick={onExpand}
+              className="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 shrink-0 transition-colors ml-2"
+            >
+              <Maximize2 size={11} />
+              Inspect
+            </button>
+          )}
+        </div>
+      ) : (
+        /* Dimension Check & Physical Specs Bar (Below Canvas) */
+        <div className="bg-slate-900 border-t border-slate-800 p-3.5 space-y-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            {/* Exact Bounding Box Dimensions in mm */}
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-slate-800 rounded-lg text-emerald-400 border border-slate-700">
+                <Box size={16} />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                  Bounding Box Dimensions
                 </p>
-              ) : (
-                <p className="text-xs text-slate-400">Detecting dimensions...</p>
-              )}
+                {baseDimensions ? (
+                  <p className="text-sm font-extrabold text-white tracking-tight">
+                    {scaledX} × {scaledY} × {scaledZ} mm
+                    {scaleFactor !== 1.0 && (
+                      <span className="ml-1.5 text-xs font-normal text-slate-400">
+                        (Base: {baseDimensions.x} × {baseDimensions.y} ×{" "}
+                        {baseDimensions.z} mm @ {scaleFactor.toFixed(2)}x)
+                      </span>
+                    )}
+                  </p>
+                ) : (
+                  <p className="text-xs text-slate-400">Detecting dimensions...</p>
+                )}
+              </div>
             </div>
+
+            {/* Build Volume Compliance Badge */}
+            {baseDimensions && (
+              <div className="flex items-center">
+                {fitsBuildVolume ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    <CheckCircle2 size={13} />
+                    Fits build plate (max 256 mm)
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                    <AlertTriangle size={13} />
+                    Exceeds build volume (&gt;256 mm)
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Build Volume Compliance Badge */}
-          {baseDimensions && (
-            <div className="flex items-center">
-              {fitsBuildVolume ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  <CheckCircle2 size={13} />
-                  Fits build plate (max 256 mm)
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30">
-                  <AlertTriangle size={13} />
-                  Exceeds build volume (&gt;256 mm)
-                </span>
-              )}
+          {/* UX Instructions & Tooltips Box */}
+          {showTooltips && (
+            <div className="pt-2 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-2 text-xs animate-in fade-in slide-in-from-top-1 duration-200">
+              <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-emerald-400">
+                  <Layers size={13} />
+                  <span>Layer Height</span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  Standard <strong>0.20mm</strong> offers the ideal balance of speed and finish. Use <strong>0.12mm</strong> for fine detail/miniatures, or <strong>0.28mm</strong> for fast prototypes.
+                </p>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-amber-400">
+                  <Box size={13} />
+                  <span>Infill Density</span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  <strong>15%–20%</strong> is optimal for display and decorative pieces. Use <strong>40%+</strong> for mechanical brackets and load-bearing tools.
+                </p>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-sky-400">
+                  <Palette size={13} />
+                  <span>Color & Material</span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  Previewed live above on your 3D geometry. Colors directly correspond to in-stock spools in our material inventory.
+                </p>
+              </div>
             </div>
           )}
         </div>
-
-        {/* UX Instructions & Tooltips Box */}
-        {showTooltips && (
-          <div className="pt-2 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-2 text-xs animate-in fade-in slide-in-from-top-1 duration-200">
-            <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-emerald-400">
-                <Layers size={13} />
-                <span>Layer Height</span>
-              </div>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                Standard <strong>0.20mm</strong> offers the ideal balance of speed and finish. Use <strong>0.12mm</strong> for fine detail/miniatures, or <strong>0.28mm</strong> for fast prototypes.
-              </p>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-amber-400">
-                <Box size={13} />
-                <span>Infill Density</span>
-              </div>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                <strong>15%–20%</strong> is optimal for display and decorative pieces. Use <strong>40%+</strong> for mechanical brackets and load-bearing tools.
-              </p>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-sky-400">
-                <Palette size={13} />
-                <span>Color & Material</span>
-              </div>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                Previewed live above on your 3D geometry. Colors directly correspond to in-stock spools in our material inventory.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

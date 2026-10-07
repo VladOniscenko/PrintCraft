@@ -128,7 +128,7 @@ public class AdminController : ControllerBase
 
     private static decimal CalculateSubtotal(Order order)
     {
-        return order.Items.Sum(i => (decimal)i.Price * (i.Count <= 0 ? 1 : i.Count));
+        return order.Items.Sum(i => (decimal)(i.UnitPrice > 0 ? i.UnitPrice : i.Price) * (i.Count <= 0 ? 1 : i.Count) + (decimal)i.PlateCost);
     }
 
     private static void RecalculateQuotedPrice(Order order)
@@ -216,6 +216,68 @@ public class AdminController : ControllerBase
         return Ok(item);
     }
 
+    [HttpPost("orders/{orderId:guid}/calculate-price")]
+    public async Task<IActionResult> CalculateAllItemsPrice([FromRoute] Guid orderId, [FromServices] IPrintPricingService pricingService)
+    {
+        var order = await _db.Orders
+            .Include(o => o.Items)
+            .ThenInclude(i => i.Attachments)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+        if (order == null) return NotFound(new { message = "Order not found" });
+
+        foreach (var item in order.Items)
+        {
+            var fileUrl = item.FileUrl;
+            if (string.IsNullOrWhiteSpace(fileUrl) && item.Attachments != null && item.Attachments.Count > 0)
+            {
+                var modelAttachment = item.Attachments.FirstOrDefault(a => 
+                    a.Url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
+                    a.Url.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
+                    a.Url.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
+                    a.Url.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
+                    a.Url.EndsWith(".stp", StringComparison.OrdinalIgnoreCase));
+                fileUrl = modelAttachment?.Url ?? item.Attachments[0].Url;
+            }
+
+            if (string.IsNullOrWhiteSpace(fileUrl)) continue;
+
+            var fileName = ExtractFileNameFromAssetUrl(fileUrl);
+            if (string.IsNullOrWhiteSpace(fileName)) continue;
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            var filePath = Path.Combine(uploadsFolder, fileName);
+            if (!System.IO.File.Exists(filePath))
+            {
+                var altPath = Path.Combine(AppContext.BaseDirectory, "wwwroot", "uploads", fileName);
+                if (System.IO.File.Exists(altPath))
+                {
+                    filePath = altPath;
+                }
+            }
+
+            if (!System.IO.File.Exists(filePath) && string.IsNullOrWhiteSpace(item.Size)) continue;
+
+            double scaleFactor = PrintPricingService.ResolveScaleFactor(item);
+
+            await pricingService.CalculatePricingAsync(
+                item.Id,
+                System.IO.File.Exists(filePath) ? filePath : string.Empty,
+                scaleFactor,
+                item.InfillPercent,
+                item.PrintQuality,
+                item.SupportsNeeded
+            );
+            
+            await _db.Entry(item).ReloadAsync();
+        }
+
+        RecalculateQuotedPrice(order);
+        await _db.SaveChangesAsync();
+
+        return Ok(order);
+    }
+
     [HttpPost("orders/{id:guid}/process-quote")]
     public async Task<IActionResult> ProcessFullQuote([FromRoute] Guid id, [FromBody] ProcessFullQuoteRequest payload)
     {
@@ -228,10 +290,15 @@ public class AdminController : ControllerBase
         // 1. Update all prices
         foreach (var item in order.Items)
         {
-            if (payload.ItemPrices.TryGetValue(item.Id, out var price))
+            if (payload.ItemPrices.TryGetValue(item.Id, out var unitPrice))
             {
-                item.Price = price >= 0 ? price : 0;
+                item.UnitPrice = unitPrice >= 0 ? unitPrice : 0;
             }
+            if (payload.ItemPlateCosts != null && payload.ItemPlateCosts.TryGetValue(item.Id, out var plateCost))
+            {
+                item.PlateCost = plateCost >= 0 ? plateCost : 2.0;
+            }
+            item.Price = item.UnitPrice;
         }
 
         order.DeliveryPrice = payload.DeliveryPrice >= 0 ? payload.DeliveryPrice : 0;
@@ -249,7 +316,7 @@ public class AdminController : ControllerBase
 
         order.QuoteMessage = string.IsNullOrWhiteSpace(payload.QuoteMessage) ? DefaultQuoteConfirmationMessage : payload.QuoteMessage;
         order.PaymentFlow = paymentFlow;
-        order.Status = IsBankTransferFlow(paymentFlow) ? "pending_payment" : "quoted";
+        order.Status = OrderStatus.AwaitingPayment;
         QuoteLifecycle.MarkQuoteConfirmed(order, DateTime.UtcNow);
         order.UpdatedAt = DateTime.UtcNow;
 
@@ -1003,10 +1070,18 @@ public class AdminController : ControllerBase
         var item = order.Items.FirstOrDefault(i => i.Id == itemId);
         if (item == null) return NotFound(new { message = "Item not found" });
 
-        if (payload.Price < 0)
+        if (payload.UnitPrice < 0)
             return BadRequest(new { message = "Item price cannot be negative." });
 
-        item.Price = payload.Price;
+        item.UnitPrice = payload.UnitPrice;
+        if (payload.PlateCost.HasValue)
+        {
+            if (payload.PlateCost.Value < 0) return BadRequest(new { message = "Plate cost cannot be negative." });
+            item.PlateCost = payload.PlateCost.Value;
+        }
+
+        item.Price = item.UnitPrice;
+
         RecalculateQuotedPrice(order);
         order.UpdatedAt = DateTime.UtcNow;
 
@@ -1217,7 +1292,7 @@ public class AdminController : ControllerBase
                     && !string.Equals(order.Status, "cancelled", StringComparison.OrdinalIgnoreCase))
                 {
                     var previousStatus = order.Status;
-                    order.Status = IsBankTransferFlow(paymentFlow) ? "pending_payment" : "quoted";
+                    order.Status = OrderStatus.AwaitingPayment;
                     QuoteLifecycle.MarkQuoteConfirmed(order, DateTime.UtcNow);
                     await LogStatusHistoryAsync(order.Id, previousStatus, order.Status, "admin", IsBankTransferFlow(paymentFlow)
                         ? "Quote confirmation email sent with bank transfer instructions"
@@ -1336,7 +1411,7 @@ public class AdminController : ControllerBase
     }
 
     public record CreateOrderNoteRequest(string Content, string Visibility);
-    public record UpdateItemRequest(double Price);
+    public record UpdateItemRequest(double UnitPrice, double? PlateCost = null);
     public record DeliveryPriceRequest(decimal DeliveryPrice);
     public record FeePriceRequest(decimal ServiceFeePrice);
     public record OrderDiscountRequest(decimal OrderDiscountAmount);
@@ -1354,7 +1429,8 @@ public class AdminController : ControllerBase
     public record UpdateUserRequest(string Name, string Email, string Role);
 
     public record ProcessFullQuoteRequest(
-        Dictionary<Guid, double> ItemPrices,
+        Dictionary<Guid, double> ItemPrices, // This will now represent Unit Price from the frontend
+        Dictionary<Guid, double> ItemPlateCosts,
         decimal DeliveryPrice,
         decimal ServiceFeePrice,
         decimal OrderDiscountAmount,

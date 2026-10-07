@@ -471,7 +471,7 @@ public static class ModelGeometryAnalyzer
         int layerCount = Math.Max(1, (int)Math.Ceiling(scaledZ / layerHeightMm));
 
         // Machine prep and warmup time (bed leveling, heating, nozzle wipe)
-        double prepMinutes = 4.0; // Paid once per build plate
+        double prepMinutes = 6.0; // Paid once per build plate
 
         // Volumetric extrusion flow rate (grams per hour)
         double gramsPerHour = layerHeightMm switch
@@ -481,13 +481,16 @@ public static class ModelGeometryAnalyzer
             _ => 40.0
         };
 
-        double extrusionMinutes = (filamentGrams / gramsPerHour) * 60.0;
+        double extrusionMinutes = Math.Max(0.5 * count, (filamentGrams / gramsPerHour) * 60.0);
 
         // Kinematic layer transitions and minimum cooling time per layer
         double layerOverheadMinutes = layerCount * 0.10 * count; // 6 seconds per layer per item
 
         double totalMins = prepMinutes + extrusionMinutes + layerOverheadMinutes;
         if (supportsNeeded) totalMins *= 1.15;
+
+        // Ensure minimum scaling
+        totalMins = Math.Max(prepMinutes + (1.0 * count), totalMins);
 
         int totalMinutes = (int)Math.Max(5, Math.Round(totalMins));
         int hours = totalMinutes / 60;

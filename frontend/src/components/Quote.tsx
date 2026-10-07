@@ -1250,7 +1250,8 @@ export default function Quote() {
       }
 
       if (isLoggedIn) {
-        navigate("/orders");
+        const orderId = res?.data?.order?.id || res?.data?.id;
+        navigate(orderId ? `/orders/${orderId}` : "/orders");
         return;
       }
 

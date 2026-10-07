@@ -76,6 +76,8 @@ export default function AdminOrderDetail() {
   const [postalCode, setPostalCode] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [itemPrices, setItemPrices] = useState<{ [key: string]: number }>({});
+  const [itemPlateCosts, setItemPlateCosts] = useState<{ [key: string]: number }>({});
+
   const [deliveryPrice, setDeliveryPrice] = useState(0);
   const [serviceFee, setServiceFee] = useState(0);
   const [orderDiscountAmount, setOrderDiscountAmount] = useState(0);
@@ -122,11 +124,19 @@ export default function AdminOrderDetail() {
       setPhoneNumber(data.phoneNumber);
 
       const prices: { [key: string]: number } = {};
+      const plateCosts: { [key: string]: number } = {};
       data.items.forEach((item: any) => {
-        if (item.id) prices[item.id] = item.price || 0;
+        if (item.id) {
+          prices[item.id] =
+            item.unitPrice !== undefined && item.unitPrice > 0
+              ? item.unitPrice
+              : item.price || 0;
+          plateCosts[item.id] = item.plateCost ?? 2.0;
+        }
       });
 
       setItemPrices(prices);
+      setItemPlateCosts(plateCosts);
       setDeliveryPrice(data.deliveryPrice || 0);
       setServiceFee(data.serviceFeePrice || 0);
       setOrderDiscountAmount(data.orderDiscountAmount || 0);
@@ -191,6 +201,7 @@ export default function AdminOrderDetail() {
     try {
       await api.post(`/admin/orders/${id}/process-quote`, {
         itemPrices,
+        itemPlateCosts,
         deliveryPrice,
         serviceFeePrice: serviceFee,
         orderDiscountAmount,
@@ -320,11 +331,28 @@ export default function AdminOrderDetail() {
     }
   };
 
-  const updateItemPrice = async (itemId: string, price: number) => {
+  const [calculatingAllPrices, setCalculatingAllPrices] = useState(false);
+
+  const calculateAllPrices = async () => {
+    if (!id) return;
+    setCalculatingAllPrices(true);
+    try {
+      await api.post(`/admin/orders/${id}/calculate-price`);
+      await refresh();
+      notifySuccess("All prices calculated successfully");
+    } catch (err) {
+      console.error(err);
+      notifyError("Failed to calculate all prices");
+    } finally {
+      setCalculatingAllPrices(false);
+    }
+  };
+
+  const updateItemPrice = async (itemId: string, updates: { unitPrice?: number; plateCost?: number }) => {
     if (!id) return;
     setSavingItemId(itemId);
     try {
-      await api.put(`/admin/orders/${id}/items/${itemId}`, { price });
+      await api.put(`/admin/orders/${id}/items/${itemId}`, updates);
       await refresh();
       notifySuccess(t("admin.order.itemPriceUpdated"));
     } catch (err) {
@@ -574,13 +602,17 @@ export default function AdminOrderDetail() {
   const subtotal =
     order.items.reduce((sum, item) => {
       const key = item.id ?? "";
-      return (
-        sum +
-        (key && itemPrices[key] !== undefined
+      const unit =
+        key && itemPrices[key] !== undefined
           ? itemPrices[key]
-          : item.price || 0) *
-          (item.count ?? 1)
-      );
+          : item.unitPrice !== undefined && item.unitPrice > 0
+            ? item.unitPrice
+            : item.price || 0;
+      const plate =
+        key && itemPlateCosts[key] !== undefined
+          ? itemPlateCosts[key]
+          : item.plateCost ?? 2.0;
+      return sum + unit * (item.count ?? 1) + plate;
     }, 0) || 0;
 
   const totalPrice = Math.max(
@@ -722,9 +754,9 @@ export default function AdminOrderDetail() {
             }}
           >
             <option value="">{t("admin.order.orderActions")}</option>
-            <option value="cancelled">{t("admin.orderStatus.cancelled")}</option>
-            <option value="returned">Mark returned</option>
-            <option value="refunded">Mark refunded</option>
+            <option value="cancelled">{t("orderStatus.cancelled")}</option>
+            <option value="returned">{t("admin.order.markReturned")}</option>
+            <option value="refunded">{t("admin.order.markRefunded")}</option>
           </select>
         </div>
       </div>
@@ -847,14 +879,14 @@ export default function AdminOrderDetail() {
           <article className="admin-order-overview-card admin-panel">
             <div className="admin-order-section-heading">
               <div>
-                <p className="admin-order-eyebrow">At a glance</p>
-                <h2>Order context</h2>
+                <p className="admin-order-eyebrow">{t("admin.order.atAGlance")}</p>
+                <h2>{t("admin.order.orderContext")}</h2>
               </div>
               <Package size={20} aria-hidden="true" />
             </div>
             <dl className="admin-order-context-list">
               <div>
-                <dt>Payment flow</dt>
+                <dt>{t("admin.order.paymentFlow")}</dt>
                 <dd>
                   {paymentFlow === "bank_transfer"
                     ? "Bank transfer / invoice"
@@ -862,15 +894,15 @@ export default function AdminOrderDetail() {
                 </dd>
               </div>
               <div>
-                <dt>Customer phone</dt>
-                <dd>{order.phoneNumber || "Not provided"}</dd>
+                <dt>{t("admin.order.customerPhone")}</dt>
+                <dd>{order.phoneNumber || t("admin.order.notProvided")}</dd>
               </div>
               <div>
-                <dt>Last updated</dt>
+                <dt>{t("admin.order.lastUpdated")}</dt>
                 <dd>
                   {order.updatedAt
                     ? new Date(order.updatedAt).toLocaleString()
-                    : "Not available"}
+                    : t("admin.order.notAvailableDetailed")}
                 </dd>
               </div>
             </dl>
@@ -879,8 +911,8 @@ export default function AdminOrderDetail() {
           <article className="admin-order-overview-card admin-panel">
             <div className="admin-order-section-heading">
               <div>
-                <p className="admin-order-eyebrow">Recent signal</p>
-                <h2>Latest activity</h2>
+                <p className="admin-order-eyebrow">{t("admin.order.recentSignal")}</p>
+                <h2>{t("admin.order.latestActivity")}</h2>
               </div>
               <CheckCircle size={20} aria-hidden="true" />
             </div>
@@ -899,7 +931,7 @@ export default function AdminOrderDetail() {
       )}
 
       {activeView === "items" &&
-        (currentStatus as string) === "pending_quote" && (
+        ((currentStatus as string) === "pending_quote" || (currentStatus as string) === "quote_requested") && (
           <>
             {/* SMART ACTION PANEL */}
             <div className="bg-white border-2 border-emerald-100 rounded-2xl shadow-sm mb-8 overflow-hidden">
@@ -911,7 +943,7 @@ export default function AdminOrderDetail() {
               </div>
 
               <div className="p-6">
-                {currentStatus === "pending_quote" && (
+                {((currentStatus as string) === "pending_quote" || (currentStatus as string) === "quote_requested") && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                       <div>
@@ -1226,10 +1258,14 @@ export default function AdminOrderDetail() {
               t={t}
               itemPrices={itemPrices}
               setItemPrices={setItemPrices}
+              itemPlateCosts={itemPlateCosts}
+              setItemPlateCosts={setItemPlateCosts}
               savingItemId={savingItemId}
               updateItemPrice={updateItemPrice}
               calculateItemPrice={calculateItemPrice}
               calculatingPriceId={calculatingPriceId}
+              calculateAllPrices={calculateAllPrices}
+              calculatingAllPrices={calculatingAllPrices}
               deliveryPrice={deliveryPrice}
               setDeliveryPrice={setDeliveryPrice}
               savingDelivery={savingDelivery}

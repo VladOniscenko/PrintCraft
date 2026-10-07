@@ -155,6 +155,7 @@ public class PrintPricingService : IPrintPricingService
 
                     if (weightMatch.Success && double.TryParse(weightMatch.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedWeight))
                     {
+                        parsedWeight = Math.Max(0.05, parsedWeight);
                         // Slicer returned weight for 1 item. Scale to batch.
                         filamentUsedGrams = parsedWeight * count;
                     }
@@ -163,10 +164,12 @@ public class PrintPricingService : IPrintPricingService
                     {
                         string singleItemTime = timeMatch.Groups[1].Value.Trim();
                         double singleHours = ParsePrintTimeToHours(singleItemTime);
+                        singleHours = Math.Max(1.0 / 60.0, singleHours); // Minimum 1 min print time per item
                         
-                        // PrusaSlicer's estimate includes ~4 mins of bed heating/leveling.
-                        double prepHours = 4.0 / 60.0;
-                        double printHoursPerItem = Math.Max(0.01, singleHours - prepHours);
+                        // PrusaSlicer's estimate without custom start G-code is just the pure printing time.
+                        // We assume ~6 mins of bed heating/leveling prep time per plate.
+                        double prepHours = 6.0 / 60.0;
+                        double printHoursPerItem = singleHours;
                         
                         double batchTotalHours = prepHours + (printHoursPerItem * count);
                         
@@ -230,22 +233,16 @@ public class PrintPricingService : IPrintPricingService
         double timeCost = totalHours * 1.5; // €1.50 per hour
         double materialCost = filamentUsedGrams * (double)pricePerGram;
 
-        // Start cost (2 euro per plate) + time + material
-        double startCost = 2.00;
-        var totalPlatePrice = startCost + timeCost + materialCost;
+        // Start cost (orderItem.PlateCost per plate) is added at the order level.
+        // We calculate unitPrice strictly based on time and material.
+        var unitPrice = (timeCost + materialCost) / count;
 
-        // Convert batch totals back to per-unit metrics for storing in OrderItem
-        var unitPrice = totalPlatePrice / count;
-        var unitFilament = filamentUsedGrams / count;
-        
-        var unitHours = totalHours / count;
-        var uH = (int)unitHours;
-        var uM = (int)Math.Round((unitHours - uH) * 60);
-        string unitEstimatedTime = uH > 0 ? $"{uH}h {uM}m" : $"{uM}m";
-
-        orderItem.EstimatedPrintTime = unitEstimatedTime;
-        orderItem.FilamentUsedGrams = Math.Round(unitFilament, 2);
-        orderItem.Price = Math.Round(unitPrice, 2);
+        // However, we want to store the TOTAL batch filament and print time in the database 
+        // so that the frontend UI displays the total resource cost for this order item.
+        orderItem.EstimatedPrintTime = estimatedPrintTime;
+        orderItem.FilamentUsedGrams = Math.Round(filamentUsedGrams, 2);
+        orderItem.UnitPrice = Math.Round(unitPrice, 2);
+        orderItem.Price = orderItem.UnitPrice;
 
         await db.SaveChangesAsync();
         _logger.LogInformation("Calculated price for OrderItem {ItemId}: grams={Grams}g, time={Time}, price=€{Price}",

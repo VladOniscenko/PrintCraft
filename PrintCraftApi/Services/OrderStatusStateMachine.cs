@@ -57,7 +57,15 @@ public static class OrderStatus
     };
 
     public static string Normalize(string? status)
-        => string.IsNullOrWhiteSpace(status) ? string.Empty : status.Trim().ToLowerInvariant();
+    {
+        if (string.IsNullOrWhiteSpace(status)) return string.Empty;
+        var s = status.Trim().ToLowerInvariant();
+        if (s == "pending_payment" || s == "quoted") return AwaitingPayment;
+        if (s == "pending_quote" || s == "pending") return QuoteRequested;
+        if (s == "paid" || s == "completed") return ReadyToPrint;
+        if (s == "sent" || s == "delivered") return Shipped;
+        return s;
+    }
 }
 
 /// <summary>
@@ -148,15 +156,15 @@ public sealed class OrderStatusStateMachine
             return TransitionToCancelled(order, current);
 
         if (target == OrderStatus.Returned)
-            return TransitionToReturned(current);
+            return TransitionToReturned(order, current);
 
         // ── Primary Workflow Transitions ─────────────────────────────────
         return target switch
         {
             OrderStatus.AwaitingPayment => await TransitionToAwaitingPaymentAsync(order, current),
             OrderStatus.ReadyToPrint    => TransitionToReadyToPrint(order, request, current),
-            OrderStatus.Printing        => TransitionToPrinting(current),
-            OrderStatus.PostProcessing  => TransitionToPostProcessing(current),
+            OrderStatus.Printing        => TransitionToPrinting(order, current),
+            OrderStatus.PostProcessing  => TransitionToPostProcessing(order, current),
             OrderStatus.Shipped         => TransitionToShipped(order, request, current),
             _                           => TransitionResult.Fail($"Unknown target status '{target}'.")
         };
@@ -237,13 +245,15 @@ public sealed class OrderStatusStateMachine
     /// Gate: structural only – order must be in ReadyToPrint.
     /// The physical print start is the gate.
     /// </summary>
-    private static TransitionResult TransitionToPrinting(string current)
+    private static TransitionResult TransitionToPrinting(Order order, string current)
     {
         if (!IsAllowedPredecessor(current, OrderStatus.ReadyToPrint, OrderStatus.OnHold))
             return TransitionResult.Fail(
                 $"Cannot move to Printing from '{current}'. " +
                 "Order must be in Ready to Print first.");
 
+        order.Status    = OrderStatus.Printing;
+        order.UpdatedAt = DateTime.UtcNow;
         return TransitionResult.Ok();
     }
 
@@ -252,13 +262,15 @@ public sealed class OrderStatusStateMachine
     /// Gate: print job must be marked complete (implicit when admin moves the card).
     /// In practice this is a drag from Printing → PostProcessing which confirms success.
     /// </summary>
-    private static TransitionResult TransitionToPostProcessing(string current)
+    private static TransitionResult TransitionToPostProcessing(Order order, string current)
     {
         if (!IsAllowedPredecessor(current, OrderStatus.Printing, OrderStatus.OnHold))
             return TransitionResult.Fail(
                 $"Cannot move to Post-Processing from '{current}'. " +
                 "Order must have been printing first.");
 
+        order.Status    = OrderStatus.PostProcessing;
+        order.UpdatedAt = DateTime.UtcNow;
         return TransitionResult.Ok();
     }
 
@@ -349,13 +361,15 @@ public sealed class OrderStatusStateMachine
     /// <summary>
     /// Can only return from Shipped.
     /// </summary>
-    private static TransitionResult TransitionToReturned(string current)
+    private static TransitionResult TransitionToReturned(Order order, string current)
     {
         if (!IsAllowedPredecessor(current, OrderStatus.Shipped))
             return TransitionResult.Fail(
                 $"Order cannot be marked Returned from '{current}'. " +
                 "Only shipped orders can be returned.");
 
+        order.Status    = OrderStatus.Returned;
+        order.UpdatedAt = DateTime.UtcNow;
         return TransitionResult.Ok();
     }
 

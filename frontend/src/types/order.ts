@@ -102,7 +102,9 @@ export interface OrderItem {
   material: string;
   color: string;
   price: number;
+  unitPrice?: number;
   count: number;
+  plateCost?: number;
   estimatedPrintTime?: string;
   filamentUsedGrams?: number;
   scaleFactor?: number;
