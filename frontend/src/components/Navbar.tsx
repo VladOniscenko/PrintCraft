@@ -12,20 +12,28 @@ const Navbar = () => {
   const { pathname } = useLocation();
   const { t, language, setLanguage, languageOptions } = useI18n();
 
-  // Check if user is logged in on mount and whenever the component updates
+  // Check if user is logged in on mount and whenever the component updates or storage changes
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+    const updateAuth = () => {
+      const token = localStorage.getItem("token");
+      setIsLoggedIn(!!token);
 
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      try {
-        const parsed = JSON.parse(userStr);
-        setUserRole(parsed?.role || null);
-      } catch {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          const parsed = JSON.parse(userStr);
+          setUserRole(parsed?.role || null);
+        } catch {
+          setUserRole(null);
+        }
+      } else {
         setUserRole(null);
       }
-    }
+    };
+
+    updateAuth();
+    window.addEventListener("storage", updateAuth);
+    return () => window.removeEventListener("storage", updateAuth);
   }, [pathname]);
 
   const handleLogout = () => {

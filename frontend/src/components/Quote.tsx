@@ -18,6 +18,11 @@ import {
   Ruler,
   MapPin,
   User,
+  UserPlus,
+  LogIn,
+  Lock,
+  Mail,
+  AlertCircle,
   ChevronRight,
   ChevronLeft,
   Home,
@@ -263,11 +268,28 @@ export default function Quote() {
   const submittedRef = useRef(false);
   const uploadedFileUrlsRef = useRef<Set<string>>(new Set());
 
-  const isLoggedIn = !!localStorage.getItem("token");
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("token"));
+  const [currentUser, setCurrentUser] = useState<any>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "null");
+    } catch {
+      return null;
+    }
+  });
+  const [initialIsLoggedIn] = useState(() => !!localStorage.getItem("token"));
+
+  // Account Step State (Login / Register)
+  const [authMode, setAuthMode] = useState<"register" | "login">("register");
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
 
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
-  const [guestPhone, setGuestPhone] = useState("");
   const [guestSubmittedOrderId, setGuestSubmittedOrderId] = useState<
     string | null
   >(null);
@@ -288,11 +310,32 @@ export default function Quote() {
   const [shippingErrors, setShippingErrors] = useState<Record<string, string>>(
     {},
   );
-  const [guestErrors, setGuestErrors] = useState<Record<string, string>>({});
 
-  const [currentStep, setCurrentStep] = useState(1);
+  type StepId = "models" | "account" | "shipping" | "review";
+
+  const includeAccountStep = !initialIsLoggedIn || !isLoggedIn;
+
+  const steps: Array<{ id: StepId; label: string }> = includeAccountStep
+    ? [
+        { id: "models", label: t("quote.stepModels") },
+        { id: "account", label: t("quote.stepAccount") },
+        { id: "shipping", label: t("quote.stepShipping") },
+        { id: "review", label: t("quote.stepReview") },
+      ]
+    : [
+        { id: "models", label: t("quote.stepModels") },
+        { id: "shipping", label: t("quote.stepShipping") },
+        { id: "review", label: t("quote.stepReview") },
+      ];
+
+  const [currentStepId, setCurrentStepId] = useState<StepId>("models");
+
+  const currentStepIndex = Math.max(
+    0,
+    steps.findIndex((s) => s.id === currentStepId),
+  );
+  const canGoBack = currentStepIndex > 0;
   const [agreementAccepted, setAgreementAccepted] = useState(false);
-  const totalSteps = 3;
 
   // Step 1 is now Models
   const validateStepOne = () => {
@@ -336,88 +379,232 @@ export default function Quote() {
     return null;
   };
 
-  // Step 2 is now Details (Contact & Shipping)
-  const validateStepTwo = () => {
-    if (!isLoggedIn) {
-      const normalizedName = guestName.trim();
-      const normalizedEmail = guestEmail.trim();
+  const handleRegisterAndLogin = async () => {
+    const normalizedName = regName.trim();
+    const normalizedEmail = regEmail.trim().toLowerCase();
+    const password = regPassword;
 
-      if (normalizedName.length < 2) {
-        return t("quote.guestRequiredName");
-      }
-
-      if (!normalizedEmail) {
-        return t("quote.guestRequiredEmail");
-      }
-
-      if (!isValidEmail(normalizedEmail)) {
-        return t("quote.guestInvalidEmail");
-      }
+    if (normalizedName.length < 2) {
+      const err = t("quote.nameMinLength") || "Name must be at least 2 characters.";
+      setAuthError(err);
+      notifyError(err);
+      return;
+    }
+    if (!isValidEmail(normalizedEmail)) {
+      const err = t("quote.guestInvalidEmail") || "A valid email is required.";
+      setAuthError(err);
+      notifyError(err);
+      return;
+    }
+    if (!password || password.length < 8) {
+      const err = t("quote.passwordMinLength") || "Password must be at least 8 characters.";
+      setAuthError(err);
+      notifyError(err);
+      return;
     }
 
-    const shippingErrors = validateShippingInfo(shippingDetails, t);
-    if (Object.keys(shippingErrors).length > 0) {
-      return Object.values(shippingErrors)[0];
-    }
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      // 1. Register account
+      await api.post("/auth/register", {
+        name: normalizedName,
+        email: normalizedEmail,
+        password: password,
+      });
 
-    return null;
+      // 2. Automatically log the user in
+      const loginRes = await api.post("/auth/login", {
+        email: normalizedEmail,
+        password: password,
+      });
+
+      const token = loginRes.data.token;
+      const user = loginRes.data.user;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      window.dispatchEvent(new Event("storage"));
+
+      setIsLoggedIn(true);
+      setCurrentUser(user);
+      setGuestName(normalizedName);
+      setGuestEmail(normalizedEmail);
+
+      // Pre-fill shipping full name if empty
+      setShippingDetails((prev) => ({
+        ...prev,
+        fullName: prev.fullName || normalizedName,
+      }));
+
+      // Redeem quote draft if present
+      try {
+        const draft = JSON.parse(
+          localStorage.getItem("printcraft-home-quote") || "null",
+        );
+        if (draft?.quoteToken) {
+          await api.post("/quote-drafts/redeem", {
+            quoteToken: draft.quoteToken,
+          });
+        }
+      } catch {
+        /* best-effort draft redemption */
+      }
+
+      // Proceed immediately to shipping step
+      setCurrentStepId("shipping");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        (typeof err?.response?.data === "string" ? err.response.data : null) ||
+        t("quote.registerFailed") ||
+        "Failed to create account. Email may already be in use.";
+      setAuthError(msg);
+      notifyError(msg);
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
-  const goToNextStep = () => {
-    if (currentStep === 1) {
+  const handleLogin = async () => {
+    const normalizedEmail = loginEmail.trim().toLowerCase();
+    const password = loginPassword;
+
+    if (!normalizedEmail || !isValidEmail(normalizedEmail)) {
+      const err = t("quote.guestInvalidEmail") || "A valid email is required.";
+      setAuthError(err);
+      notifyError(err);
+      return;
+    }
+    if (!password) {
+      const err = t("quote.passwordRequired") || "Password is required.";
+      setAuthError(err);
+      notifyError(err);
+      return;
+    }
+
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      const loginRes = await api.post("/auth/login", {
+        email: normalizedEmail,
+        password: password,
+      });
+
+      const token = loginRes.data.token;
+      const user = loginRes.data.user;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      window.dispatchEvent(new Event("storage"));
+
+      setIsLoggedIn(true);
+      setCurrentUser(user);
+      if (user?.name) {
+        setGuestName(user.name);
+        setShippingDetails((prev) => ({
+          ...prev,
+          fullName: prev.fullName || user.name,
+        }));
+      }
+      setGuestEmail(normalizedEmail);
+
+      // Fetch saved addresses
+      try {
+        const addrRes = await api.get("/me/addresses");
+        if (Array.isArray(addrRes.data) && addrRes.data.length > 0) {
+          setSavedAddresses(addrRes.data);
+          const defaultAddr =
+            addrRes.data.find((a: SavedAddress) => a.isDefault) ||
+            addrRes.data[0];
+          handleSelectSavedAddress(defaultAddr);
+        }
+      } catch {
+        /* best-effort */
+      }
+
+      // Redeem quote draft if present
+      try {
+        const draft = JSON.parse(
+          localStorage.getItem("printcraft-home-quote") || "null",
+        );
+        if (draft?.quoteToken) {
+          await api.post("/quote-drafts/redeem", {
+            quoteToken: draft.quoteToken,
+          });
+        }
+      } catch {
+        /* best-effort */
+      }
+
+      // Proceed immediately to shipping step
+      setCurrentStepId("shipping");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        t("login.error.invalid") ||
+        "Invalid email or password.";
+      setAuthError(msg);
+      notifyError(msg);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSwitchAccount = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.dispatchEvent(new Event("storage"));
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+    setSavedAddresses([]);
+    setSelectedAddressId(null);
+    setAuthMode("login");
+    setAuthError("");
+  };
+
+  const goToNextStep = async () => {
+    if (currentStepId === "models") {
       const error = validateStepOne();
       if (error) {
         notifyError(error);
         return;
       }
-    } else if (currentStep === 2) {
-      // Run field-level validation and surface errors inline
+      const nextStep = steps[currentStepIndex + 1]?.id || "shipping";
+      setCurrentStepId(nextStep);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (currentStepId === "account") {
+      if (!isLoggedIn) {
+        if (authMode === "register") {
+          await handleRegisterAndLogin();
+        } else {
+          await handleLogin();
+        }
+        return;
+      }
+      setCurrentStepId("shipping");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (currentStepId === "shipping") {
       const fieldErrors = validateShippingInfo(shippingDetails, t);
-      let hasError = false;
-
       if (Object.keys(fieldErrors).length > 0) {
         setShippingErrors(fieldErrors);
         notifyError(Object.values(fieldErrors)[0]);
-        hasError = true;
-      } else {
-        setShippingErrors({});
+        return;
       }
-
-      // Guest-only contact validation
-      if (!isLoggedIn) {
-        const nextGuestErrors: Record<string, string> = {};
-        const normalizedName = guestName.trim();
-        const normalizedEmail = guestEmail.trim();
-        if (normalizedName.length < 2) {
-          nextGuestErrors.name = t("quote.guestRequiredName");
-        }
-        if (!normalizedEmail) {
-          nextGuestErrors.email = t("quote.guestRequiredEmail");
-        } else if (!isValidEmail(normalizedEmail)) {
-          nextGuestErrors.email = t("quote.guestInvalidEmail");
-        }
-
-        if (Object.keys(nextGuestErrors).length > 0) {
-          setGuestErrors(nextGuestErrors);
-          if (!hasError) {
-            notifyError(Object.values(nextGuestErrors)[0]);
-          }
-          hasError = true;
-        } else {
-          setGuestErrors({});
-        }
-      }
-
-      if (hasError) return;
+      setShippingErrors({});
+      setCurrentStepId("review");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
-
-    setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const goToPreviousStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (currentStepIndex > 0) {
+      const prevStep = steps[currentStepIndex - 1]?.id || "models";
+      setCurrentStepId(prevStep);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const validateAgreement = () =>
@@ -598,27 +785,6 @@ export default function Quote() {
     }
   };
 
-  const handleGuestNameChange = (value: string) => {
-    setGuestName(value);
-    if (guestErrors.name && value.trim().length >= 2) {
-      setGuestErrors((prev) => {
-        const next = { ...prev };
-        delete next.name;
-        return next;
-      });
-    }
-  };
-
-  const handleGuestEmailChange = (value: string) => {
-    setGuestEmail(value);
-    if (guestErrors.email && isValidEmail(value.trim())) {
-      setGuestErrors((prev) => {
-        const next = { ...prev };
-        delete next.email;
-        return next;
-      });
-    }
-  };
 
   const uploadSelectedFilesForItem = async (
     selectedFiles: File[],
@@ -1088,14 +1254,21 @@ export default function Quote() {
     const stepOneError = validateStepOne();
     if (stepOneError) {
       notifyError(stepOneError);
-      setCurrentStep(1);
+      setCurrentStepId("models");
       return;
     }
 
-    const stepTwoError = validateStepTwo();
-    if (stepTwoError) {
-      notifyError(stepTwoError);
-      setCurrentStep(2);
+    if (!isLoggedIn) {
+      notifyError(t("quote.authSubtitle") || "Please sign in or create an account.");
+      setCurrentStepId("account");
+      return;
+    }
+
+    const fieldErrors = validateShippingInfo(shippingDetails, t);
+    if (Object.keys(fieldErrors).length > 0) {
+      setShippingErrors(fieldErrors);
+      notifyError(Object.values(fieldErrors)[0]);
+      setCurrentStepId("shipping");
       return;
     }
 
@@ -1264,9 +1437,9 @@ export default function Quote() {
       };
 
       if (!isLoggedIn) {
-        payload.guestName = guestName.trim();
-        payload.guestEmail = guestEmail.trim();
-        payload.guestPhone = guestPhone.trim();
+        payload.guestName = (guestName || shippingDetails.fullName || "").trim();
+        payload.guestEmail = (guestEmail || "").trim();
+        payload.guestPhone = (shippingDetails.phoneNumber || "").trim();
       }
 
       const res = await api.post("/orders/quote", payload);
@@ -1287,7 +1460,7 @@ export default function Quote() {
       setItems([]);
       setGuestSubmittedOrderId(res?.data?.order?.id || res?.data?.id || null);
       setGuestAccountCreated(!!res?.data?.accountCreated);
-      setCurrentStep(1);
+      setCurrentStepId("models");
     } catch (err: any) {
       const message = err?.response?.data?.message || t("quote.submitFailed");
       notifyError(message);
@@ -1331,11 +1504,6 @@ export default function Quote() {
     };
   }, []);
 
-  const stepLabels = [
-    t("quote.stepModels"),
-    t("quote.stepDetails"),
-    t("quote.stepReview"),
-  ];
 
   return (
     <div className="site-shell">
@@ -1352,28 +1520,36 @@ export default function Quote() {
         {/* Improved Step Progress Indicator */}
         <div className="mb-10">
           <div className="flex items-center justify-center max-w-3xl mx-auto">
-            {stepLabels.map((label, index) => {
+            {steps.map((step, index) => {
               const stepNumber = index + 1;
-              const isActive = currentStep === stepNumber;
-              const isComplete = currentStep > stepNumber;
+              const isActive = currentStepId === step.id;
+              const isComplete = currentStepIndex > index;
 
               return (
                 <div
-                  key={label}
+                  key={step.id}
                   className="flex items-center flex-1 last:flex-none"
                 >
                   <div className="flex flex-col items-center relative z-10 w-24">
-                    <div
+                    <button
+                      type="button"
+                      disabled={!isComplete}
+                      onClick={() => {
+                        if (isComplete) {
+                          setCurrentStepId(step.id);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }
+                      }}
                       className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
                         isActive
                           ? "border-emerald-600 bg-emerald-600 text-white shadow-md"
                           : isComplete
-                            ? "border-emerald-500 bg-emerald-50 text-emerald-600"
-                            : "border-gray-200 bg-white text-gray-400"
+                            ? "border-emerald-500 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 cursor-pointer"
+                            : "border-gray-200 bg-white text-gray-400 cursor-default"
                       }`}
                     >
                       {isComplete ? <CheckCircle size={18} /> : stepNumber}
-                    </div>
+                    </button>
                     <span
                       className={`absolute top-12 mt-1 text-xs font-semibold whitespace-nowrap transition-colors duration-300 ${
                         isActive
@@ -1383,10 +1559,10 @@ export default function Quote() {
                             : "text-gray-400"
                       }`}
                     >
-                      {label}
+                      {step.label}
                     </span>
                   </div>
-                  {index < stepLabels.length - 1 && (
+                  {index < steps.length - 1 && (
                     <div className="flex-1 mx-2 h-1 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-emerald-500 transition-all duration-500 ease-in-out"
@@ -1427,13 +1603,30 @@ export default function Quote() {
         )}
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (currentStepId === "review") {
+              void handleSubmit(e);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (
+              e.key === "Enter" &&
+              (e.target as HTMLElement).tagName === "INPUT"
+            ) {
+              e.preventDefault();
+              if (currentStepId === "account" && !isLoggedIn) {
+                if (authMode === "register") void handleRegisterAndLogin();
+                else void handleLogin();
+              }
+            }
+          }}
           className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start"
         >
           {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-6">
             {/* STEP 1: MODELS */}
-            {currentStep === 1 && (
+            {currentStepId === "models" && (
               <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                   <div>
@@ -2360,81 +2553,259 @@ export default function Quote() {
               </div>
             )}
 
-            {/* STEP 2: DETAILS (Contact & Shipping) */}
-            {currentStep === 2 && (
-              <div className="space-y-6">
-                {!isLoggedIn && (
-                  <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="bg-emerald-50 p-2 rounded-lg text-emerald-600">
-                        <User size={24} />
+            {/* STEP: ACCOUNT */}
+            {currentStepId === "account" && (
+              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-emerald-50 p-2.5 rounded-xl text-emerald-600">
+                    <User size={26} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">
+                      {t("quote.authTitle")}
+                    </h3>
+                    <p className="text-sm text-[#5f736d]">
+                      {t("quote.authSubtitle")}
+                    </p>
+                  </div>
+                </div>
+
+                {isLoggedIn ? (
+                  <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                        <CheckCircle size={22} />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-gray-800">
-                          {t("quote.guestContactTitle")}
-                        </h3>
-                        <p className="text-sm text-[#5f736d]">
-                          {t("quote.guestContactSubtitle")}
+                        <h4 className="font-bold text-emerald-950 text-base">
+                          {t("quote.loggedInAs")}:{" "}
+                          <span className="text-emerald-700">
+                            {currentUser?.name || currentUser?.email}
+                          </span>
+                        </h4>
+                        <p className="text-xs text-emerald-800 mt-0.5">
+                          {currentUser?.email}
                         </p>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                          {t("quote.fullName")}
-                        </label>
-                        <input
-                          type="text"
-                          value={guestName}
-                          onChange={(e) =>
-                            handleGuestNameChange(e.target.value)
-                          }
-                          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
-                          placeholder={t("quote.placeholderName")}
-                        />
-                        {guestErrors.name && (
-                          <p className="text-xs text-red-600 mt-1">
-                            {guestErrors.name}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                          {t("quote.guestEmail")}
-                        </label>
-                        <input
-                          type="email"
-                          value={guestEmail}
-                          onChange={(e) =>
-                            handleGuestEmailChange(e.target.value)
-                          }
-                          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
-                          placeholder={t("quote.placeholderEmail")}
-                        />
-                        {guestErrors.email && (
-                          <p className="text-xs text-red-600 mt-1">
-                            {guestErrors.email}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-1.5 md:col-span-2">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                          {t("quote.phone")}
-                        </label>
-                        <input
-                          type="text"
-                          value={guestPhone}
-                          onChange={(e) => setGuestPhone(e.target.value)}
-                          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
-                          placeholder={t("quote.placeholderPhone")}
-                        />
-                      </div>
+                    <div className="mt-6 flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCurrentStepId("shipping");
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className="bg-[#133827] text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-sm"
+                      >
+                        <span>{t("quote.continueToShipping")}</span>
+                        <ChevronRight size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCurrentStepId("models");
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className="border border-gray-200 bg-white text-gray-700 px-4 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2"
+                      >
+                        <ChevronLeft size={16} />
+                        <span>{t("quote.backToModels")}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSwitchAccount}
+                        className="text-xs font-semibold text-gray-500 hover:text-red-600 underline ml-auto transition-colors"
+                      >
+                        {t("quote.switchAccount")}
+                      </button>
                     </div>
                   </div>
+                ) : (
+                  <div>
+                    {/* Tab Navigation */}
+                    <div className="flex border-b border-gray-100 mb-6">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAuthMode("register");
+                          setAuthError("");
+                        }}
+                        className={`pb-3 px-5 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${
+                          authMode === "register"
+                            ? "border-emerald-600 text-emerald-800"
+                            : "border-transparent text-gray-400 hover:text-gray-600"
+                        }`}
+                      >
+                        <UserPlus size={18} />
+                        {t("quote.registerTab")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAuthMode("login");
+                          setAuthError("");
+                        }}
+                        className={`pb-3 px-5 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${
+                          authMode === "login"
+                            ? "border-emerald-600 text-emerald-800"
+                            : "border-transparent text-gray-400 hover:text-gray-600"
+                        }`}
+                      >
+                        <LogIn size={18} />
+                        {t("quote.signInTab")}
+                      </button>
+                    </div>
+
+                    {authError && (
+                      <div className="mb-6 flex items-center gap-2.5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                        <AlertCircle size={18} className="shrink-0" />
+                        <span>{authError}</span>
+                      </div>
+                    )}
+
+                    {authMode === "register" ? (
+                      <div className="space-y-4 max-w-lg">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <User size={14} className="text-emerald-600" />
+                            {t("quote.fullName")}
+                          </label>
+                          <input
+                            type="text"
+                            value={regName}
+                            onChange={(e) => {
+                              setRegName(e.target.value);
+                              setGuestName(e.target.value);
+                              if (authError) setAuthError("");
+                            }}
+                            className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                            placeholder={t("quote.placeholderName") || "Jane Doe"}
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <Mail size={14} className="text-emerald-600" />
+                            {t("quote.email")}
+                          </label>
+                          <input
+                            type="email"
+                            value={regEmail}
+                            onChange={(e) => {
+                              setRegEmail(e.target.value);
+                              setGuestEmail(e.target.value);
+                              if (authError) setAuthError("");
+                            }}
+                            className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                            placeholder={t("quote.placeholderEmail") || "jane@example.com"}
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                              <Lock size={14} className="text-emerald-600" />
+                              {t("quote.password")}
+                            </label>
+                            <span className="text-[11px] text-gray-400">
+                              {t("quote.min8Chars")}
+                            </span>
+                          </div>
+                          <input
+                            type="password"
+                            value={regPassword}
+                            onChange={(e) => {
+                              setRegPassword(e.target.value);
+                              if (authError) setAuthError("");
+                            }}
+                            className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                            placeholder="••••••••"
+                          />
+                        </div>
+
+                        <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                          <button
+                            type="button"
+                            onClick={handleRegisterAndLogin}
+                            disabled={authLoading}
+                            className="bg-[#133827] text-white px-6 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                          >
+                            {authLoading ? (
+                              <Loader2 className="animate-spin" size={18} />
+                            ) : (
+                              <>
+                                <span>{t("quote.registerToContinue")}</span>
+                                <ChevronRight size={18} />
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 max-w-lg">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <Mail size={14} className="text-emerald-600" />
+                            {t("quote.email")}
+                          </label>
+                          <input
+                            type="email"
+                            value={loginEmail}
+                            onChange={(e) => {
+                              setLoginEmail(e.target.value);
+                              setGuestEmail(e.target.value);
+                              if (authError) setAuthError("");
+                            }}
+                            className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                            placeholder={t("quote.placeholderEmail") || "jane@example.com"}
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <Lock size={14} className="text-emerald-600" />
+                            {t("quote.password")}
+                          </label>
+                          <input
+                            type="password"
+                            value={loginPassword}
+                            onChange={(e) => {
+                              setLoginPassword(e.target.value);
+                              if (authError) setAuthError("");
+                            }}
+                            className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                            placeholder="••••••••"
+                          />
+                        </div>
+
+                        <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                          <button
+                            type="button"
+                            onClick={handleLogin}
+                            disabled={authLoading}
+                            className="bg-[#133827] text-white px-6 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                          >
+                            {authLoading ? (
+                              <Loader2 className="animate-spin" size={18} />
+                            ) : (
+                              <>
+                                <span>{t("quote.loginToContinue")}</span>
+                                <ChevronRight size={18} />
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
+              </div>
+            )}
+
+            {/* STEP: SHIPPING DETAILS */}
+            {currentStepId === "shipping" && (
+              <div className="space-y-6">
 
                 <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                   <div className="flex items-center gap-3 mb-6">
@@ -2612,8 +2983,8 @@ export default function Quote() {
               </div>
             )}
 
-            {/* STEP 3: REVIEW */}
-            {currentStep === 3 && (
+            {/* STEP: REVIEW */}
+            {currentStepId === "review" && (
               <div className="space-y-6">
                 <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                   <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
@@ -2736,16 +3107,24 @@ export default function Quote() {
                         </h4>
                         <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 text-sm text-gray-700 space-y-1">
                           {isLoggedIn ? (
-                            <p className="font-medium text-emerald-700">
-                              {t("quote.loggedInUser")}
-                            </p>
+                            <div>
+                              <p className="font-bold text-emerald-800">
+                                {currentUser?.name || shippingDetails.fullName || t("quote.loggedInUser")}
+                              </p>
+                              {currentUser?.email && (
+                                <p className="text-gray-600">{currentUser.email}</p>
+                              )}
+                              {shippingDetails.phoneNumber && (
+                                <p className="text-gray-600">{shippingDetails.phoneNumber}</p>
+                              )}
+                            </div>
                           ) : (
                             <>
                               <p className="font-bold text-gray-800">
-                                {guestName || "-"}
+                                {shippingDetails.fullName || guestName || "-"}
                               </p>
-                              <p>{guestEmail || "-"}</p>
-                              <p>{guestPhone || "-"}</p>
+                              <p>{currentUser?.email || guestEmail || "-"}</p>
+                              <p>{shippingDetails.phoneNumber || "-"}</p>
                             </>
                           )}
                         </div>
@@ -2782,11 +3161,13 @@ export default function Quote() {
                   {t("quote.orderSummary")}
                 </h4>
                 <p className="text-sm text-gray-600 mb-6 pb-6 border-b border-gray-100">
-                  {currentStep === 1
-                    ? t("quote.step2SidebarNote") // Actually step 1 now (Models)
-                    : currentStep === 2
-                      ? t("quote.shippingDetailsNote") // Step 2 (Details)
-                      : t("quote.reviewSidebarNote")}
+                  {currentStepId === "models"
+                    ? t("quote.step2SidebarNote")
+                    : currentStepId === "account"
+                      ? t("quote.stepAccountNote")
+                      : currentStepId === "shipping"
+                        ? t("quote.shippingDetailsNote")
+                        : t("quote.reviewSidebarNote")}
                 </p>
 
                 <div className="flex justify-between items-center mb-6 font-semibold text-gray-700">
@@ -2809,7 +3190,7 @@ export default function Quote() {
                 </p>
 
                 <div className="flex flex-col gap-3">
-                  {currentStep === totalSteps && (
+                  {currentStepId === "review" && (
                     <label className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-left text-sm text-emerald-950">
                       <input
                         type="checkbox"
@@ -2834,35 +3215,43 @@ export default function Quote() {
                   <button
                     type="button"
                     onClick={
-                      currentStep === totalSteps ? handleSubmit : goToNextStep
+                      currentStepId === "review" ? handleSubmit : goToNextStep
                     }
                     disabled={
-                      isSubmitting || (currentStep === 1 && items.length === 0)
+                      isSubmitting ||
+                      (currentStepId === "models" && items.length === 0) ||
+                      (currentStepId === "account" && authLoading)
                     }
                     className="w-full bg-[#133827] text-white font-bold py-4 rounded-xl hover:bg-[#1c4d37] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
                   >
-                    {isSubmitting ? (
+                    {isSubmitting || authLoading ? (
                       <Loader2 className="animate-spin" />
-                    ) : currentStep === totalSteps ? (
+                    ) : currentStepId === "review" ? (
                       <>
                         <CheckCircle size={20} />
                         {t("quote.submit")}
                       </>
                     ) : (
                       <>
-                        {currentStep === 1
+                        {currentStepId === "models"
                           ? t("quote.nextStep")
-                          : t("quote.reviewStep")}
+                          : currentStepId === "account"
+                            ? isLoggedIn
+                              ? t("quote.nextStep")
+                              : authMode === "register"
+                                ? t("quote.registerToContinue")
+                                : t("quote.loginToContinue")
+                            : t("quote.reviewStep")}
                         <ChevronRight size={18} />
                       </>
                     )}
                   </button>
 
-                  {currentStep > 1 && (
+                  {canGoBack && (
                     <button
                       type="button"
                       onClick={goToPreviousStep}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || authLoading}
                       className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors flex items-center justify-center gap-2"
                     >
                       <ChevronLeft size={16} />

@@ -212,15 +212,8 @@ export default function App() {
           <Route path="/shipping-policy" element={<ShippingPolicy />} />
 
           {/* Private Routes - Only logged-in users can see these */}
-          <Route path="/quote" element={<Navigate to="/" replace />} />
-          <Route
-            path="/checkout"
-            element={
-              <ProtectedRoute>
-                <Quote />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/quote" element={<Navigate to="/checkout" replace />} />
+          <Route path="/checkout" element={<Quote />} />
           <Route
             path="/orders"
             element={
