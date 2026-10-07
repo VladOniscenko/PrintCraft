@@ -9,7 +9,7 @@ import {
   Receipt,
 } from "lucide-react";
 import type { OrderSectionProps, PriceSummary } from "./types";
-import { normalizePaymentFlow } from "../../utils/orderStatus";
+import { normalizeOrderStatus, normalizePaymentFlow } from "../../utils/orderStatus";
 
 interface OrderSidebarProps extends OrderSectionProps {
   priceSummary: PriceSummary;
@@ -145,7 +145,9 @@ export default function OrderSidebar({
       </div>
 
       {normalizedPaymentFlow === "bank_transfer" &&
-        (order.status === "quoted" || order.status === "pending_payment") &&
+        (normalizeOrderStatus(order.status) === "awaiting_payment" ||
+          order.status === "quoted" ||
+          order.status === "pending_payment") &&
         !order.isPaid && (
           <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
             <h4 className="font-bold text-sm text-amber-900 mb-3 flex items-center gap-2">

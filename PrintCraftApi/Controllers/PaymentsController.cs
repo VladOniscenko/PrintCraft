@@ -38,6 +38,7 @@ public class PaymentsController : ControllerBase
         if (order == null) return NotFound(new { message = "Order not found" });
         if (order.IsPaid) return BadRequest(new { message = "Order is already paid." });
         if (order.PaymentFlow != "bank_transfer") return BadRequest(new { message = "Only bank transfer payments are supported." });
+        if (OrderCustomerMapper.IsQuotePending(order)) return BadRequest(new { message = "This quote is still under review and cannot be paid yet." });
         var shipping = ShippingInfoValidator.Validate(order.FullName, order.PhoneNumber, order.AddressLine1, order.City, order.PostalCode);
         if (!shipping.IsValid) return BadRequest(new { message = "Shipping details are required before payment.", errors = shipping.Errors });
         var amount = order.QuotedPrice ?? order.FinalTotalAmount;

@@ -29,6 +29,12 @@ public interface IInvoiceService
 
 public sealed class InvoiceService(IOptions<InvoiceOptions> options) : IInvoiceService
 {
+    static InvoiceService()
+    {
+        QuestPDF.Settings.ThrowOnMissingFontFamilies = false;
+        QuestPDF.Settings.UseSystemFonts = true;
+    }
+
     private readonly InvoiceOptions _options = options.Value;
 
     public byte[] Generate(Order order, User? customer, string? language = "en")

@@ -203,6 +203,7 @@ public class AdminControllerPricingSyncTests
                     FileUrl = "/uploads/test.stl",
                     Price = itemPrice,
                     Count = itemCount,
+                    PlateCost = 0,
                     Material = "PLA",
                     Color = "Black"
                 }

@@ -157,8 +157,8 @@ public class PrintPricingTests
         Assert.DoesNotContain("1164h", updated.EstimatedPrintTime);
         Assert.DoesNotContain("100h", updated.EstimatedPrintTime);
 
-        // Minimum price floor (€2.00) applies for tiny single parts
-        Assert.True(updated.Price >= 2.0);
+        // Price is based on material + time; plate cost (€2.00) is added separately at the order level
+        Assert.True(updated.Price > 0, "Price should be greater than zero");
     }
 
     [Fact]

@@ -20,6 +20,7 @@ public class AdminController : ControllerBase
     private static readonly HashSet<string> KnownStatuses = new(StringComparer.OrdinalIgnoreCase)
     {
         "pending",
+        "pending_quote",
         OrderStatus.QuoteRequested,
         "quoted",
         "expired_quote",
