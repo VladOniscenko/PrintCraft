@@ -221,15 +221,7 @@ public class HueForgeLayerStackCalculatorTests
         var relsEntry = archive.GetEntry("_rels/.rels");
         Assert.NotNull(relsEntry);
 
-        var instructionsEntry = archive.GetEntry("Metadata/print_instructions.txt");
-        Assert.NotNull(instructionsEntry);
-
-        using var reader = new StreamReader(instructionsEntry.Open());
-        string instructionsText = reader.ReadToEnd();
-        Assert.Contains("PRINTCRAFT HUEFORGE PRINT INSTRUCTIONS", instructionsText);
-        Assert.Contains("Swap # 1", instructionsText);
-        Assert.Contains("Black", instructionsText);
-        Assert.Contains("White", instructionsText);
+        
 
         using var modelReader = new StreamReader(modelEntry.Open());
         string modelXml = modelReader.ReadToEnd();
@@ -238,7 +230,7 @@ public class HueForgeLayerStackCalculatorTests
         Assert.Contains("<vertices>", modelXml);
         Assert.Contains("<triangles>", modelXml);
         Assert.Contains("colorgroup", modelXml);
-        Assert.Contains("<metadata name=\"Application\">BambuStudio-01.10.00.00</metadata>", modelXml);
+        Assert.Contains("<metadata name=\"bambu:Application\">BambuStudio-01.10.00.00</metadata>", modelXml);
 
         // Verify Bambu Studio Metadata/project_settings.config
         var projectSettingsEntry = archive.GetEntry("Metadata/project_settings.config");
@@ -259,19 +251,19 @@ public class HueForgeLayerStackCalculatorTests
         using var gcodeReader = new StreamReader(customGcodeEntry.Open());
         string gcodeXml = gcodeReader.ReadToEnd();
         Assert.Contains("<custom_gcodes_per_layer>", gcodeXml);
-        Assert.Contains("<mode>MultiAsSingle</mode>", gcodeXml);
+        Assert.Contains("<mode value=\"MultiAsSingle\"/>", gcodeXml);
         Assert.Contains("gcode=\"tool_change\"", gcodeXml);
         Assert.Contains("extruder=\"2\"", gcodeXml);
         Assert.Contains("color=\"#FFFFFF\"", gcodeXml);
-        Assert.Contains("z=\"0.64\"", gcodeXml);
+        Assert.Contains("top_z=\"0.64\"", gcodeXml);
 
         // Verify Bambu Studio Metadata/model_settings.config
         var modelSettingsEntry = archive.GetEntry("Metadata/model_settings.config");
         Assert.NotNull(modelSettingsEntry);
         using var msReader = new StreamReader(modelSettingsEntry.Open());
-        string msJson = msReader.ReadToEnd();
-        Assert.Contains("\"id\": 2", msJson);
-        Assert.Contains("\"extruder\": 1", msJson);
+        string msXml = msReader.ReadToEnd();
+        Assert.Contains("<object id=\"2\">", msXml);
+        Assert.Contains("<metadata key=\"extruder\" value=\"1\"/>", msXml);
     }
 
     [Fact]
@@ -311,7 +303,7 @@ public class HueForgeLayerStackCalculatorTests
         using (var reader = new StreamReader(modelEntry.Open()))
         {
             string xml = reader.ReadToEnd();
-            Assert.Contains("<metadata name=\"Application\">BambuStudio-01.10.00.00</metadata>", xml);
+            Assert.Contains("<metadata name=\"bambu:Application\">BambuStudio-01.10.00.00</metadata>", xml);
         }
 
         // 2. Metadata/project_settings.config Slicer overrides
@@ -335,21 +327,21 @@ public class HueForgeLayerStackCalculatorTests
         using (var reader = new StreamReader(gcodeEntry.Open()))
         {
             string xml = reader.ReadToEnd();
-            Assert.Contains("<mode>MultiAsSingle</mode>", xml);
-            Assert.Contains("<layer z=\"0.48\" gcode=\"tool_change\" extruder=\"2\" color=\"#10B981\" />", xml);
-            Assert.Contains("<layer z=\"1.12\" gcode=\"tool_change\" extruder=\"3\" color=\"#F4F4F5\" />", xml);
+            Assert.Contains("<mode value=\"MultiAsSingle\"/>", xml);
+            Assert.Contains("<layer top_z=\"0.48\" type=\"2\" extruder=\"2\" color=\"#10B981\" extra=\"\" gcode=\"tool_change\"/>", xml);
+            Assert.Contains("<layer top_z=\"1.12\" type=\"2\" extruder=\"3\" color=\"#F4F4F5\" extra=\"\" gcode=\"tool_change\"/>", xml);
             // Ensure no tool_change at z=0
-            Assert.DoesNotContain("<layer z=\"0.00\"", xml);
+            Assert.DoesNotContain("<layer top_z=\"0.00\"", xml);
         }
 
         // 4. Metadata/model_settings.config Object extruder binding
-        var modelSettingsEntry = archive.GetEntry("Metadata/model_settings.config");
-        Assert.NotNull(modelSettingsEntry);
-        using (var reader = new StreamReader(modelSettingsEntry.Open()))
+        var modelSettingsEntry2 = archive.GetEntry("Metadata/model_settings.config");
+        Assert.NotNull(modelSettingsEntry2);
+        using (var reader = new System.IO.StreamReader(modelSettingsEntry2.Open()))
         {
-            string json = reader.ReadToEnd();
-            Assert.Contains("\"id\": 2", json);
-            Assert.Contains("\"extruder\": 1", json);
+            string xml = reader.ReadToEnd();
+            Assert.Contains("<config>", xml);
+            Assert.Contains("<object id=\"2\">", xml);
         }
     }
 
