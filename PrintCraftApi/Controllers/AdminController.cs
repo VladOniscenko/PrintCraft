@@ -736,15 +736,23 @@ public class AdminController : ControllerBase
     {
         var order = await _db.Orders
             .Include(o => o.Items)
-            .ThenInclude(i => i.Attachments)
+                .ThenInclude(i => i.Attachments)
             .Include(o => o.Payments)
             .Include(o => o.Notes)
+            .Include(o => o.Communications)
+            .Include(o => o.StatusHistory)
             .FirstOrDefaultAsync(o => o.Id == id);
 
-        if (order != null)
-            await RefreshQuoteStatusesAsync(new[] { order }, "system");
+        if (order == null)
+            return NotFound(new { message = "Order not found" });
 
-        return order == null ? NotFound(new { message = "Order not found" }) : Ok(order);
+        await RefreshQuoteStatusesAsync(new[] { order }, "system");
+
+        var recipient = await ResolveOrderEmailRecipientAsync(order);
+        var email = recipient?.Email ?? string.Empty;
+
+        var dto = OrderDetailsMapper.MapToDetailsDto(order, email);
+        return Ok(dto);
     }
 
     [HttpGet("orders/{id:guid}/communications")]
@@ -858,6 +866,13 @@ public class AdminController : ControllerBase
             order.HoldReason = null;
         }
 
+        if (!string.IsNullOrWhiteSpace(payload.AssignedPrinter))
+            order.AssignedPrinter = payload.AssignedPrinter.Trim();
+        if (!string.IsNullOrWhiteSpace(payload.AssignedMaterial))
+            order.AssignedMaterial = payload.AssignedMaterial.Trim();
+        if (payload.GCodeFinalized)
+            order.GCodeFinalized = true;
+
         await _db.SaveChangesAsync();
         await LogStatusHistoryAsync(order.Id, previousStatus, order.Status, "admin",
             payload.HoldReason ?? "Status updated via Kanban");
@@ -867,6 +882,27 @@ public class AdminController : ControllerBase
             order,
             flaggedForRefundReview = result.FlagForRefundReview,
         });
+    }
+
+    [HttpPatch("orders/{id:guid}/production")]
+    public async Task<IActionResult> UpdateProductionAssignment(
+        [FromRoute] Guid id,
+        [FromBody] AssignProductionRequest payload)
+    {
+        var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == id);
+        if (order == null) return NotFound(new { message = "Order not found" });
+
+        if (payload.AssignedPrinter != null)
+            order.AssignedPrinter = string.IsNullOrWhiteSpace(payload.AssignedPrinter) ? null : payload.AssignedPrinter.Trim();
+        if (payload.AssignedMaterial != null)
+            order.AssignedMaterial = string.IsNullOrWhiteSpace(payload.AssignedMaterial) ? null : payload.AssignedMaterial.Trim();
+        if (payload.GCodeFinalized.HasValue)
+            order.GCodeFinalized = payload.GCodeFinalized.Value;
+
+        order.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+
+        return Ok(order);
     }
 
     public async Task<IActionResult> UpdateOrderStatus(Guid id, UpdateOrderStatusRequest payload)
@@ -1417,6 +1453,7 @@ public class AdminController : ControllerBase
     public record FeePriceRequest(decimal ServiceFeePrice);
     public record OrderDiscountRequest(decimal OrderDiscountAmount);
     public record UpdateOrderStatusRequest(string Status);
+    public record AssignProductionRequest(string? AssignedPrinter, string? AssignedMaterial, bool? GCodeFinalized);
     public record UpdateOrderCustomerRequest(
         string FullName,
         string AddressLine1,

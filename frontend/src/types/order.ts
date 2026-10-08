@@ -118,3 +118,136 @@ export interface QuoteItemFile {
   name: string;
   kind?: "model" | "image" | "other";
 }
+
+export interface OrderCustomerDetails {
+  userId?: string | null;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  addressLine1: string;
+  addressLine2?: string | null;
+  city: string;
+  postalCode: string;
+}
+
+export interface OrderFileAsset {
+  id: string;
+  itemId?: string | null;
+  fileName: string;
+  fileUrl: string;
+  downloadUrl: string;
+  kind: "model" | "image" | "other";
+  extension: string;
+  is3DModel: boolean;
+  size?: string | null;
+  material?: string | null;
+  color?: string | null;
+}
+
+export interface OrderTimelineEvent {
+  id: string;
+  type: "status_change" | "email" | "note";
+  timestamp: string;
+  title: string;
+  content?: string | null;
+  author?: string | null;
+  visibility: "system" | "customer" | "internal";
+  metadata?: Record<string, string | null | undefined>;
+}
+
+export interface AdminOrderItem {
+  id: string;
+  orderId: string;
+  fileUrl?: string | null;
+  imageUrl?: string | null;
+  fileName?: string | null;
+  notes?: string | null;
+  size?: string | null;
+  material: string;
+  color: string;
+  count: number;
+  price: number;
+  unitPrice: number;
+  plateCost: number;
+  estimatedPrintTime?: string | null;
+  filamentUsedGrams?: number | null;
+  scaleFactor: number;
+  infillPercent: number;
+  printQuality: string;
+  supportsNeeded: boolean;
+  attachments?: Array<{
+    id: string;
+    orderItemId: string;
+    url: string;
+    fileName: string;
+    kind: string;
+  }>;
+  files?: OrderFileAsset[];
+}
+
+export interface OrderStatusHistoryEntry {
+  id: string;
+  orderId?: string;
+  previousStatus?: string | null;
+  newStatus: string;
+  changedAt: string;
+  changedBy?: string | null;
+  note?: string | null;
+}
+
+export interface OrderCommunication {
+  id: string;
+  orderId?: string;
+  channel: string;
+  communicationType: string;
+  subject: string;
+  recipientEmail: string;
+  sentAt: string;
+}
+
+export interface OrderDetailsDto {
+  id: string;
+  status: string;
+  normalizedStatus: string;
+  isPaid: boolean;
+  holdReason?: string | null;
+  flaggedForRefundReview?: boolean;
+  assignedPrinter?: string | null;
+  assignedMaterial?: string | null;
+  gCodeFinalized?: boolean;
+  allowedTransitions: string[];
+  customer: OrderCustomerDetails;
+  fullName: string;
+  customerEmail: string;
+  phoneNumber: string;
+  addressLine1: string;
+  addressLine2?: string | null;
+  city: string;
+  postalCode: string;
+  items: AdminOrderItem[];
+  files: OrderFileAsset[];
+  orderType: string;
+  paymentFlow: string;
+  deliveryPrice: number;
+  serviceFeePrice: number;
+  orderDiscountAmount: number;
+  quotedPrice?: number | null;
+  subtotalAmount: number;
+  discountAmount: number;
+  finalTotalAmount: number;
+  quoteMessage?: string | null;
+  quoteConfirmedAt?: string | null;
+  quoteExpiresAt?: string | null;
+  internalNotes?: string | null;
+  customerNotes?: string | null;
+  trackingCode?: string | null;
+  trackingUrl?: string | null;
+  timeline: OrderTimelineEvent[];
+  payments: PaymentAttempt[];
+  notes: OrderNote[];
+  statusHistory: OrderStatusHistoryEntry[];
+  communications: OrderCommunication[];
+  createdAt: string;
+  updatedAt: string;
+}
+

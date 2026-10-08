@@ -163,7 +163,7 @@ public sealed class OrderStatusStateMachine
         {
             OrderStatus.AwaitingPayment => await TransitionToAwaitingPaymentAsync(order, current),
             OrderStatus.ReadyToPrint    => TransitionToReadyToPrint(order, request, current),
-            OrderStatus.Printing        => TransitionToPrinting(order, current),
+            OrderStatus.Printing        => TransitionToPrinting(order, request, current),
             OrderStatus.PostProcessing  => TransitionToPostProcessing(order, current),
             OrderStatus.Shipped         => TransitionToShipped(order, request, current),
             _                           => TransitionResult.Fail($"Unknown target status '{target}'.")
@@ -234,7 +234,14 @@ public sealed class OrderStatusStateMachine
                 "Payment has not been confirmed. " +
                 "Mark the order as paid before moving to Ready to Print.");
 
-        // Transition the order
+        // Transition the order and persist production parameters if provided
+        if (!string.IsNullOrWhiteSpace(request.AssignedPrinter))
+            order.AssignedPrinter = request.AssignedPrinter.Trim();
+        if (!string.IsNullOrWhiteSpace(request.AssignedMaterial))
+            order.AssignedMaterial = request.AssignedMaterial.Trim();
+        if (request.GCodeFinalized)
+            order.GCodeFinalized = true;
+
         order.Status           = OrderStatus.ReadyToPrint;
         order.UpdatedAt        = DateTime.UtcNow;
         return TransitionResult.Ok();
@@ -245,12 +252,20 @@ public sealed class OrderStatusStateMachine
     /// Gate: structural only – order must be in ReadyToPrint.
     /// The physical print start is the gate.
     /// </summary>
-    private static TransitionResult TransitionToPrinting(Order order, string current)
+    private static TransitionResult TransitionToPrinting(
+        Order order, StatusTransitionRequest request, string current)
     {
         if (!IsAllowedPredecessor(current, OrderStatus.ReadyToPrint, OrderStatus.OnHold))
             return TransitionResult.Fail(
                 $"Cannot move to Printing from '{current}'. " +
                 "Order must be in Ready to Print first.");
+
+        if (!string.IsNullOrWhiteSpace(request.AssignedPrinter))
+            order.AssignedPrinter = request.AssignedPrinter.Trim();
+        if (!string.IsNullOrWhiteSpace(request.AssignedMaterial))
+            order.AssignedMaterial = request.AssignedMaterial.Trim();
+        if (request.GCodeFinalized)
+            order.GCodeFinalized = true;
 
         order.Status    = OrderStatus.Printing;
         order.UpdatedAt = DateTime.UtcNow;

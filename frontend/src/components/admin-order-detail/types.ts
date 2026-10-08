@@ -1,17 +1,42 @@
-export interface OrderCommunication {
-  id: string;
-  channel: string;
-  communicationType: string;
-  subject: string;
-  recipientEmail: string;
-  sentAt: string;
+import type {
+  OrderDetailsDto,
+  AdminOrderItem,
+  OrderFileAsset,
+  OrderTimelineEvent,
+  OrderStatusHistoryEntry,
+  OrderCommunication,
+  OrderNote,
+  PaymentAttempt,
+} from "../../types/order";
+
+export type {
+  OrderDetailsDto,
+  AdminOrderItem,
+  OrderFileAsset,
+  OrderTimelineEvent,
+  OrderStatusHistoryEntry,
+  OrderCommunication,
+  OrderNote,
+  PaymentAttempt,
+};
+
+export interface StatusTransitionPayload {
+  targetStatus: string;
+  holdReason?: string;
+  assignedPrinter?: string;
+  assignedMaterial?: string;
+  gCodeFinalized?: boolean;
+  qualityCheckPassed?: boolean;
+  trackingNumber?: string;
+  trackingUrl?: string;
 }
 
-export interface OrderStatusHistoryEntry {
-  id: string;
-  previousStatus?: string | null;
-  newStatus: string;
-  changedAt: string;
-  changedBy?: string | null;
-  note?: string | null;
+export interface StatusPanelProps {
+  order: OrderDetailsDto;
+  onRefresh: () => Promise<void>;
+  onStatusTransition: (
+    targetStatus: string,
+    payload?: Partial<StatusTransitionPayload>,
+  ) => Promise<void>;
+  isProcessing: boolean;
 }
