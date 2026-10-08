@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace PrintCraftApi.Services.FilamentPainting;
 
@@ -653,20 +654,7 @@ public static class MeshGeneratorService
         var layerHeightStr = (layerStackConfig?.LayerHeightMm ?? 0.08).ToString("F2", CultureInfo.InvariantCulture);
         var initialLayerHeightStr = (layerStackConfig?.BaseLayerHeightMm ?? 0.16).ToString("F2", CultureInfo.InvariantCulture);
 
-        // 2. Build Metadata/project_settings.config (Bambu Studio Slicer Overrides & Software Signature nested in project_settings wrapper)
-        var projectSettingsDict = new Dictionary<string, object>
-        {
-            ["software"] = "BambuStudio",
-            ["version"] = "01.10.00.00",
-            ["layer_height"] = new[] { layerHeightStr },
-            ["initial_layer_print_height"] = new[] { initialLayerHeightStr },
-            ["sparse_infill_density"] = new[] { "100%" },
-            ["sparse_infill_pattern"] = new[] { "rectilinear" },
-            ["filament_colour"] = filamentColors.ToArray(),
-            ["filament_type"] = filamentTypes
-        };
 
-        var projectSettingsJson = JsonSerializer.Serialize(projectSettingsDict, new JsonSerializerOptions { WriteIndented = true });
 
         // 3. Build Metadata/custom_gcode_per_layer.xml (Bambu Studio Tool Changes & Layer Swaps)
         var customGcodeSb = new StringBuilder();
@@ -713,27 +701,7 @@ public static class MeshGeneratorService
         customGcodeSb.AppendLine("</plate>");
         customGcodeSb.AppendLine("</custom_gcodes_per_layer>");
 
-        // 4. Build Metadata/model_settings.config (Object extruder binding and plate definition XML)
-        var modelSettingsSb = new StringBuilder();
-        modelSettingsSb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        modelSettingsSb.AppendLine("<config>");
-        modelSettingsSb.AppendLine("  <object id=\"2\">");
-        modelSettingsSb.AppendLine("    <metadata key=\"name\" value=\"FilamentPainting\"/>");
-        modelSettingsSb.AppendLine("    <metadata key=\"extruder\" value=\"1\"/>");
-        modelSettingsSb.AppendLine("  </object>");
-        modelSettingsSb.AppendLine("  <plate>");
-        modelSettingsSb.AppendLine("    <metadata key=\"plater_id\" value=\"1\"/>");
-        modelSettingsSb.AppendLine("    <metadata key=\"plater_name\" value=\"\"/>");
-        modelSettingsSb.AppendLine("    <metadata key=\"locked\" value=\"false\"/>");
-        modelSettingsSb.AppendLine("    <model_instance>");
-        modelSettingsSb.AppendLine("      <metadata key=\"object_id\" value=\"2\"/>");
-        modelSettingsSb.AppendLine("      <metadata key=\"instance_id\" value=\"0\"/>");
-        modelSettingsSb.AppendLine("    </model_instance>");
-        modelSettingsSb.AppendLine("  </plate>");
-        modelSettingsSb.AppendLine("  <assemble>");
-        modelSettingsSb.AppendLine("    <assemble_item object_id=\"2\" instance_id=\"0\" transform=\"1 0 0 0 1 0 0 0 1 0 0 0\" offset=\"0 0 0\" />");
-        modelSettingsSb.AppendLine("  </assemble>");
-        modelSettingsSb.AppendLine("</config>");
+
 
 
 
@@ -748,14 +716,6 @@ public static class MeshGeneratorService
 
         using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Update, true))
         {
-            // Delete old objects we are replacing/removing
-            archive.GetEntry("3D/3dmodel.model")?.Delete();
-            archive.GetEntry("Metadata/project_settings.config")?.Delete();
-            archive.GetEntry("Metadata/custom_gcode_per_layer.xml")?.Delete();
-            archive.GetEntry("Metadata/model_settings.config")?.Delete();
-            archive.GetEntry("3D/Objects/object_1.model")?.Delete();
-            archive.GetEntry("3D/_rels/3dmodel.model.rels")?.Delete();
-
             void AddZipTextFile(string entryName, string textContent)
             {
                 var entry = archive.CreateEntry(entryName, CompressionLevel.Optimal);
@@ -764,10 +724,48 @@ public static class MeshGeneratorService
                 writer.Write(textContent);
             }
 
+            // 1. Mutate Metadata/project_settings.config to preserve native settings
+            var psEntry = archive.GetEntry("Metadata/project_settings.config");
+            string mutatedProjectSettings = "";
+            if (psEntry != null)
+            {
+                using (var reader = new StreamReader(psEntry.Open()))
+                {
+                    var root = JsonNode.Parse(reader.ReadToEnd()) as JsonObject;
+                    if (root != null)
+                    {
+                        root["layer_height"] = new JsonArray(layerHeightStr);
+                        root["initial_layer_print_height"] = new JsonArray(initialLayerHeightStr);
+                        root["sparse_infill_density"] = new JsonArray("100%");
+                        root["sparse_infill_pattern"] = new JsonArray("rectilinear");
+                        
+                        var cArray = new JsonArray();
+                        foreach(var c in filamentColors) cArray.Add(c);
+                        root["filament_colour"] = cArray;
+                        
+                        var tArray = new JsonArray();
+                        foreach(var t in filamentTypes) tArray.Add(t);
+                        root["filament_type"] = tArray;
+                        
+                        var idArray = new JsonArray();
+                        for (int i = 1; i <= filamentColors.Count; i++) idArray.Add(i.ToString());
+                        root["filament_id"] = idArray;
+                        
+                        mutatedProjectSettings = root.ToJsonString();
+                    }
+                }
+                psEntry.Delete();
+                AddZipTextFile("Metadata/project_settings.config", mutatedProjectSettings);
+            }
+
+            // Delete old objects we are replacing/removing
+            archive.GetEntry("3D/3dmodel.model")?.Delete();
+            archive.GetEntry("Metadata/custom_gcode_per_layer.xml")?.Delete();
+            archive.GetEntry("3D/Objects/object_1.model")?.Delete();
+            archive.GetEntry("3D/_rels/3dmodel.model.rels")?.Delete();
+
             AddZipTextFile("3D/3dmodel.model", modelXml);
-            AddZipTextFile("Metadata/project_settings.config", projectSettingsJson);
             AddZipTextFile("Metadata/custom_gcode_per_layer.xml", customGcodeSb.ToString());
-            AddZipTextFile("Metadata/model_settings.config", modelSettingsSb.ToString());
         }
 
         return memoryStream.ToArray();
