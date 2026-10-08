@@ -439,10 +439,11 @@ public static class MeshGeneratorService
         // Build 3dmodel.model XML
         var sb = new StringBuilder();
         sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        sb.AppendLine("<model unit=\"millimeter\" xml:lang=\"en-US\" xmlns=\"http://schemas.microsoft.com/3dmanufacturing/core/2015/02\" xmlns:m=\"http://schemas.microsoft.com/3dmanufacturing/material/2015/02\">");
+        sb.AppendLine("<model unit=\"millimeter\" xml:lang=\"en-US\" xmlns=\"http://schemas.microsoft.com/3dmanufacturing/core/2015/02\" xmlns:m=\"http://schemas.microsoft.com/3dmanufacturing/material/2015/02\" xmlns:bambu=\"http://schemas.bambulab.com/3dmodel/2021\" xmlns:slic3rpe=\"http://schemas.slic3r.org/3dmodel/2016/11\">");
+        sb.AppendLine("  <metadata name=\"bambu:Application\">BambuStudio-01.10.00.00</metadata>");
+        sb.AppendLine("  <metadata name=\"slic3rpe:Version3mf\">1</metadata>");
         sb.AppendLine("  <metadata name=\"Title\">PrintCraft HueForge Filament Painting</metadata>");
         sb.AppendLine("  <metadata name=\"Designer\">PrintCraft</metadata>");
-        sb.AppendLine("  <metadata name=\"Application\">BambuStudio-01.10.00.00</metadata>");
 
         sb.AppendLine("  <resources>");
 
@@ -564,11 +565,11 @@ public static class MeshGeneratorService
         sb.AppendLine("    </object>");
         sb.AppendLine("  </resources>");
         sb.AppendLine("  <build>");
-        sb.AppendLine("    <item objectid=\"2\" />");
+        sb.AppendLine("    <item objectid=\"2\" transform=\"1 0 0 0 1 0 0 0 1 0 0 0\" printable=\"1\" />");
         sb.AppendLine("  </build>");
         sb.AppendLine("</model>");
 
-        var modelXmlBytes = Encoding.UTF8.GetBytes(sb.ToString());
+        var modelXml = sb.ToString();
 
         // Build instructions / README text
         var instructionsSb = new StringBuilder();
@@ -616,7 +617,7 @@ public static class MeshGeneratorService
         instructionsSb.AppendLine("3. Right-click the plus icon '+' on the slider and select 'Change Filament' or 'Add Pause'.");
         instructionsSb.AppendLine("================================================================================");
 
-        var instructionsBytes = Encoding.UTF8.GetBytes(instructionsSb.ToString());
+        var instructionsText = instructionsSb.ToString();
 
         // 1. Build filament color palette array in exact spool order
         var filamentColors = new List<string>();
@@ -652,9 +653,11 @@ public static class MeshGeneratorService
         var layerHeightStr = (layerStackConfig?.LayerHeightMm ?? 0.08).ToString("F2", CultureInfo.InvariantCulture);
         var initialLayerHeightStr = (layerStackConfig?.BaseLayerHeightMm ?? 0.16).ToString("F2", CultureInfo.InvariantCulture);
 
-        // 2. Build Metadata/project_settings.config (Bambu Studio Slicer Overrides)
+        // 2. Build Metadata/project_settings.config (Bambu Studio Slicer Overrides & Software Signature nested in project_settings wrapper)
         var projectSettingsDict = new Dictionary<string, object>
         {
+            ["software"] = "BambuStudio",
+            ["version"] = "01.10.00.00",
             ["layer_height"] = new[] { layerHeightStr },
             ["initial_layer_print_height"] = new[] { initialLayerHeightStr },
             ["sparse_infill_density"] = new[] { "100%" },
@@ -664,16 +667,12 @@ public static class MeshGeneratorService
         };
 
         var projectSettingsJson = JsonSerializer.Serialize(projectSettingsDict, new JsonSerializerOptions { WriteIndented = true });
-        var projectSettingsBytes = Encoding.UTF8.GetBytes(projectSettingsJson);
 
         // 3. Build Metadata/custom_gcode_per_layer.xml (Bambu Studio Tool Changes & Layer Swaps)
         var customGcodeSb = new StringBuilder();
         customGcodeSb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         customGcodeSb.AppendLine("<custom_gcodes_per_layer>");
-        customGcodeSb.AppendLine("  <print_instructions>");
-        customGcodeSb.AppendLine("    <mode>MultiAsSingle</mode>");
-        customGcodeSb.AppendLine("  </print_instructions>");
-        customGcodeSb.AppendLine("  <plate>");
+        customGcodeSb.AppendLine("<plate>");
 
         if (layerSwaps != null && layerSwaps.Count > 0)
         {
@@ -693,7 +692,7 @@ public static class MeshGeneratorService
 
                 var zStr = swap.HeightMm.ToString("F2", CultureInfo.InvariantCulture);
                 customGcodeSb.AppendLine(CultureInfo.InvariantCulture,
-                    $"    <layer z=\"{zStr}\" gcode=\"tool_change\" extruder=\"{extruderIndex}\" color=\"{hex}\" />");
+                    $"<layer top_z=\"{zStr}\" type=\"2\" extruder=\"{extruderIndex}\" color=\"{hex}\" extra=\"\" gcode=\"tool_change\"/>");
             }
         }
         else if (filamentColors.Count > 1)
@@ -706,62 +705,69 @@ public static class MeshGeneratorService
                 int extruderIndex = i + 1;
                 var hex = filamentColors[i];
                 customGcodeSb.AppendLine(CultureInfo.InvariantCulture,
-                    $"    <layer z=\"{z:F2}\" gcode=\"tool_change\" extruder=\"{extruderIndex}\" color=\"{hex}\" />");
+                    $"<layer top_z=\"{z:F2}\" type=\"2\" extruder=\"{extruderIndex}\" color=\"{hex}\" extra=\"\" gcode=\"tool_change\"/>");
             }
         }
 
-        customGcodeSb.AppendLine("  </plate>");
+        customGcodeSb.AppendLine("<mode value=\"MultiAsSingle\"/>");
+        customGcodeSb.AppendLine("</plate>");
         customGcodeSb.AppendLine("</custom_gcodes_per_layer>");
-        var customGcodeBytes = Encoding.UTF8.GetBytes(customGcodeSb.ToString());
 
-        // 4. Build Metadata/model_settings.config (Object to Initial Extruder binding)
-        var modelSettings = new[]
-        {
-            new
-            {
-                id = 2,
-                name = "FilamentPainting",
-                extruder = 1
-            }
-        };
-        var modelSettingsJson = JsonSerializer.Serialize(modelSettings, new JsonSerializerOptions { WriteIndented = true });
-        var modelSettingsBytes = Encoding.UTF8.GetBytes(modelSettingsJson);
+        // 4. Build Metadata/model_settings.config (Object extruder binding and plate definition XML)
+        var modelSettingsSb = new StringBuilder();
+        modelSettingsSb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        modelSettingsSb.AppendLine("<config>");
+        modelSettingsSb.AppendLine("  <object id=\"2\">");
+        modelSettingsSb.AppendLine("    <metadata key=\"name\" value=\"FilamentPainting\"/>");
+        modelSettingsSb.AppendLine("    <metadata key=\"extruder\" value=\"1\"/>");
+        modelSettingsSb.AppendLine("  </object>");
+        modelSettingsSb.AppendLine("  <plate>");
+        modelSettingsSb.AppendLine("    <metadata key=\"plater_id\" value=\"1\"/>");
+        modelSettingsSb.AppendLine("    <metadata key=\"plater_name\" value=\"\"/>");
+        modelSettingsSb.AppendLine("    <metadata key=\"locked\" value=\"false\"/>");
+        modelSettingsSb.AppendLine("    <model_instance>");
+        modelSettingsSb.AppendLine("      <metadata key=\"object_id\" value=\"2\"/>");
+        modelSettingsSb.AppendLine("      <metadata key=\"instance_id\" value=\"0\"/>");
+        modelSettingsSb.AppendLine("    </model_instance>");
+        modelSettingsSb.AppendLine("  </plate>");
+        modelSettingsSb.AppendLine("  <assemble>");
+        modelSettingsSb.AppendLine("    <assemble_item object_id=\"2\" instance_id=\"0\" transform=\"1 0 0 0 1 0 0 0 1 0 0 0\" offset=\"0 0 0\" />");
+        modelSettingsSb.AppendLine("  </assemble>");
+        modelSettingsSb.AppendLine("</config>");
 
-        const string contentTypesXml = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-          <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
-          <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml" />
-          <Default Extension="config" ContentType="text/plain" />
-          <Default Extension="xml" ContentType="application/xml" />
-          <Default Extension="txt" ContentType="text/plain" />
-        </Types>
-        """;
 
-        const string relsXml = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-          <Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" />
-        </Relationships>
-        """;
 
+        // Explicitly instantiate UTF8Encoding(false) to guarantee no Byte Order Mark (BOM) is written
+        var encoding = new UTF8Encoding(false);
+
+        string templatePath = Path.Combine(AppContext.BaseDirectory, "Resources", "bambu_template.3mf");
+        byte[] templateBytes = File.ReadAllBytes(templatePath);
         using var memoryStream = new MemoryStream();
-        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+        memoryStream.Write(templateBytes, 0, templateBytes.Length);
+        memoryStream.Position = 0;
+
+        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Update, true))
         {
-            void AddZipFile(string entryName, byte[] data)
+            // Delete old objects we are replacing/removing
+            archive.GetEntry("3D/3dmodel.model")?.Delete();
+            archive.GetEntry("Metadata/project_settings.config")?.Delete();
+            archive.GetEntry("Metadata/custom_gcode_per_layer.xml")?.Delete();
+            archive.GetEntry("Metadata/model_settings.config")?.Delete();
+            archive.GetEntry("3D/Objects/object_1.model")?.Delete();
+            archive.GetEntry("3D/_rels/3dmodel.model.rels")?.Delete();
+
+            void AddZipTextFile(string entryName, string textContent)
             {
                 var entry = archive.CreateEntry(entryName, CompressionLevel.Optimal);
                 using var entryStream = entry.Open();
-                entryStream.Write(data, 0, data.Length);
+                using var writer = new StreamWriter(entryStream, encoding);
+                writer.Write(textContent);
             }
 
-            AddZipFile("[Content_Types].xml", Encoding.UTF8.GetBytes(contentTypesXml));
-            AddZipFile("_rels/.rels", Encoding.UTF8.GetBytes(relsXml));
-            AddZipFile("3D/3dmodel.model", modelXmlBytes);
-            AddZipFile("Metadata/project_settings.config", projectSettingsBytes);
-            AddZipFile("Metadata/custom_gcode_per_layer.xml", customGcodeBytes);
-            AddZipFile("Metadata/model_settings.config", modelSettingsBytes);
-            AddZipFile("Metadata/print_instructions.txt", instructionsBytes);
+            AddZipTextFile("3D/3dmodel.model", modelXml);
+            AddZipTextFile("Metadata/project_settings.config", projectSettingsJson);
+            AddZipTextFile("Metadata/custom_gcode_per_layer.xml", customGcodeSb.ToString());
+            AddZipTextFile("Metadata/model_settings.config", modelSettingsSb.ToString());
         }
 
         return memoryStream.ToArray();
@@ -833,7 +839,10 @@ public static class MeshGeneratorService
         sb.AppendLine("6. Export G-code or print directly!");
         sb.AppendLine("================================================================================");
 
-        var readmeBytes = Encoding.UTF8.GetBytes(sb.ToString());
+        var readmeText = sb.ToString();
+
+        // The 'false' parameter explicitly disables the BOM
+        var encoding = new UTF8Encoding(false);
 
         using var memoryStream = new MemoryStream();
         using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
@@ -848,8 +857,9 @@ public static class MeshGeneratorService
             // 2. read-me.txt
             var readmeEntry = archive.CreateEntry("read-me.txt", CompressionLevel.Optimal);
             using (var readmeStream = readmeEntry.Open())
+            using (var writer = new StreamWriter(readmeStream, encoding))
             {
-                readmeStream.Write(readmeBytes, 0, readmeBytes.Length);
+                writer.Write(readmeText);
             }
         }
 
