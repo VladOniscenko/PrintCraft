@@ -734,10 +734,10 @@ public static class MeshGeneratorService
                     var root = JsonNode.Parse(reader.ReadToEnd()) as JsonObject;
                     if (root != null)
                     {
-                        root["layer_height"] = new JsonArray(layerHeightStr);
-                        root["initial_layer_print_height"] = new JsonArray(initialLayerHeightStr);
-                        root["sparse_infill_density"] = new JsonArray("100%");
-                        root["sparse_infill_pattern"] = new JsonArray("rectilinear");
+                        root["layer_height"] = JsonValue.Create(layerHeightStr);
+                        root["initial_layer_print_height"] = JsonValue.Create(initialLayerHeightStr);
+                        root["sparse_infill_density"] = JsonValue.Create("100%");
+                        root["sparse_infill_pattern"] = JsonValue.Create("rectilinear");
                         
                         var cArray = new JsonArray();
                         foreach(var c in filamentColors) cArray.Add(c);
