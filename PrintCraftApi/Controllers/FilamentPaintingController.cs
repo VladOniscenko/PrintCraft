@@ -51,12 +51,18 @@ public class FilamentPaintingController : ControllerBase
     {
         public string ModelGlbUrl { get; set; } = string.Empty;
         public string ModelStlUrl { get; set; } = string.Empty;
+        public string Model3mfUrl { get; set; } = string.Empty;
+        public string ModelZipUrl { get; set; } = string.Empty;
         public string PreviewImageUrl { get; set; } = string.Empty;
         public List<LayerSwapInstruction> LayerSwaps { get; set; } = new();
         public ModelDimensions Dimensions { get; set; } = new();
         public double VolumeMm3 { get; set; }
         public double EstimatedGrams { get; set; }
         public int TotalLayers { get; set; }
+        public string EstimatedPrintTime { get; set; } = string.Empty;
+        public double EstimatedPrice { get; set; }
+        public double UnitPrice { get; set; }
+        public double ColorSwapFee { get; set; }
     }
 
     public sealed class ModelDimensions
@@ -223,10 +229,13 @@ public class FilamentPaintingController : ControllerBase
             decoded = CreateFallbackDecodedImage(150, (int)Math.Max(50, Math.Round(150.0 * heightMm / widthMm)));
         }
 
-        // Resample to high-speed 3D grid (width: 150 vertices, height: proportional)
-        int gridWidth = 150;
-        int gridHeight = (int)Math.Clamp(Math.Round(150.0 * decoded.Height / decoded.Width), 50, 200);
-        var resampled = decoded.Resample(gridWidth, gridHeight);
+        // Higher-density triangulation for high-resolution 3D prints (eliminating low-poly/pixelated appearance)
+        int targetGridWidth = string.Equals(requestConfig.Quality, "Best", StringComparison.OrdinalIgnoreCase)
+            ? 500
+            : (string.Equals(requestConfig.Quality, "Low", StringComparison.OrdinalIgnoreCase) ? 300 : 400);
+
+        int targetGridHeight = (int)Math.Clamp(Math.Round((double)targetGridWidth * decoded.Height / decoded.Width), 50, 600);
+        var resampled = decoded.Resample(targetGridWidth, targetGridHeight);
 
         // Compute HueForge topographic heightmap and blended surface colors
         var calcResult = calculator.ProcessImageBuffer(
@@ -238,7 +247,7 @@ public class FilamentPaintingController : ControllerBase
             heightMm
         );
 
-        // Generate watertight binary STL (standard 3D print file)
+        // Generate watertight high-resolution binary STL (standard 3D print file)
         byte[] stlBytes = MeshGeneratorService.GenerateBinaryStl(
             calcResult.HeightMap,
             calcResult.Width,
@@ -258,11 +267,38 @@ public class FilamentPaintingController : ControllerBase
             heightMm
         );
 
+        // Generate production ZIP file containing high-resolution STL and read-me.txt with layer swap timeline
+        byte[] zipBytes = MeshGeneratorService.GenerateProductionZip(
+            stlBytes,
+            $"{fileBaseName}.stl",
+            widthMm,
+            heightMm,
+            maxDepthMm,
+            layerStackConfig,
+            swaps
+        );
+
+        // Generate Bambu Studio / OrcaSlicer compatible production 3MF with full layer swap instructions
+        byte[] threeMfBytes = MeshGeneratorService.GenerateBinary3mf(
+            calcResult.HeightMap,
+            calcResult.Width,
+            calcResult.Height,
+            widthMm,
+            heightMm,
+            layerStackConfig.MinBaseThicknessMm,
+            layerStackConfig,
+            swaps
+        );
+
         var stlSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}.stl");
         var glbSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}.glb");
+        var zipSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}.zip");
+        var threeMfSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}.3mf");
 
         await System.IO.File.WriteAllBytesAsync(stlSavedPath, stlBytes);
         await System.IO.File.WriteAllBytesAsync(glbSavedPath, glbBytes);
+        await System.IO.File.WriteAllBytesAsync(zipSavedPath, zipBytes);
+        await System.IO.File.WriteAllBytesAsync(threeMfSavedPath, threeMfBytes);
 
         var visitorId = Request.Headers["X-Visitor-Id"].FirstOrDefault()?.Trim();
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -276,6 +312,8 @@ public class FilamentPaintingController : ControllerBase
         await System.IO.File.WriteAllTextAsync(imageSavedPath + metaSuffix, metaJson);
         await System.IO.File.WriteAllTextAsync(stlSavedPath + metaSuffix, metaJson);
         await System.IO.File.WriteAllTextAsync(glbSavedPath + metaSuffix, metaJson);
+        await System.IO.File.WriteAllTextAsync(zipSavedPath + metaSuffix, metaJson);
+        await System.IO.File.WriteAllTextAsync(threeMfSavedPath + metaSuffix, metaJson);
 
         var altUploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
         if (!string.Equals(Path.GetFullPath(altUploadsDir), Path.GetFullPath(uploadsDir), StringComparison.OrdinalIgnoreCase))
@@ -283,17 +321,23 @@ public class FilamentPaintingController : ControllerBase
             Directory.CreateDirectory(altUploadsDir);
             await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.stl"), stlBytes);
             await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.glb"), glbBytes);
+            await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.zip"), zipBytes);
+            await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.3mf"), threeMfBytes);
             await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}{ext}"), imageBytes);
 
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}{ext}{metaSuffix}"), metaJson);
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.stl{metaSuffix}"), metaJson);
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.glb{metaSuffix}"), metaJson);
+            await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.zip{metaSuffix}"), metaJson);
+            await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.3mf{metaSuffix}"), metaJson);
         }
 
         var modelGlbUrl = $"/uploads/{fileBaseName}.glb";
         var modelStlUrl = $"/uploads/{fileBaseName}.stl";
+        var modelZipUrl = $"/uploads/{fileBaseName}.zip";
+        var model3mfUrl = $"/uploads/{fileBaseName}.3mf";
 
-        // Calculate physical volume & filament weight based on bounding box and relief
+        // Calculate physical volume & filament weight based on bounding box and relief (100% solid infill)
         double baseVolumeMm3 = widthMm * heightMm * layerStackConfig.MinBaseThicknessMm;
         double reliefVolumeMm3 = widthMm * heightMm * (maxDepthMm - layerStackConfig.MinBaseThicknessMm) * 0.60;
         double totalVolumeMm3 = baseVolumeMm3 + reliefVolumeMm3;
@@ -301,10 +345,35 @@ public class FilamentPaintingController : ControllerBase
         // PLA density: 1.24 g/cm3 (1240 kg/m3) -> 0.00124 g/mm3
         double estimatedGrams = Math.Round(totalVolumeMm3 * 0.00124, 1);
 
+        // Pricing & Print Time Calculator:
+        // 1. Infill: 100% solid infill volume
+        // 2. Color Swap Fee & time buffer: €2.00 flat fee and 12 mins time buffer per filament change
+        int swapCount = Math.Max(0, swaps.Count - 1);
+        double colorSwapFee = swapCount * 2.00;
+        double swapTimeMinutes = swapCount * 12.0;
+
+        // Extrusion flow rate at fine detail layer heights (0.04 - 0.12mm): ~28 grams / hour
+        double extrusionHours = estimatedGrams / 28.0;
+        double prepHours = 0.10; // 6 mins machine prep
+        double totalHours = prepHours + extrusionHours + (swapTimeMinutes / 60.0);
+
+        int totalPrintMinutes = (int)Math.Max(30, Math.Round(totalHours * 60));
+        int printHours = totalPrintMinutes / 60;
+        int printMins = totalPrintMinutes % 60;
+        string estimatedPrintTimeString = printHours > 0 ? $"{printHours}h {printMins}m" : $"{printMins}m";
+
+        double materialCost = estimatedGrams * 0.05; // €0.05 / gram PLA
+        double machineTimeCost = totalHours * 1.50;  // €1.50 / hour
+        double plateSetupCost = 2.00;                // base plate fee
+
+        double unitPrice = Math.Round(materialCost + machineTimeCost + colorSwapFee + plateSetupCost, 2);
+
         var response = new GeneratePaintingResponseDto
         {
             ModelGlbUrl = modelGlbUrl,
             ModelStlUrl = modelStlUrl,
+            ModelZipUrl = modelZipUrl,
+            Model3mfUrl = model3mfUrl,
             PreviewImageUrl = imageRelativeUrl,
             LayerSwaps = swaps,
             Dimensions = new ModelDimensions
@@ -315,7 +384,11 @@ public class FilamentPaintingController : ControllerBase
             },
             VolumeMm3 = Math.Round(totalVolumeMm3, 1),
             EstimatedGrams = estimatedGrams,
-            TotalLayers = lut.Count
+            TotalLayers = lut.Count,
+            EstimatedPrintTime = estimatedPrintTimeString,
+            EstimatedPrice = unitPrice,
+            UnitPrice = unitPrice,
+            ColorSwapFee = colorSwapFee
         };
 
         return Ok(response);

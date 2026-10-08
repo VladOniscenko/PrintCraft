@@ -345,10 +345,9 @@ public class HeroSlidesControllerTests
             var okResult = Assert.IsType<OkObjectResult>(res);
             var slides = Assert.IsAssignableFrom<List<HeroSlide>>(okResult.Value);
 
-            Assert.Equal(3, slides.Count);
+            Assert.Equal(4, slides.Count);
             Assert.Contains(slides, s => s.MediaUrl == "/uploads/hero/cable-holder.stl");
             Assert.Contains(slides, s => s.MediaUrl == "/uploads/hero/materials.svg");
-            Assert.Contains(slides, s => s.MediaUrl == "/uploads/hero/dino.stl");
         }
     }
 

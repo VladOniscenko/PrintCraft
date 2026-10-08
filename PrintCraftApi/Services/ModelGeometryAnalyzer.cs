@@ -44,6 +44,25 @@ public static class ModelGeometryAnalyzer
                     var geom = AnalyzeObj(filePath);
                     if (geom != null && geom.VolumeMm3 > 0.001) return geom;
                 }
+                else if (ext == ".zip")
+                {
+                    using var zip = ZipFile.OpenRead(filePath);
+                    var stlEntry = zip.Entries.FirstOrDefault(e => e.Name.EndsWith(".stl", StringComparison.OrdinalIgnoreCase));
+                    if (stlEntry != null)
+                    {
+                        var tempStl = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.stl");
+                        stlEntry.ExtractToFile(tempStl, true);
+                        try
+                        {
+                            var geom = AnalyzeStl(tempStl);
+                            if (geom != null && geom.VolumeMm3 > 0.001) return geom;
+                        }
+                        finally
+                        {
+                            try { File.Delete(tempStl); } catch { }
+                        }
+                    }
+                }
             }
             catch
             {

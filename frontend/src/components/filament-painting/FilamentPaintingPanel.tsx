@@ -10,7 +10,7 @@ import {
   Plus,
   ArrowUp,
   ArrowDown,
-  ShoppingBag,
+  CheckCircle2,
 } from "lucide-react";
 import type { Filament } from "../../types/filament";
 import {
@@ -598,6 +598,7 @@ export default function FilamentPaintingPanel({
                 ) : liveResult?.modelGlbUrl ? (
                   <>
                     <Interactive3DViewer
+                      key={liveResult.modelGlbUrl}
                       fileUrl={liveResult.modelGlbUrl}
                       fileName={liveResult.modelGlbUrl}
                       className="w-full h-full min-h-[380px]"
@@ -956,8 +957,8 @@ export default function FilamentPaintingPanel({
                   : "bg-emerald-700 hover:bg-emerald-800 active:scale-[0.99] shadow-emerald-700/20"
               }`}
             >
-              <ShoppingBag size={18} />
-              Add Filament Painting to Order
+              <CheckCircle2 size={18} />
+              Confirm Item & Add to Order
             </button>
           </div>
         </div>

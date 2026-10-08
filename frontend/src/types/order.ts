@@ -140,6 +140,8 @@ export interface OrderFileAsset {
   fileUrl: string;
   downloadUrl: string;
   kind: "model" | "image" | "other";
+  role?: "source" | "preview" | "production" | "other" | null;
+  label?: string | null;
   extension: string;
   is3DModel: boolean;
   size?: string | null;

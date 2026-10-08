@@ -28,7 +28,8 @@ public class OrdersController : ControllerBase
         ".step",
         ".stp",
         ".glb",
-        ".gltf"
+        ".gltf",
+        ".zip"
     };
 
     private readonly PrintCraftDb _db;
@@ -268,11 +269,10 @@ public class OrdersController : ControllerBase
                 return BadRequest(new { message = "Each item can contain at most 3 files." });
             }
 
-            var hasPairedGlbAndStl = modelUrls.Count == 2 &&
-                modelUrls.Any(u => u.EndsWith(".glb", StringComparison.OrdinalIgnoreCase) || u.EndsWith(".gltf", StringComparison.OrdinalIgnoreCase)) &&
-                modelUrls.Any(u => u.EndsWith(".stl", StringComparison.OrdinalIgnoreCase));
+            var previewModels = modelUrls.Count(u => u.EndsWith(".glb", StringComparison.OrdinalIgnoreCase) || u.EndsWith(".gltf", StringComparison.OrdinalIgnoreCase));
+            var productionModels = modelUrls.Count(u => !u.EndsWith(".glb", StringComparison.OrdinalIgnoreCase) && !u.EndsWith(".gltf", StringComparison.OrdinalIgnoreCase));
 
-            if (modelUrls.Count > 1 && !hasPairedGlbAndStl)
+            if (productionModels > 1 || previewModels > 1)
             {
                 return BadRequest(new { message = "Only one 3D model file is allowed per item." });
             }

@@ -37,6 +37,8 @@ export interface FilamentPaintingConfig {
 export interface FilamentPaintingGenerationResult {
   modelGlbUrl: string;
   modelStlUrl: string;
+  model3mfUrl?: string;
+  modelZipUrl?: string;
   previewImageUrl: string;
   layerSwaps: LayerSwapInstruction[];
   dimensions: {
@@ -47,6 +49,10 @@ export interface FilamentPaintingGenerationResult {
   volumeMm3: number;
   estimatedGrams: number;
   totalLayers: number;
+  estimatedPrintTime?: string;
+  estimatedPrice?: number;
+  unitPrice?: number;
+  colorSwapFee?: number;
 }
 
 export interface CuratedPalettePreset {

@@ -115,17 +115,31 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
                     >
                       {file.fileName}
                     </p>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span
-                        className={`text-[10px] uppercase font-mono px-1.5 py-0.2 rounded border ${getFileBadgeColor(
-                          file.extension || file.fileName,
-                          file.kind,
-                        )}`}
-                      >
-                        {file.extension
-                          ? file.extension.replace(".", "")
-                          : file.kind}
-                      </span>
+                    <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                      {file.role === "source" || file.label?.includes("Source") || file.kind === "image" ? (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-emerald-50 text-emerald-700 border-emerald-200">
+                          Source File
+                        </span>
+                      ) : file.role === "preview" || file.label?.includes("Preview") || file.fileName.toLowerCase().endsWith(".glb") ? (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-purple-50 text-purple-700 border-purple-200">
+                          Web Preview (.glb)
+                        </span>
+                      ) : file.role === "production" || file.label?.includes("Production") || [".3mf", ".stl", ".obj", ".step"].some(e => file.fileName.toLowerCase().endsWith(e)) ? (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-blue-50 text-blue-700 border-blue-200">
+                          Production File ({file.extension ? file.extension.replace(".", "").toUpperCase() : "3MF/STL"})
+                        </span>
+                      ) : (
+                        <span
+                          className={`text-[10px] uppercase font-mono px-1.5 py-0.2 rounded border ${getFileBadgeColor(
+                            file.extension || file.fileName,
+                            file.kind,
+                          )}`}
+                        >
+                          {file.extension
+                            ? file.extension.replace(".", "")
+                            : file.kind}
+                        </span>
+                      )}
                       {file.material && (
                         <span className="text-[10px] text-slate-400">
                           {file.material}

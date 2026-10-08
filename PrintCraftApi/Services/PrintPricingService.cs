@@ -86,11 +86,45 @@ public class PrintPricingService : IPrintPricingService
             return;
         }
 
+        bool isFilamentPainting =
+            (!string.IsNullOrWhiteSpace(orderItem.Notes) && orderItem.Notes.Contains("Filament Painting", StringComparison.OrdinalIgnoreCase)) ||
+            (!string.IsNullOrWhiteSpace(orderItem.PrintQuality) && orderItem.PrintQuality.Contains("Filament Painting", StringComparison.OrdinalIgnoreCase)) ||
+            (!string.IsNullOrWhiteSpace(orderItem.fileName) && orderItem.fileName.Contains("_painting", StringComparison.OrdinalIgnoreCase));
+
         var effectiveScale = scaleFactor > 0 ? scaleFactor : ResolveScaleFactor(orderItem);
-        var effectiveInfill = infillPercent is > 0 and <= 100 ? infillPercent.Value : (orderItem.InfillPercent > 0 ? orderItem.InfillPercent : 20);
+        var effectiveInfill = isFilamentPainting ? 100 : (infillPercent is > 0 and <= 100 ? infillPercent.Value : (orderItem.InfillPercent > 0 ? orderItem.InfillPercent : 20));
         var effectiveQuality = !string.IsNullOrWhiteSpace(quality) ? quality : (!string.IsNullOrWhiteSpace(orderItem.PrintQuality) ? orderItem.PrintQuality : "Standard (0.20mm)");
-        var effectiveSupports = supports ?? orderItem.SupportsNeeded;
+        var effectiveSupports = isFilamentPainting ? false : (supports ?? orderItem.SupportsNeeded);
         int count = orderItem.Count > 0 ? orderItem.Count : 1;
+
+        // Extract color swap count for Filament Painting items
+        int colorSwaps = 0;
+        if (isFilamentPainting)
+        {
+            var swapMatch = Regex.Match(orderItem.Notes ?? "", @"(?:(\d+)\s*swaps|Swaps:\s*(\d+))", RegexOptions.IgnoreCase);
+            if (swapMatch.Success)
+            {
+                var val = !string.IsNullOrEmpty(swapMatch.Groups[1].Value) ? swapMatch.Groups[1].Value : swapMatch.Groups[2].Value;
+                int.TryParse(val, out colorSwaps);
+            }
+            else
+            {
+                var colorMatch = Regex.Match(orderItem.Notes ?? "", @"(\d+)\s*colors", RegexOptions.IgnoreCase);
+                if (colorMatch.Success && int.TryParse(colorMatch.Groups[1].Value, out var numColors))
+                {
+                    colorSwaps = Math.Max(0, numColors - 1);
+                }
+                else if (!string.IsNullOrWhiteSpace(orderItem.Color) && orderItem.Color.Contains('|'))
+                {
+                    colorSwaps = Math.Max(0, orderItem.Color.Split('|').Length - 1);
+                }
+            }
+
+            if (colorSwaps == 0)
+            {
+                colorSwaps = 3; // Baseline 4-color painting = 3 filament swaps
+            }
+        }
 
         double filamentUsedGrams = 0;
         string? estimatedPrintTime = null;
@@ -230,12 +264,25 @@ public class PrintPricingService : IPrintPricingService
 
         // Pricing computation based on time and weight (for the entire batch of 'count' items)
         double totalHours = ParsePrintTimeToHours(estimatedPrintTime);
+
+        // Apply Filament Painting color swap time buffer: 12 minutes per color swap
+        if (isFilamentPainting && colorSwaps > 0)
+        {
+            double swapBufferHours = (colorSwaps * 12.0 * count) / 60.0;
+            totalHours += swapBufferHours;
+            int totalMins = (int)Math.Max(30, Math.Round(totalHours * 60));
+            int h = totalMins / 60;
+            int m = totalMins % 60;
+            estimatedPrintTime = h > 0 ? $"{h}h {m}m" : $"{m}m";
+        }
+
         double timeCost = totalHours * 1.5; // €1.50 per hour
         double materialCost = filamentUsedGrams * (double)pricePerGram;
+        double colorSwapFee = isFilamentPainting ? (colorSwaps * 2.00 * count) : 0; // Flat €2.00 fee per swap
+        double plateSetupFee = isFilamentPainting ? 2.00 : 0; // Flat setup buffer
 
-        // Start cost (orderItem.PlateCost per plate) is added at the order level.
-        // We calculate unitPrice strictly based on time and material.
-        var unitPrice = (timeCost + materialCost) / count;
+        // Start cost is added at the order level for standard CAD, or incorporated for custom filament painting
+        var unitPrice = ((timeCost + materialCost + colorSwapFee) / count) + plateSetupFee;
 
         // However, we want to store the TOTAL batch filament and print time in the database 
         // so that the frontend UI displays the total resource cost for this order item.
@@ -243,10 +290,14 @@ public class PrintPricingService : IPrintPricingService
         orderItem.FilamentUsedGrams = Math.Round(filamentUsedGrams, 2);
         orderItem.UnitPrice = Math.Round(unitPrice, 2);
         orderItem.Price = orderItem.UnitPrice;
+        if (isFilamentPainting)
+        {
+            orderItem.InfillPercent = 100;
+        }
 
         await db.SaveChangesAsync();
-        _logger.LogInformation("Calculated price for OrderItem {ItemId}: grams={Grams}g, time={Time}, price=€{Price}",
-            orderItem.Id, orderItem.FilamentUsedGrams, orderItem.EstimatedPrintTime, orderItem.Price);
+        _logger.LogInformation("Calculated price for OrderItem {ItemId}: grams={Grams}g, time={Time}, price=€{Price}, swaps={Swaps}",
+            orderItem.Id, orderItem.FilamentUsedGrams, orderItem.EstimatedPrintTime, orderItem.Price, colorSwaps);
     }
 
     private static string GeneratePrusaConfig(string quality, int infillPercent)

@@ -177,6 +177,69 @@ public class HueForgeLayerStackCalculatorTests
         Assert.StartsWith("PrintCraft HueForge Binary STL", header);
     }
 
+    [Fact]
+    public void MeshGeneratorService_GeneratesValid3mfArchiveWithInstructions()
+    {
+        float[] heightMap = [0.48f, 0.80f, 1.20f, 1.60f];
+        var config = new LayerStackConfig
+        {
+            BaseLayerHeightMm = 0.16,
+            LayerHeightMm = 0.08,
+            MaxDepthMm = 2.00,
+            MinBaseThicknessMm = 0.48,
+            Palette = new List<FilamentPaletteItem>
+            {
+                new() { Name = "Black", ColorHex = "#111111", Material = "PLA", TransmissionDistanceMm = 0.6 },
+                new() { Name = "White", ColorHex = "#FFFFFF", Material = "PLA", TransmissionDistanceMm = 5.0 }
+            }
+        };
+
+        var swaps = new List<LayerSwapInstruction>
+        {
+            new() { SwapNumber = 1, LayerNumber = 1, HeightMm = 0.0, ColorName = "Black", ColorHex = "#111111", Material = "PLA", Instruction = "Start print with Black (#111111)" },
+            new() { SwapNumber = 2, LayerNumber = 7, HeightMm = 0.64, ColorName = "White", ColorHex = "#FFFFFF", Material = "PLA", Instruction = "Swap to White (#FFFFFF)" }
+        };
+
+        byte[] threeMf = MeshGeneratorService.GenerateBinary3mf(heightMap, 2, 2, 100.0, 100.0, 0.48, config, swaps);
+        Assert.NotNull(threeMf);
+        Assert.True(threeMf.Length > 200);
+
+        // Verify ZIP magic header: PK\x03\x04 = 0x04034B50
+        uint magic = System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(threeMf.AsSpan(0, 4));
+        Assert.Equal(0x04034b50u, magic);
+
+        // Inspect ZIP entries
+        using var ms = new MemoryStream(threeMf);
+        using var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Read);
+
+        var modelEntry = archive.GetEntry("3D/3dmodel.model");
+        Assert.NotNull(modelEntry);
+
+        var contentTypesEntry = archive.GetEntry("[Content_Types].xml");
+        Assert.NotNull(contentTypesEntry);
+
+        var relsEntry = archive.GetEntry("_rels/.rels");
+        Assert.NotNull(relsEntry);
+
+        var instructionsEntry = archive.GetEntry("Metadata/print_instructions.txt");
+        Assert.NotNull(instructionsEntry);
+
+        using var reader = new StreamReader(instructionsEntry.Open());
+        string instructionsText = reader.ReadToEnd();
+        Assert.Contains("PRINTCRAFT HUEFORGE PRINT INSTRUCTIONS", instructionsText);
+        Assert.Contains("Swap # 1", instructionsText);
+        Assert.Contains("Black", instructionsText);
+        Assert.Contains("White", instructionsText);
+
+        using var modelReader = new StreamReader(modelEntry.Open());
+        string modelXml = modelReader.ReadToEnd();
+        Assert.Contains("<model", modelXml);
+        Assert.Contains("<mesh>", modelXml);
+        Assert.Contains("<vertices>", modelXml);
+        Assert.Contains("<triangles>", modelXml);
+        Assert.Contains("colorgroup", modelXml);
+    }
+
     [Theory]
     [InlineData("Low", 0.16, 0.12, 1.50)]
     [InlineData("low", 0.16, 0.12, 1.50)]
@@ -192,6 +255,100 @@ public class HueForgeLayerStackCalculatorTests
         Assert.Equal(expectedBase, setting.SolidBaseHeightMm, precision: 3);
         Assert.Equal(expectedDetail, setting.DetailLayerHeightMm, precision: 3);
         Assert.Equal(expectedRelief, setting.MaxReliefMm, precision: 3);
+    }
+
+    [Fact]
+    public void MeshGeneratorService_GeneratesValidProductionZipWithHighResStlAndReadme()
+    {
+        float[] heightMap = [0.48f, 0.80f, 1.20f, 1.60f];
+        var config = new LayerStackConfig
+        {
+            BaseLayerHeightMm = 0.16,
+            LayerHeightMm = 0.08,
+            MaxDepthMm = 2.00,
+            MinBaseThicknessMm = 0.48,
+            Palette = new List<FilamentPaletteItem>
+            {
+                new() { Name = "Black", ColorHex = "#111111", Material = "PLA", TransmissionDistanceMm = 0.6 },
+                new() { Name = "Green", ColorHex = "#22C55E", Material = "PLA", TransmissionDistanceMm = 2.0 },
+                new() { Name = "White", ColorHex = "#FFFFFF", Material = "PLA", TransmissionDistanceMm = 5.0 }
+            }
+        };
+
+        var swaps = new List<LayerSwapInstruction>
+        {
+            new() { SwapNumber = 1, LayerNumber = 1, HeightMm = 0.0, ColorName = "Black", ColorHex = "#111111", Material = "PLA", Instruction = "Start with Black" },
+            new() { SwapNumber = 2, LayerNumber = 9, HeightMm = 0.80, ColorName = "Green", ColorHex = "#22C55E", Material = "PLA", Instruction = "Swap to Green" },
+            new() { SwapNumber = 3, LayerNumber = 18, HeightMm = 1.52, ColorName = "White", ColorHex = "#FFFFFF", Material = "PLA", Instruction = "Swap to White" }
+        };
+
+        byte[] stlBytes = MeshGeneratorService.GenerateBinaryStl(heightMap, 2, 2, 100.0, 100.0, 0.48);
+        byte[] zipBytes = MeshGeneratorService.GenerateProductionZip(stlBytes, "test_model.stl", 100.0, 100.0, 2.00, config, swaps);
+
+        Assert.NotNull(zipBytes);
+        Assert.True(zipBytes.Length > 200);
+
+        // Verify ZIP magic header: PK\x03\x04
+        uint magic = System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(zipBytes.AsSpan(0, 4));
+        Assert.Equal(0x04034b50u, magic);
+
+        using var ms = new MemoryStream(zipBytes);
+        using var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Read);
+
+        var stlEntry = archive.GetEntry("test_model.stl");
+        Assert.NotNull(stlEntry);
+
+        var readmeEntry = archive.GetEntry("read-me.txt");
+        Assert.NotNull(readmeEntry);
+
+        using var reader = new StreamReader(readmeEntry.Open());
+        string readme = reader.ReadToEnd();
+        Assert.Contains("PRINTCRAFT HUEFORGE PRINT INSTRUCTIONS", readme);
+        Assert.Contains("100% Solid Infill", readme);
+        Assert.Contains("Swap #1", readme);
+        Assert.Contains("Swap to Green (#22C55E) at Layer 9 (0.80mm)", readme);
+        Assert.Contains("Swap to White (#FFFFFF) at Layer 18 (1.52mm)", readme);
+    }
+
+    [Fact]
+    public void ModelGeometryAnalyzer_AnalyzesProductionZipArchive()
+    {
+        float[] heightMap = [0.48f, 0.80f, 1.20f, 1.60f];
+        var config = new LayerStackConfig
+        {
+            BaseLayerHeightMm = 0.16,
+            LayerHeightMm = 0.08,
+            MaxDepthMm = 2.00,
+            MinBaseThicknessMm = 0.48,
+            Palette = new List<FilamentPaletteItem>
+            {
+                new() { Name = "Black", ColorHex = "#111111", Material = "PLA" }
+            }
+        };
+
+        var swaps = new List<LayerSwapInstruction>
+        {
+            new() { SwapNumber = 1, LayerNumber = 1, HeightMm = 0.0, ColorName = "Black", ColorHex = "#111111", Material = "PLA", Instruction = "Start" }
+        };
+
+        byte[] stlBytes = MeshGeneratorService.GenerateBinaryStl(heightMap, 2, 2, 100.0, 100.0, 0.48);
+        byte[] zipBytes = MeshGeneratorService.GenerateProductionZip(stlBytes, "painting.stl", 100.0, 100.0, 2.00, config, swaps);
+
+        var tempZip = Path.Combine(Path.GetTempPath(), $"test_zip_{Guid.NewGuid():N}.zip");
+        File.WriteAllBytes(tempZip, zipBytes);
+
+        try
+        {
+            var geom = PrintCraftApi.Services.ModelGeometryAnalyzer.Analyze(tempZip);
+            Assert.NotNull(geom);
+            Assert.True(geom.VolumeMm3 > 100.0);
+            Assert.True(geom.SizeX >= 99.0);
+            Assert.True(geom.SizeY >= 99.0);
+        }
+        finally
+        {
+            if (File.Exists(tempZip)) File.Delete(tempZip);
+        }
     }
 }
 

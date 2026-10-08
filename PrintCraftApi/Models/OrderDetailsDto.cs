@@ -126,6 +126,8 @@ public class OrderFileAssetDto
     public string FileUrl { get; set; } = string.Empty;
     public string DownloadUrl { get; set; } = string.Empty;
     public string Kind { get; set; } = "model"; // model | image | other
+    public string? Role { get; set; } // source | preview | production
+    public string? Label { get; set; } // Source File | Web Preview | Production File
     public string Extension { get; set; } = string.Empty;
     public bool Is3DModel { get; set; }
     public string? Size { get; set; }

@@ -396,6 +396,9 @@ export default function Interactive3DViewer({
           group.traverse((child: any) => {
             if (child.isMesh) {
               const geom = child.geometry;
+              if (geom) {
+                geom.computeVertexNormals();
+              }
               const hasVertexColors = !!(
                 geom?.attributes?.color ||
                 geom?.attributes?.COLOR_0 ||
@@ -420,13 +423,11 @@ export default function Interactive3DViewer({
             }
           });
 
-          // Center group
+          // Center group precisely around geometric origin
           const box = new Box3().setFromObject(group);
           const center = new Vector3();
           box.getCenter(center);
-          group.position.x += (group.position.x - center.x);
-          group.position.y += (group.position.y - center.y);
-          group.position.z += (group.position.z - center.z);
+          group.position.sub(center);
 
           baseObject = group;
         } else {
@@ -531,10 +532,12 @@ export default function Interactive3DViewer({
     const camera = cameraRef.current;
     const controls = controlsRef.current;
     if (camera && controls) {
-      const dist = Math.max(40, maxGroupDim * 1.5); // use 1.5 for multiple objects to fit nicely
-      controls.target.set(0, (maxGroupDim * 0.4), 0);
-      camera.position.set(dist * 0.8, dist * 0.8, dist * 1.1);
-      camera.lookAt(controls.target);
+      const center = new Vector3();
+      groupBox.getCenter(center);
+      const dist = Math.max(40, maxGroupDim * 1.5);
+      controls.target.copy(center);
+      camera.position.set(center.x + dist * 0.7, center.y + dist * 0.75, center.z + dist * 0.95);
+      camera.lookAt(center);
       controls.update();
     }
     
@@ -557,9 +560,10 @@ export default function Interactive3DViewer({
 
     const dim = effectiveDim || fitParamsRef.current?.maxDim || 60;
     const dist = Math.max(40, dim * 2.2);
+    const targetY = fitParamsRef.current?.center?.y ?? (dim * 0.2);
 
-    controls.target.set(0, (dim * 0.4), 0);
-    camera.position.set(dist * 0.8, dist * 0.8, dist * 1.1);
+    controls.target.set(0, targetY, 0);
+    camera.position.set(dist * 0.7, targetY + dist * 0.75, dist * 0.95);
     camera.lookAt(controls.target);
     controls.update();
   };

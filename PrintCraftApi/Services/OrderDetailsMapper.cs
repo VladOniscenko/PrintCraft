@@ -158,6 +158,8 @@ public static class OrderDetailsMapper
                         ? a.Kind
                         : (is3D ? "model" : (ext is ".png" or ".jpg" or ".jpeg" or ".webp" or ".gif" ? "image" : "other"));
 
+                    var (role, label) = ClassifyFileRole(a.FileName, url, kind, ext);
+
                     itemFiles.Add(new OrderFileAssetDto
                     {
                         Id = a.Id.ToString(),
@@ -166,6 +168,8 @@ public static class OrderDetailsMapper
                         FileUrl = url,
                         DownloadUrl = url,
                         Kind = kind,
+                        Role = role,
+                        Label = label,
                         Extension = ext,
                         Is3DModel = is3D,
                         Size = item.Size,
@@ -193,6 +197,8 @@ public static class OrderDetailsMapper
                 var fName = string.IsNullOrWhiteSpace(item.fileName) ? "model" : item.fileName.Trim();
                 var ext = Path.GetExtension(fName)?.ToLowerInvariant() ?? Path.GetExtension(url)?.ToLowerInvariant() ?? "";
                 var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" or ".glb" or ".gltf" || url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) || url.EndsWith(".glb", StringComparison.OrdinalIgnoreCase);
+                var kind = is3D ? "model" : "other";
+                var (role, label) = ClassifyFileRole(fName, url, kind, ext);
 
                 itemFiles.Add(new OrderFileAssetDto
                 {
@@ -201,7 +207,9 @@ public static class OrderDetailsMapper
                     FileName = fName,
                     FileUrl = url,
                     DownloadUrl = url,
-                    Kind = is3D ? "model" : "other",
+                    Kind = kind,
+                    Role = role,
+                    Label = label,
                     Extension = ext,
                     Is3DModel = is3D,
                     Size = item.Size,
@@ -217,6 +225,7 @@ public static class OrderDetailsMapper
             if (seenUrls.Add(url))
             {
                 var ext = Path.GetExtension(url)?.ToLowerInvariant() ?? "";
+                var (role, label) = ClassifyFileRole("Source Image", url, "image", ext);
                 itemFiles.Add(new OrderFileAssetDto
                 {
                     Id = $"item_img_{item.Id}",
@@ -225,6 +234,8 @@ public static class OrderDetailsMapper
                     FileUrl = url,
                     DownloadUrl = url,
                     Kind = "image",
+                    Role = role,
+                    Label = label,
                     Extension = ext,
                     Is3DModel = false,
                     Size = item.Size,
@@ -283,6 +294,8 @@ public static class OrderDetailsMapper
                         ? att.Kind
                         : (is3D ? "model" : (ext is ".png" or ".jpg" or ".jpeg" or ".webp" or ".gif" ? "image" : "other"));
 
+                    var (role, label) = ClassifyFileRole(att.FileName, url, kind, ext);
+
                     files.Add(new OrderFileAssetDto
                     {
                         Id = att.Id.ToString(),
@@ -291,6 +304,8 @@ public static class OrderDetailsMapper
                         FileUrl = url,
                         DownloadUrl = url,
                         Kind = kind,
+                        Role = role,
+                        Label = label,
                         Extension = ext,
                         Is3DModel = is3D,
                         Size = item.Size,
@@ -308,6 +323,8 @@ public static class OrderDetailsMapper
                     var fName = string.IsNullOrWhiteSpace(item.fileName) ? "Model File" : item.fileName.Trim();
                     var ext = Path.GetExtension(fName)?.ToLowerInvariant() ?? Path.GetExtension(url)?.ToLowerInvariant() ?? "";
                     var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" or ".glb" or ".gltf" || url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) || url.EndsWith(".glb", StringComparison.OrdinalIgnoreCase);
+                    var kind = is3D ? "model" : "other";
+                    var (role, label) = ClassifyFileRole(fName, url, kind, ext);
 
                     files.Add(new OrderFileAssetDto
                     {
@@ -316,7 +333,9 @@ public static class OrderDetailsMapper
                         FileName = fName,
                         FileUrl = url,
                         DownloadUrl = url,
-                        Kind = is3D ? "model" : "other",
+                        Kind = kind,
+                        Role = role,
+                        Label = label,
                         Extension = ext,
                         Is3DModel = is3D,
                         Size = item.Size,
@@ -332,6 +351,7 @@ public static class OrderDetailsMapper
                 if (seenUrls.Add(url))
                 {
                     var ext = Path.GetExtension(url)?.ToLowerInvariant() ?? "";
+                    var (role, label) = ClassifyFileRole("Source Image", url, "image", ext);
                     files.Add(new OrderFileAssetDto
                     {
                         Id = $"item_img_{item.Id}",
@@ -340,6 +360,8 @@ public static class OrderDetailsMapper
                         FileUrl = url,
                         DownloadUrl = url,
                         Kind = "image",
+                        Role = role,
+                        Label = label,
                         Extension = ext,
                         Is3DModel = false,
                         Size = item.Size,
@@ -351,6 +373,30 @@ public static class OrderDetailsMapper
         }
 
         return files;
+    }
+
+    public static (string Role, string Label) ClassifyFileRole(string? fileName, string url, string kind, string ext)
+    {
+        var cleanExt = (ext ?? "").ToLowerInvariant();
+        var cleanName = (fileName ?? "").ToLowerInvariant();
+
+        if (cleanExt is ".glb" or ".gltf" || cleanName.Contains("preview"))
+        {
+            return ("preview", "Web Preview (.glb)");
+        }
+
+        if (cleanExt is ".3mf" or ".stl" or ".obj" or ".step" or ".stp" or ".zip" || cleanName.Contains("production"))
+        {
+            var extLabel = string.IsNullOrWhiteSpace(cleanExt) ? "" : $" ({cleanExt.TrimStart('.')})";
+            return ("production", $"Production File{extLabel}");
+        }
+
+        if (kind == "image" || cleanExt is ".png" or ".jpg" or ".jpeg" or ".webp" or ".gif" || cleanName.Contains("source"))
+        {
+            return ("source", "Source File (2D Image)");
+        }
+
+        return ("other", "Attachment");
     }
 
     public static List<OrderTimelineEventDto> BuildTimeline(Order order)

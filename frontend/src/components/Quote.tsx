@@ -30,6 +30,10 @@ import {
   Sliders,
   Sparkles,
   X,
+  Pencil,
+  RefreshCw,
+  CheckCircle2,
+  ArrowRight,
 } from "lucide-react";
 import Navbar from "./Navbar";
 import Interactive3DViewer from "./Interactive3DViewer";
@@ -279,6 +283,7 @@ export default function Quote() {
   const [filaments, setFilaments] = useState<Filament[]>([]);
   const [showAddItemChoiceModal, setShowAddItemChoiceModal] = useState<boolean>(false);
   const [activeCreatorFlow, setActiveCreatorFlow] = useState<"filament-painting" | null>(null);
+  const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
   const [pendingPaintingFile, setPendingPaintingFile] = useState<File | null>(null);
   const new3dFileInputRef = useRef<HTMLInputElement | null>(null);
   const newPaintingImageInputRef = useRef<HTMLInputElement | null>(null);
@@ -292,6 +297,7 @@ export default function Quote() {
     if (file) {
       setPendingPaintingFile(file);
     }
+    setEditingItemIndex(null);
     setActiveCreatorFlow("filament-painting");
     setShowAddItemChoiceModal(false);
     setTimeout(() => {
@@ -642,6 +648,8 @@ export default function Quote() {
         notifyError(error);
         return;
       }
+      setEditingItemIndex(null);
+      setActiveCreatorFlow(null);
       const nextStep = steps[currentStepIndex + 1]?.id || "shipping";
       setCurrentStepId(nextStep);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -898,6 +906,7 @@ export default function Quote() {
   const uploadSelectedFilesForItem = async (
     selectedFiles: File[],
     itemIndex: number,
+    isReplacement: boolean = false,
   ) => {
     if (selectedFiles.length === 0) return;
 
@@ -906,7 +915,15 @@ export default function Quote() {
       return;
     }
 
-    const existingFiles = items[itemIndex]?.files || [];
+    if (isReplacement) {
+      const oldFiles = items[itemIndex]?.files || [];
+      for (const file of oldFiles) {
+        if (file?.url) void deleteTempUpload(file.url);
+      }
+      if (items[itemIndex]?.fileUrl) void deleteTempUpload(items[itemIndex].fileUrl);
+    }
+
+    const existingFiles = isReplacement ? [] : (items[itemIndex]?.files || []);
     const currentFileCount = existingFiles.length;
     const remainingSlots = MAX_FILES_PER_ITEM - currentFileCount;
     if (remainingSlots <= 0) {
@@ -1034,7 +1051,7 @@ export default function Quote() {
             files: [],
           };
 
-          const existingFiles = targetItem.files || [];
+          const existingFiles = isReplacement ? [] : (targetItem.files || []);
           const newFiles = uploadedEntries.map((entry) => ({
             url: entry.url,
             name: entry.file.name,
@@ -1116,6 +1133,54 @@ export default function Quote() {
     }
   };
 
+  const handleReplaceFile = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    itemIndex: number,
+  ) => {
+    const selectedFiles = Array.from(e.target.files ?? []);
+    if (selectedFiles.length === 0) return;
+    e.target.value = "";
+    await uploadSelectedFilesForItem(selectedFiles, itemIndex, true);
+    notifySuccess("File replaced successfully!");
+  };
+
+  const handleConfirmItem = (itemIndex: number) => {
+    const item = items[itemIndex];
+    if (!item) {
+      setEditingItemIndex(null);
+      return;
+    }
+    if (
+      (!item.files || item.files.length === 0) &&
+      !item.fileUrl &&
+      !item.imageUrl &&
+      !item.notes
+    ) {
+      notifyError(
+        t("quote.itemContentRequired") ||
+          "Please upload a file or provide a description for this item.",
+      );
+      return;
+    }
+    setEditingItemIndex(null);
+    notifySuccess("Item confirmed and added to order!");
+  };
+
+  const handleCancelEdit = () => {
+    if (editingItemIndex !== null) {
+      const item = items[editingItemIndex];
+      if (
+        item &&
+        (!item.files || item.files.length === 0) &&
+        !item.fileUrl &&
+        !item.notes
+      ) {
+        removeItem(editingItemIndex);
+      }
+    }
+    setEditingItemIndex(null);
+  };
+
   const handleFilamentPaintingAdded = ({
     liveResult,
     config,
@@ -1134,18 +1199,64 @@ export default function Quote() {
     const baseName = sourceFile.name.replace(/\.[^/.]+$/, "");
 
     if (liveResult.modelGlbUrl) uploadedFileUrlsRef.current.add(liveResult.modelGlbUrl);
+    if (liveResult.modelZipUrl) uploadedFileUrlsRef.current.add(liveResult.modelZipUrl);
+    if (liveResult.model3mfUrl) uploadedFileUrlsRef.current.add(liveResult.model3mfUrl);
     if (liveResult.modelStlUrl) uploadedFileUrlsRef.current.add(liveResult.modelStlUrl);
     if (liveResult.previewImageUrl) uploadedFileUrlsRef.current.add(liveResult.previewImageUrl);
 
+    const productionFileUrl = liveResult.modelZipUrl || liveResult.model3mfUrl || liveResult.modelStlUrl || "";
+    const productionFileName = liveResult.modelZipUrl
+      ? `${baseName}_production.zip`
+      : liveResult.model3mfUrl
+        ? `${baseName}_production.3mf`
+        : `${baseName}_production.stl`;
+
+    const organizedFiles: Array<{ url: string; name: string; kind: "image" | "model" }> = [
+      // 1. Source File: Original 2D Image
+      {
+        url: liveResult.previewImageUrl || "",
+        name: sourceFile.name,
+        kind: "image",
+      },
+      // 2. Web Preview: .glb
+      ...(liveResult.modelGlbUrl
+        ? [
+            {
+              url: liveResult.modelGlbUrl,
+              name: `${baseName}_preview.glb`,
+              kind: "model" as const,
+            },
+          ]
+        : []),
+      // 3. Production File: .zip (containing high-res STL and read-me.txt)
+      ...(productionFileUrl
+        ? [
+            {
+              url: productionFileUrl,
+              name: productionFileName,
+              kind: "model" as const,
+            },
+          ]
+        : []),
+    ];
+
+    const prevCount =
+      editingItemIndex !== null && items[editingItemIndex]
+        ? items[editingItemIndex].count
+        : 1;
+
     const newItem: OrderItem = {
       uploadType: "filament-painting",
-      fileName: `${baseName}_relief.glb`,
-      fileUrl: liveResult.modelStlUrl || liveResult.modelGlbUrl || "",
+      fileName: `${baseName}_painting`,
+      fileUrl: productionFileUrl || liveResult.modelGlbUrl || "",
       imageUrl: liveResult.previewImageUrl || "",
       material: defaultMat,
       color: paletteSummary,
-      count: 1,
+      count: prevCount,
       price: 0,
+      unitPrice: 0,
+      estimatedPrintTime: liveResult.estimatedPrintTime,
+      filamentUsedGrams: liveResult.estimatedGrams,
       dimensionBaseX: liveResult.dimensions.x,
       dimensionBaseY: liveResult.dimensions.y,
       dimensionBaseZ: liveResult.dimensions.z,
@@ -1158,32 +1269,25 @@ export default function Quote() {
       printQuality: `${config.quality || "Medium"} Quality (Filament Painting)`,
       supportsNeeded: false,
       layerSwaps: liveResult.layerSwaps,
-      files: [
-        {
-          url: liveResult.modelGlbUrl || "",
-          name: `${baseName}_relief.glb`,
-          kind: "model" as const,
-        },
-        ...(liveResult.modelStlUrl
-          ? [
-              {
-                url: liveResult.modelStlUrl,
-                name: `${baseName}_relief.stl`,
-                kind: "model" as const,
-              },
-            ]
-          : []),
-        {
-          url: liveResult.previewImageUrl || "",
-          name: sourceFile.name,
-          kind: "image" as const,
-        },
-      ],
-      notes: `Filament Painting (${config.quality || "Medium"} Quality, ${config.palette.length} colors: ${paletteSummary}). Dimensions: ${liveResult.dimensions.x}x${liveResult.dimensions.y}x${liveResult.dimensions.z}mm. Total Layers: ${liveResult.totalLayers || 30}. Swaps: ${swapsSummary}`,
+      files: organizedFiles,
+      notes: `Filament Painting (${config.quality || "Medium"} Quality, ${config.palette.length} colors: ${paletteSummary}). Dimensions: ${liveResult.dimensions.x}x${liveResult.dimensions.y}x${liveResult.dimensions.z}mm. Total Layers: ${liveResult.totalLayers || 30}. Swaps: ${swapsSummary}. 100% Solid Infill.`,
     };
 
-    setItems((prev) => [...prev, newItem]);
-    notifySuccess("Filament painting added to order!");
+    if (editingItemIndex !== null && editingItemIndex >= 0 && editingItemIndex < items.length) {
+      setItems((prev) => {
+        const next = [...prev];
+        next[editingItemIndex] = newItem;
+        return next;
+      });
+      notifySuccess("Filament painting changes confirmed & saved!");
+    } else {
+      setItems((prev) => [...prev, newItem]);
+      notifySuccess("Filament painting confirmed & added to order!");
+    }
+
+    setActiveCreatorFlow(null);
+    setPendingPaintingFile(null);
+    setEditingItemIndex(null);
   };
 
   const handleFileUpload = async (
@@ -1234,7 +1338,13 @@ export default function Quote() {
 
   const removeItem = (index: number) => {
     const removed = items[index];
-    setItems(items.filter((_, i) => i !== index));
+    setItems((prev) => prev.filter((_, i) => i !== index));
+
+    if (editingItemIndex === index) {
+      setEditingItemIndex(null);
+    } else if (editingItemIndex !== null && editingItemIndex > index) {
+      setEditingItemIndex(editingItemIndex - 1);
+    }
 
     if (removed?.fileUrl) void deleteTempUpload(removed.fileUrl);
     if (removed?.imageUrl) void deleteTempUpload(removed.imageUrl);
@@ -1808,14 +1918,6 @@ export default function Quote() {
                       {t("quote.allowedFilesInline")}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowAddItemChoiceModal(true)}
-                    className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Plus size={16} />
-                    {t("quote.addItem")}
-                  </button>
                 </div>
 
                 {/* Hidden File Input for adding standard 3D CAD files to a new item */}
@@ -1825,9 +1927,14 @@ export default function Quote() {
                   multiple
                   accept={ALLOWED_UPLOAD_ACCEPT}
                   className="hidden"
-                  onChange={(e) => {
-                    void handleFileUpload(e, items.length);
+                  onChange={async (e) => {
+                    const selectedFiles = Array.from(e.target.files ?? []);
+                    if (selectedFiles.length === 0) return;
+                    e.target.value = "";
                     setShowAddItemChoiceModal(false);
+                    const newIndex = items.length;
+                    setEditingItemIndex(newIndex);
+                    await uploadSelectedFilesForItem(selectedFiles, newIndex);
                   }}
                 />
 
@@ -1850,16 +1957,23 @@ export default function Quote() {
                 {activeCreatorFlow === "filament-painting" && (
                   <div
                     id="filament-painting-configurator"
-                    className="mb-8 rounded-2xl border border-emerald-300/80 bg-emerald-50/20 p-5 shadow-xs"
+                    className="mb-8 rounded-3xl border border-emerald-300/80 bg-emerald-50/20 p-6 md:p-8 shadow-xs space-y-6"
                   >
-                    <div className="flex items-center justify-between pb-3 mb-4 border-b border-emerald-200">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="text-emerald-700" size={18} />
-                        <h4 className="text-sm font-bold text-gray-900">
-                          {items.length > 0
-                            ? `Configure New Item #${items.length + 1}: HueForge Filament Painting`
-                            : "Configure Filament Painting"}
-                        </h4>
+                    <div className="flex items-center justify-between pb-4 border-b border-emerald-200">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shadow-2xs">
+                          <Sparkles size={18} />
+                        </div>
+                        <div>
+                          <h4 className="text-base font-bold text-gray-900">
+                            {items.length > 0
+                              ? `Configure Item #${items.length + 1}: HueForge Filament Painting`
+                              : "Configure Filament Painting"}
+                          </h4>
+                          <p className="text-xs text-gray-500">
+                            Convert your 2D photo into a multi-color layer-blended 3D relief
+                          </p>
+                        </div>
                       </div>
                       <button
                         type="button"
@@ -1867,7 +1981,7 @@ export default function Quote() {
                           setActiveCreatorFlow(null);
                           setPendingPaintingFile(null);
                         }}
-                        className="text-xs font-semibold text-gray-500 hover:text-gray-800 px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                        className="text-xs font-semibold text-gray-500 hover:text-gray-800 px-3.5 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
                       >
                         Cancel & Back
                       </button>
@@ -1878,15 +1992,13 @@ export default function Quote() {
                       initialFile={pendingPaintingFile}
                       onAddToOrder={(payload) => {
                         handleFilamentPaintingAdded(payload);
-                        setActiveCreatorFlow(null);
-                        setPendingPaintingFile(null);
                       }}
                     />
                   </div>
                 )}
 
                 {/* Dual-Option Starter View when no items are added yet */}
-                {items.length === 0 && !activeCreatorFlow && (
+                {items.length === 0 && !activeCreatorFlow && editingItemIndex === null && (
                   <div className="space-y-4 my-2">
                     <div className="text-center py-2">
                       <h4 className="text-base font-bold text-gray-800">
@@ -1902,7 +2014,15 @@ export default function Quote() {
                       <div
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, 0)}
+                        onDrop={async (e) => {
+                          e.preventDefault();
+                          setIsDragOver(false);
+                          if (isUploading) return;
+                          const droppedFiles = Array.from(e.dataTransfer.files ?? []);
+                          if (droppedFiles.length === 0) return;
+                          setEditingItemIndex(0);
+                          await uploadSelectedFilesForItem(droppedFiles, 0);
+                        }}
                         className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all flex flex-col justify-between ${
                           isDragOver
                             ? "border-emerald-500 bg-emerald-50/50 scale-[0.99]"
@@ -1934,7 +2054,13 @@ export default function Quote() {
                               multiple
                               accept={ALLOWED_UPLOAD_ACCEPT}
                               className="hidden"
-                              onChange={(e) => handleFileUpload(e, 0)}
+                              onChange={async (e) => {
+                                const selectedFiles = Array.from(e.target.files ?? []);
+                                if (selectedFiles.length === 0) return;
+                                e.target.value = "";
+                                setEditingItemIndex(0);
+                                await uploadSelectedFilesForItem(selectedFiles, 0);
+                              }}
                               disabled={isUploading}
                             />
                           </label>
@@ -1973,85 +2099,96 @@ export default function Quote() {
                   </div>
                 )}
 
-                {items.length > 0 && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                      <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
-                        <Package size={16} className="text-emerald-600" />
-                        Items in Order ({items.length})
-                      </h4>
-                      <button
-                        type="button"
-                        onClick={() => setShowAddItemChoiceModal(true)}
-                        className="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1.5 border border-emerald-100"
-                      >
-                        <Plus size={14} />
-                        Add Item
-                      </button>
-                    </div>
+                {/* 2. Active Editor: Focus Mode for Single Item Configuration */}
+                {!activeCreatorFlow && editingItemIndex !== null && items[editingItemIndex] && (() => {
+                  const idx = editingItemIndex;
+                  const item = items[idx];
+                  const hasFiles = (item.files || []).length > 0 || !!item.fileUrl;
+                  const isPainting = item.uploadType === "filament-painting";
 
-                    {items.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="p-5 md:p-6 border border-gray-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow"
-                        {...(item.uploadType !== "filament-painting"
-                          ? {
-                              onDragOver: handleDragOver,
-                              onDragLeave: handleDragLeave,
-                              onDrop: (e: React.DragEvent<HTMLDivElement>) => handleDrop(e, idx),
-                            }
-                          : {})}
-                      >
-                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-5 border-b border-gray-100 pb-4">
-                          <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
-                            <span className="font-bold text-gray-800 text-lg truncate">
-                              {item.fileName || t("quote.textDescription")}
+                  return (
+                    <div
+                      className="p-6 md:p-8 border border-gray-200 rounded-3xl bg-white shadow-xs space-y-7"
+                      {...(!isPainting
+                        ? {
+                            onDragOver: handleDragOver,
+                            onDragLeave: handleDragLeave,
+                            onDrop: (e: React.DragEvent<HTMLDivElement>) => handleDrop(e, idx),
+                          }
+                        : {})}
+                    >
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-gray-100 pb-5">
+                        <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+                          <span className="font-extrabold text-gray-900 text-xl truncate">
+                            {item.fileName || t("quote.textDescription")}
+                          </span>
+                          {isPainting ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+                              <Sparkles size={13} className="text-emerald-600" />
+                              HueForge Filament Painting
                             </span>
-                            {item.uploadType === "filament-painting" ? (
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
-                                <Sparkles size={12} className="text-emerald-600" />
-                                HueForge Filament Painting
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
-                                <Layers size={12} className="text-indigo-600" />
-                                3D CAD / Custom Quote
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-3">
-                            {item.uploadType !== "filament-painting" && (
-                              <label className="cursor-pointer bg-emerald-50 text-emerald-700 px-3 py-2 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1.5 border border-emerald-100">
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
+                              <Layers size={13} className="text-indigo-600" />
+                              3D CAD / Custom Quote
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                          {!isPainting && (
+                            hasFiles ? (
+                              <label className="cursor-pointer bg-amber-50 text-amber-800 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-amber-100 transition-colors flex items-center gap-1.5 border border-amber-200 shadow-2xs">
                                 {isUploading ? (
-                                  <Loader2 className="animate-spin" size={16} />
+                                  <Loader2 className="animate-spin" size={15} />
                                 ) : (
-                                  <Plus size={16} />
+                                  <RefreshCw size={15} />
                                 )}
-                                {t("quote.addFile")}
+                                <span>Replace File</span>
+                                <input
+                                  type="file"
+                                  multiple
+                                  accept={ALLOWED_UPLOAD_ACCEPT}
+                                  className="hidden"
+                                  onChange={(e) => handleReplaceFile(e, idx)}
+                                  disabled={isUploading}
+                                />
+                              </label>
+                            ) : (
+                              <label className="cursor-pointer bg-emerald-50 text-emerald-700 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1.5 border border-emerald-100 shadow-2xs">
+                                {isUploading ? (
+                                  <Loader2 className="animate-spin" size={15} />
+                                ) : (
+                                  <Plus size={15} />
+                                )}
+                                <span>{t("quote.addFile")}</span>
                                 <input
                                   type="file"
                                   multiple
                                   accept={ALLOWED_UPLOAD_ACCEPT}
                                   className="hidden"
                                   onChange={(e) => handleFileUpload(e, idx)}
-                                  disabled={
-                                    isUploading ||
-                                    (item.files || []).length >=
-                                      MAX_FILES_PER_ITEM
-                                  }
+                                  disabled={isUploading}
                                 />
                               </label>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => removeItem(idx)}
-                              className="text-gray-400 hover:text-red-600 bg-gray-50 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100"
-                              title={t("quote.removeItemTitle")}
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
+                            )
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => removeItem(idx)}
+                            className="text-gray-400 hover:text-red-600 bg-gray-50 hover:bg-red-50 p-2 rounded-xl transition-colors border border-transparent hover:border-red-100"
+                            title={t("quote.removeItemTitle")}
+                          >
+                            <Trash2 size={17} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            className="text-xs font-semibold text-gray-500 hover:text-gray-800 px-3 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                          >
+                            Cancel
+                          </button>
                         </div>
+                      </div>
 
                         {(item.files || []).length > 0 && (
                           <div className="mb-5 flex flex-wrap gap-2 items-center">
@@ -2948,15 +3085,202 @@ export default function Quote() {
                           />
                           <textarea
                             placeholder={t("quote.notesPlaceholder")}
-                            className="w-full p-3 pl-11 text-sm bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all min-h-[100px] resize-y"
+                            className="w-full p-3.5 pl-11 text-sm bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all min-h-[100px] resize-y"
                             value={item.notes}
                             onChange={(e) =>
                               updateItem(idx, "notes", e.target.value)
                             }
                           />
                         </div>
+
+                        {/* Focus Mode Primary CTA at bottom */}
+                        <div className="pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => handleConfirmItem(idx)}
+                            className="w-full sm:flex-1 py-4 px-6 rounded-2xl bg-[#133827] hover:bg-[#1c4d37] text-white font-bold text-base shadow-sm flex items-center justify-center gap-2.5 transition-all"
+                          >
+                            <CheckCircle2 size={20} />
+                            <span>
+                              {items.length > 1
+                                ? "Confirm Changes & Save Item"
+                                : "Confirm Item & Add to Order"}
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            className="py-3 px-5 rounded-xl text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
-                    ))}
+                    );
+                  })()}
+
+                {/* 3. Cart Summary: Minimized State */}
+                {items.length > 0 && editingItemIndex === null && !activeCreatorFlow && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                      <div>
+                        <h4 className="text-base font-bold text-gray-900 flex items-center gap-2.5">
+                          <Package size={20} className="text-emerald-600" />
+                          <span>Order Summary ({items.length} {items.length === 1 ? "item" : "items"})</span>
+                        </h4>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          Review your items below. You can edit settings or add another item before proceeding.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3.5">
+                      {items.map((item, idx) => {
+                        const isPainting = item.uploadType === "filament-painting";
+
+                        return (
+                          <div
+                            key={idx}
+                            className="p-4 sm:p-5 border border-gray-200 rounded-2xl bg-white shadow-2xs hover:shadow-xs hover:border-gray-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                          >
+                            <div className="flex items-center gap-4 flex-1 min-w-0">
+                              {/* Thumbnail / Icon */}
+                              {item.imageUrl ? (
+                                <img
+                                  src={resolveAssetUrl(item.imageUrl)}
+                                  alt={item.fileName || "Thumbnail"}
+                                  className="w-14 h-14 rounded-xl object-cover border border-gray-200 bg-gray-50 shrink-0 shadow-2xs"
+                                />
+                              ) : isPainting ? (
+                                <div className="w-14 h-14 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 shadow-2xs">
+                                  <Sparkles size={24} />
+                                </div>
+                              ) : (
+                                <div className="w-14 h-14 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0 shadow-2xs">
+                                  <Layers size={24} />
+                                </div>
+                              )}
+
+                              {/* Details */}
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h5 className="font-bold text-gray-900 text-sm truncate max-w-[260px]">
+                                    {item.fileName || t("quote.textDescription")}
+                                  </h5>
+                                  {isPainting ? (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+                                      <Sparkles size={10} />
+                                      HueForge Painting
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 shrink-0">
+                                      3D CAD Print
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-600">
+                                  <span className="font-semibold text-gray-800">
+                                    {item.material} · {item.color}
+                                  </span>
+                                  <span className="text-gray-400">|</span>
+                                  <span className="text-gray-600">
+                                    Qty: <span className="font-bold text-gray-800">{item.count}</span>
+                                  </span>
+                                  {hasDimensionValue(item.dimensionX) &&
+                                    hasDimensionValue(item.dimensionY) &&
+                                    hasDimensionValue(item.dimensionZ) && (
+                                      <>
+                                        <span className="text-gray-400">|</span>
+                                        <span className="text-gray-600">
+                                          {item.dimensionX} × {item.dimensionY} × {item.dimensionZ} mm
+                                        </span>
+                                      </>
+                                    )}
+                                  <span className="text-gray-400">|</span>
+                                  <span className="text-gray-500 font-medium">
+                                    {item.printQuality}
+                                  </span>
+                                  {isPainting && (
+                                    <>
+                                      <span className="text-gray-400">|</span>
+                                      <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded text-[11px] border border-emerald-100">
+                                        100% Solid Infill
+                                      </span>
+                                      {item.layerSwaps && item.layerSwaps.length > 0 && (
+                                        <>
+                                          <span className="text-gray-400">|</span>
+                                          <span className="text-gray-700 font-medium">
+                                            {item.layerSwaps.length - 1} Color Swaps
+                                          </span>
+                                        </>
+                                      )}
+                                      {item.estimatedPrintTime && (
+                                        <>
+                                          <span className="text-gray-400">|</span>
+                                          <span className="text-gray-700 font-medium">
+                                            Est: {item.estimatedPrintTime}
+                                          </span>
+                                        </>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+
+                                {item.notes && (
+                                  <p className="text-[11px] text-gray-500 italic mt-1 truncate max-w-md">
+                                    "{item.notes}"
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center gap-1.5 self-end sm:self-center shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingItemIndex(idx)}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gray-50 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 border border-gray-200 transition-colors shadow-2xs"
+                                >
+                                  <Pencil size={13} />
+                                  <span>Edit</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeItem(idx)}
+                                  className="p-1.5 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 transition-colors"
+                                  title={t("quote.removeItemTitle")}
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Next Steps: Add Another Item or Proceed to Checkout */}
+                    <div className="pt-6 border-t border-gray-100">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => setShowAddItemChoiceModal(true)}
+                          className="w-full py-3.5 px-5 rounded-2xl border-2 border-dashed border-gray-300 hover:border-emerald-500 hover:bg-emerald-50/30 text-gray-700 hover:text-emerald-800 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-2xs"
+                        >
+                          <Plus size={18} className="text-emerald-600" />
+                          <span>Add Another Item</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={goToNextStep}
+                          className="w-full py-3.5 px-5 rounded-2xl bg-[#133827] hover:bg-[#1c4d37] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
+                        >
+                          <span>Proceed to Checkout</span>
+                          <ArrowRight size={18} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -3025,7 +3349,9 @@ export default function Quote() {
                           type="button"
                           onClick={() => {
                             setShowAddItemChoiceModal(false);
+                            const newIndex = items.length;
                             addTextOnlyItem();
+                            setEditingItemIndex(newIndex);
                           }}
                           className="w-full py-2 px-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold transition-all"
                         >
@@ -3820,7 +4146,7 @@ export default function Quote() {
 
                 <div className="flex justify-between items-center mb-6 font-semibold text-gray-700">
                   <span>{t("quote.totalItems")}</span>
-                  <span className="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                  <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-bold text-gray-800">
                     {items.reduce((acc, curr) => acc + curr.count, 0)}
                   </span>
                 </div>
