@@ -267,18 +267,7 @@ public class FilamentPaintingController : ControllerBase
             heightMm
         );
 
-        // Generate production ZIP file containing high-resolution STL and read-me.txt with layer swap timeline
-        byte[] zipBytes = MeshGeneratorService.GenerateProductionZip(
-            stlBytes,
-            $"{fileBaseName}.stl",
-            widthMm,
-            heightMm,
-            maxDepthMm,
-            layerStackConfig,
-            swaps
-        );
-
-        // Generate Bambu Studio / OrcaSlicer compatible production 3MF with full layer swap instructions
+        // Generate Bambu Studio / OrcaSlicer native production 3MF with full layer swap instructions
         byte[] threeMfBytes = MeshGeneratorService.GenerateBinary3mf(
             calcResult.HeightMap,
             calcResult.Width,
@@ -292,12 +281,10 @@ public class FilamentPaintingController : ControllerBase
 
         var stlSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}.stl");
         var glbSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}.glb");
-        var zipSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}.zip");
         var threeMfSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}.3mf");
 
         await System.IO.File.WriteAllBytesAsync(stlSavedPath, stlBytes);
         await System.IO.File.WriteAllBytesAsync(glbSavedPath, glbBytes);
-        await System.IO.File.WriteAllBytesAsync(zipSavedPath, zipBytes);
         await System.IO.File.WriteAllBytesAsync(threeMfSavedPath, threeMfBytes);
 
         var visitorId = Request.Headers["X-Visitor-Id"].FirstOrDefault()?.Trim();
@@ -312,7 +299,6 @@ public class FilamentPaintingController : ControllerBase
         await System.IO.File.WriteAllTextAsync(imageSavedPath + metaSuffix, metaJson);
         await System.IO.File.WriteAllTextAsync(stlSavedPath + metaSuffix, metaJson);
         await System.IO.File.WriteAllTextAsync(glbSavedPath + metaSuffix, metaJson);
-        await System.IO.File.WriteAllTextAsync(zipSavedPath + metaSuffix, metaJson);
         await System.IO.File.WriteAllTextAsync(threeMfSavedPath + metaSuffix, metaJson);
 
         var altUploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
@@ -321,20 +307,18 @@ public class FilamentPaintingController : ControllerBase
             Directory.CreateDirectory(altUploadsDir);
             await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.stl"), stlBytes);
             await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.glb"), glbBytes);
-            await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.zip"), zipBytes);
             await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.3mf"), threeMfBytes);
             await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}{ext}"), imageBytes);
 
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}{ext}{metaSuffix}"), metaJson);
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.stl{metaSuffix}"), metaJson);
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.glb{metaSuffix}"), metaJson);
-            await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.zip{metaSuffix}"), metaJson);
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.3mf{metaSuffix}"), metaJson);
         }
 
         var modelGlbUrl = $"/uploads/{fileBaseName}.glb";
         var modelStlUrl = $"/uploads/{fileBaseName}.stl";
-        var modelZipUrl = $"/uploads/{fileBaseName}.zip";
+        var modelZipUrl = string.Empty;
         var model3mfUrl = $"/uploads/{fileBaseName}.3mf";
 
         // Calculate physical volume & filament weight based on bounding box and relief (100% solid infill)

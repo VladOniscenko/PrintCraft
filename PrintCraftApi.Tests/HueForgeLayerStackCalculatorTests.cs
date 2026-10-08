@@ -238,6 +238,119 @@ public class HueForgeLayerStackCalculatorTests
         Assert.Contains("<vertices>", modelXml);
         Assert.Contains("<triangles>", modelXml);
         Assert.Contains("colorgroup", modelXml);
+        Assert.Contains("<metadata name=\"Application\">BambuStudio-01.10.00.00</metadata>", modelXml);
+
+        // Verify Bambu Studio Metadata/project_settings.config
+        var projectSettingsEntry = archive.GetEntry("Metadata/project_settings.config");
+        Assert.NotNull(projectSettingsEntry);
+        using var psReader = new StreamReader(projectSettingsEntry.Open());
+        string psJson = psReader.ReadToEnd();
+        Assert.Contains("\"sparse_infill_density\"", psJson);
+        Assert.Contains("\"100%\"", psJson);
+        Assert.Contains("\"sparse_infill_pattern\"", psJson);
+        Assert.Contains("\"rectilinear\"", psJson);
+        Assert.Contains("\"filament_colour\"", psJson);
+        Assert.Contains("\"#111111\"", psJson);
+        Assert.Contains("\"#FFFFFF\"", psJson);
+
+        // Verify Bambu Studio Metadata/custom_gcode_per_layer.xml
+        var customGcodeEntry = archive.GetEntry("Metadata/custom_gcode_per_layer.xml");
+        Assert.NotNull(customGcodeEntry);
+        using var gcodeReader = new StreamReader(customGcodeEntry.Open());
+        string gcodeXml = gcodeReader.ReadToEnd();
+        Assert.Contains("<custom_gcodes_per_layer>", gcodeXml);
+        Assert.Contains("<mode>MultiAsSingle</mode>", gcodeXml);
+        Assert.Contains("gcode=\"tool_change\"", gcodeXml);
+        Assert.Contains("extruder=\"2\"", gcodeXml);
+        Assert.Contains("color=\"#FFFFFF\"", gcodeXml);
+        Assert.Contains("z=\"0.64\"", gcodeXml);
+
+        // Verify Bambu Studio Metadata/model_settings.config
+        var modelSettingsEntry = archive.GetEntry("Metadata/model_settings.config");
+        Assert.NotNull(modelSettingsEntry);
+        using var msReader = new StreamReader(modelSettingsEntry.Open());
+        string msJson = msReader.ReadToEnd();
+        Assert.Contains("\"id\": 2", msJson);
+        Assert.Contains("\"extruder\": 1", msJson);
+    }
+
+    [Fact]
+    public void MeshGeneratorService_GeneratesNativeBambuStudio3mfWithExactOverridesAndSwaps()
+    {
+        float[] heightMap = [0.48f, 0.80f, 1.20f, 1.60f];
+        var config = new LayerStackConfig
+        {
+            BaseLayerHeightMm = 0.16,
+            LayerHeightMm = 0.08,
+            MaxDepthMm = 2.00,
+            MinBaseThicknessMm = 0.48,
+            Palette = new List<FilamentPaletteItem>
+            {
+                new() { Name = "Black", ColorHex = "#18181B", Material = "PLA", TransmissionDistanceMm = 0.6 },
+                new() { Name = "Green", ColorHex = "#10B981", Material = "PLA", TransmissionDistanceMm = 2.0 },
+                new() { Name = "White", ColorHex = "#F4F4F5", Material = "PLA", TransmissionDistanceMm = 5.0 }
+            }
+        };
+
+        var swaps = new List<LayerSwapInstruction>
+        {
+            new() { SwapNumber = 1, LayerNumber = 1, HeightMm = 0.00, ColorName = "Black", ColorHex = "#18181B", Material = "PLA", Instruction = "Start print with Black (#18181B)" },
+            new() { SwapNumber = 2, LayerNumber = 5, HeightMm = 0.48, ColorName = "Green", ColorHex = "#10B981", Material = "PLA", Instruction = "Swap to Green (#10B981)" },
+            new() { SwapNumber = 3, LayerNumber = 13, HeightMm = 1.12, ColorName = "White", ColorHex = "#F4F4F5", Material = "PLA", Instruction = "Swap to White (#F4F4F5)" }
+        };
+
+        byte[] threeMf = MeshGeneratorService.GenerateBinary3mf(heightMap, 2, 2, 120.0, 120.0, 0.48, config, swaps);
+        Assert.NotNull(threeMf);
+
+        using var ms = new MemoryStream(threeMf);
+        using var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Read);
+
+        // 1. 3D/3dmodel.model Application signature
+        var modelEntry = archive.GetEntry("3D/3dmodel.model");
+        Assert.NotNull(modelEntry);
+        using (var reader = new StreamReader(modelEntry.Open()))
+        {
+            string xml = reader.ReadToEnd();
+            Assert.Contains("<metadata name=\"Application\">BambuStudio-01.10.00.00</metadata>", xml);
+        }
+
+        // 2. Metadata/project_settings.config Slicer overrides
+        var settingsEntry = archive.GetEntry("Metadata/project_settings.config");
+        Assert.NotNull(settingsEntry);
+        using (var reader = new StreamReader(settingsEntry.Open()))
+        {
+            string json = reader.ReadToEnd();
+            Assert.Contains("\"layer_height\": [\n    \"0.08\"\n  ]", json);
+            Assert.Contains("\"initial_layer_print_height\": [\n    \"0.16\"\n  ]", json);
+            Assert.Contains("\"sparse_infill_density\": [\n    \"100%\"\n  ]", json);
+            Assert.Contains("\"sparse_infill_pattern\": [\n    \"rectilinear\"\n  ]", json);
+            Assert.Contains("\"#18181B\"", json);
+            Assert.Contains("\"#10B981\"", json);
+            Assert.Contains("\"#F4F4F5\"", json);
+        }
+
+        // 3. Metadata/custom_gcode_per_layer.xml Tool change layers
+        var gcodeEntry = archive.GetEntry("Metadata/custom_gcode_per_layer.xml");
+        Assert.NotNull(gcodeEntry);
+        using (var reader = new StreamReader(gcodeEntry.Open()))
+        {
+            string xml = reader.ReadToEnd();
+            Assert.Contains("<mode>MultiAsSingle</mode>", xml);
+            Assert.Contains("<layer z=\"0.48\" gcode=\"tool_change\" extruder=\"2\" color=\"#10B981\" />", xml);
+            Assert.Contains("<layer z=\"1.12\" gcode=\"tool_change\" extruder=\"3\" color=\"#F4F4F5\" />", xml);
+            // Ensure no tool_change at z=0
+            Assert.DoesNotContain("<layer z=\"0.00\"", xml);
+        }
+
+        // 4. Metadata/model_settings.config Object extruder binding
+        var modelSettingsEntry = archive.GetEntry("Metadata/model_settings.config");
+        Assert.NotNull(modelSettingsEntry);
+        using (var reader = new StreamReader(modelSettingsEntry.Open()))
+        {
+            string json = reader.ReadToEnd();
+            Assert.Contains("\"id\": 2", json);
+            Assert.Contains("\"extruder\": 1", json);
+        }
     }
 
     [Theory]

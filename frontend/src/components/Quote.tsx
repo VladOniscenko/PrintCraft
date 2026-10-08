@@ -56,8 +56,7 @@ import {
   type ShippingInfo,
 } from "../utils/shippingValidation";
 
-const ALLOWED_UPLOAD_ACCEPT =
-  ".stl,.obj,.3mf,.step,.stp,.png,.jpg,.jpeg,.webp,.gif";
+const ALLOWED_UPLOAD_ACCEPT = ".stl,.obj,.3mf,.step,.stp";
 const MODEL_EXTENSIONS = new Set([
   ".stl",
   ".obj",
@@ -67,7 +66,6 @@ const MODEL_EXTENSIONS = new Set([
   ".glb",
   ".gltf",
 ]);
-const IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif"]);
 const MAX_FILES_PER_ITEM = 3;
 const MAX_DIMENSION_MM = 256;
 const SCALE_STEP = 0.01;
@@ -910,6 +908,26 @@ export default function Quote() {
   ) => {
     if (selectedFiles.length === 0) return;
 
+    const nonModelFiles: File[] = [];
+    const validModelFiles: File[] = [];
+
+    for (const file of selectedFiles) {
+      const extension = getFileExtension(file.name);
+      if (!MODEL_EXTENSIONS.has(extension)) {
+        nonModelFiles.push(file);
+      } else {
+        validModelFiles.push(file);
+      }
+    }
+
+    if (nonModelFiles.length > 0) {
+      notifyError(
+        "Only 3D model files (.stl, .obj, .3mf, .step, .stp) are accepted here. Use Filament Painting for 2D images.",
+      );
+    }
+
+    if (validModelFiles.length === 0) return;
+
     if (items[itemIndex]?.uploadType === "filament-painting") {
       notifyError("Filament painting items have a locked file bundle.");
       return;
@@ -935,24 +953,20 @@ export default function Quote() {
     const filesToUpload: File[] = [];
     let skippedForModelConstraint = 0;
 
-    for (const file of selectedFiles) {
+    for (const file of validModelFiles) {
       if (filesToUpload.length >= remainingSlots) break;
 
-      const extension = getFileExtension(file.name);
-      const isModel = MODEL_EXTENSIONS.has(extension);
-      if (isModel && hasModelFile) {
+      if (hasModelFile) {
         skippedForModelConstraint += 1;
         continue;
       }
 
       filesToUpload.push(file);
-      if (isModel) {
-        hasModelFile = true;
-      }
+      hasModelFile = true;
     }
 
     const skippedForSlotConstraint =
-      selectedFiles.length - filesToUpload.length - skippedForModelConstraint;
+      validModelFiles.length - filesToUpload.length - skippedForModelConstraint;
 
     if (skippedForModelConstraint > 0) {
       notifyError(t("quote.singleModelPerItem"));
@@ -973,8 +987,6 @@ export default function Quote() {
     const uploadedEntries: Array<{
       file: File;
       url: string;
-      isImage: boolean;
-      isModel: boolean;
     }> = [];
 
     try {
@@ -985,17 +997,11 @@ export default function Quote() {
         try {
           const res = await api.post("/upload", formData);
 
-          const extension = getFileExtension(file.name);
-          const isImage = IMAGE_EXTENSIONS.has(extension);
-          const isModel = MODEL_EXTENSIONS.has(extension);
-
           if (typeof res.data?.url === "string" && res.data.url.length > 0) {
             uploadedFileUrlsRef.current.add(res.data.url);
             uploadedEntries.push({
               file,
               url: res.data.url,
-              isImage,
-              isModel,
             });
           }
         } catch (err: any) {
@@ -1005,12 +1011,14 @@ export default function Quote() {
             const backendMessage = err?.response?.data?.message;
             const isUnsupportedType =
               typeof backendMessage === "string" &&
-              /unsupported file type|unsupported content type/i.test(
+              /unsupported file type|unsupported content type|image files are not accepted/i.test(
                 backendMessage,
               );
 
             if (isUnsupportedType) {
-              firstErrorMessage = `${t("quote.uploadUnsupportedType")} ${t("quote.allowedFilesInline")}`;
+              firstErrorMessage =
+                backendMessage ||
+                `${t("quote.uploadUnsupportedType")} ${t("quote.allowedFilesInline")}`;
             } else {
               firstErrorMessage = backendMessage || t("quote.uploadFailed");
             }
@@ -1018,15 +1026,10 @@ export default function Quote() {
         }
       }
 
-      if (!detectedDimensions) {
-        const firstUploadedModel = uploadedEntries.find(
-          (entry) => entry.isModel,
+      if (!detectedDimensions && uploadedEntries.length > 0) {
+        detectedDimensions = await detectModelDimensions(
+          uploadedEntries[0].file,
         );
-        if (firstUploadedModel) {
-          detectedDimensions = await detectModelDimensions(
-            firstUploadedModel.file,
-          );
-        }
       }
 
       if (uploadedEntries.length > 0) {
@@ -1055,19 +1058,11 @@ export default function Quote() {
           const newFiles = uploadedEntries.map((entry) => ({
             url: entry.url,
             name: entry.file.name,
-            kind: (entry.isModel
-              ? "model"
-              : entry.isImage
-                ? "image"
-                : "other") as "model" | "image" | "other",
+            kind: "model" as const,
           }));
 
           const mergedFiles = [...existingFiles, ...newFiles];
-          const firstModel = mergedFiles.find((file) => file.kind === "model");
-          const firstImage = mergedFiles.find((file) => file.kind === "image");
-          const firstAny = mergedFiles[0];
-
-          const isModelUploaded = uploadedEntries.some((e) => e.isModel);
+          const firstModel = mergedFiles.find((file) => file.kind === "model") || mergedFiles[0];
 
           let dimensionState: Partial<OrderItem> = {};
 
@@ -1089,7 +1084,7 @@ export default function Quote() {
               dimensionY: roundMillimeters(detectedDimensions.y * scale),
               dimensionZ: roundMillimeters(detectedDimensions.z * scale),
             };
-          } else if (isModelUploaded) {
+          } else {
             // A 3D model was uploaded, but bounding box couldn't be auto-detected:
             // CLEAR stale non-file dimensions (e.g. 50 x 50 x 20) so they don't persist!
             dimensionState = {
@@ -1108,9 +1103,9 @@ export default function Quote() {
             ...targetItem,
             color: targetItem.color || defaultColor,
             files: mergedFiles,
-            fileUrl: firstModel?.url || firstAny?.url || "",
-            fileName: firstModel?.name || firstAny?.name || "",
-            imageUrl: firstImage?.url || targetItem.imageUrl || "",
+            fileUrl: firstModel?.url || "",
+            fileName: firstModel?.name || "",
+            imageUrl: targetItem.imageUrl || "",
             ...dimensionState,
           };
 
@@ -1199,17 +1194,14 @@ export default function Quote() {
     const baseName = sourceFile.name.replace(/\.[^/.]+$/, "");
 
     if (liveResult.modelGlbUrl) uploadedFileUrlsRef.current.add(liveResult.modelGlbUrl);
-    if (liveResult.modelZipUrl) uploadedFileUrlsRef.current.add(liveResult.modelZipUrl);
     if (liveResult.model3mfUrl) uploadedFileUrlsRef.current.add(liveResult.model3mfUrl);
     if (liveResult.modelStlUrl) uploadedFileUrlsRef.current.add(liveResult.modelStlUrl);
     if (liveResult.previewImageUrl) uploadedFileUrlsRef.current.add(liveResult.previewImageUrl);
 
-    const productionFileUrl = liveResult.modelZipUrl || liveResult.model3mfUrl || liveResult.modelStlUrl || "";
-    const productionFileName = liveResult.modelZipUrl
-      ? `${baseName}_production.zip`
-      : liveResult.model3mfUrl
-        ? `${baseName}_production.3mf`
-        : `${baseName}_production.stl`;
+    const productionFileUrl = liveResult.model3mfUrl || liveResult.modelStlUrl || "";
+    const productionFileName = liveResult.model3mfUrl
+      ? `${baseName}_production.3mf`
+      : `${baseName}_production.stl`;
 
     const organizedFiles: Array<{ url: string; name: string; kind: "image" | "model" }> = [
       // 1. Source File: Original 2D Image
@@ -1228,7 +1220,7 @@ export default function Quote() {
             },
           ]
         : []),
-      // 3. Production File: .zip (containing high-res STL and read-me.txt)
+      // 3. Production File: .3mf (Bambu Studio native project with embedded infill and layer swap metadata)
       ...(productionFileUrl
         ? [
             {
@@ -1372,7 +1364,6 @@ export default function Quote() {
       const nextFiles = existingFiles.filter((_, index) => index !== fileIndex);
 
       const firstModel = nextFiles.find((file) => file.kind === "model");
-      const firstImage = nextFiles.find((file) => file.kind === "image");
       const firstAny = nextFiles[0];
 
       nextItems[itemIndex] = {
@@ -1380,7 +1371,7 @@ export default function Quote() {
         files: nextFiles,
         fileUrl: firstModel?.url || firstAny?.url || "",
         fileName: firstModel?.name || firstAny?.name || "",
-        imageUrl: firstImage?.url || "",
+        imageUrl: item.imageUrl || "",
         ...(removed?.kind === "model" && !firstModel
           ? {
               dimensionX: undefined,
@@ -2037,7 +2028,7 @@ export default function Quote() {
                             3D Print & Custom Quote
                           </h4>
                           <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto leading-relaxed">
-                            Upload 3D CAD files (.stl, .obj, .3mf, .step) or sketches & reference photos with notes for custom modeling and print quoting.
+                            Upload 3D CAD files (.stl, .obj, .3mf, .step, .stp) for 3D printing and custom quotes.
                           </p>
                         </div>
 
@@ -2048,7 +2039,7 @@ export default function Quote() {
                             ) : (
                               <Upload size={15} />
                             )}
-                            <span>Browse 3D / Quote Files</span>
+                            <span>Browse 3D Model Files</span>
                             <input
                               type="file"
                               multiple
@@ -3328,7 +3319,7 @@ export default function Quote() {
                             3D Print / Custom Quote
                           </h4>
                           <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                            Upload 3D models (.stl, .obj, .3mf, .step) or reference photos & sketches with notes for custom quoting.
+                            Upload 3D models (.stl, .obj, .3mf, .step, .stp) for direct print quoting.
                           </p>
                         </div>
                       </div>
@@ -3343,7 +3334,7 @@ export default function Quote() {
                           className="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
                         >
                           <Upload size={14} />
-                          <span>Browse Files</span>
+                          <span>Browse 3D Models</span>
                         </button>
                         <button
                           type="button"

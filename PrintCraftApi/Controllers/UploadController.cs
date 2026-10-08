@@ -32,8 +32,12 @@ public class UploadController : ControllerBase
 
     private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".stl", ".obj", ".3mf", ".step", ".stp", ".glb", ".gltf",
-        ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"
+        ".stl", ".obj", ".3mf", ".step", ".stp", ".glb", ".gltf"
+    };
+
+    private static readonly HashSet<string> RejectedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".bmp", ".tiff", ".tif", ".ico"
     };
 
     private static readonly Dictionary<string, HashSet<string>> AllowedContentTypesByExtension =
@@ -41,12 +45,6 @@ public class UploadController : ControllerBase
         {
             [".glb"] = new(StringComparer.OrdinalIgnoreCase) { "model/gltf-binary", "application/octet-stream" },
             [".gltf"] = new(StringComparer.OrdinalIgnoreCase) { "model/gltf+json", "application/json", "text/plain" },
-            [".png"] = new(StringComparer.OrdinalIgnoreCase) { "image/png" },
-            [".jpg"] = new(StringComparer.OrdinalIgnoreCase) { "image/jpeg" },
-            [".jpeg"] = new(StringComparer.OrdinalIgnoreCase) { "image/jpeg" },
-            [".gif"] = new(StringComparer.OrdinalIgnoreCase) { "image/gif" },
-            [".webp"] = new(StringComparer.OrdinalIgnoreCase) { "image/webp" },
-            [".svg"] = new(StringComparer.OrdinalIgnoreCase) { "image/svg+xml", "application/xml", "text/xml", "image/svg" },
             [".3mf"] = new(StringComparer.OrdinalIgnoreCase)
             {
                 "model/3mf",
@@ -105,21 +103,25 @@ public class UploadController : ControllerBase
         if (string.IsNullOrWhiteSpace(extension))
             return BadRequest(new { message = "Unsupported file type." });
 
-        // Allow both model files and reference images for all quote flows.
-        var validExtensions = AllowedExtensions;
+        // Explicitly reject 2D image formats in the standard 3D model flow
+        if (RejectedImageExtensions.Contains(extension) ||
+            (!string.IsNullOrWhiteSpace(file.ContentType) && file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)))
+        {
+            return BadRequest(new { message = "Image files are not accepted in the standard 3D model flow. Please use the Filament Painting flow for 2D images." });
+        }
 
-        if (!validExtensions.Contains(extension))
-            return BadRequest(new { message = "Unsupported file type." });
+        if (!AllowedExtensions.Contains(extension))
+            return BadRequest(new { message = "Unsupported file type. Only 3D model formats (.stl, .obj, .3mf, .step, .stp) are accepted." });
 
         if (!IsAllowedContentType(extension, file.ContentType))
-            return BadRequest(new { message = "Unsupported content type for this file extension." });
+            return BadRequest(new { message = "Unsupported content type for this 3D model extension." });
 
         var header = await ReadHeaderAsync(file, HeaderReadSize);
         if (LooksLikeExecutable(header))
             return BadRequest(new { message = "Executable files are not allowed." });
 
         if (!PassesSignatureValidation(extension, header))
-            return BadRequest(new { message = "File content does not match the selected file type." });
+            return BadRequest(new { message = "File content does not match the selected 3D model type." });
 
         var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
         if (!Directory.Exists(uploadsFolder))
@@ -415,25 +417,14 @@ public class UploadController : ControllerBase
 
         return extension.ToLowerInvariant() switch
         {
-            ".png" => HasPrefix(header, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A),
-            ".jpg" or ".jpeg" => HasPrefix(header, 0xFF, 0xD8, 0xFF),
-            ".gif" => StartsWithAscii(header, "GIF87a") || StartsWithAscii(header, "GIF89a"),
-            ".webp" => StartsWithAscii(header, "RIFF") && HasAsciiAt(header, "WEBP", 8),
             ".3mf" => HasPrefix(header, 0x50, 0x4B, 0x03, 0x04),
             ".stl" => IsLikelyStl(header),
             ".obj" => IsLikelyObj(header),
             ".step" or ".stp" => IsLikelyStep(header),
-            ".svg" => IsLikelySvg(header),
+            ".glb" => HasPrefix(header, 0x67, 0x6C, 0x54, 0x46), // 'glTF' binary header
+            ".gltf" => header.Length > 0 && (header[0] == (byte)'{' || HasPrefix(header, 0xEF, 0xBB, 0xBF)),
             _ => false,
         };
-    }
-
-    private static bool IsLikelySvg(byte[] header)
-    {
-        var content = Encoding.UTF8.GetString(header).TrimStart('\uFEFF', ' ', '\t', '\r', '\n');
-        return content.StartsWith("<svg", StringComparison.OrdinalIgnoreCase)
-            || content.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase)
-            || content.IndexOf("<svg", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     private static bool LooksLikeExecutable(byte[] header)

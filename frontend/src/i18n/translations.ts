@@ -990,7 +990,7 @@ export const translations: Record<
       noFiles: "No files added yet.",
       dragDropHint: "Drag and drop files here",
       allowedFilesInline:
-        "Allowed files: STL, OBJ, 3MF, STEP, STP, PNG, JPG, JPEG, WEBP, GIF (max 50 MB).",
+        "Allowed files: STL, OBJ, 3MF, STEP, STP (max 50 MB).",
       shipping: "Shipping Info",
       submit: "Submit Quote Request",
       secure: "Safe & Secure 3D Printing",
@@ -2493,7 +2493,7 @@ export const translations: Record<
       noFiles: "Nog geen bestanden toegevoegd.",
       dragDropHint: "Sleep bestanden hierheen",
       allowedFilesInline:
-        "Toegestane bestanden: STL, OBJ, 3MF, STEP, STP, PNG, JPG, JPEG, WEBP, GIF (max 50 MB).",
+        "Toegestane bestanden: STL, OBJ, 3MF, STEP, STP (max 50 MB).",
       shipping: "Verzendgegevens",
       submit: "Offerte Aanvraag Versturen",
       secure: "Veilig & Betrouwbaar 3D Printen",

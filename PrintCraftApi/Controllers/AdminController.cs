@@ -167,13 +167,22 @@ public class AdminController : ControllerBase
                 a.Url.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
                 a.Url.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
                 a.Url.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
-                a.Url.EndsWith(".stp", StringComparison.OrdinalIgnoreCase));
-            fileUrl = modelAttachment?.Url ?? item.Attachments[0].Url;
+                a.Url.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
+                a.Url.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+            fileUrl = modelAttachment?.Url;
         }
 
-        if (string.IsNullOrWhiteSpace(fileUrl))
+        var is3DModel = !string.IsNullOrWhiteSpace(fileUrl) && (
+            fileUrl.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
+            fileUrl.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
+            fileUrl.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
+            fileUrl.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
+            fileUrl.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
+            fileUrl.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+
+        if (!is3DModel)
         {
-            return BadRequest(new { message = "Item does not have a 3D model file." });
+            return BadRequest(new { message = "Item does not have a printable 3D model file (.stl, .obj, .3mf, .step, .zip)." });
         }
 
         var fileName = ExtractFileNameFromAssetUrl(fileUrl);
@@ -237,11 +246,20 @@ public class AdminController : ControllerBase
                     a.Url.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
                     a.Url.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
                     a.Url.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
-                    a.Url.EndsWith(".stp", StringComparison.OrdinalIgnoreCase));
-                fileUrl = modelAttachment?.Url ?? item.Attachments[0].Url;
+                    a.Url.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
+                    a.Url.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+                fileUrl = modelAttachment?.Url;
             }
 
-            if (string.IsNullOrWhiteSpace(fileUrl)) continue;
+            var is3DModel = !string.IsNullOrWhiteSpace(fileUrl) && (
+                fileUrl.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
+                fileUrl.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
+                fileUrl.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
+                fileUrl.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
+                fileUrl.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
+                fileUrl.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+
+            if (!is3DModel) continue;
 
             var fileName = ExtractFileNameFromAssetUrl(fileUrl);
             if (string.IsNullOrWhiteSpace(fileName)) continue;

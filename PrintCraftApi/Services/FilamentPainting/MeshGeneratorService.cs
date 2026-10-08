@@ -442,7 +442,7 @@ public static class MeshGeneratorService
         sb.AppendLine("<model unit=\"millimeter\" xml:lang=\"en-US\" xmlns=\"http://schemas.microsoft.com/3dmanufacturing/core/2015/02\" xmlns:m=\"http://schemas.microsoft.com/3dmanufacturing/material/2015/02\">");
         sb.AppendLine("  <metadata name=\"Title\">PrintCraft HueForge Filament Painting</metadata>");
         sb.AppendLine("  <metadata name=\"Designer\">PrintCraft</metadata>");
-        sb.AppendLine("  <metadata name=\"Application\">PrintCraft HueForge Generator</metadata>");
+        sb.AppendLine("  <metadata name=\"Application\">BambuStudio-01.10.00.00</metadata>");
 
         sb.AppendLine("  <resources>");
 
@@ -618,11 +618,122 @@ public static class MeshGeneratorService
 
         var instructionsBytes = Encoding.UTF8.GetBytes(instructionsSb.ToString());
 
+        // 1. Build filament color palette array in exact spool order
+        var filamentColors = new List<string>();
+        if (layerStackConfig?.Palette != null && layerStackConfig.Palette.Count > 0)
+        {
+            foreach (var p in layerStackConfig.Palette)
+            {
+                var hex = p.ColorHex.StartsWith("#") ? p.ColorHex.ToUpperInvariant() : $"#{p.ColorHex.ToUpperInvariant()}";
+                if (!filamentColors.Contains(hex))
+                {
+                    filamentColors.Add(hex);
+                }
+            }
+        }
+        else if (layerSwaps != null && layerSwaps.Count > 0)
+        {
+            foreach (var s in layerSwaps)
+            {
+                var hex = s.ColorHex.StartsWith("#") ? s.ColorHex.ToUpperInvariant() : $"#{s.ColorHex.ToUpperInvariant()}";
+                if (!filamentColors.Contains(hex))
+                {
+                    filamentColors.Add(hex);
+                }
+            }
+        }
+
+        if (filamentColors.Count == 0)
+        {
+            filamentColors.AddRange(new[] { "#18181B", "#10B981", "#F4F4F5" });
+        }
+
+        var filamentTypes = Enumerable.Repeat("PLA", filamentColors.Count).ToArray();
+        var layerHeightStr = (layerStackConfig?.LayerHeightMm ?? 0.08).ToString("F2", CultureInfo.InvariantCulture);
+        var initialLayerHeightStr = (layerStackConfig?.BaseLayerHeightMm ?? 0.16).ToString("F2", CultureInfo.InvariantCulture);
+
+        // 2. Build Metadata/project_settings.config (Bambu Studio Slicer Overrides)
+        var projectSettingsDict = new Dictionary<string, object>
+        {
+            ["layer_height"] = new[] { layerHeightStr },
+            ["initial_layer_print_height"] = new[] { initialLayerHeightStr },
+            ["sparse_infill_density"] = new[] { "100%" },
+            ["sparse_infill_pattern"] = new[] { "rectilinear" },
+            ["filament_colour"] = filamentColors.ToArray(),
+            ["filament_type"] = filamentTypes
+        };
+
+        var projectSettingsJson = JsonSerializer.Serialize(projectSettingsDict, new JsonSerializerOptions { WriteIndented = true });
+        var projectSettingsBytes = Encoding.UTF8.GetBytes(projectSettingsJson);
+
+        // 3. Build Metadata/custom_gcode_per_layer.xml (Bambu Studio Tool Changes & Layer Swaps)
+        var customGcodeSb = new StringBuilder();
+        customGcodeSb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        customGcodeSb.AppendLine("<custom_gcodes_per_layer>");
+        customGcodeSb.AppendLine("  <print_instructions>");
+        customGcodeSb.AppendLine("    <mode>MultiAsSingle</mode>");
+        customGcodeSb.AppendLine("  </print_instructions>");
+        customGcodeSb.AppendLine("  <plate>");
+
+        if (layerSwaps != null && layerSwaps.Count > 0)
+        {
+            // Map calculated swaps: Extruder is 1-based index matching the filament_colour array
+            // Swap #1 is the initial spool (Extruder 1 at base); subsequent swaps trigger tool changes
+            for (int i = 0; i < layerSwaps.Count; i++)
+            {
+                var swap = layerSwaps[i];
+                if (swap.SwapNumber <= 1 || swap.HeightMm <= 0.0001) continue;
+
+                var hex = swap.ColorHex.StartsWith("#") ? swap.ColorHex.ToUpperInvariant() : $"#{swap.ColorHex.ToUpperInvariant()}";
+                int extruderIndex = filamentColors.IndexOf(hex) + 1;
+                if (extruderIndex <= 0)
+                {
+                    extruderIndex = Math.Min(filamentColors.Count, swap.SwapNumber);
+                }
+
+                var zStr = swap.HeightMm.ToString("F2", CultureInfo.InvariantCulture);
+                customGcodeSb.AppendLine(CultureInfo.InvariantCulture,
+                    $"    <layer z=\"{zStr}\" gcode=\"tool_change\" extruder=\"{extruderIndex}\" color=\"{hex}\" />");
+            }
+        }
+        else if (filamentColors.Count > 1)
+        {
+            double maxZ = layerStackConfig?.MaxDepthMm ?? 2.0;
+            double stepZ = maxZ / filamentColors.Count;
+            for (int i = 1; i < filamentColors.Count; i++)
+            {
+                double z = Math.Round(i * stepZ, 2);
+                int extruderIndex = i + 1;
+                var hex = filamentColors[i];
+                customGcodeSb.AppendLine(CultureInfo.InvariantCulture,
+                    $"    <layer z=\"{z:F2}\" gcode=\"tool_change\" extruder=\"{extruderIndex}\" color=\"{hex}\" />");
+            }
+        }
+
+        customGcodeSb.AppendLine("  </plate>");
+        customGcodeSb.AppendLine("</custom_gcodes_per_layer>");
+        var customGcodeBytes = Encoding.UTF8.GetBytes(customGcodeSb.ToString());
+
+        // 4. Build Metadata/model_settings.config (Object to Initial Extruder binding)
+        var modelSettings = new[]
+        {
+            new
+            {
+                id = 2,
+                name = "FilamentPainting",
+                extruder = 1
+            }
+        };
+        var modelSettingsJson = JsonSerializer.Serialize(modelSettings, new JsonSerializerOptions { WriteIndented = true });
+        var modelSettingsBytes = Encoding.UTF8.GetBytes(modelSettingsJson);
+
         const string contentTypesXml = """
         <?xml version="1.0" encoding="UTF-8"?>
         <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
           <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
           <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml" />
+          <Default Extension="config" ContentType="text/plain" />
+          <Default Extension="xml" ContentType="application/xml" />
           <Default Extension="txt" ContentType="text/plain" />
         </Types>
         """;
@@ -647,8 +758,10 @@ public static class MeshGeneratorService
             AddZipFile("[Content_Types].xml", Encoding.UTF8.GetBytes(contentTypesXml));
             AddZipFile("_rels/.rels", Encoding.UTF8.GetBytes(relsXml));
             AddZipFile("3D/3dmodel.model", modelXmlBytes);
+            AddZipFile("Metadata/project_settings.config", projectSettingsBytes);
+            AddZipFile("Metadata/custom_gcode_per_layer.xml", customGcodeBytes);
+            AddZipFile("Metadata/model_settings.config", modelSettingsBytes);
             AddZipFile("Metadata/print_instructions.txt", instructionsBytes);
-            AddZipFile("README.txt", instructionsBytes);
         }
 
         return memoryStream.ToArray();

@@ -45,11 +45,25 @@ public class PricingBackgroundWorker : BackgroundService
                             a.Url.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
                             a.Url.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
                             a.Url.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
-                            a.Url.EndsWith(".stp", StringComparison.OrdinalIgnoreCase));
-                        fileUrl = modelAttachment?.Url ?? orderItem.Attachments[0].Url;
+                            a.Url.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
+                            a.Url.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+                        fileUrl = modelAttachment?.Url;
                     }
 
-                    if (!string.IsNullOrWhiteSpace(fileUrl))
+                    // Only automatically price items that have a valid 3D model or production archive
+                    var is3DModelFile = !string.IsNullOrWhiteSpace(fileUrl) && (
+                        fileUrl.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
+                        fileUrl.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
+                        fileUrl.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
+                        fileUrl.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
+                        fileUrl.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
+                        fileUrl.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+
+                    if (!is3DModelFile)
+                    {
+                        _logger.LogInformation("OrderItem {OrderItemId} does not have a printable 3D model file (e.g. image or custom quote). Skipping automated pricing for manual quote review.", orderItemId);
+                        continue;
+                    }
                     {
                         var fileName = ExtractFileNameFromUrl(fileUrl);
                         if (!string.IsNullOrWhiteSpace(fileName))
