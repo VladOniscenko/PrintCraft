@@ -28,9 +28,16 @@ import {
   Home,
   Gauge,
   Sliders,
+  Sparkles,
+  X,
 } from "lucide-react";
 import Navbar from "./Navbar";
 import Interactive3DViewer from "./Interactive3DViewer";
+import FilamentPaintingPanel from "./filament-painting/FilamentPaintingPanel";
+import type {
+  FilamentPaintingConfig,
+  FilamentPaintingGenerationResult,
+} from "../types/filamentPainting";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -47,7 +54,15 @@ import {
 
 const ALLOWED_UPLOAD_ACCEPT =
   ".stl,.obj,.3mf,.step,.stp,.png,.jpg,.jpeg,.webp,.gif";
-const MODEL_EXTENSIONS = new Set([".stl", ".obj", ".3mf", ".step", ".stp"]);
+const MODEL_EXTENSIONS = new Set([
+  ".stl",
+  ".obj",
+  ".3mf",
+  ".step",
+  ".stp",
+  ".glb",
+  ".gltf",
+]);
 const IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif"]);
 const MAX_FILES_PER_ITEM = 3;
 const MAX_DIMENSION_MM = 256;
@@ -206,7 +221,7 @@ interface SavedAddress {
 
 export default function Quote() {
   const { t } = useI18n();
-  const { notifyError } = useNotify();
+  const { notifyError, notifySuccess } = useNotify();
   const navigate = useNavigate();
 
   const [items, setItems] = useState<OrderItem[]>(() => {
@@ -262,11 +277,30 @@ export default function Quote() {
     }
   });
   const [filaments, setFilaments] = useState<Filament[]>([]);
+  const [showAddItemChoiceModal, setShowAddItemChoiceModal] = useState<boolean>(false);
+  const [activeCreatorFlow, setActiveCreatorFlow] = useState<"filament-painting" | null>(null);
+  const [pendingPaintingFile, setPendingPaintingFile] = useState<File | null>(null);
+  const new3dFileInputRef = useRef<HTMLInputElement | null>(null);
+  const newPaintingImageInputRef = useRef<HTMLInputElement | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const submittedRef = useRef(false);
   const uploadedFileUrlsRef = useRef<Set<string>>(new Set());
+
+  const openFilamentPaintingCreator = (file?: File) => {
+    if (file) {
+      setPendingPaintingFile(file);
+    }
+    setActiveCreatorFlow("filament-painting");
+    setShowAddItemChoiceModal(false);
+    setTimeout(() => {
+      document.getElementById("filament-painting-configurator")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
+  };
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("token"));
   const [currentUser, setCurrentUser] = useState<any>(() => {
@@ -867,6 +901,11 @@ export default function Quote() {
   ) => {
     if (selectedFiles.length === 0) return;
 
+    if (items[itemIndex]?.uploadType === "filament-painting") {
+      notifyError("Filament painting items have a locked file bundle.");
+      return;
+    }
+
     const existingFiles = items[itemIndex]?.files || [];
     const currentFileCount = existingFiles.length;
     const remainingSlots = MAX_FILES_PER_ITEM - currentFileCount;
@@ -1075,6 +1114,76 @@ export default function Quote() {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleFilamentPaintingAdded = ({
+    liveResult,
+    config,
+    sourceFile,
+  }: {
+    liveResult: FilamentPaintingGenerationResult;
+    config: FilamentPaintingConfig;
+    sourceFile: File;
+  }) => {
+    const defaultMat = config.palette[0]?.material || "PLA";
+    const paletteSummary = config.palette.map((p) => p.name).join(", ");
+    const swapsSummary = (liveResult.layerSwaps || [])
+      .map((s) => `L${s.layerNumber} (${s.heightMm.toFixed(2)}mm): ${s.colorName}`)
+      .join(" | ");
+
+    const baseName = sourceFile.name.replace(/\.[^/.]+$/, "");
+
+    if (liveResult.modelGlbUrl) uploadedFileUrlsRef.current.add(liveResult.modelGlbUrl);
+    if (liveResult.modelStlUrl) uploadedFileUrlsRef.current.add(liveResult.modelStlUrl);
+    if (liveResult.previewImageUrl) uploadedFileUrlsRef.current.add(liveResult.previewImageUrl);
+
+    const newItem: OrderItem = {
+      uploadType: "filament-painting",
+      fileName: `${baseName}_relief.glb`,
+      fileUrl: liveResult.modelStlUrl || liveResult.modelGlbUrl || "",
+      imageUrl: liveResult.previewImageUrl || "",
+      material: defaultMat,
+      color: paletteSummary,
+      count: 1,
+      price: 0,
+      dimensionBaseX: liveResult.dimensions.x,
+      dimensionBaseY: liveResult.dimensions.y,
+      dimensionBaseZ: liveResult.dimensions.z,
+      dimensionX: liveResult.dimensions.x,
+      dimensionY: liveResult.dimensions.y,
+      dimensionZ: liveResult.dimensions.z,
+      dimensionScale: 1.0,
+      scaleFactor: 1.0,
+      infillPercent: 100,
+      printQuality: `${config.quality || "Medium"} Quality (Filament Painting)`,
+      supportsNeeded: false,
+      layerSwaps: liveResult.layerSwaps,
+      files: [
+        {
+          url: liveResult.modelGlbUrl || "",
+          name: `${baseName}_relief.glb`,
+          kind: "model" as const,
+        },
+        ...(liveResult.modelStlUrl
+          ? [
+              {
+                url: liveResult.modelStlUrl,
+                name: `${baseName}_relief.stl`,
+                kind: "model" as const,
+              },
+            ]
+          : []),
+        {
+          url: liveResult.previewImageUrl || "",
+          name: sourceFile.name,
+          kind: "image" as const,
+        },
+      ],
+      notes: `Filament Painting (${config.quality || "Medium"} Quality, ${config.palette.length} colors: ${paletteSummary}). Dimensions: ${liveResult.dimensions.x}x${liveResult.dimensions.y}x${liveResult.dimensions.z}mm. Total Layers: ${liveResult.totalLayers || 30}. Swaps: ${swapsSummary}`,
+    };
+
+    setItems((prev) => [...prev, newItem]);
+    notifySuccess("Filament painting added to order!");
   };
 
   const handleFileUpload = async (
@@ -1701,7 +1810,7 @@ export default function Quote() {
                   </div>
                   <button
                     type="button"
-                    onClick={addTextOnlyItem}
+                    onClick={() => setShowAddItemChoiceModal(true)}
                     className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2"
                   >
                     <Plus size={16} />
@@ -1709,84 +1818,230 @@ export default function Quote() {
                   </button>
                 </div>
 
-                <p className="mb-6 text-xs text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-100">
-                  {t("quote.materialAvailabilityDisclaimer")}
-                </p>
+                {/* Hidden File Input for adding standard 3D CAD files to a new item */}
+                <input
+                  ref={new3dFileInputRef}
+                  type="file"
+                  multiple
+                  accept={ALLOWED_UPLOAD_ACCEPT}
+                  className="hidden"
+                  onChange={(e) => {
+                    void handleFileUpload(e, items.length);
+                    setShowAddItemChoiceModal(false);
+                  }}
+                />
 
-                {items.length === 0 ? (
+                {/* Hidden File Input for adding 2D images for HueForge filament painting */}
+                <input
+                  ref={newPaintingImageInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      openFilamentPaintingCreator(file);
+                    }
+                    e.target.value = "";
+                  }}
+                />
+
+                {/* Active Creator Panel: HueForge Filament Painting */}
+                {activeCreatorFlow === "filament-painting" && (
                   <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, 0)}
-                    className={`border-2 border-dashed rounded-2xl py-16 text-center transition-colors ${
-                      isDragOver
-                        ? "border-emerald-400 bg-emerald-50/50"
-                        : "border-gray-200 bg-gray-50/50 hover:bg-gray-50"
-                    } ${isUploading ? "opacity-70" : ""}`}
+                    id="filament-painting-configurator"
+                    className="mb-8 rounded-2xl border border-emerald-300/80 bg-emerald-50/20 p-5 shadow-xs"
                   >
-                    <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100">
-                      <Upload className="text-emerald-500" size={28} />
+                    <div className="flex items-center justify-between pb-3 mb-4 border-b border-emerald-200">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="text-emerald-700" size={18} />
+                        <h4 className="text-sm font-bold text-gray-900">
+                          {items.length > 0
+                            ? `Configure New Item #${items.length + 1}: HueForge Filament Painting`
+                            : "Configure Filament Painting"}
+                        </h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveCreatorFlow(null);
+                          setPendingPaintingFile(null);
+                        }}
+                        className="text-xs font-semibold text-gray-500 hover:text-gray-800 px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel & Back
+                      </button>
                     </div>
-                    <p className="text-gray-800 font-semibold text-lg">
-                      {t("quote.noFiles")}
-                    </p>
-                    <p className="mt-2 text-sm text-[#5f736d] max-w-sm mx-auto">
-                      {t("quote.dragAndDropHint")}
-                    </p>
-                    <div className="mt-6 flex justify-center">
-                      <label className="cursor-pointer bg-[#133827] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-sm">
-                        {isUploading ? (
-                          <Loader2 className="animate-spin" size={16} />
-                        ) : (
-                          <Upload size={16} />
-                        )}
-                        {t("quote.browseFiles")}
-                        <input
-                          type="file"
-                          multiple
-                          accept={ALLOWED_UPLOAD_ACCEPT}
-                          className="hidden"
-                          onChange={(e) => handleFileUpload(e, 0)}
-                          disabled={isUploading}
-                        />
-                      </label>
+
+                    <FilamentPaintingPanel
+                      filamentsCatalog={filaments}
+                      initialFile={pendingPaintingFile}
+                      onAddToOrder={(payload) => {
+                        handleFilamentPaintingAdded(payload);
+                        setActiveCreatorFlow(null);
+                        setPendingPaintingFile(null);
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Dual-Option Starter View when no items are added yet */}
+                {items.length === 0 && !activeCreatorFlow && (
+                  <div className="space-y-4 my-2">
+                    <div className="text-center py-2">
+                      <h4 className="text-base font-bold text-gray-800">
+                        How would you like to start your order?
+                      </h4>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Choose a path below. You can combine standard 3D prints and filament paintings in the same order.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Path 1: 3D CAD Print / Custom Quote Dropzone */}
+                      <div
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, 0)}
+                        className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all flex flex-col justify-between ${
+                          isDragOver
+                            ? "border-emerald-500 bg-emerald-50/50 scale-[0.99]"
+                            : "border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-gray-300"
+                        } ${isUploading ? "opacity-70" : ""}`}
+                      >
+                        <div>
+                          <div className="bg-white w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xs border border-gray-100 text-indigo-600">
+                            <Layers size={26} />
+                          </div>
+                          <h4 className="text-base font-bold text-gray-900">
+                            3D Print & Custom Quote
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                            Upload 3D CAD files (.stl, .obj, .3mf, .step) or sketches & reference photos with notes for custom modeling and print quoting.
+                          </p>
+                        </div>
+
+                        <div className="mt-5 flex justify-center">
+                          <label className="cursor-pointer bg-[#133827] text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-xs">
+                            {isUploading ? (
+                              <Loader2 className="animate-spin" size={15} />
+                            ) : (
+                              <Upload size={15} />
+                            )}
+                            <span>Browse 3D / Quote Files</span>
+                            <input
+                              type="file"
+                              multiple
+                              accept={ALLOWED_UPLOAD_ACCEPT}
+                              className="hidden"
+                              onChange={(e) => handleFileUpload(e, 0)}
+                              disabled={isUploading}
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Path 2: HueForge Filament Painting */}
+                      <div className="border-2 border-dashed border-emerald-300 bg-emerald-50/30 rounded-2xl p-6 text-center transition-all flex flex-col justify-between hover:bg-emerald-50/50">
+                        <div>
+                          <div className="bg-white w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xs border border-emerald-100 text-emerald-600">
+                            <Sparkles size={26} />
+                          </div>
+                          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase mb-1">
+                            HueForge Technology
+                          </div>
+                          <h4 className="text-base font-bold text-gray-900">
+                            Filament Painting (Image to 3D)
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                            Upload any 2D photo (.png, .jpg) to convert it into a tactile, multi-color 3D relief print using optical layer blending.
+                          </p>
+                        </div>
+
+                        <div className="mt-5 flex justify-center">
+                          <button
+                            type="button"
+                            onClick={() => openFilamentPaintingCreator()}
+                            className="bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-emerald-800 transition-all flex items-center gap-2 shadow-xs"
+                          >
+                            <Sparkles size={15} />
+                            <span>Create Filament Painting</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                ) : (
+                )}
+
+                {items.length > 0 && (
                   <div className="space-y-6">
+                    <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                      <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                        <Package size={16} className="text-emerald-600" />
+                        Items in Order ({items.length})
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => setShowAddItemChoiceModal(true)}
+                        className="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1.5 border border-emerald-100"
+                      >
+                        <Plus size={14} />
+                        Add Item
+                      </button>
+                    </div>
+
                     {items.map((item, idx) => (
                       <div
                         key={idx}
                         className="p-5 md:p-6 border border-gray-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow"
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, idx)}
+                        {...(item.uploadType !== "filament-painting"
+                          ? {
+                              onDragOver: handleDragOver,
+                              onDragLeave: handleDragLeave,
+                              onDrop: (e: React.DragEvent<HTMLDivElement>) => handleDrop(e, idx),
+                            }
+                          : {})}
                       >
                         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-5 border-b border-gray-100 pb-4">
-                          <span className="font-bold text-gray-800 text-lg truncate flex-1">
-                            {item.fileName || t("quote.textDescription")}
-                          </span>
+                          <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+                            <span className="font-bold text-gray-800 text-lg truncate">
+                              {item.fileName || t("quote.textDescription")}
+                            </span>
+                            {item.uploadType === "filament-painting" ? (
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+                                <Sparkles size={12} className="text-emerald-600" />
+                                HueForge Filament Painting
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
+                                <Layers size={12} className="text-indigo-600" />
+                                3D CAD / Custom Quote
+                              </span>
+                            )}
+                          </div>
                           <div className="flex items-center gap-3">
-                            <label className="cursor-pointer bg-emerald-50 text-emerald-700 px-3 py-2 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1.5 border border-emerald-100">
-                              {isUploading ? (
-                                <Loader2 className="animate-spin" size={16} />
-                              ) : (
-                                <Plus size={16} />
-                              )}
-                              {t("quote.addFile")}
-                              <input
-                                type="file"
-                                multiple
-                                accept={ALLOWED_UPLOAD_ACCEPT}
-                                className="hidden"
-                                onChange={(e) => handleFileUpload(e, idx)}
-                                disabled={
-                                  isUploading ||
-                                  (item.files || []).length >=
-                                    MAX_FILES_PER_ITEM
-                                }
-                              />
-                            </label>
+                            {item.uploadType !== "filament-painting" && (
+                              <label className="cursor-pointer bg-emerald-50 text-emerald-700 px-3 py-2 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1.5 border border-emerald-100">
+                                {isUploading ? (
+                                  <Loader2 className="animate-spin" size={16} />
+                                ) : (
+                                  <Plus size={16} />
+                                )}
+                                {t("quote.addFile")}
+                                <input
+                                  type="file"
+                                  multiple
+                                  accept={ALLOWED_UPLOAD_ACCEPT}
+                                  className="hidden"
+                                  onChange={(e) => handleFileUpload(e, idx)}
+                                  disabled={
+                                    isUploading ||
+                                    (item.files || []).length >=
+                                      MAX_FILES_PER_ITEM
+                                  }
+                                />
+                              </label>
+                            )}
                             <button
                               type="button"
                               onClick={() => removeItem(idx)}
@@ -1808,24 +2063,28 @@ export default function Quote() {
                                 <span className="truncate max-w-[200px]">
                                   {file.name}
                                 </span>
-                                <button
-                                  type="button"
-                                  onClick={() => removeItemFile(idx, fileIndex)}
-                                  className="text-gray-400 hover:text-rose-600 bg-white rounded-md p-0.5 shadow-sm border border-gray-100 hover:border-rose-200 transition-colors"
-                                  aria-label={`Remove ${file.name}`}
-                                  title={t("quote.removeItemTitle")}
-                                >
-                                  <Trash2 size={12} />
-                                </button>
+                                {item.uploadType !== "filament-painting" && (
+                                  <button
+                                    type="button"
+                                    onClick={() => removeItemFile(idx, fileIndex)}
+                                    className="text-gray-400 hover:text-rose-600 bg-white rounded-md p-0.5 shadow-sm border border-gray-100 hover:border-rose-200 transition-colors"
+                                    aria-label={`Remove ${file.name}`}
+                                    title={t("quote.removeItemTitle")}
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                )}
                               </div>
                             ))}
-                            <button
-                              type="button"
-                              onClick={() => clearItemFiles(idx)}
-                              className="text-xs font-semibold text-rose-600 hover:text-rose-800 ml-2"
-                            >
-                              {t("quote.removeFile")}
-                            </button>
+                            {item.uploadType !== "filament-painting" && (
+                              <button
+                                type="button"
+                                onClick={() => clearItemFiles(idx)}
+                                className="text-xs font-semibold text-rose-600 hover:text-rose-800 ml-2"
+                              >
+                                {t("quote.removeFile")}
+                              </button>
+                            )}
                           </div>
                         )}
 
@@ -1834,53 +2093,76 @@ export default function Quote() {
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
                               <Layers size={14} /> {t("quote.material")}
                             </label>
-                            <select
-                              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all cursor-pointer"
-                              value={item.material}
-                              onChange={(e) => {
-                                const newMaterial = e.target.value;
-                                const validColors =
-                                  getColorsForMaterial(newMaterial);
-                                const newItems = [...items];
-                                newItems[idx].material = newMaterial;
-                                if (
-                                  !validColors.includes(newItems[idx].color)
-                                ) {
-                                  newItems[idx].color = validColors[0];
-                                }
-                                setItems(newItems);
-                              }}
-                            >
-                              {finalMaterials.map((m) => (
-                                <option key={m} value={m}>
-                                  {m}
-                                </option>
-                              ))}
-                            </select>
+                            {item.uploadType === "filament-painting" ? (
+                              <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 flex items-center justify-between">
+                                <span>{item.material || "PLA"}</span>
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                                  Multi-Color
+                                </span>
+                              </div>
+                            ) : (
+                              <select
+                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all cursor-pointer"
+                                value={item.material}
+                                onChange={(e) => {
+                                  const newMaterial = e.target.value;
+                                  const validColors =
+                                    getColorsForMaterial(newMaterial);
+                                  const newItems = [...items];
+                                  newItems[idx].material = newMaterial;
+                                  if (
+                                    !validColors.includes(newItems[idx].color)
+                                  ) {
+                                    newItems[idx].color = validColors[0];
+                                  }
+                                  setItems(newItems);
+                                }}
+                              >
+                                {finalMaterials.map((m) => (
+                                  <option key={m} value={m}>
+                                    {m}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
                           </div>
 
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                              <Palette size={14} /> {t("quote.color")}
-                            </label>
-                            <select
-                              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all cursor-pointer"
-                              value={
-                                item.color ||
-                                getColorsForMaterial(item.material)[0] ||
-                                "Black"
-                              }
-                              onChange={(e) =>
-                                updateItem(idx, "color", e.target.value)
-                              }
-                            >
-                              {getColorsForMaterial(item.material).map((c) => (
-                                <option key={c} value={c}>
-                                  {c}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
+                          {item.uploadType === "filament-painting" ? (
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <Sparkles size={14} className="text-emerald-600" /> Filament Palette
+                              </label>
+                              <div className="p-2.5 bg-emerald-50/70 border border-emerald-200/80 rounded-xl text-xs font-bold text-emerald-950 flex items-center justify-between">
+                                <span className="truncate">{item.color}</span>
+                                <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10px] uppercase tracking-wider shrink-0 ml-1">
+                                  TD Blended
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <Palette size={14} /> {t("quote.color")}
+                              </label>
+                              <select
+                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all cursor-pointer"
+                                value={
+                                  item.color ||
+                                  getColorsForMaterial(item.material)[0] ||
+                                  "Black"
+                                }
+                                onChange={(e) =>
+                                  updateItem(idx, "color", e.target.value)
+                                }
+                              >
+                                {getColorsForMaterial(item.material).map((c) => (
+                                  <option key={c} value={c}>
+                                    {c}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
 
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
@@ -2016,6 +2298,8 @@ export default function Quote() {
                           );
                         })()}
 
+
+
                         {/* 3D Slicing & Print Specifications */}
                         <div className="mb-5 rounded-2xl border border-gray-200/90 bg-gradient-to-b from-gray-50/90 to-white p-5 shadow-sm space-y-4">
                           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
@@ -2071,6 +2355,32 @@ export default function Quote() {
                               (!targetX || targetX <= MAX_DIMENSION_MM) &&
                               (!targetY || targetY <= MAX_DIMENSION_MM) &&
                               (!targetZ || targetZ <= MAX_DIMENSION_MM);
+
+                            if (item.uploadType === "filament-painting") {
+                              return (
+                                <div className="p-3.5 rounded-xl border bg-emerald-50/70 border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="p-2 rounded-lg bg-emerald-100 text-emerald-700">
+                                      <Ruler size={18} />
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                        Calibrated Filament Painting Relief
+                                      </p>
+                                      <p className="text-base font-extrabold text-gray-900">
+                                        {targetX ?? item.dimensionX} mm × {targetY ?? item.dimensionY} mm ×{" "}
+                                        {targetZ ?? item.dimensionZ} mm
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100/90 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                      ✓ {t("quote.buildVolumeFits")}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            }
 
                             if (hasModel) {
                               return (
@@ -2516,105 +2826,119 @@ export default function Quote() {
                           })()}
 
                           {/* Infill Density & Print Quality */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                            {/* Infill Density */}
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-gray-700 flex items-center justify-between">
-                                <span className="flex items-center gap-1.5">
-                                  <Layers size={13} className="text-gray-500" />
-                                  {t("quote.infill")}
-                                </span>
-                                <span className="text-[11px] font-semibold text-emerald-600">
-                                  {item.infillPercent ?? 20}%
-                                </span>
-                              </label>
-                              <select
-                                value={item.infillPercent ?? 20}
-                                onChange={(e) =>
-                                  updateItem(
-                                    idx,
-                                    "infillPercent",
-                                    parseInt(e.target.value, 10) || 20,
-                                  )
-                                }
-                                className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
-                              >
-                                <option value={15}>
-                                  {t("quote.infillLight")}
-                                </option>
-                                <option value={20}>
-                                  {t("quote.infillStandard")}
-                                </option>
-                                <option value={40}>
-                                  {t("quote.infillStrong")}
-                                </option>
-                                <option value={80}>
-                                  {t("quote.infillSolid")}
-                                </option>
-                              </select>
-                              <p className="text-[10px] text-gray-400">
-                                {t("quote.infillHint")}
-                              </p>
-                            </div>
-
-                            {/* Print Quality */}
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
-                                <Sliders size={13} className="text-gray-500" />
-                                {t("quote.quality")}
-                              </label>
-                              <select
-                                value={item.printQuality ?? "Standard (0.20mm)"}
-                                onChange={(e) =>
-                                  updateItem(
-                                    idx,
-                                    "printQuality",
-                                    e.target.value,
-                                  )
-                                }
-                                className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
-                              >
-                                <option value="Detail (0.12mm)">
-                                  {t("quote.qualityDetail")}
-                                </option>
-                                <option value="Standard (0.20mm)">
-                                  {t("quote.qualityStandard")}
-                                </option>
-                                <option value="Draft (0.28mm)">
-                                  {t("quote.qualityDraft")}
-                                </option>
-                              </select>
-                              <p className="text-[10px] text-gray-400">
-                                {t("quote.qualityHint")}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Supports Toggle */}
-                          <div className="pt-2 border-t border-gray-100">
-                            <label className="flex items-start gap-2.5 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={!!item.supportsNeeded}
-                                onChange={(e) =>
-                                  updateItem(
-                                    idx,
-                                    "supportsNeeded",
-                                    e.target.checked,
-                                  )
-                                }
-                                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                              />
-                              <div>
-                                <span className="text-xs font-semibold text-gray-800">
-                                  {t("quote.supportsLabel")}
-                                </span>
-                                <p className="text-[11px] text-gray-500">
-                                  {t("quote.supportsHint")}
-                                </p>
+                          {item.uploadType === "filament-painting" ? (
+                            <div className="p-3.5 bg-emerald-50/60 rounded-xl border border-emerald-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                              <div className="flex items-center gap-2 text-emerald-950 font-medium">
+                                <Sparkles size={16} className="text-emerald-600 shrink-0" />
+                                <span>100% Solid Infill · 0.08mm Ultra-Detail · Flat Bed (No Supports Needed)</span>
                               </div>
-                            </label>
-                          </div>
+                              <span className="px-2.5 py-1 bg-white rounded-md text-[11px] font-bold text-emerald-700 border border-emerald-200 shrink-0">
+                                Calibrated for Transmission Distance
+                              </span>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                {/* Infill Density */}
+                                <div className="space-y-1.5">
+                                  <label className="text-xs font-bold text-gray-700 flex items-center justify-between">
+                                    <span className="flex items-center gap-1.5">
+                                      <Layers size={13} className="text-gray-500" />
+                                      {t("quote.infill")}
+                                    </span>
+                                    <span className="text-[11px] font-semibold text-emerald-600">
+                                      {item.infillPercent ?? 20}%
+                                    </span>
+                                  </label>
+                                  <select
+                                    value={item.infillPercent ?? 20}
+                                    onChange={(e) =>
+                                      updateItem(
+                                        idx,
+                                        "infillPercent",
+                                        parseInt(e.target.value, 10) || 20,
+                                      )
+                                    }
+                                    className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
+                                  >
+                                    <option value={15}>
+                                      {t("quote.infillLight")}
+                                    </option>
+                                    <option value={20}>
+                                      {t("quote.infillStandard")}
+                                    </option>
+                                    <option value={40}>
+                                      {t("quote.infillStrong")}
+                                    </option>
+                                    <option value={80}>
+                                      {t("quote.infillSolid")}
+                                    </option>
+                                  </select>
+                                  <p className="text-[10px] text-gray-400">
+                                    {t("quote.infillHint")}
+                                  </p>
+                                </div>
+
+                                {/* Print Quality */}
+                                <div className="space-y-1.5">
+                                  <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                                    <Sliders size={13} className="text-gray-500" />
+                                    {t("quote.quality")}
+                                  </label>
+                                  <select
+                                    value={item.printQuality ?? "Standard (0.20mm)"}
+                                    onChange={(e) =>
+                                      updateItem(
+                                        idx,
+                                        "printQuality",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
+                                  >
+                                    <option value="Detail (0.12mm)">
+                                      {t("quote.qualityDetail")}
+                                    </option>
+                                    <option value="Standard (0.20mm)">
+                                      {t("quote.qualityStandard")}
+                                    </option>
+                                    <option value="Draft (0.28mm)">
+                                      {t("quote.qualityDraft")}
+                                    </option>
+                                  </select>
+                                  <p className="text-[10px] text-gray-400">
+                                    {t("quote.qualityHint")}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Supports Toggle */}
+                              <div className="pt-2 border-t border-gray-100">
+                                <label className="flex items-start gap-2.5 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={!!item.supportsNeeded}
+                                    onChange={(e) =>
+                                      updateItem(
+                                        idx,
+                                        "supportsNeeded",
+                                        e.target.checked,
+                                      )
+                                    }
+                                    className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                  />
+                                  <div>
+                                    <span className="text-xs font-semibold text-gray-800">
+                                      {t("quote.supportsLabel")}
+                                    </span>
+                                    <p className="text-[11px] text-gray-500">
+                                      {t("quote.supportsHint")}
+                                    </p>
+                                  </div>
+                                </label>
+                              </div>
+                            </>
+                          )}
                         </div>
 
                         <div className="relative">
@@ -2635,6 +2959,127 @@ export default function Quote() {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Modal: Select which flow/item type to add (Point 6) */}
+            {showAddItemChoiceModal && (
+              <div
+                role="dialog"
+                aria-modal="true"
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
+                onClick={() => setShowAddItemChoiceModal(false)}
+              >
+                <div
+                  className="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl border border-gray-100 space-y-6 animate-in zoom-in-95 duration-150"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Add Item to Order
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Choose which type of print or model you want to add:
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddItemChoiceModal(false)}
+                      className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Flow 1: 3D CAD Print / Custom Quote */}
+                    <div className="p-5 rounded-2xl border-2 border-gray-200 hover:border-indigo-400 hover:bg-indigo-50/20 transition-all flex flex-col justify-between space-y-4">
+                      <div className="space-y-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shadow-xs">
+                          <Layers size={20} />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-sm">
+                            3D Print / Custom Quote
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            Upload 3D models (.stl, .obj, .3mf, .step) or reference photos & sketches with notes for custom quoting.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAddItemChoiceModal(false);
+                            new3dFileInputRef.current?.click();
+                          }}
+                          className="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
+                        >
+                          <Upload size={14} />
+                          <span>Browse Files</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAddItemChoiceModal(false);
+                            addTextOnlyItem();
+                          }}
+                          className="w-full py-2 px-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold transition-all"
+                        >
+                          Add Blank Custom Item
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Flow 2: HueForge Filament Painting */}
+                    <div className="p-5 rounded-2xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all flex flex-col justify-between space-y-4">
+                      <div className="space-y-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shadow-xs">
+                          <Sparkles size={20} />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <h4 className="font-bold text-gray-900 text-sm">
+                              Filament Painting
+                            </h4>
+                            <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded uppercase">
+                              HueForge
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            Upload any 2D photo (.png, .jpg) to generate a multi-color tactile 3D relief with layer blending.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            newPaintingImageInputRef.current?.click();
+                          }}
+                          className="w-full py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
+                        >
+                          <Upload size={14} />
+                          <span>Browse Image & Render 3D</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            openFilamentPaintingCreator();
+                          }}
+                          className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                        >
+                          <Sparkles size={13} />
+                          <span>Open 2D Configurator</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 

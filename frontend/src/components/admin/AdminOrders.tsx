@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import AdminBreadcrumb from "./AdminBreadcrumb";
 import AdminLayout from "./AdminLayout";
 import api from "../../services/api";
-import type { Order } from "../../types";
+import type { Order, OrderItem } from "../../types";
 import { useI18n } from "../../i18n/I18nContext";
 import { useNotify } from "../../context/NotifyContext";
+import { resolveAssetUrl } from "../../utils/assetUrl";
+import ModelInspectorModal from "../ModelInspectorModal";
 import {
   DndContext,
   closestCorners,
@@ -39,6 +41,10 @@ import {
   XCircle,
   RotateCcw,
   Info,
+  X,
+  Box,
+  Download,
+  FileText,
 } from "lucide-react";
 
 const ACTIVE_COLUMNS = [
@@ -82,6 +88,148 @@ export function getOrderTotal(order: Order): number | null {
   return null;
 }
 
+export interface OrderItemModelFile {
+  fileName: string;
+  fileUrl: string;
+}
+
+export function getAllOrderItemModelFiles(item: OrderItem): OrderItemModelFile[] {
+  const models: OrderItemModelFile[] = [];
+  const seenUrls = new Set<string>();
+
+  const isModel = (name?: string, url?: string, kind?: string) => {
+    if (kind === "model") return true;
+    const cleanExt = (name || url || "").split("?")[0].split(".").pop()?.toLowerCase();
+    return cleanExt ? ["stl", "obj", "3mf", "step", "stp", "glb", "gltf"].includes(cleanExt) : false;
+  };
+
+  // 1. Direct item.fileUrl
+  if (item.fileUrl && !seenUrls.has(item.fileUrl)) {
+    const is3d = isModel(item.fileName, item.fileUrl);
+    if (is3d || (!item.files?.length && !(item.attachments as unknown[])?.length)) {
+      seenUrls.add(item.fileUrl);
+      models.push({
+        fileName: item.fileName || "Model",
+        fileUrl: item.fileUrl,
+      });
+    }
+  }
+
+  // 2. Attached files in item.files
+  for (const f of item.files || []) {
+    if (f?.url && !seenUrls.has(f.url) && isModel(f.name, f.url, f.kind)) {
+      seenUrls.add(f.url);
+      models.push({
+        fileName: f.name || "Model",
+        fileUrl: f.url,
+      });
+    }
+  }
+
+  // 3. Attachments in item.attachments
+  for (const a of (item.attachments as unknown as Array<{ url?: string; fileName?: string; name?: string; kind?: string }>) || []) {
+    const url = a?.url;
+    const name = a?.fileName || a?.name || "Model";
+    if (url && !seenUrls.has(url) && isModel(name, url, a?.kind)) {
+      seenUrls.add(url);
+      models.push({
+        fileName: name,
+        fileUrl: url,
+      });
+    }
+  }
+
+  // Fallback: if no model found yet, but item.fileUrl exists
+  if (models.length === 0 && item.fileUrl && !seenUrls.has(item.fileUrl)) {
+    models.push({
+      fileName: item.fileName || "Model",
+      fileUrl: item.fileUrl,
+    });
+  }
+
+  // Prioritize GLB/GLTF models so textured previews show first
+  models.sort((a, b) => {
+    const extA = (a.fileName || a.fileUrl || "").toLowerCase().split(".").pop() || "";
+    const extB = (b.fileName || b.fileUrl || "").toLowerCase().split(".").pop() || "";
+    const isGlbA = extA === "glb" || extA === "gltf";
+    const isGlbB = extB === "glb" || extB === "gltf";
+    if (isGlbA && !isGlbB) return -1;
+    if (!isGlbA && isGlbB) return 1;
+    return 0;
+  });
+
+  return models;
+}
+
+export interface OrderItemPricingResult {
+  unitPrice: number;
+  plateCost: number;
+  itemTotal: number;
+  isPendingQuote: boolean;
+}
+
+export function getOrderItemPricing(
+  item: OrderItem,
+  order?: Order | null,
+): OrderItemPricingResult {
+  const count = item.count && item.count > 0 ? item.count : 1;
+  const plateCost = item.plateCost ?? 2.0;
+
+  // 1. Direct item unit price (if > 0)
+  let unit =
+    item.unitPrice !== undefined && item.unitPrice !== null && Number(item.unitPrice) > 0
+      ? Number(item.unitPrice)
+      : 0;
+
+  // 2. Fall back to item.price (if > 0)
+  if (unit <= 0 && item.price !== undefined && item.price !== null && Number(item.price) > 0) {
+    unit = Number(item.price);
+  }
+
+  // 3. Fall back: if unit is still 0, check if the parent order has a quotedPrice or finalTotalAmount
+  if (unit <= 0 && order) {
+    const orderTotal = getOrderTotal(order);
+    if (orderTotal != null && orderTotal > 0 && order.items && order.items.length > 0) {
+      const otherFees =
+        (order.deliveryPrice || 0) +
+        (order.serviceFeePrice || 0) -
+        (order.orderDiscountAmount || 0);
+      const subtotal = Math.max(0, orderTotal - otherFees);
+
+      if (order.items.length === 1) {
+        // Single item in the order
+        const derived = Math.max(0, subtotal - plateCost) / count;
+        if (derived > 0) {
+          unit = Math.round(derived * 100) / 100;
+        } else if (orderTotal > 0) {
+          unit = Math.round((orderTotal / count) * 100) / 100;
+        }
+      } else {
+        // Multi-item order where individual item unit prices are 0
+        const allItemsZero = order.items.every(
+          (i) => (!i.unitPrice || Number(i.unitPrice) <= 0) && (!i.price || Number(i.price) <= 0),
+        );
+        if (allItemsZero && subtotal > 0) {
+          const totalCount = order.items.reduce((sum, i) => sum + (i.count || 1), 0);
+          const totalPlates = order.items.length * plateCost;
+          const remainingForUnits = Math.max(0, subtotal - totalPlates);
+          if (totalCount > 0 && remainingForUnits > 0) {
+            unit = Math.round((remainingForUnits / totalCount) * 100) / 100;
+          }
+        }
+      }
+    }
+  }
+
+  const isPendingQuote =
+    unit <= 0 &&
+    (!order || (order.quotedPrice == null && order.finalTotalAmount == null));
+
+  const itemTotal = unit > 0 ? unit * count + plateCost : 0;
+
+  return { unitPrice: unit, plateCost, itemTotal, isPendingQuote };
+}
+
 function OrderCardView({
   order,
   onShowInfo,
@@ -94,30 +242,32 @@ function OrderCardView({
   t: (key: string) => string;
 }) {
   const statusKey = getOrderStatusTranslationKey(order.status);
+  const statusLabel = statusKey ? t(statusKey) : formatOrderStatusLabel(order.status);
   const total = getOrderTotal(order);
 
   return (
     <div
-      className={`bg-white p-2.5 rounded-lg border shadow-sm transition-all flex flex-col gap-1.5 ${
+      className={`bg-white p-2.5 rounded-lg border shadow-sm transition-all flex flex-col gap-1.5 overflow-hidden ${
         isOverlay
           ? "border-emerald-500 ring-2 ring-emerald-500/40 shadow-2xl rotate-1 scale-105 pointer-events-none z-[9999]"
           : "border-gray-200 hover:border-emerald-400 hover:shadow-md cursor-grab active:cursor-grabbing mb-2 group"
       }`}
     >
-      <div className="flex justify-between items-center gap-1">
+      <div className="flex justify-between items-center gap-1.5 min-w-0">
         <Link
           to={`/admin/orders/${order.id}`}
-          className="font-black text-emerald-700 hover:text-emerald-900 hover:underline text-xs"
+          className="font-black text-emerald-700 hover:text-emerald-900 hover:underline text-xs shrink-0"
           onPointerDown={(e) => e.stopPropagation()}
         >
           #{order.id.slice(0, 8)}
         </Link>
         <span
-          className={`text-[10px] px-2 py-0.5 rounded font-semibold shrink-0 ${getOrderStatusPillClass(
+          className={`text-[10px] px-2 py-0.5 rounded font-semibold truncate max-w-[135px] text-right ${getOrderStatusPillClass(
             order.status,
           )}`}
+          title={statusLabel}
         >
-          {statusKey ? t(statusKey) : formatOrderStatusLabel(order.status)}
+          {statusLabel}
         </span>
       </div>
 
@@ -364,6 +514,18 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
   const [activeDragItem, setActiveDragItem] = useState<Order | null>(null);
   const [infoDialogOrder, setInfoDialogOrder] = useState<Order | null>(null);
+  const [previewModel, setPreviewModel] = useState<{
+    fileName: string;
+    fileUrl?: string;
+    material?: string;
+    color?: string;
+    printQuality?: string;
+    infillPercent?: number;
+    size?: string;
+    count?: number;
+    scaleFactor?: number;
+    itemIndex?: number;
+  } | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -473,6 +635,7 @@ export default function AdminOrders() {
     let holdReason = undefined;
     let qualityCheckPassed = false;
     let trackingNumber = undefined;
+    let trackingUrl = undefined;
 
     if (targetStatus === "on_hold") {
       const reason = window.prompt(
@@ -505,6 +668,14 @@ export default function AdminOrders() {
       }
       qualityCheckPassed = true;
       trackingNumber = tracking.trim();
+
+      const trackingUrlInput = window.prompt(
+        t("admin.orders.promptTrackingUrl") ||
+          "Enter Tracking URL for the customer (optional):",
+      );
+      if (trackingUrlInput !== null && trackingUrlInput.trim()) {
+        trackingUrl = trackingUrlInput.trim();
+      }
     } else if (targetStatus === "cancelled") {
       if (!window.confirm("Are you sure you want to cancel this order?")) {
         return;
@@ -517,6 +688,7 @@ export default function AdminOrders() {
         holdReason,
         qualityCheckPassed,
         trackingNumber,
+        trackingUrl,
       });
       notifySuccess(
         t("admin.orders.kanbanMoveSuccess") || "Status updated successfully",
@@ -556,6 +728,8 @@ export default function AdminOrders() {
       </AdminLayout>
     );
   }
+
+  const dialogOrderTotal = infoDialogOrder ? getOrderTotal(infoDialogOrder) : null;
 
   return (
     <AdminLayout wide>
@@ -702,9 +876,13 @@ export default function AdminOrders() {
                           <td className="p-2">{o.fullName}</td>
                           <td className="p-2">
                             <span
-                              className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${getOrderStatusPillClass(
+                              className={`text-[10px] px-2 py-0.5 rounded-full font-semibold truncate max-w-[150px] inline-block ${getOrderStatusPillClass(
                                 o.status,
                               )}`}
+                              title={
+                                t(`orderStatus.${o.status}`) ||
+                                formatOrderStatusLabel(o.status)
+                              }
                             >
                               {t(`orderStatus.${o.status}`) ||
                                 formatOrderStatusLabel(o.status)}
@@ -755,36 +933,267 @@ export default function AdminOrders() {
 
       {/* Info Dialog */}
       {infoDialogOrder && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative border border-gray-100">
-            <h3 className="text-lg font-bold mb-4 text-gray-900">
-              {t("admin.orders.kanbanOrderInfoTitle")} #
-              {infoDialogOrder.id.slice(0, 8)}
-            </h3>
-            <div className="whitespace-pre-wrap text-sm text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-100 max-h-60 overflow-y-auto">
-              {infoDialogOrder.items && infoDialogOrder.items.length > 0
-                ? infoDialogOrder.items
-                    .map(
-                      (i) =>
-                        `${i.count}x ${i.fileName || "Item"} (${i.color} ${
-                          i.material
-                        }) - Unit: €${(i.unitPrice ?? i.price ?? 0).toFixed(
-                          2,
-                        )}, Plate: €${(i.plateCost ?? 2).toFixed(2)}`,
-                    )
-                    .join("\n")
-                : t("admin.orders.kanbanNoItems") || "No items"}
-            </div>
-            <div className="mt-6 flex justify-end">
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+          onClick={() => setInfoDialogOrder(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[88vh] flex flex-col p-6 relative border border-gray-100 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-gray-100">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 truncate">
+                    {t("admin.orders.kanbanOrderInfoTitle") || "Order Items Preview"}
+                  </h3>
+                  <span className="font-mono text-emerald-700 font-black text-sm bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shrink-0">
+                    #{infoDialogOrder.id.slice(0, 8)}
+                  </span>
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded font-semibold truncate max-w-[150px] shrink-0 ${getOrderStatusPillClass(
+                      infoDialogOrder.status,
+                    )}`}
+                    title={
+                      getOrderStatusTranslationKey(infoDialogOrder.status)
+                        ? t(getOrderStatusTranslationKey(infoDialogOrder.status)!)
+                        : formatOrderStatusLabel(infoDialogOrder.status)
+                    }
+                  >
+                    {getOrderStatusTranslationKey(infoDialogOrder.status)
+                      ? t(getOrderStatusTranslationKey(infoDialogOrder.status)!)
+                      : formatOrderStatusLabel(infoDialogOrder.status)}
+                  </span>
+                  {dialogOrderTotal != null && dialogOrderTotal > 0 && (
+                    <span className="font-mono text-emerald-800 font-black text-xs sm:text-sm bg-emerald-100 px-2.5 py-0.5 rounded-lg border border-emerald-300 shrink-0">
+                      Total: €{dialogOrderTotal.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1 truncate">
+                  <span className="font-medium text-gray-700">{infoDialogOrder.fullName}</span>
+                  <span className="mx-1.5">•</span>
+                  <span>{new Date(infoDialogOrder.createdAt).toLocaleDateString()}</span>
+                  {infoDialogOrder.items && (
+                    <>
+                      <span className="mx-1.5">•</span>
+                      <span>
+                        {infoDialogOrder.items.length}{" "}
+                        {infoDialogOrder.items.length === 1 ? "item" : "items"}
+                      </span>
+                    </>
+                  )}
+                </p>
+              </div>
+
               <button
-                className="admin-btn admin-btn-secondary px-5 py-2 font-bold"
+                type="button"
+                onClick={() => setInfoDialogOrder(null)}
+                className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors shrink-0"
+                aria-label="Close dialog"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Items Scrollable List */}
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[56vh]">
+              {infoDialogOrder.items && infoDialogOrder.items.length > 0 ? (
+                infoDialogOrder.items.map((item, idx) => {
+                  const modelFiles = getAllOrderItemModelFiles(item);
+                  const pricing = getOrderItemPricing(item, infoDialogOrder);
+
+                  return (
+                    <div
+                      key={item.id || idx}
+                      className="p-3.5 rounded-xl border border-gray-200 bg-gray-50/60 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-gray-400">
+                            #{String(idx + 1).padStart(2, "0")}
+                          </span>
+                          <h4
+                            className="text-sm font-semibold text-gray-900 truncate"
+                            title={item.fileName || "Custom Item"}
+                          >
+                            {item.fileName || "Custom 3D Item"}
+                          </h4>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-1.5 mt-2 text-xs text-gray-600">
+                          <span className="px-2 py-0.5 rounded bg-white border border-gray-200 font-semibold text-gray-700">
+                            {item.count || 1}x
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-white border border-gray-200 font-medium">
+                            {item.material || "PLA"}
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-white border border-gray-200 font-medium">
+                            {item.color || "Default"}
+                          </span>
+                          {item.size && (
+                            <span className="px-2 py-0.5 rounded bg-white border border-gray-200 text-gray-500">
+                              {item.size}
+                            </span>
+                          )}
+                          <span className="text-gray-400">•</span>
+                          {pricing.isPendingQuote ? (
+                            <span className="text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                              Pending Quote
+                            </span>
+                          ) : (
+                            <>
+                              <span className="text-gray-700 font-medium">
+                                Unit: €{pricing.unitPrice.toFixed(2)}
+                              </span>
+                              {pricing.plateCost > 0 && (
+                                <>
+                                  <span className="text-gray-400">•</span>
+                                  <span className="text-gray-500">
+                                    Plate: €{pricing.plateCost.toFixed(2)}
+                                  </span>
+                                </>
+                              )}
+                              <span className="text-gray-400">•</span>
+                              <span className="text-emerald-700 font-bold">
+                                Total: €{pricing.itemTotal.toFixed(2)}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Actions / 3D Preview */}
+                      <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-200/60">
+                        {modelFiles.length > 0 ? (
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {modelFiles.map((m, mIdx) => (
+                              <div key={mIdx} className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setPreviewModel({
+                                      fileName: m.fileName,
+                                      fileUrl: m.fileUrl,
+                                      material: item.material,
+                                      color: item.color,
+                                      printQuality: item.printQuality,
+                                      infillPercent: item.infillPercent,
+                                      size: item.size,
+                                      count: item.count,
+                                      scaleFactor: item.scaleFactor,
+                                      itemIndex: idx,
+                                    })
+                                  }
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 transition-colors shadow-2xs cursor-pointer"
+                                  title={m.fileName}
+                                >
+                                  <Box size={14} />
+                                  <span>
+                                    {modelFiles.length > 1
+                                      ? `3D #${mIdx + 1}`
+                                      : t("admin.orders.preview3D") || "Preview 3D"}
+                                  </span>
+                                </button>
+                                <a
+                                  href={resolveAssetUrl(m.fileUrl)}
+                                  download={m.fileName}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1.5 text-gray-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg border border-transparent hover:border-emerald-200 transition-colors"
+                                  title={`Download ${m.fileName}`}
+                                >
+                                  <Download size={14} />
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic flex items-center gap-1">
+                            <FileText size={13} />
+                            {t("admin.orders.no3dModel") || "No 3D model"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="py-8 text-center text-sm text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                  {t("admin.orders.kanbanNoItems") || "No items in this order."}
+                </div>
+              )}
+            </div>
+
+            {/* Order Financial Breakdown Summary */}
+            {dialogOrderTotal != null && dialogOrderTotal > 0 && (
+              <div className="mt-3.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs flex flex-wrap items-center justify-between gap-2.5">
+                <div className="flex flex-wrap items-center gap-2.5 text-slate-600">
+                  {infoDialogOrder.deliveryPrice != null && infoDialogOrder.deliveryPrice > 0 && (
+                    <span className="bg-white px-2 py-0.5 rounded border border-slate-200">
+                      Delivery: €{infoDialogOrder.deliveryPrice.toFixed(2)}
+                    </span>
+                  )}
+                  {infoDialogOrder.serviceFeePrice != null && infoDialogOrder.serviceFeePrice > 0 && (
+                    <span className="bg-white px-2 py-0.5 rounded border border-slate-200">
+                      Service Fee: €{infoDialogOrder.serviceFeePrice.toFixed(2)}
+                    </span>
+                  )}
+                  {infoDialogOrder.orderDiscountAmount != null && infoDialogOrder.orderDiscountAmount > 0 && (
+                    <span className="bg-white px-2 py-0.5 rounded border border-emerald-200 text-emerald-700 font-semibold">
+                      Discount: -€{infoDialogOrder.orderDiscountAmount.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 font-bold text-slate-900 ml-auto">
+                  <span>Order Total:</span>
+                  <span className="text-sm font-mono text-emerald-700 font-black">
+                    €{dialogOrderTotal.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Footer */}
+            <div className="mt-4 pt-3.5 border-t border-gray-100 flex items-center justify-between gap-3">
+              <Link
+                to={`/admin/orders/${infoDialogOrder.id}`}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-800 hover:underline"
+              >
+                {t("admin.orders.openOrderDetails") || "Open Full Order Details"} →
+              </Link>
+              <button
+                type="button"
+                className="admin-btn admin-btn-secondary px-5 py-2 font-bold text-xs"
                 onClick={() => setInfoDialogOrder(null)}
               >
-                {t("admin.orders.kanbanClose")}
+                {t("admin.orders.kanbanClose") || "Close"}
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* 3D Model Inspector Modal */}
+      {previewModel && (
+        <ModelInspectorModal
+          isOpen={true}
+          onClose={() => setPreviewModel(null)}
+          fileName={previewModel.fileName}
+          fileUrl={previewModel.fileUrl}
+          material={previewModel.material}
+          color={previewModel.color}
+          printQuality={previewModel.printQuality}
+          infillPercent={previewModel.infillPercent}
+          size={previewModel.size}
+          count={previewModel.count}
+          scaleFactor={previewModel.scaleFactor}
+          itemIndex={previewModel.itemIndex}
+          zIndexClassName="z-[120]"
+        />
       )}
     </AdminLayout>
   );

@@ -22,7 +22,7 @@ public class UploadController : ControllerBase
     private const int HeaderReadSize = 512;
     private static readonly HashSet<string> ModelExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".stl", ".obj", ".3mf", ".step", ".stp"
+        ".stl", ".obj", ".3mf", ".step", ".stp", ".glb", ".gltf"
     };
 
     private static readonly HashSet<string> DoneOrderStatuses = new(StringComparer.OrdinalIgnoreCase)
@@ -32,13 +32,15 @@ public class UploadController : ControllerBase
 
     private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".stl", ".obj", ".3mf", ".step", ".stp",
+        ".stl", ".obj", ".3mf", ".step", ".stp", ".glb", ".gltf",
         ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"
     };
 
     private static readonly Dictionary<string, HashSet<string>> AllowedContentTypesByExtension =
         new(StringComparer.OrdinalIgnoreCase)
         {
+            [".glb"] = new(StringComparer.OrdinalIgnoreCase) { "model/gltf-binary", "application/octet-stream" },
+            [".gltf"] = new(StringComparer.OrdinalIgnoreCase) { "model/gltf+json", "application/json", "text/plain" },
             [".png"] = new(StringComparer.OrdinalIgnoreCase) { "image/png" },
             [".jpg"] = new(StringComparer.OrdinalIgnoreCase) { "image/jpeg" },
             [".jpeg"] = new(StringComparer.OrdinalIgnoreCase) { "image/jpeg" },
@@ -320,11 +322,10 @@ public class UploadController : ControllerBase
         if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
             return BadRequest(new { message = "Only uploaded files can be deleted from this endpoint." });
 
+        var visitorId = Request.Headers[VisitorHeaderName].FirstOrDefault()?.Trim();
         var ownerKey = ResolveUploadOwnerKey();
-        if (ownerKey == null)
-            return BadRequest(new { message = "Missing upload visitor identifier." });
 
-        if (!IsOwnedTempUpload(fileName, ownerKey))
+        if (!IsOwnedTempUpload(fileName, ownerKey, visitorId))
             return Forbid();
 
         var linkedToAnyOrder = _db.Orders
@@ -349,14 +350,25 @@ public class UploadController : ControllerBase
         if (linkedToAnyOrder)
             return Conflict(new { message = "File is linked to an order and cannot be deleted." });
 
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-        var filePath = Path.Combine(uploadsFolder, fileName);
+        var candidateDirs = new[]
+        {
+            Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads"),
+            Path.Combine(AppContext.BaseDirectory, "wwwroot", "uploads")
+        };
 
-        if (!System.IO.File.Exists(filePath))
-            return Ok(new { message = "File already removed." });
+        var deletedAny = false;
+        foreach (var dir in candidateDirs)
+        {
+            var filePath = Path.Combine(dir, fileName);
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+                DeleteUploadMetadataIfExists(filePath);
+                deletedAny = true;
+            }
+        }
 
-        System.IO.File.Delete(filePath);
-        return Ok(new { message = "Temporary file deleted." });
+        return Ok(new { message = deletedAny ? "Temporary file deleted." : "File already removed." });
     }
 
     private static string? ExtractFileNameFromAssetUrl(string? rawUrl)
@@ -541,24 +553,64 @@ public class UploadController : ControllerBase
         }
     }
 
-    private bool IsOwnedTempUpload(string fileName, string ownerKey)
+    private bool IsOwnedTempUpload(string fileName, string? ownerKey, string? visitorId)
     {
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-        var filePath = Path.Combine(uploadsFolder, fileName);
-        var metadataPath = GetUploadMetadataPath(filePath);
+        if (User.IsInRole("admin"))
+            return true;
 
-        if (!System.IO.File.Exists(metadataPath))
-            return false;
+        var candidateDirs = new[]
+        {
+            Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads"),
+            Path.Combine(AppContext.BaseDirectory, "wwwroot", "uploads")
+        };
+
+        string? foundMetaPath = null;
+        foreach (var dir in candidateDirs)
+        {
+            var metaPath = GetUploadMetadataPath(Path.Combine(dir, fileName));
+            if (System.IO.File.Exists(metaPath))
+            {
+                foundMetaPath = metaPath;
+                break;
+            }
+        }
+
+        // If no metadata file exists (e.g. dynamically generated 3D relief or temp file),
+        // allow client cleanup as long as it's not linked to any order/slide
+        if (foundMetaPath == null)
+            return true;
 
         try
         {
-            var metadataJson = System.IO.File.ReadAllText(metadataPath);
+            var metadataJson = System.IO.File.ReadAllText(foundMetaPath);
             var metadata = JsonSerializer.Deserialize<UploadMetadata>(metadataJson);
-            return metadata != null && string.Equals(metadata.OwnerKey, ownerKey, StringComparison.Ordinal);
+            if (metadata == null) return true;
+
+            // Direct ownerKey match
+            if (!string.IsNullOrWhiteSpace(ownerKey) &&
+                string.Equals(metadata.OwnerKey, ownerKey, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // Visitor header match for anonymous uploads
+            if (!string.IsNullOrWhiteSpace(visitorId) &&
+                string.Equals(metadata.OwnerKey, $"anon:{visitorId}", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // Authenticated user deleting file from their session
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return true;
+            }
+
+            return false;
         }
         catch
         {
-            return false;
+            return true;
         }
     }
 

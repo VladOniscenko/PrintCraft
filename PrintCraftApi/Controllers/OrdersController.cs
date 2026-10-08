@@ -26,7 +26,9 @@ public class OrdersController : ControllerBase
         ".obj",
         ".3mf",
         ".step",
-        ".stp"
+        ".stp",
+        ".glb",
+        ".gltf"
     };
 
     private readonly PrintCraftDb _db;
@@ -266,7 +268,11 @@ public class OrdersController : ControllerBase
                 return BadRequest(new { message = "Each item can contain at most 3 files." });
             }
 
-            if (modelUrls.Count > 1)
+            var hasPairedGlbAndStl = modelUrls.Count == 2 &&
+                modelUrls.Any(u => u.EndsWith(".glb", StringComparison.OrdinalIgnoreCase) || u.EndsWith(".gltf", StringComparison.OrdinalIgnoreCase)) &&
+                modelUrls.Any(u => u.EndsWith(".stl", StringComparison.OrdinalIgnoreCase));
+
+            if (modelUrls.Count > 1 && !hasPairedGlbAndStl)
             {
                 return BadRequest(new { message = "Only one 3D model file is allowed per item." });
             }
@@ -331,7 +337,11 @@ public class OrdersController : ControllerBase
                         string.IsNullOrWhiteSpace(f.Kind) ? "other" : f.Kind.Trim().ToLowerInvariant()))
                     .ToList();
 
-                var firstModelFile = files.FirstOrDefault(f => string.Equals(f.Kind, "model", StringComparison.OrdinalIgnoreCase));
+                var printableModelFile = files.FirstOrDefault(f => string.Equals(f.Kind, "model", StringComparison.OrdinalIgnoreCase)
+                    && !f.Url.EndsWith(".glb", StringComparison.OrdinalIgnoreCase)
+                    && !f.Url.EndsWith(".gltf", StringComparison.OrdinalIgnoreCase));
+                var firstModelFile = printableModelFile
+                    ?? files.FirstOrDefault(f => string.Equals(f.Kind, "model", StringComparison.OrdinalIgnoreCase));
                 var firstImageFile = files.FirstOrDefault(f => string.Equals(f.Kind, "image", StringComparison.OrdinalIgnoreCase));
                 var fallbackFile = files.FirstOrDefault();
 

@@ -38,4 +38,3 @@ export function getStatusPanel(
   const normalized = normalizeOrderStatus(status);
   return STATUS_PANEL_STRATEGY[normalized] || ShippedCancelledPanel;
 }
-

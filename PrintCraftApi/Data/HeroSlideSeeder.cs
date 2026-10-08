@@ -10,16 +10,16 @@ public static class HeroSlideSeeder
         new HeroSlide
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000101"),
-            Title = "Rapid Prototyping & Custom Parts",
-            TitleNl = "Snelle Prototyping & Maatwerk Onderdelen",
-            Subtext = "High-precision FDM 3D printing for functional prototypes, replacement parts, and custom enclosures in 2-5 working days.",
-            SubtextNl = "Precisie FDM 3D-printen voor functionele prototypes, vervangende onderdelen en behuizingen binnen 2-5 werkdagen.",
-            PriceText = "Starting from €9.95",
-            PriceTextNl = "Vanaf €9,95",
+            Title = "50% Off Black & White PETG Prints",
+            TitleNl = "50% Korting op Zwart & Wit PETG Prints",
+            Subtext = "Special promotion: Get an automatic 50% discount on all custom 3D prints ordered in high-durability Black or White PETG. UV-resistant, impact-proof, and heat tolerant.",
+            SubtextNl = "Speciale actie: Profiteer van 50% korting op alle 3D-prints in oersterk zwart of wit PETG. Weerbestendig, slagvast en hittebestendig.",
+            PriceText = "50% Off Black & White PETG",
+            PriceTextNl = "50% Korting op PETG",
             MediaUrl = "/uploads/hero/cable-holder.stl",
             MediaType = HeroMediaType.Model3d,
-            InstructionTooltip = "Interactive 3D model: drag to rotate 360°, scroll to zoom in and inspect geometry.",
-            InstructionTooltipNl = "Interactief 3D-model: sleep om 360° te draaien, scroll om in te zoomen op details.",
+            InstructionTooltip = "50% discount applies automatically to all functional prints in Black or White PETG.",
+            InstructionTooltipNl = "50% korting wordt automatisch verrekend bij selectie van zwart of wit PETG.",
             IsActive = true,
             SortOrder = 1,
             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
@@ -28,16 +28,16 @@ public static class HeroSlideSeeder
         new HeroSlide
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000102"),
-            Title = "Engineering Grade Materials",
-            TitleNl = "Technische Kwaliteitsmaterialen",
-            Subtext = "Durable PETG, heat-resistant ABS, ultra-tough Carbon Fiber, and flexible TPU engineered for real-world demands.",
-            SubtextNl = "Duurzaam PETG, hittebestendig ABS, oersterk Carbon Fiber en flexibel TPU voor zware toepassingen.",
-            PriceText = "From €0.08 / gram",
-            PriceTextNl = "Vanaf €0,08 / gram",
+            Title = "HueForge Filament Painting: Turn Pictures into 3D Art",
+            TitleNl = "HueForge Filament Painting: Maak van je Foto 3D Kunst",
+            Subtext = "Upload any photo or illustration to transform it into a vibrant, multi-color 3D relief print using optical layer blending. No painting required!",
+            SubtextNl = "Upload een 2D foto of illustratie en verander deze in een tactiel, meerkleurig 3D reliëf schilderij met optische laagmenging.",
+            PriceText = "From €14.95 / Painting",
+            PriceTextNl = "Vanaf €14,95 / Schilderij",
             MediaUrl = "/uploads/hero/materials.svg",
             MediaType = HeroMediaType.Image,
-            InstructionTooltip = "Available in 12+ vibrant colors, food-safe filaments, and specialty carbon fiber composites.",
-            InstructionTooltipNl = "Beschikbaar in 12+ kleuren, voedselveilige filamenten en carbon-composieten.",
+            InstructionTooltip = "Drop any picture in our configurator for an instant 3D relief preview with color swaps.",
+            InstructionTooltipNl = "Sleep je afbeelding in onze configurator voor een directe full-color 3D reliëf weergave.",
             IsActive = true,
             SortOrder = 2,
             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
@@ -46,6 +46,24 @@ public static class HeroSlideSeeder
         new HeroSlide
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000103"),
+            Title = "Rapid Prototyping & Custom Parts",
+            TitleNl = "Snelle Prototyping & Maatwerk Onderdelen",
+            Subtext = "High-precision FDM 3D printing for functional prototypes, replacement parts, and custom enclosures in 2-5 working days.",
+            SubtextNl = "Precisie FDM 3D-printen voor functionele prototypes, vervangende onderdelen en behuizingen binnen 2-5 werkdagen.",
+            PriceText = "Starting from €9.95",
+            PriceTextNl = "Vanaf €9,95",
+            MediaUrl = "/uploads/hero/snowflake.stl",
+            MediaType = HeroMediaType.Model3d,
+            InstructionTooltip = "Interactive 3D model: drag to rotate 360°, scroll to zoom in and inspect geometry.",
+            InstructionTooltipNl = "Interactief 3D-model: sleep om 360° te draaien, scroll om in te zoomen op details.",
+            IsActive = true,
+            SortOrder = 3,
+            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+        },
+        new HeroSlide
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000104"),
             Title = "Detailed Figurines & Art Collectibles",
             TitleNl = "Gedetailleerde Figuren & Kunstobjecten",
             Subtext = "Ultra-fine 0.12mm layer height reproducing intricate curves, character meshes, and miniatures with silky smoothness.",
@@ -57,7 +75,7 @@ public static class HeroSlideSeeder
             InstructionTooltip = "Rotate the model to check fine organic curves and surface layer fidelity.",
             InstructionTooltipNl = "Draai het model om organische vormen en oppervlaktekwaliteit te inspecteren.",
             IsActive = true,
-            SortOrder = 3,
+            SortOrder = 4,
             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
             UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
         }
@@ -156,11 +174,31 @@ public static class HeroSlideSeeder
     /// </summary>
     public static async Task EnsureDatabaseSeededAsync(PrintCraftDb db)
     {
-        var count = await db.HeroSlides.CountAsync();
-        if (count == 0)
+        var defaults = GetDefaultSlides();
+        var existingSlides = await db.HeroSlides.ToListAsync();
+
+        if (existingSlides.Count == 0)
         {
-            var defaults = GetDefaultSlides();
             await db.HeroSlides.AddRangeAsync(defaults);
+            await db.SaveChangesAsync();
+            return;
+        }
+
+        bool hasChanges = false;
+        foreach (var def in defaults)
+        {
+            var match = existingSlides.FirstOrDefault(s => s.Id == def.Id)
+                        ?? existingSlides.FirstOrDefault(s => s.Title == def.Title);
+
+            if (match == null)
+            {
+                await db.HeroSlides.AddAsync(def);
+                hasChanges = true;
+            }
+        }
+
+        if (hasChanges)
+        {
             await db.SaveChangesAsync();
         }
     }

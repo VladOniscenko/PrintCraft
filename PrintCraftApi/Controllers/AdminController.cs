@@ -681,6 +681,7 @@ public class AdminController : ControllerBase
 
         var query = _db.Orders
             .Include(o => o.Items)
+                .ThenInclude(i => i.Attachments)
             .Include(o => o.Payments)
             .AsQueryable();
 

@@ -29,6 +29,44 @@ const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
 const FALLBACK_SLIDES: HeroSlide[] = [
   {
     id: "fallback-slide-1",
+    title: "50% Off Black & White PETG Prints",
+    titleNl: "50% Korting op Zwart & Wit PETG Prints",
+    subtext:
+      "Special promotion: Get an automatic 50% discount on all custom 3D prints ordered in high-durability Black or White PETG. UV-resistant, impact-proof, and heat tolerant.",
+    subtextNl:
+      "Speciale actie: Profiteer van 50% korting op alle 3D-prints in oersterk zwart of wit PETG. Weerbestendig, slagvast en hittebestendig.",
+    priceText: "50% Off Black & White PETG",
+    priceTextNl: "50% Korting op PETG",
+    mediaUrl: "/uploads/hero/cable-holder.stl",
+    mediaType: "model3d",
+    instructionTooltip:
+      "50% discount applies automatically to all functional prints in Black or White PETG.",
+    instructionTooltipNl:
+      "50% korting wordt automatisch verrekend bij selectie van zwart of wit PETG.",
+    isActive: true,
+    sortOrder: 1,
+  },
+  {
+    id: "fallback-slide-2",
+    title: "HueForge Filament Painting: Turn Pictures into 3D Art",
+    titleNl: "HueForge Filament Painting: Maak van je Foto 3D Kunst",
+    subtext:
+      "Upload any photo or illustration to transform it into a vibrant, multi-color 3D relief print using optical layer blending. No painting required!",
+    subtextNl:
+      "Upload een 2D foto of illustratie en verander deze in een tactiel, meerkleurig 3D reliëf schilderij met optische laagmenging.",
+    priceText: "From €14.95 / Painting",
+    priceTextNl: "Vanaf €14,95 / Schilderij",
+    mediaUrl: "/uploads/hero/materials.svg",
+    mediaType: "image",
+    instructionTooltip:
+      "Drop any picture in our configurator for an instant 3D relief preview with color swaps.",
+    instructionTooltipNl:
+      "Sleep je afbeelding in onze configurator voor een directe full-color 3D reliëf weergave.",
+    isActive: true,
+    sortOrder: 2,
+  },
+  {
+    id: "fallback-slide-3",
     title: "Rapid Prototyping & Custom Parts",
     titleNl: "Snelle Prototyping & Maatwerk Onderdelen",
     subtext:
@@ -37,36 +75,17 @@ const FALLBACK_SLIDES: HeroSlide[] = [
       "Precisie FDM 3D-printen voor functionele prototypes, vervangende onderdelen en behuizingen binnen 2-5 werkdagen.",
     priceText: "Starting from €9.95",
     priceTextNl: "Vanaf €9,95",
-    mediaUrl: "/uploads/hero/cable-holder.stl",
+    mediaUrl: "/uploads/hero/snowflake.stl",
     mediaType: "model3d",
     instructionTooltip:
       "Interactive 3D model: drag to rotate 360°, scroll to zoom in and inspect geometry.",
     instructionTooltipNl:
       "Interactief 3D-model: sleep om 360° te draaien, scroll om in te zoomen op details.",
     isActive: true,
-    sortOrder: 1,
+    sortOrder: 3,
   },
   {
-    id: "fallback-slide-2",
-    title: "Engineering Grade Materials",
-    titleNl: "Technische Kwaliteitsmaterialen",
-    subtext:
-      "Durable PETG, heat-resistant ABS, ultra-tough Carbon Fiber, and flexible TPU engineered for real-world demands.",
-    subtextNl:
-      "Duurzaam PETG, hittebestendig ABS, oersterk Carbon Fiber en flexibel TPU voor zware toepassingen.",
-    priceText: "From €0.08 / gram",
-    priceTextNl: "Vanaf €0,08 / gram",
-    mediaUrl: "/uploads/hero/materials.svg",
-    mediaType: "image",
-    instructionTooltip:
-      "Available in 12+ vibrant colors, food-safe filaments, and specialty carbon fiber composites.",
-    instructionTooltipNl:
-      "Beschikbaar in 12+ kleuren, voedselveilige filamenten en carbon-composieten.",
-    isActive: true,
-    sortOrder: 2,
-  },
-  {
-    id: "fallback-slide-3",
+    id: "fallback-slide-4",
     title: "Detailed Figurines & Art Collectibles",
     titleNl: "Gedetailleerde Figuren & Kunstobjecten",
     subtext:
@@ -82,7 +101,7 @@ const FALLBACK_SLIDES: HeroSlide[] = [
     instructionTooltipNl:
       "Draai het model om organische vormen en oppervlaktekwaliteit te inspecteren.",
     isActive: true,
-    sortOrder: 3,
+    sortOrder: 4,
   },
 ];
 

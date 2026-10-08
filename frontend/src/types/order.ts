@@ -111,6 +111,9 @@ export interface OrderItem {
   infillPercent?: number;
   printQuality?: string;
   supportsNeeded?: boolean;
+  uploadType?: "native-3d" | "filament-painting";
+  layerSwaps?: import("./filamentPainting").LayerSwapInstruction[];
+  palettePresetId?: string;
 }
 
 export interface QuoteItemFile {

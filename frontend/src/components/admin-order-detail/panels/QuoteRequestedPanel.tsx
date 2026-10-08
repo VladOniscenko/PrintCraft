@@ -64,7 +64,8 @@ export default function QuoteRequestedPanel({
 
   // Recalculate Subtotal & Grand Total
   const subtotal = (order.items || []).reduce((sum, item) => {
-    const unit = itemPrices[item.id] ?? item.unitPrice ?? item.price ?? 0;
+    const fallbackPrice = item.unitPrice > 0 ? item.unitPrice : item.price || 0;
+    const unit = itemPrices[item.id] ?? fallbackPrice;
     const plate = itemPlateCosts[item.id] ?? item.plateCost ?? 2.0;
     const count = item.count <= 0 ? 1 : item.count;
     return sum + unit * count + plate;
@@ -197,7 +198,8 @@ export default function QuoteRequestedPanel({
 
         <div className="space-y-4">
           {(order.items || []).map((item, index) => {
-            const unitPrice = itemPrices[item.id] ?? item.unitPrice ?? item.price ?? 0;
+            const fallbackPrice = item.unitPrice > 0 ? item.unitPrice : item.price || 0;
+            const unitPrice = itemPrices[item.id] ?? fallbackPrice;
             const plateCost = itemPlateCosts[item.id] ?? item.plateCost ?? 2.0;
             const count = item.count <= 0 ? 1 : item.count;
             const itemTotal = unitPrice * count + plateCost;
@@ -231,16 +233,53 @@ export default function QuoteRequestedPanel({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {(item.fileUrl || item.fileName?.endsWith(".stl")) && (
-                      <button
-                        type="button"
-                        onClick={() => setPreviewItem(item)}
-                        className="p-1.5 text-xs font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg border border-slate-200 flex items-center gap-1 transition-colors"
-                      >
-                        <Eye size={13} />
-                        <span>3D Preview</span>
-                      </button>
-                    )}
+                    {(() => {
+                      const glbFile =
+                        (item.attachments || []).find((a: any) =>
+                          (a.url || a.fileName || "").toLowerCase().endsWith(".glb") ||
+                          (a.url || a.fileName || "").toLowerCase().endsWith(".gltf"),
+                        ) ||
+                        (item.files || []).find((f: any) =>
+                          (f.url || f.name || "").toLowerCase().endsWith(".glb") ||
+                          (f.url || f.name || "").toLowerCase().endsWith(".gltf"),
+                        );
+                      const has3D =
+                        !!item.fileUrl ||
+                        !!glbFile ||
+                        (item.attachments || []).some((a: any) => a.kind === "model") ||
+                        [".stl", ".obj", ".3mf", ".glb", ".gltf"].some((ext) =>
+                          (item.fileName || "").toLowerCase().endsWith(ext),
+                        );
+
+                      if (!has3D) return null;
+
+                      return (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPreviewItem(
+                              glbFile
+                                ? {
+                                    ...item,
+                                    fileUrl:
+                                      (glbFile as any).url ||
+                                      (glbFile as any).fileUrl,
+                                    fileName:
+                                      (glbFile as any).fileName ||
+                                      (glbFile as any).name ||
+                                      item.fileName ||
+                                      "relief.glb",
+                                  }
+                                : item,
+                            )
+                          }
+                          className="p-1.5 text-xs font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg border border-slate-200 flex items-center gap-1 transition-colors"
+                        >
+                          <Eye size={13} />
+                          <span>3D Preview</span>
+                        </button>
+                      );
+                    })()}
 
                     <button
                       type="button"

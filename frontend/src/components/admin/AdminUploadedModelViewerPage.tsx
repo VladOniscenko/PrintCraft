@@ -38,7 +38,7 @@ export default function AdminUploadedModelViewerPage() {
     : "";
   const modelExt = getFileExtension(safeFileName);
   const canPreview3d =
-    ["stl", "obj", "3mf"].includes(modelExt) && !!modelUrl;
+    ["stl", "obj", "3mf", "glb", "gltf"].includes(modelExt) && !!modelUrl;
   const canPreviewImage = isImageExtension(modelExt) && !!modelUrl;
 
   return (

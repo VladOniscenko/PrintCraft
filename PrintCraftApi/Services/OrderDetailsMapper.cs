@@ -153,7 +153,7 @@ public static class OrderDetailsMapper
                 if (seenUrls.Add(url))
                 {
                     var ext = Path.GetExtension(a.FileName)?.ToLowerInvariant() ?? "";
-                    var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf";
+                    var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" or ".glb" or ".gltf";
                     var kind = !string.IsNullOrWhiteSpace(a.Kind) && a.Kind != "other"
                         ? a.Kind
                         : (is3D ? "model" : (ext is ".png" or ".jpg" or ".jpeg" or ".webp" or ".gif" ? "image" : "other"));
@@ -192,7 +192,7 @@ public static class OrderDetailsMapper
             {
                 var fName = string.IsNullOrWhiteSpace(item.fileName) ? "model" : item.fileName.Trim();
                 var ext = Path.GetExtension(fName)?.ToLowerInvariant() ?? Path.GetExtension(url)?.ToLowerInvariant() ?? "";
-                var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" || url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase);
+                var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" or ".glb" or ".gltf" || url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) || url.EndsWith(".glb", StringComparison.OrdinalIgnoreCase);
 
                 itemFiles.Add(new OrderFileAssetDto
                 {
@@ -278,7 +278,7 @@ public static class OrderDetailsMapper
                     if (!seenUrls.Add(url)) continue;
 
                     var ext = Path.GetExtension(att.FileName)?.ToLowerInvariant() ?? "";
-                    var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf";
+                    var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" or ".glb" or ".gltf";
                     var kind = !string.IsNullOrWhiteSpace(att.Kind) && att.Kind != "other"
                         ? att.Kind
                         : (is3D ? "model" : (ext is ".png" or ".jpg" or ".jpeg" or ".webp" or ".gif" ? "image" : "other"));
@@ -307,7 +307,7 @@ public static class OrderDetailsMapper
                 {
                     var fName = string.IsNullOrWhiteSpace(item.fileName) ? "Model File" : item.fileName.Trim();
                     var ext = Path.GetExtension(fName)?.ToLowerInvariant() ?? Path.GetExtension(url)?.ToLowerInvariant() ?? "";
-                    var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" || url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase);
+                    var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" or ".glb" or ".gltf" || url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) || url.EndsWith(".glb", StringComparison.OrdinalIgnoreCase);
 
                     files.Add(new OrderFileAssetDto
                     {

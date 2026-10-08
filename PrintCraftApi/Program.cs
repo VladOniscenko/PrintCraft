@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using PrintCraftApi.Configuration;
 using PrintCraftApi.Data;
@@ -243,19 +244,95 @@ app.UseCors("AllowReact");
 app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
+var webRoot = app.Environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+var uploadsDir = Path.Combine(webRoot, "uploads");
+Directory.CreateDirectory(uploadsDir);
+
 var staticFileContentTypes = new FileExtensionContentTypeProvider();
 staticFileContentTypes.Mappings[".3mf"] = "model/3mf";
 staticFileContentTypes.Mappings[".stl"] = "model/stl";
 staticFileContentTypes.Mappings[".obj"] = "model/obj";
 staticFileContentTypes.Mappings[".step"] = "model/step";
 staticFileContentTypes.Mappings[".stp"] = "model/step";
+staticFileContentTypes.Mappings[".glb"] = "model/gltf-binary";
+staticFileContentTypes.Mappings[".gltf"] = "model/gltf+json";
+staticFileContentTypes.Mappings[".png"] = "image/png";
+staticFileContentTypes.Mappings[".jpg"] = "image/jpeg";
+staticFileContentTypes.Mappings[".jpeg"] = "image/jpeg";
+staticFileContentTypes.Mappings[".webp"] = "image/webp";
+staticFileContentTypes.Mappings[".gif"] = "image/gif";
+staticFileContentTypes.Mappings[".svg"] = "image/svg+xml";
+
 app.UseStaticFiles(new StaticFileOptions
 {
+    FileProvider = new PhysicalFileProvider(webRoot),
     ContentTypeProvider = staticFileContentTypes,
+    ServeUnknownFileTypes = true,
+    DefaultContentType = "application/octet-stream"
 });
+
+// Also serve from current directory wwwroot if webRoot is different
+var altWebRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+if (!string.Equals(Path.GetFullPath(altWebRoot), Path.GetFullPath(webRoot), StringComparison.OrdinalIgnoreCase) && Directory.Exists(altWebRoot))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(altWebRoot),
+        ContentTypeProvider = staticFileContentTypes,
+        ServeUnknownFileTypes = true,
+        DefaultContentType = "application/octet-stream"
+    });
+}
 
 // --- ROUTES ---
 app.MapControllers();
+
+// Explicit fail-safe endpoint for serving uploaded files (including .glb, .stl, images)
+app.MapGet("/uploads/{**filePath}", (string filePath, IWebHostEnvironment env) =>
+{
+    if (string.IsNullOrWhiteSpace(filePath))
+        return Results.NotFound();
+
+    var cleanPath = filePath.TrimStart('/');
+    var candidates = new List<string>
+    {
+        Path.Combine(env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads", cleanPath),
+        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", cleanPath),
+        Path.Combine(AppContext.BaseDirectory, "wwwroot", "uploads", cleanPath)
+    };
+
+    string? targetPath = null;
+    foreach (var candidate in candidates)
+    {
+        if (File.Exists(candidate))
+        {
+            targetPath = candidate;
+            break;
+        }
+    }
+
+    if (targetPath == null)
+        return Results.NotFound();
+
+    var ext = Path.GetExtension(targetPath).ToLowerInvariant();
+    var contentType = ext switch
+    {
+        ".glb" => "model/gltf-binary",
+        ".gltf" => "model/gltf+json",
+        ".stl" => "model/stl",
+        ".obj" => "model/obj",
+        ".3mf" => "model/3mf",
+        ".step" or ".stp" => "model/step",
+        ".png" => "image/png",
+        ".jpg" or ".jpeg" => "image/jpeg",
+        ".webp" => "image/webp",
+        ".gif" => "image/gif",
+        ".svg" => "image/svg+xml",
+        _ => "application/octet-stream"
+    };
+
+    return Results.File(targetPath, contentType, enableRangeProcessing: true);
+});
 
 using (var scope = app.Services.CreateScope())
 {

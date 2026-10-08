@@ -14,11 +14,13 @@ import {
   Vector3,
   PCFSoftShadowMap,
   SRGBColorSpace,
+  DoubleSide,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   RotateCw,
   RotateCcw,
@@ -131,6 +133,7 @@ export default function Interactive3DViewer({
     y: number;
     z: number;
   } | null>(null);
+  const [modelVersion, setModelVersion] = useState(0);
 
   // References to Three.js instances for dynamic updates
   const sceneRef = useRef<any>(null);
@@ -233,6 +236,7 @@ export default function Interactive3DViewer({
       roughness: 0.38,
       metalness: 0.08,
       wireframe: wireframe,
+      side: DoubleSide,
     });
     materialRef.current = mat;
 
@@ -304,8 +308,6 @@ export default function Interactive3DViewer({
     async function loadModel() {
       try {
         let buffer: ArrayBuffer;
-        const targetName = fileName || file?.name || fileUrl || "model.stl";
-        const ext = targetName.toLowerCase().split("?")[0];
 
         if (file) {
           buffer = await file.arrayBuffer();
@@ -321,21 +323,47 @@ export default function Interactive3DViewer({
 
         if (canceled) return;
 
+        // Detect format via magic bytes or file extensions
+        let format: "stl" | "glb" | "3mf" | "obj" = "stl";
+        if (buffer && buffer.byteLength >= 4) {
+          const view = new DataView(buffer);
+          const magic = view.getUint32(0, false);
+          if (magic === 0x676c5446) {
+            format = "glb"; // "glTF"
+          } else if (magic === 0x504b0304) {
+            format = "3mf"; // ZIP archive
+          }
+        }
+
+        if (format === "stl") {
+          const urlStr = (fileUrl || "").toLowerCase().split("?")[0];
+          const nameStr = (fileName || file?.name || "").toLowerCase().split("?")[0];
+          if (urlStr.endsWith(".glb") || urlStr.endsWith(".gltf") || nameStr.endsWith(".glb") || nameStr.endsWith(".gltf")) {
+            format = "glb";
+          } else if (urlStr.endsWith(".3mf") || nameStr.endsWith(".3mf")) {
+            format = "3mf";
+          } else if (urlStr.endsWith(".obj") || nameStr.endsWith(".obj")) {
+            format = "obj";
+          } else if (urlStr.endsWith(".stl") || nameStr.endsWith(".stl")) {
+            format = "stl";
+          }
+        }
+
         let geometry: any = null;
         let group: any = null;
 
-        if (ext.endsWith(".stl")) {
-          const loader = new STLLoader();
-          geometry = loader.parse(buffer);
-        } else if (ext.endsWith(".3mf")) {
+        if (format === "glb") {
+          const loader = new GLTFLoader();
+          const gltf = await loader.parseAsync(buffer, "");
+          group = gltf.scene;
+        } else if (format === "3mf") {
           const loader = new ThreeMFLoader();
           group = loader.parse(buffer);
-        } else if (ext.endsWith(".obj")) {
+        } else if (format === "obj") {
           const loader = new OBJLoader();
           const text = new TextDecoder().decode(buffer);
           group = loader.parse(text);
         } else {
-          // Default try STL
           const loader = new STLLoader();
           geometry = loader.parse(buffer);
         }
@@ -353,12 +381,10 @@ export default function Interactive3DViewer({
         }
 
         let computedBox: any;
-
         let baseObject: any;
 
         if (geometry) {
           geometry.computeVertexNormals();
-          // To render in center of view: use center() but also calculate proper bounding box
           geometry.center();
           geometry.computeBoundingBox();
 
@@ -369,12 +395,31 @@ export default function Interactive3DViewer({
         } else if (group) {
           group.traverse((child: any) => {
             if (child.isMesh) {
-              child.material = materialRef.current;
+              const geom = child.geometry;
+              const hasVertexColors = !!(
+                geom?.attributes?.color ||
+                geom?.attributes?.COLOR_0 ||
+                child.material?.vertexColors
+              );
+              if (hasVertexColors) {
+                child.material = new MeshStandardMaterial({
+                  vertexColors: true,
+                  roughness: 0.38,
+                  metalness: 0.08,
+                  wireframe: wireframe,
+                  side: DoubleSide,
+                });
+              } else if (child.material?.map) {
+                child.material.wireframe = wireframe;
+                child.material.side = DoubleSide;
+              } else {
+                child.material = materialRef.current;
+              }
               child.castShadow = true;
               child.receiveShadow = true;
             }
           });
-          
+
           // Center group
           const box = new Box3().setFromObject(group);
           const center = new Vector3();
@@ -382,7 +427,7 @@ export default function Interactive3DViewer({
           group.position.x += (group.position.x - center.x);
           group.position.y += (group.position.y - center.y);
           group.position.z += (group.position.z - center.z);
-          
+
           baseObject = group;
         } else {
           throw new Error("Unsupported 3D geometry format");
@@ -411,9 +456,9 @@ export default function Interactive3DViewer({
           maxDim,
         };
         
-        // We do not add to meshGroup here; we will trigger the render effect
-        // But we need to call resetCameraView once.
+        // We trigger the render effect via modelVersion and baseDimensions
         resetCameraView(maxDim * scaleFactor);
+        setModelVersion((v) => v + 1);
         setLoading(false);
       } catch (err: any) {
         if (!canceled) {
@@ -493,7 +538,7 @@ export default function Interactive3DViewer({
       controls.update();
     }
     
-  }, [count, baseDimensions, scaleFactor]);
+  }, [count, baseDimensions, scaleFactor, modelVersion]);
 
 
   // 6. Visual Scaling of the mesh group when scaleFactor changes

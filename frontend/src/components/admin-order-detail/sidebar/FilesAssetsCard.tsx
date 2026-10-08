@@ -25,10 +25,22 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
 
   const getFileBadgeColor = (ext: string, kind: string) => {
     const cleanExt = ext.toLowerCase();
-    if (cleanExt.includes("stl") || cleanExt.includes("step") || cleanExt.includes("stp") || cleanExt.includes("3mf")) {
+    if (
+      cleanExt.includes("stl") ||
+      cleanExt.includes("step") ||
+      cleanExt.includes("stp") ||
+      cleanExt.includes("3mf") ||
+      cleanExt.includes("glb") ||
+      cleanExt.includes("gltf")
+    ) {
       return "bg-indigo-50 text-indigo-700 border-indigo-200";
     }
-    if (kind === "image" || cleanExt.includes("png") || cleanExt.includes("jpg") || cleanExt.includes("jpeg")) {
+    if (
+      kind === "image" ||
+      cleanExt.includes("png") ||
+      cleanExt.includes("jpg") ||
+      cleanExt.includes("jpeg")
+    ) {
       return "bg-emerald-50 text-emerald-700 border-emerald-200";
     }
     return "bg-slate-50 text-slate-700 border-slate-200";
@@ -56,7 +68,8 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
               Files & Assets
             </h3>
             <p className="text-xs text-slate-500">
-              {files.length} uploaded {files.length === 1 ? "file" : "files"} (.stl, .step, images)
+              {files.length} uploaded {files.length === 1 ? "file" : "files"}{" "}
+              (.stl, .step, images)
             </p>
           </div>
         </div>
@@ -69,13 +82,22 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
       {files.length === 0 ? (
         <div className="text-center py-6 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
           <Layers className="mx-auto text-slate-300 mb-1.5" size={28} />
-          <p className="text-xs text-slate-500">No uploaded files associated with this order</p>
+          <p className="text-xs text-slate-500">
+            No uploaded files associated with this order
+          </p>
         </div>
       ) : (
         <div className="space-y-2.5">
           {files.map((file) => {
-            const downloadHref = resolveAssetUrl(file.fileUrl || file.downloadUrl);
-            const canPreview3D = file.is3DModel || file.fileName.toLowerCase().endsWith(".stl");
+            const downloadHref = resolveAssetUrl(
+              file.fileUrl || file.downloadUrl,
+            );
+            const canPreview3D =
+              file.is3DModel ||
+              file.kind === "model" ||
+              [".stl", ".obj", ".3mf", ".glb", ".gltf"].some((e) =>
+                file.fileName.toLowerCase().endsWith(e),
+              );
 
             return (
               <div
@@ -87,7 +109,10 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
                     {getFileIcon(file)}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-medium text-slate-800 truncate" title={file.fileName}>
+                    <p
+                      className="text-xs font-medium text-slate-800 truncate"
+                      title={file.fileName}
+                    >
                       {file.fileName}
                     </p>
                     <div className="flex items-center gap-1.5 mt-0.5">
@@ -97,7 +122,9 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
                           file.kind,
                         )}`}
                       >
-                        {file.extension ? file.extension.replace(".", "") : file.kind}
+                        {file.extension
+                          ? file.extension.replace(".", "")
+                          : file.kind}
                       </span>
                       {file.material && (
                         <span className="text-[10px] text-slate-400">
@@ -152,4 +179,3 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
     </div>
   );
 }
-

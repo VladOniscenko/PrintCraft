@@ -35,7 +35,7 @@ function getFileExtension(nameOrUrl?: string): string {
 }
 
 function is3DModelExtension(ext: string): boolean {
-  return ["stl", "obj", "3mf"].includes(ext);
+  return ["stl", "obj", "3mf", "glb", "gltf"].includes(ext);
 }
 
 function isImageExtension(ext: string): boolean {
@@ -119,7 +119,14 @@ function getItemFiles(item: {
 function getPrimaryPreviewFile(itemFiles: ItemFile[]): ItemFile | null {
   if (itemFiles.length === 0) return null;
 
-  // 1. Directly renderable 3D formats (.stl, .obj, .3mf)
+  // 1. Prefer GLB / GLTF rich visual preview (holds full vertex colors and texture)
+  const glbFile = itemFiles.find((f) => {
+    const ext = getFileExtension(f.url) || getFileExtension(f.name);
+    return ext === "glb" || ext === "gltf";
+  });
+  if (glbFile) return glbFile;
+
+  // 2. Directly renderable 3D formats (.stl, .obj, .3mf)
   const threeDFile = itemFiles.find((f) => {
     const ext = getFileExtension(f.url) || getFileExtension(f.name);
     return is3DModelExtension(ext);
@@ -407,7 +414,7 @@ export default function OrderItemsCard({ order, t }: OrderItemsCardProps) {
         <ModelInspectorModal
           isOpen={true}
           onClose={() => setActiveModalItemIndex(null)}
-          fileName={modalItem.fileName}
+          fileName={modalPreviewFile?.name || modalItem.fileName}
           fileUrl={modalPreviewFile?.url}
           color={modalItem.color}
           material={modalItem.material}

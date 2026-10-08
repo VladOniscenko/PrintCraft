@@ -2,12 +2,13 @@ import { Box3, Vector3 } from "three";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 export const MAX_DIMENSION_MM = 256;
 export const MIN_SCALE = 0.1;
 export const SCALE_STEP = 0.05;
 
-export const MODEL_EXTENSIONS = new Set([".stl", ".obj", ".3mf", ".step", ".stp"]);
+export const MODEL_EXTENSIONS = new Set([".stl", ".obj", ".3mf", ".step", ".stp", ".glb", ".gltf"]);
 
 export function getFileExtension(fileName?: string): string {
   if (!fileName) return "";
@@ -86,6 +87,20 @@ export async function detectModelDimensionsFromBuffer(
       const text = new TextDecoder().decode(buffer);
       const group = loader.parse(text);
       const box = new Box3().setFromObject(group);
+      if (box.isEmpty()) return null;
+      const size = new Vector3();
+      box.getSize(size);
+      const x = roundMillimeters(Math.abs(size.x));
+      const y = roundMillimeters(Math.abs(size.y));
+      const z = roundMillimeters(Math.abs(size.z));
+      if (x <= 0 || y <= 0 || z <= 0) return null;
+      return { x, y, z };
+    }
+
+    if (ext === ".glb" || ext === ".gltf") {
+      const loader = new GLTFLoader();
+      const gltf = await loader.parseAsync(buffer, "");
+      const box = new Box3().setFromObject(gltf.scene);
       if (box.isEmpty()) return null;
       const size = new Vector3();
       box.getSize(size);

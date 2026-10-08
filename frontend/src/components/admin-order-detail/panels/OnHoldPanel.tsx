@@ -1,9 +1,4 @@
-import {
-  PauseCircle,
-  PlayCircle,
-  XCircle,
-  AlertTriangle,
-} from "lucide-react";
+import { PauseCircle, PlayCircle, XCircle, AlertTriangle } from "lucide-react";
 import type { StatusPanelProps } from "../types";
 
 export default function OnHoldPanel({
@@ -78,11 +73,11 @@ export default function OnHoldPanel({
 
         <div className="p-4 rounded-xl bg-orange-50/70 border border-orange-150 text-xs">
           <p className="text-slate-800 font-medium whitespace-pre-wrap leading-relaxed">
-            {order.holdReason || "No specific reason provided by administrator."}
+            {order.holdReason ||
+              "No specific reason provided by administrator."}
           </p>
         </div>
       </div>
     </div>
   );
 }
-

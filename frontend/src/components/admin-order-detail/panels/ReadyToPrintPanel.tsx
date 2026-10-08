@@ -242,16 +242,53 @@ export default function ReadyToPrintPanel({
                   <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-800">
                     Quantity: {item.count}
                   </span>
-                  {(item.fileUrl || item.fileName?.endsWith(".stl")) && (
-                    <button
-                      type="button"
-                      onClick={() => setPreviewItem(item)}
-                      className="p-1.5 text-xs text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg border border-slate-200 flex items-center gap-1 transition-colors"
-                    >
-                      <Eye size={13} />
-                      <span>3D Preview</span>
-                    </button>
-                  )}
+                  {(() => {
+                    const glbFile =
+                      (item.attachments || []).find((a: any) =>
+                        (a.url || a.fileName || "").toLowerCase().endsWith(".glb") ||
+                        (a.url || a.fileName || "").toLowerCase().endsWith(".gltf"),
+                      ) ||
+                      (item.files || []).find((f: any) =>
+                        (f.url || f.name || "").toLowerCase().endsWith(".glb") ||
+                        (f.url || f.name || "").toLowerCase().endsWith(".gltf"),
+                      );
+                    const has3D =
+                      !!item.fileUrl ||
+                      !!glbFile ||
+                      (item.attachments || []).some((a: any) => a.kind === "model") ||
+                      [".stl", ".obj", ".3mf", ".glb", ".gltf"].some((ext) =>
+                        (item.fileName || "").toLowerCase().endsWith(ext),
+                      );
+
+                    if (!has3D) return null;
+
+                    return (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPreviewItem(
+                            glbFile
+                              ? {
+                                  ...item,
+                                  fileUrl:
+                                    (glbFile as any).url ||
+                                    (glbFile as any).fileUrl,
+                                  fileName:
+                                    (glbFile as any).fileName ||
+                                    (glbFile as any).name ||
+                                    item.fileName ||
+                                    "relief.glb",
+                                }
+                              : item,
+                          )
+                        }
+                        className="p-1.5 text-xs text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg border border-slate-200 flex items-center gap-1 transition-colors"
+                      >
+                        <Eye size={13} />
+                        <span>3D Preview</span>
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
 

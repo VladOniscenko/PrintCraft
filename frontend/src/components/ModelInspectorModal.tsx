@@ -24,6 +24,7 @@ export interface ModelInspectorModalProps {
   count?: number;
   scaleFactor?: number;
   itemIndex?: number;
+  zIndexClassName?: string;
 }
 
 function getFileExtension(nameOrUrl?: string): string {
@@ -34,7 +35,7 @@ function getFileExtension(nameOrUrl?: string): string {
 }
 
 function is3DModelExtension(ext: string): boolean {
-  return ["stl", "obj", "3mf"].includes(ext);
+  return ["stl", "obj", "3mf", "glb", "gltf"].includes(ext);
 }
 
 function isImageExtension(ext: string): boolean {
@@ -54,6 +55,7 @@ export default function ModelInspectorModal({
   count = 1,
   scaleFactor = 1.0,
   itemIndex,
+  zIndexClassName = "z-[110]",
 }: ModelInspectorModalProps) {
   const { t } = useI18n();
 
@@ -91,7 +93,7 @@ export default function ModelInspectorModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
+      className={`fixed inset-0 ${zIndexClassName} flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200`}
       onClick={onClose}
     >
       <div
