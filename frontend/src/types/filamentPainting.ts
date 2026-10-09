@@ -37,7 +37,6 @@ export interface FilamentPaintingConfig {
 export interface FilamentPaintingGenerationResult {
   modelGlbUrl: string;
   modelStlUrl: string;
-  model3mfUrl?: string;
   modelZipUrl?: string;
   previewImageUrl: string;
   layerSwaps: LayerSwapInstruction[];

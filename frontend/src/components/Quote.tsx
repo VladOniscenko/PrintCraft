@@ -1194,14 +1194,11 @@ export default function Quote() {
     const baseName = sourceFile.name.replace(/\.[^/.]+$/, "");
 
     if (liveResult.modelGlbUrl) uploadedFileUrlsRef.current.add(liveResult.modelGlbUrl);
-    if (liveResult.model3mfUrl) uploadedFileUrlsRef.current.add(liveResult.model3mfUrl);
     if (liveResult.modelStlUrl) uploadedFileUrlsRef.current.add(liveResult.modelStlUrl);
     if (liveResult.previewImageUrl) uploadedFileUrlsRef.current.add(liveResult.previewImageUrl);
 
-    const productionFileUrl = liveResult.model3mfUrl || liveResult.modelStlUrl || "";
-    const productionFileName = liveResult.model3mfUrl
-      ? `${baseName}_production.3mf`
-      : `${baseName}_production.stl`;
+    const productionFileUrl = liveResult.modelStlUrl || "";
+    const productionFileName = `${baseName}_production.stl`;
 
     const organizedFiles: Array<{ url: string; name: string; kind: "image" | "model" }> = [
       // 1. Source File: Original 2D Image

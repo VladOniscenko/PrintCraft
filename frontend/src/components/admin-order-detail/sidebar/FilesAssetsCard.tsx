@@ -99,10 +99,6 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
                 file.fileName.toLowerCase().endsWith(e),
               );
               
-            const isSourceImage = (file.role === "source" || file.label?.includes("Source") || file.kind === "image") &&
-                                  [".png", ".jpg", ".jpeg", ".webp", ".bmp"].some(e => (file.fileUrl || "").toLowerCase().endsWith(e));
-                                  
-            const fileBaseName = (file.fileUrl || "").split('/').pop()?.split('.')[0] || "";
 
             return (
               <div
@@ -155,18 +151,6 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0">
-                  {isSourceImage && fileBaseName && (
-                     <a
-                       href={`/api/3d-generate-painting/generate-3mf/${fileBaseName}`}
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1 text-xs"
-                       title="Generate and download 3MF"
-                     >
-                       <Layers size={14} />
-                       <span className="hidden sm:inline">Gen 3MF</span>
-                     </a>
-                  )}
 
                   {canPreview3D && (
                     <button

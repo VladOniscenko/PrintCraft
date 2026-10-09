@@ -51,7 +51,6 @@ public class FilamentPaintingController : ControllerBase
     {
         public string ModelGlbUrl { get; set; } = string.Empty;
         public string ModelStlUrl { get; set; } = string.Empty;
-        public string Model3mfUrl { get; set; } = string.Empty;
         public string ModelZipUrl { get; set; } = string.Empty;
         public string PreviewImageUrl { get; set; } = string.Empty;
         public List<LayerSwapInstruction> LayerSwaps { get; set; } = new();
@@ -305,7 +304,6 @@ public class FilamentPaintingController : ControllerBase
         var modelGlbUrl = $"/uploads/{fileBaseName}.glb";
         var modelStlUrl = $"/uploads/{fileBaseName}.stl";
         var modelZipUrl = string.Empty;
-        var model3mfUrl = string.Empty;
 
         // Calculate physical volume & filament weight based on bounding box and relief (100% solid infill)
         double baseVolumeMm3 = widthMm * heightMm * layerStackConfig.MinBaseThicknessMm;
@@ -343,7 +341,6 @@ public class FilamentPaintingController : ControllerBase
             ModelGlbUrl = modelGlbUrl,
             ModelStlUrl = modelStlUrl,
             ModelZipUrl = modelZipUrl,
-            Model3mfUrl = model3mfUrl,
             PreviewImageUrl = imageRelativeUrl,
             LayerSwaps = swaps,
             Dimensions = new ModelDimensions
@@ -364,104 +361,6 @@ public class FilamentPaintingController : ControllerBase
         return Ok(response);
     }
 
-    [HttpGet("/api/3d-generate-painting/generate-3mf/{fileBaseName}")]
-    [EnableRateLimiting("UploadLimit")]
-    public async Task<IActionResult> Generate3mf(string fileBaseName)
-    {
-        if (string.IsNullOrWhiteSpace(fileBaseName) || fileBaseName.Contains('.') || fileBaseName.Contains('/') || fileBaseName.Contains('\\'))
-        {
-            return BadRequest(new { message = "Invalid file identifier." });
-        }
-        
-        var uploadsDir = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads");
-        var configPath = Path.Combine(uploadsDir, $"{fileBaseName}.config.json");
-        
-        if (!System.IO.File.Exists(configPath))
-        {
-            return NotFound(new { message = "Configuration not found for this filament painting." });
-        }
-        
-        var configJson = await System.IO.File.ReadAllTextAsync(configPath);
-        var requestConfig = JsonSerializer.Deserialize<GeneratePaintingRequestDto>(configJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        if (requestConfig == null) return BadRequest(new { message = "Invalid configuration file." });
-
-        var ext = new[] { ".png", ".jpg", ".jpeg", ".webp", ".bmp" }.FirstOrDefault(e => System.IO.File.Exists(Path.Combine(uploadsDir, $"{fileBaseName}{e}")));
-        if (ext == null) return NotFound(new { message = "Source image not found." });
-
-        byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(Path.Combine(uploadsDir, $"{fileBaseName}{ext}"));
-
-        double widthMm = requestConfig.TargetWidthMm > 0 ? requestConfig.TargetWidthMm : 150.0;
-        double heightMm = requestConfig.TargetHeightMm > 0 ? requestConfig.TargetHeightMm : 150.0;
-        
-        double baseLayerHeight = requestConfig.BaseLayerHeightMm ?? 0.16;
-        double layerHeight = requestConfig.LayerHeightMm ?? 0.08;
-        double maxDepth = requestConfig.MaxDepthMm ?? 3.0;
-        double minBaseThickness = requestConfig.MinBaseThicknessMm ?? 0.48;
-
-        int colorCount = requestConfig.Palette.Count;
-        double availableRelief = Math.Max(0.2, maxDepth - minBaseThickness);
-        double stepPerBand = availableRelief / (colorCount > 1 ? colorCount - 1 : 1);
-
-        for (int i = 0; i < colorCount; i++)
-        {
-            var p = requestConfig.Palette[i];
-            if (p.StartHeightMm <= 0 && p.EndHeightMm <= 0 || p.EndHeightMm > maxDepth + 0.05)
-            {
-                if (i == 0)
-                {
-                    p.StartHeightMm = 0.0;
-                    p.EndHeightMm = Math.Round(minBaseThickness, 2);
-                }
-                else
-                {
-                    double startH = minBaseThickness + (i - 1) * stepPerBand;
-                    double endH = i == colorCount - 1 ? maxDepth : minBaseThickness + i * stepPerBand;
-                    p.StartHeightMm = Math.Round(startH, 2);
-                    p.EndHeightMm = Math.Round(endH, 2);
-                }
-            }
-        }
-
-        var layerStackConfig = new LayerStackConfig
-        {
-            BaseLayerHeightMm = baseLayerHeight,
-            LayerHeightMm = layerHeight,
-            MaxDepthMm = maxDepth,
-            MinBaseThicknessMm = minBaseThickness,
-            Palette = requestConfig.Palette.Select(p => new FilamentPaletteItem
-            {
-                FilamentId = Guid.TryParse(p.FilamentId, out var parsedGuid) ? parsedGuid : Guid.NewGuid(),
-                Name = string.IsNullOrWhiteSpace(p.Name) ? "PLA Filament" : p.Name,
-                ColorHex = string.IsNullOrWhiteSpace(p.ColorHex) ? "#000000" : p.ColorHex,
-                Material = string.IsNullOrWhiteSpace(p.Material) ? "PLA" : p.Material,
-                TransmissionDistanceMm = p.TransmissionDistanceMm > 0 ? p.TransmissionDistanceMm : 1.0,
-                StartHeightMm = p.StartHeightMm,
-                EndHeightMm = p.EndHeightMm
-            }).ToList()
-        };
-
-        var calculator = new HueForgeLayerStackCalculator();
-        var swaps = calculator.GenerateLayerSwapInstructions(layerStackConfig);
-
-        DecodedImage decoded;
-        try { decoded = SimpleImageReader.Decode(imageBytes); }
-        catch { decoded = CreateFallbackDecodedImage(150, (int)Math.Max(50, Math.Round(150.0 * heightMm / widthMm))); }
-
-        int targetGridWidth = string.Equals(requestConfig.Quality, "Best", StringComparison.OrdinalIgnoreCase)
-            ? 500 : (string.Equals(requestConfig.Quality, "Low", StringComparison.OrdinalIgnoreCase) ? 300 : 400);
-
-        int targetGridHeight = (int)Math.Clamp(Math.Round((double)targetGridWidth * decoded.Height / decoded.Width), 50, 600);
-        var resampled = decoded.Resample(targetGridWidth, targetGridHeight);
-
-        var calcResult = calculator.ProcessImageBuffer(resampled.RgbBytes, resampled.Width, resampled.Height, layerStackConfig, widthMm, heightMm);
-
-        byte[] threeMfBytes = MeshGeneratorService.GenerateBinary3mf(
-            calcResult.HeightMap, calcResult.Width, calcResult.Height, widthMm, heightMm,
-            layerStackConfig.MinBaseThicknessMm, layerStackConfig, swaps
-        );
-
-        return File(threeMfBytes, "model/3mf", $"{fileBaseName}.3mf");
-    }
 
     private static DecodedImage CreateFallbackDecodedImage(int width, int height)
     {
