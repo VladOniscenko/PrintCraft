@@ -25,4 +25,6 @@ public class OrderItem
     public double UnitPrice { get; set; } = 0;
 
     public List<OrderItemAttachment> Attachments { get; set; } = new();
+
+    public Guid? AutoForgeJobId { get; set; }
 }

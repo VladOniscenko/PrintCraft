@@ -266,6 +266,7 @@ public static class OrderDetailsMapper
             InfillPercent = item.InfillPercent <= 0 ? 20 : item.InfillPercent,
             PrintQuality = string.IsNullOrWhiteSpace(item.PrintQuality) ? "Standard (0.20mm)" : item.PrintQuality,
             SupportsNeeded = item.SupportsNeeded,
+            AutoForgeJobId = item.AutoForgeJobId,
             Attachments = attachments,
             Files = itemFiles,
         };

@@ -10,6 +10,7 @@ import type { StatusPanelProps } from "../types";
 import api from "../../../services/api";
 import { useNotify } from "../../../context/NotifyContext";
 import ModelInspectorModal from "../../ModelInspectorModal";
+import Generate3MFButton from "../Generate3MFButton";
 
 const PRINTER_OPTIONS = [
   "Prusa MK4 #1 (0.4mm Nozzle)",
@@ -289,6 +290,7 @@ export default function ReadyToPrintPanel({
                       </button>
                     );
                   })()}
+                  <Generate3MFButton item={item} />
                 </div>
               </div>
 

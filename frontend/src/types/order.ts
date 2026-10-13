@@ -180,6 +180,7 @@ export interface AdminOrderItem {
   infillPercent: number;
   printQuality: string;
   supportsNeeded: boolean;
+  autoForgeJobId?: string | null;
   attachments?: Array<{
     id: string;
     orderItemId: string;

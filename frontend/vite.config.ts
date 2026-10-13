@@ -2,7 +2,7 @@ import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
-import { businessInfo } from "./src/config/businessInfo.ts";
+import { businessInfo } from "./src/config/businessInfo";
 
 const crawlerFiles = {
   "/robots.txt": {
@@ -62,9 +62,10 @@ export default defineConfig(({ mode }) => {
             __BUSINESS_HOME_URL__: new URL("/", businessInfo.website).href,
           };
           for (const [token, value] of Object.entries(values)) {
-            const escapedValue = value.replace(/[&<>"']/g, (character) =>
-              ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]!,
-            );
+            const escapedValue = value.replace(/[&<>"']/g, (character: string) => {
+              const map: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+              return map[character]!;
+            });
             html = html.replaceAll(token, escapedValue);
           }
           return html;

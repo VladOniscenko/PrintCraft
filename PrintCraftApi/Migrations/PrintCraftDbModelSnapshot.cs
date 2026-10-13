@@ -28,6 +28,9 @@ namespace PrintCraftApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("AutoForgeJobId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasColumnType("text");
@@ -118,6 +121,33 @@ namespace PrintCraftApi.Migrations
                     b.HasIndex("OrderItemId", "Kind");
 
                     b.ToTable("OrderItemAttachments");
+                });
+
+            modelBuilder.Entity("PrintCraftApi.Models.AutoForgeJob", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FilePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AutoForgeJobs");
                 });
 
             modelBuilder.Entity("PrintCraftApi.Models.EmailTemplate", b =>
@@ -284,14 +314,50 @@ namespace PrintCraftApi.Migrations
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000101"),
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            InstructionTooltip = "50% discount applies automatically to all functional prints in Black or White PETG.",
+                            InstructionTooltipNl = "50% korting wordt automatisch verrekend bij selectie van zwart of wit PETG.",
+                            IsActive = true,
+                            MediaType = "model3d",
+                            MediaUrl = "/uploads/hero/cable-holder.stl",
+                            PriceText = "50% Off Black & White PETG",
+                            PriceTextNl = "50% Korting op PETG",
+                            SortOrder = 1,
+                            Subtext = "Special promotion: Get an automatic 50% discount on all custom 3D prints ordered in high-durability Black or White PETG. UV-resistant, impact-proof, and heat tolerant.",
+                            SubtextNl = "Speciale actie: Profiteer van 50% korting op alle 3D-prints in oersterk zwart of wit PETG. Weerbestendig, slagvast en hittebestendig.",
+                            Title = "50% Off Black & White PETG Prints",
+                            TitleNl = "50% Korting op Zwart & Wit PETG Prints",
+                            UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000102"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            InstructionTooltip = "Drop any picture in our configurator for an instant 3D relief preview with color swaps.",
+                            InstructionTooltipNl = "Sleep je afbeelding in onze configurator voor een directe full-color 3D reliëf weergave.",
+                            IsActive = true,
+                            MediaType = "image",
+                            MediaUrl = "/uploads/hero/materials.svg",
+                            PriceText = "From €14.95 / Painting",
+                            PriceTextNl = "Vanaf €14,95 / Schilderij",
+                            SortOrder = 2,
+                            Subtext = "Upload any photo or illustration to transform it into a vibrant, multi-color 3D relief print using optical layer blending. No painting required!",
+                            SubtextNl = "Upload een 2D foto of illustratie en verander deze in een tactiel, meerkleurig 3D reliëf schilderij met optische laagmenging.",
+                            Title = "HueForge Filament Painting: Turn Pictures into 3D Art",
+                            TitleNl = "HueForge Filament Painting: Maak van je Foto 3D Kunst",
+                            UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000103"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             InstructionTooltip = "Interactive 3D model: drag to rotate 360°, scroll to zoom in and inspect geometry.",
                             InstructionTooltipNl = "Interactief 3D-model: sleep om 360° te draaien, scroll om in te zoomen op details.",
                             IsActive = true,
                             MediaType = "model3d",
-                            MediaUrl = "/uploads/hero/cable-holder.stl",
+                            MediaUrl = "/uploads/hero/snowflake.stl",
                             PriceText = "Starting from €9.95",
                             PriceTextNl = "Vanaf €9,95",
-                            SortOrder = 1,
+                            SortOrder = 3,
                             Subtext = "High-precision FDM 3D printing for functional prototypes, replacement parts, and custom enclosures in 2-5 working days.",
                             SubtextNl = "Precisie FDM 3D-printen voor functionele prototypes, vervangende onderdelen en behuizingen binnen 2-5 werkdagen.",
                             Title = "Rapid Prototyping & Custom Parts",
@@ -300,25 +366,7 @@ namespace PrintCraftApi.Migrations
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0000-000000000102"),
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            InstructionTooltip = "Available in 12+ vibrant colors, food-safe filaments, and specialty carbon fiber composites.",
-                            InstructionTooltipNl = "Beschikbaar in 12+ kleuren, voedselveilige filamenten en carbon-composieten.",
-                            IsActive = true,
-                            MediaType = "image",
-                            MediaUrl = "/uploads/hero/materials.svg",
-                            PriceText = "From €0.08 / gram",
-                            PriceTextNl = "Vanaf €0,08 / gram",
-                            SortOrder = 2,
-                            Subtext = "Durable PETG, heat-resistant ABS, ultra-tough Carbon Fiber, and flexible TPU engineered for real-world demands.",
-                            SubtextNl = "Duurzaam PETG, hittebestendig ABS, oersterk Carbon Fiber en flexibel TPU voor zware toepassingen.",
-                            Title = "Engineering Grade Materials",
-                            TitleNl = "Technische Kwaliteitsmaterialen",
-                            UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            Id = new Guid("00000000-0000-0000-0000-000000000103"),
+                            Id = new Guid("00000000-0000-0000-0000-000000000104"),
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             InstructionTooltip = "Rotate the model to check fine organic curves and surface layer fidelity.",
                             InstructionTooltipNl = "Draai het model om organische vormen en oppervlaktekwaliteit te inspecteren.",
@@ -327,7 +375,7 @@ namespace PrintCraftApi.Migrations
                             MediaUrl = "/uploads/hero/dino.stl",
                             PriceText = "Starting at €14.50",
                             PriceTextNl = "Vanaf €14,50",
-                            SortOrder = 3,
+                            SortOrder = 4,
                             Subtext = "Ultra-fine 0.12mm layer height reproducing intricate curves, character meshes, and miniatures with silky smoothness.",
                             SubtextNl = "Fijne 0.12mm laaghoogte voor vloeiende rondingen, miniaturen en artistieke modellen met hoge precisie.",
                             Title = "Detailed Figurines & Art Collectibles",

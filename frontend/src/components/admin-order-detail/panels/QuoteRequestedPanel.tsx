@@ -17,6 +17,7 @@ import { formatCurrencyAmount } from "../../../utils/currency";
 import api from "../../../services/api";
 import { useNotify } from "../../../context/NotifyContext";
 import ModelInspectorModal from "../../ModelInspectorModal";
+import Generate3MFButton from "../Generate3MFButton";
 
 export default function QuoteRequestedPanel({
   order,
@@ -281,6 +282,7 @@ export default function QuoteRequestedPanel({
                       );
                     })()}
 
+                    <Generate3MFButton item={item} />
                     <button
                       type="button"
                       onClick={() => handleCalculateItemPrice(item.id)}
