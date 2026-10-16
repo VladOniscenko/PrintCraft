@@ -274,16 +274,17 @@ export default function CityLandingPage({ citySlug: propSlug }: CityLandingPageP
         </section>
 
         {/* Call to Action Banner */}
-        <section className="site-section p-8 sm:p-12 text-center rounded-3xl bg-gradient-to-r from-emerald-800 to-teal-900 text-white space-y-6 shadow-xl">
-          <div className="max-w-2xl mx-auto space-y-3">
-            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+        <section className="p-8 sm:p-12 text-center rounded-3xl bg-gradient-to-br from-[#12362b] to-[#0d271f] text-white space-y-6 shadow-xl relative overflow-hidden">
+          <div className="absolute -right-10 -top-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="max-w-2xl mx-auto space-y-3 relative z-10">
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
               {t("cityPage.ctaBannerTitle", { city: cityName })}
             </h2>
-            <p className="text-emerald-100 text-sm sm:text-base leading-relaxed">
+            <p className="text-white/85 text-sm sm:text-base leading-relaxed">
               {t("cityPage.ctaBannerDesc")}
             </p>
           </div>
-          <div>
+          <div className="relative z-10">
             <Link
               to={localizePath("/checkout")}
               className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-gray-950 font-bold text-base shadow-lg transition-transform hover:scale-[1.02]"

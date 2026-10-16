@@ -267,7 +267,7 @@ export default function ApplicationLandingPage({
           <h2 className="text-2xl sm:text-3xl font-black text-white max-w-xl mx-auto">
             {t("cityPage.ctaBannerTitle", { city: appName })}
           </h2>
-          <p className="text-white/70 max-w-lg mx-auto mt-3 text-sm leading-relaxed">
+          <p className="text-white/85 max-w-lg mx-auto mt-3 text-sm sm:text-base leading-relaxed">
             {t("cityPage.ctaBannerDesc")}
           </p>
           <div className="mt-8">

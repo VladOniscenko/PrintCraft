@@ -7,7 +7,7 @@ import { dutchCities, getCityName } from "../config/dutchCities";
 
 export default function Footer() {
   const { t, language, localizePath } = useI18n();
-  const featuredCities = dutchCities.slice(0, 10);
+  const featuredCities = dutchCities.slice(0, 18);
 
   return (
     <footer className="site-footer mt-auto">
@@ -96,7 +96,9 @@ export default function Footer() {
               to={localizePath(`/3d-print-service/${city.slug}`)}
               className="hover:text-[#0f766e] transition-colors"
             >
-              {t("footer.cityServiceLink", { city: getCityName(city, language) })}
+              {t("footer.cityServiceLink", {
+                city: getCityName(city, language),
+              })}
             </Link>
           ))}
         </div>
@@ -113,7 +115,10 @@ export default function Footer() {
           <Link to={localizePath("/refunds")} className="hover:text-[#0f766e]">
             {t("footer.refunds")}
           </Link>
-          <Link to={localizePath("/shipping-policy")} className="hover:text-[#0f766e]">
+          <Link
+            to={localizePath("/shipping-policy")}
+            className="hover:text-[#0f766e]"
+          >
             {t("footer.shippingPolicy")}
           </Link>
           <Link to={localizePath("/faq")} className="hover:text-[#0f766e]">
