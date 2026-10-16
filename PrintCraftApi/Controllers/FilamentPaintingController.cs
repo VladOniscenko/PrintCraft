@@ -148,26 +148,18 @@ public class FilamentPaintingController : ControllerBase
             requestConfig.Palette = requestConfig.Palette.Take(4).ToList();
         }
 
-        // Auto-distribute start and end heights across base and relief depth
+        // Auto-distribute start and end heights across base and relief depth equally among all palette colors
         int colorCount = requestConfig.Palette.Count;
         double availableRelief = Math.Max(0.2, maxDepth - minBaseThickness);
-        double stepPerBand = availableRelief / (colorCount > 1 ? colorCount - 1 : 1);
+        double stepPerBand = availableRelief / Math.Max(1, colorCount);
 
         for (int i = 0; i < colorCount; i++)
         {
             var p = requestConfig.Palette[i];
-            if (i == 0)
-            {
-                p.StartHeightMm = 0.0;
-                p.EndHeightMm = Math.Round(minBaseThickness, 2);
-            }
-            else
-            {
-                double startH = minBaseThickness + (i - 1) * stepPerBand;
-                double endH = i == colorCount - 1 ? maxDepth : minBaseThickness + i * stepPerBand;
-                p.StartHeightMm = Math.Round(startH, 2);
-                p.EndHeightMm = Math.Round(endH, 2);
-            }
+            double startH = i == 0 ? 0.0 : minBaseThickness + i * stepPerBand;
+            double endH = i == colorCount - 1 ? maxDepth : minBaseThickness + (i + 1) * stepPerBand;
+            p.StartHeightMm = Math.Round(startH, 2);
+            p.EndHeightMm = Math.Round(endH, 2);
         }
 
         var layerStackConfig = new LayerStackConfig

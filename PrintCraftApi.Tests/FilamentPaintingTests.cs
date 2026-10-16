@@ -89,4 +89,57 @@ public class FilamentPaintingTests
         Assert.NotEmpty(resDto.ModelStlUrl);
         Assert.Equal(3, resDto.LayerSwaps.Count);
     }
+
+    [Fact]
+    public void ProcessImageBuffer_ProducesDistinctPaletteColors_AcrossDynamicRange()
+    {
+        var config = new LayerStackConfig
+        {
+            BaseLayerHeightMm = 0.16,
+            LayerHeightMm = 0.08,
+            MaxDepthMm = 2.2,
+            MinBaseThicknessMm = 0.48,
+            Palette = new List<FilamentPaletteItem>
+            {
+                new() { Name = "PLA Black", ColorHex = "#18181b", StartHeightMm = 0.0, EndHeightMm = 1.05, TransmissionDistanceMm = 0.5 },
+                new() { Name = "PLA Navy Blue", ColorHex = "#2563eb", StartHeightMm = 1.05, EndHeightMm = 1.62, TransmissionDistanceMm = 1.8 },
+                new() { Name = "PLA Orange", ColorHex = "#f97316", StartHeightMm = 1.62, EndHeightMm = 2.20, TransmissionDistanceMm = 3.2 }
+            }
+        };
+
+        var calc = new HueForgeLayerStackCalculator();
+
+        // 3 pixels: pure black (shadow), midtone gray, pure white (highlight)
+        byte[] rgbBytes = [
+            0, 0, 0,       // pixel 0: dark shadow
+            128, 128, 128, // pixel 1: midtone
+            255, 255, 255  // pixel 2: highlight
+        ];
+
+        var result = calc.ProcessImageBuffer(rgbBytes, 3, 1, config);
+
+        Assert.Equal(3, result.Width);
+        Assert.Equal(1, result.Height);
+        Assert.Equal(9, result.BlendedRgbMap.Length);
+
+        // Pixel 0 (dark shadow): Should be in the Black filament band (#18181b)
+        byte r0 = result.BlendedRgbMap[0];
+        byte g0 = result.BlendedRgbMap[1];
+        byte b0 = result.BlendedRgbMap[2];
+        Assert.InRange(r0, (byte)20, (byte)30);
+        Assert.InRange(g0, (byte)20, (byte)30);
+        Assert.InRange(b0, (byte)20, (byte)35);
+
+        // Pixel 1 (midtone): Should be in the Navy Blue filament band (#2563eb)
+        byte r1 = result.BlendedRgbMap[3];
+        byte g1 = result.BlendedRgbMap[4];
+        byte b1 = result.BlendedRgbMap[5];
+        Assert.True(b1 > r1 && b1 > g1, $"Expected blue dominant for midtone, got R:{r1} G:{g1} B:{b1}");
+
+        // Pixel 2 (highlight): Should be in the Orange filament band (#f97316)
+        byte r2 = result.BlendedRgbMap[6];
+        byte g2 = result.BlendedRgbMap[7];
+        byte b2 = result.BlendedRgbMap[8];
+        Assert.True(r2 > 200 && r2 > b2, $"Expected orange dominant for highlight, got R:{r2} G:{g2} B:{b2}");
+    }
 }

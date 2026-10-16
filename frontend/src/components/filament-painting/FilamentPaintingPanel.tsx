@@ -412,17 +412,13 @@ export default function FilamentPaintingPanel({
       lastGeneratedConfigKeyRef.current = configKey;
 
       const seq = ++activeRequestSeqRef.current;
-      
+
       let pngFile = convertedPngRef.current;
       if (!pngFile) {
         const pngBlob = await convertImageToPngBlob(file);
-        pngFile = new File(
-          [pngBlob],
-          file.name.replace(/\.[^/.]+$/, ".png"),
-          {
-            type: "image/png",
-          },
-        );
+        pngFile = new File([pngBlob], file.name.replace(/\.[^/.]+$/, ".png"), {
+          type: "image/png",
+        });
         convertedPngRef.current = pngFile;
       }
 
@@ -490,7 +486,13 @@ export default function FilamentPaintingPanel({
         }
 
         try {
-          await requestGeneration(file, initialPalette, qualityPreset, 150, computedHeight);
+          await requestGeneration(
+            file,
+            initialPalette,
+            qualityPreset,
+            150,
+            computedHeight,
+          );
           hasInitializedRef.current = true;
         } catch (err) {
           console.error("Instant 3D preview generation failed:", err);
@@ -735,7 +737,9 @@ export default function FilamentPaintingPanel({
                   <div className="flex items-center justify-between pb-1.5 border-b border-gray-100">
                     <div className="flex items-center gap-1.5">
                       <Ruler className="text-emerald-600" size={15} />
-                      <h4 className="font-bold text-gray-900 text-xs">{t("filamentPainting.sizeTitle")}</h4>
+                      <h4 className="font-bold text-gray-900 text-xs">
+                        {t("filamentPainting.sizeTitle")}
+                      </h4>
                     </div>
                     <span className="text-[11px] font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-full">
                       {targetWidthMm} × {targetHeightMm} mm
@@ -773,7 +777,9 @@ export default function FilamentPaintingPanel({
                   {/* Custom Width & Height Inputs */}
                   <div className="grid grid-cols-2 gap-2 pt-0.5">
                     <div className="flex items-center justify-between gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 min-w-0 focus-within:ring-2 focus-within:ring-emerald-500">
-                      <span className="text-[11px] font-semibold text-gray-600 truncate">{t("filamentPainting.widthMm")}</span>
+                      <span className="text-[11px] font-semibold text-gray-600 truncate">
+                        {t("filamentPainting.widthMm")}
+                      </span>
                       <div className="flex items-center gap-1 shrink-0">
                         <input
                           type="number"
@@ -791,12 +797,16 @@ export default function FilamentPaintingPanel({
                           }}
                           className="w-10 bg-transparent text-xs font-bold text-gray-800 text-right outline-none"
                         />
-                        <span className="text-[10px] font-medium text-gray-400">mm</span>
+                        <span className="text-[10px] font-medium text-gray-400">
+                          mm
+                        </span>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 min-w-0 focus-within:ring-2 focus-within:ring-emerald-500">
-                      <span className="text-[11px] font-semibold text-gray-600 truncate">{t("filamentPainting.heightMm")}</span>
+                      <span className="text-[11px] font-semibold text-gray-600 truncate">
+                        {t("filamentPainting.heightMm")}
+                      </span>
                       <div className="flex items-center gap-1 shrink-0">
                         <input
                           type="number"
@@ -804,12 +814,16 @@ export default function FilamentPaintingPanel({
                           max="250"
                           value={targetHeightMm}
                           onChange={(e) =>
-                            setTargetHeightMm(Math.max(20, Number(e.target.value)))
+                            setTargetHeightMm(
+                              Math.max(20, Number(e.target.value)),
+                            )
                           }
                           disabled={lockAspectRatio && !!imageDimensions}
                           className="w-10 bg-transparent text-xs font-bold text-gray-800 text-right outline-none disabled:opacity-60 disabled:cursor-not-allowed"
                         />
-                        <span className="text-[10px] font-medium text-gray-400">mm</span>
+                        <span className="text-[10px] font-medium text-gray-400">
+                          mm
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -834,10 +848,15 @@ export default function FilamentPaintingPanel({
                   <div className="flex items-center justify-between pb-1.5 border-b border-gray-100">
                     <div className="flex items-center gap-1.5">
                       <Sparkles className="text-emerald-600" size={15} />
-                      <h4 className="font-bold text-gray-900 text-xs">{t("filamentPainting.qualityTitle")}</h4>
+                      <h4 className="font-bold text-gray-900 text-xs">
+                        {t("filamentPainting.qualityTitle")}
+                      </h4>
                     </div>
                     <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
-                      {qualityOptions.find((q) => q.id === qualityPreset)?.badge}
+                      {
+                        qualityOptions.find((q) => q.id === qualityPreset)
+                          ?.badge
+                      }
                     </span>
                   </div>
 
@@ -856,7 +875,9 @@ export default function FilamentPaintingPanel({
                               : "bg-gray-50 hover:bg-gray-100 text-gray-800 border-gray-200"
                           }`}
                         >
-                          <span className="text-xs font-bold block leading-tight">{opt.label}</span>
+                          <span className="text-xs font-bold block leading-tight">
+                            {opt.label}
+                          </span>
                           <span
                             className={`text-[10px] block mt-0.5 leading-tight truncate ${
                               isActive ? "text-emerald-100" : "text-gray-400"
@@ -871,7 +892,10 @@ export default function FilamentPaintingPanel({
                 </div>
 
                 <p className="text-[11px] text-gray-500 leading-normal pt-1">
-                  {qualityOptions.find((q) => q.id === qualityPreset)?.description}
+                  {
+                    qualityOptions.find((q) => q.id === qualityPreset)
+                      ?.description
+                  }
                 </p>
               </div>
             </div>
@@ -881,7 +905,9 @@ export default function FilamentPaintingPanel({
               <div className="flex items-center justify-between pb-1.5 border-b border-gray-100">
                 <div className="flex items-center gap-1.5">
                   <Palette className="text-emerald-600" size={15} />
-                  <h4 className="font-bold text-gray-900 text-xs">{t("filamentPainting.colorsTitle")}</h4>
+                  <h4 className="font-bold text-gray-900 text-xs">
+                    {t("filamentPainting.colorsTitle")}
+                  </h4>
                 </div>
                 <span className="text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-100 px-2 py-0.5 rounded-full">
                   {customPalette.length} / 4 {t("filamentPainting.colorsCount")}
@@ -903,7 +929,9 @@ export default function FilamentPaintingPanel({
                       {getPresetLabel(preset)}
                     </option>
                   ))}
-                  <option value="custom">{t("filamentPainting.customCombination")}</option>
+                  <option value="custom">
+                    {t("filamentPainting.customCombination")}
+                  </option>
                 </select>
               </div>
 
@@ -921,13 +949,17 @@ export default function FilamentPaintingPanel({
                         style={{ backgroundColor: item.colorHex }}
                         title={`${item.name} (${item.colorHex})`}
                       >
-                        <span className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">{idx + 1}</span>
+                        <span className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
+                          {idx + 1}
+                        </span>
                       </div>
 
                       {/* Store PLA Filament Dropdown */}
                       <select
                         value={item.filamentId}
-                        onChange={(e) => handleSelectCatalogFilament(idx, e.target.value)}
+                        onChange={(e) =>
+                          handleSelectCatalogFilament(idx, e.target.value)
+                        }
                         className="flex-1 min-w-[120px] px-2 py-1 bg-white border border-gray-200 rounded-md text-xs font-semibold text-gray-800 outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-2xs truncate"
                       >
                         {storePlaFilaments.map((f) => (
@@ -981,7 +1013,11 @@ export default function FilamentPaintingPanel({
                   className="w-full py-1.5 px-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Plus size={13} />
-                  <span>{customPalette.length >= 4 ? t("filamentPainting.maxColorsReached") : t("filamentPainting.addAnotherColor")}</span>
+                  <span>
+                    {customPalette.length >= 4
+                      ? t("filamentPainting.maxColorsReached")
+                      : t("filamentPainting.addAnotherColor")}
+                  </span>
                 </button>
               </div>
             </div>
@@ -1025,7 +1061,9 @@ export default function FilamentPaintingPanel({
                     fallback={
                       <div className="w-full h-full min-h-[380px] bg-slate-900 border border-slate-800 rounded-xl flex flex-col items-center justify-center text-slate-400 gap-2">
                         <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
-                        <span className="text-xs font-semibold">Loading 3D preview...</span>
+                        <span className="text-xs font-semibold">
+                          Loading 3D preview...
+                        </span>
                       </div>
                     }
                   >

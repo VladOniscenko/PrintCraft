@@ -195,6 +195,8 @@ public class HueForgeLayerStackCalculator
     /// <summary>
     /// Processes a raw 24-bit sRGB image buffer (RGB byte triplets) into a physical 3D topographic heightmap
     /// and a corresponding surface vertex/texture color map based on Transmission Distance layer stacking.
+    /// Uses dynamic-range-normalized perceptual luminance to map image tonal values to the discrete layer stack,
+    /// ensuring all configured filament colors (shadows, midtones, highlights) are rendered vibrantly.
     /// </summary>
     public FilamentPaintingCalculationResult ProcessImageBuffer(
         ReadOnlySpan<byte> rgbBytes,
@@ -223,18 +225,48 @@ public class HueForgeLayerStackCalculator
         byte[] blendedRgbMap = new byte[pixelCount * 3];
 
         float minBase = (float)Math.Max(0.16, config.MinBaseThicknessMm);
+        float maxRelief = (float)Math.Max(minBase + 0.1, config.MaxDepthMm);
+        float availableRelief = maxRelief - minBase;
+
+        // 1. Pass 1: Compute perceptual luma for each pixel and evaluate dynamic range
+        float minLuma = 1.0f;
+        float maxLuma = 0.0f;
+        float[] lumaBuffer = new float[pixelCount];
 
         for (int i = 0; i < pixelCount; i++)
         {
             int byteIdx = i * 3;
-            var pixelColor = new ColorRgb(rgbBytes[byteIdx], rgbBytes[byteIdx + 1], rgbBytes[byteIdx + 2]);
+            byte r = rgbBytes[byteIdx];
+            byte g = rgbBytes[byteIdx + 1];
+            byte b = rgbBytes[byteIdx + 2];
 
-            var matchedStep = FindOptimalLayerForPixel(pixelColor, lut);
+            // Standard Rec. 601 perceptual luma in [0.0..1.0]
+            float luma = ((0.299f * r) + (0.587f * g) + (0.114f * b)) / 255.0f;
+            lumaBuffer[i] = luma;
 
-            // Z height: minimum base thickness + layer relief
-            heightMap[i] = (float)Math.Max(minBase, matchedStep.HeightMm);
+            if (luma < minLuma) minLuma = luma;
+            if (luma > maxLuma) maxLuma = luma;
+        }
 
-            // Blended composite surface color
+        float lumaRange = maxLuma - minLuma;
+        bool doNormalize = lumaRange > 0.03f;
+
+        // 2. Pass 2: Map each normalized tone to the physical Z relief height and lookup discrete LUT layer
+        for (int i = 0; i < pixelCount; i++)
+        {
+            int byteIdx = i * 3;
+            float rawLuma = lumaBuffer[i];
+            float tone = doNormalize
+                ? Math.Clamp((rawLuma - minLuma) / lumaRange, 0.0f, 1.0f)
+                : rawLuma;
+
+            // Target Z height: minimum solid base thickness + tone * relief height
+            double targetZ = minBase + (tone * availableRelief);
+
+            // Lookup closest discrete physical layer in LUT
+            var matchedStep = GetStepForHeight(targetZ, lut);
+
+            heightMap[i] = (float)matchedStep.HeightMm;
             blendedRgbMap[byteIdx] = matchedStep.BlendedColor.R;
             blendedRgbMap[byteIdx + 1] = matchedStep.BlendedColor.G;
             blendedRgbMap[byteIdx + 2] = matchedStep.BlendedColor.B;
@@ -252,6 +284,29 @@ public class HueForgeLayerStackCalculator
             HeightMap = heightMap,
             BlendedRgbMap = blendedRgbMap
         };
+    }
+
+    /// <summary>
+    /// Finds the discrete layer in the look-up table whose Z height best matches the target height.
+    /// </summary>
+    public static LayerStackStep GetStepForHeight(double targetZ, IReadOnlyList<LayerStackStep> lut)
+    {
+        if (lut.Count == 0) throw new InvalidOperationException("LUT is empty.");
+
+        LayerStackStep bestStep = lut[0];
+        double minDiff = Math.Abs(bestStep.HeightMm - targetZ);
+
+        for (int i = 1; i < lut.Count; i++)
+        {
+            double diff = Math.Abs(lut[i].HeightMm - targetZ);
+            if (diff < minDiff)
+            {
+                minDiff = diff;
+                bestStep = lut[i];
+            }
+        }
+
+        return bestStep;
     }
 
     private static List<FilamentPaletteItem> NormalizePaletteRanges(LayerStackConfig config)

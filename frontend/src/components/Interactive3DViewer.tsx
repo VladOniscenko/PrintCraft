@@ -519,6 +519,7 @@ export default function Interactive3DViewer({
               );
               if (hasVertexColors) {
                 child.material = new MeshStandardMaterial({
+                  color: 0xffffff,
                   vertexColors: true,
                   roughness: 0.38,
                   metalness: 0.08,
