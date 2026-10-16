@@ -2,7 +2,6 @@ import Navbar from "./Navbar";
 import Hero from "./Hero";
 import ShowcaseGallery from "./home/ShowcaseGallery";
 import MaterialFeatures from "./home/MaterialFeatures";
-import HomeSteps from "./home/HomeSteps";
 import Footer from "./Footer";
 
 export default function Home() {
