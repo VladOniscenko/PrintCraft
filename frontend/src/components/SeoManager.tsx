@@ -13,12 +13,14 @@ import {
 import { businessInfo } from "../config/businessInfo";
 import {
   buildCityJsonLd,
+  buildApplicationJsonLd,
   buildFaqJsonLd,
   buildHomepageJsonLd,
   buildStandardWebPageJsonLd,
   getValidatedOrigin,
 } from "../utils/seoStructuredData";
 import { getDutchCityBySlug, getCityName } from "../config/dutchCities";
+import { getSeoApplicationBySlug } from "../config/seoApplications";
 
 export type RouteSeo = {
   title: string;
@@ -104,12 +106,27 @@ function upsertJsonLd(
   }
 
   let schemaGraph;
+  const appMatch = matchPath(
+    { path: "/oplossingen/:slug", end: true },
+    unlocalizedPath,
+  );
   const cityMatch = matchPath(
     { path: "/3d-print-service/:city", end: true },
     unlocalizedPath,
   );
 
-  if (cityMatch?.params.city) {
+  if (appMatch?.params.slug) {
+    const app = getSeoApplicationBySlug(appMatch.params.slug);
+    if (app) {
+      schemaGraph = buildApplicationJsonLd(
+        canonicalUrl,
+        app,
+        language,
+        pageTitle,
+        pageDescription,
+      );
+    }
+  } else if (cityMatch?.params.city) {
     const city = getDutchCityBySlug(cityMatch.params.city);
     if (city) {
       schemaGraph = buildCityJsonLd(
@@ -183,6 +200,22 @@ export function getRouteSeo(
   unlocalizedPath: string,
   lang: SupportedLanguage,
 ): RouteSeo {
+  const appMatch = matchPath(
+    { path: "/oplossingen/:slug", end: true },
+    unlocalizedPath,
+  );
+  if (appMatch?.params.slug) {
+    const app = getSeoApplicationBySlug(appMatch.params.slug);
+    if (app) {
+      return {
+        title: app.metaTitle[lang] || app.metaTitle.nl,
+        description: app.metaDescription[lang] || app.metaDescription.nl,
+        keywords: app.metaKeywords[lang] || app.metaKeywords.nl,
+        index: true,
+      };
+    }
+  }
+
   const cityMatch = matchPath(
     { path: "/3d-print-service/:city", end: true },
     unlocalizedPath,

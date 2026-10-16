@@ -366,3 +366,4 @@ export function getSeoApplicationBySlug(slug: string): SeoApplication | undefine
 export function getAllApplicationSlugs(): string[] {
   return seoApplications.map((app) => app.slug);
 }
+

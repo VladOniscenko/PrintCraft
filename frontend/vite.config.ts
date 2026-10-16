@@ -14,6 +14,7 @@ import {
   getValidatedOrigin,
 } from "./src/utils/seoStructuredData";
 import { dutchCities } from "./src/config/dutchCities";
+import { seoApplications } from "./src/config/seoApplications";
 
 const origin = getValidatedOrigin(businessInfo.website);
 const today = new Date().toISOString().split("T")[0];
@@ -30,6 +31,11 @@ const publicIndexableRoutes = [
     priority: "0.8",
     changefreq: "monthly",
   })),
+  ...seoApplications.map((app) => ({
+    subPath: `/oplossingen/${app.slug}`,
+    priority: "0.85",
+    changefreq: "weekly",
+  })),
 ];
 
 const crawlerFiles = {
@@ -40,10 +46,12 @@ Allow: /
 Disallow: /admin
 Disallow: /orders
 Disallow: /profile
+Disallow: /checkout/success
 Disallow: /reset-password
 Disallow: /*/admin
 Disallow: /*/orders
 Disallow: /*/profile
+Disallow: /*/checkout/success
 Disallow: /*/reset-password
 Disallow: /api/
 

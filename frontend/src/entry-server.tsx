@@ -13,6 +13,7 @@ import {
 import { businessInfo } from "./config/businessInfo";
 import { parsePath, getRouteSeo } from "./components/SeoManager";
 import {
+  buildApplicationJsonLd,
   buildCityJsonLd,
   buildFaqJsonLd,
   buildHomepageJsonLd,
@@ -21,6 +22,10 @@ import {
   type SchemaGraph,
 } from "./utils/seoStructuredData";
 import { getDutchCityBySlug, type DutchCity } from "./config/dutchCities";
+import {
+  getSeoApplicationBySlug,
+  type SeoApplication,
+} from "./config/seoApplications";
 import Home from "./components/Home";
 import FAQ from "./components/FAQ";
 import PrivacyPolicy from "./components/PrivacyPolicy";
@@ -28,6 +33,7 @@ import TermsOfService from "./components/TermsOfService";
 import RefundPolicy from "./components/RefundPolicy";
 import ShippingPolicy from "./components/ShippingPolicy";
 import CityLandingPage from "./components/CityLandingPage";
+import ApplicationLandingPage from "./components/ApplicationLandingPage";
 
 export type RenderResult = {
   html: string;
@@ -44,6 +50,7 @@ export function renderPage(url: string): RenderResult {
 
   let PageComponent: React.ComponentType;
   let cityObj: DutchCity | undefined = undefined;
+  let appObj: SeoApplication | undefined = undefined;
 
   if (unlocalizedPath.startsWith("/3d-print-service/")) {
     const slug = unlocalizedPath.replace("/3d-print-service/", "").split("/")[0];
@@ -51,6 +58,15 @@ export function renderPage(url: string): RenderResult {
     if (cityObj) {
       const targetSlug = cityObj.slug;
       PageComponent = () => <CityLandingPage citySlug={targetSlug} />;
+    } else {
+      PageComponent = Home;
+    }
+  } else if (unlocalizedPath.startsWith("/oplossingen/")) {
+    const slug = unlocalizedPath.replace("/oplossingen/", "").split("/")[0];
+    appObj = getSeoApplicationBySlug(slug);
+    if (appObj) {
+      const targetSlug = appObj.slug;
+      PageComponent = () => <ApplicationLandingPage appSlug={targetSlug} />;
     } else {
       PageComponent = Home;
     }
@@ -97,6 +113,14 @@ export function renderPage(url: string): RenderResult {
     jsonLdGraph = buildCityJsonLd(
       canonicalUrl,
       cityObj,
+      activeLang,
+      routeSeo.title,
+      routeSeo.description,
+    );
+  } else if (appObj) {
+    jsonLdGraph = buildApplicationJsonLd(
+      canonicalUrl,
+      appObj,
       activeLang,
       routeSeo.title,
       routeSeo.description,

@@ -76,6 +76,9 @@ const AdminUploadedModelViewerPage = lazy(
   () => import("./components/admin/AdminUploadedModelViewerPage.tsx"),
 );
 const CityLandingPage = lazy(() => import("./components/CityLandingPage.tsx"));
+const ApplicationLandingPage = lazy(
+  () => import("./components/ApplicationLandingPage.tsx"),
+);
 const NotFound = lazy(() => import("./components/NotFound.tsx"));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -232,6 +235,19 @@ function LegacyCityRedirect() {
   );
 }
 
+function LegacyApplicationRedirect() {
+  const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
+  const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
+  const preferred = resolveLanguage(stored);
+  return (
+    <Navigate
+      to={`/${preferred}/oplossingen/${slug || ""}${location.search}${location.hash}`}
+      replace
+    />
+  );
+}
+
 function LanguageRouteGuard() {
   const { lang } = useParams<{ lang: string }>();
   if (!isSupportedLanguage(lang)) {
@@ -265,6 +281,10 @@ export default function App() {
             path="/3d-print-service/:city"
             element={<LegacyCityRedirect />}
           />
+          <Route
+            path="/oplossingen/:slug"
+            element={<LegacyApplicationRedirect />}
+          />
           <Route path="/privacy" element={<LegacyPathRedirect target="/privacy" />} />
           <Route path="/terms" element={<LegacyPathRedirect target="/terms" />} />
           <Route path="/refunds" element={<LegacyPathRedirect target="/refunds" />} />
@@ -295,6 +315,7 @@ export default function App() {
             <Route index element={<Home />} />
             <Route path="faq" element={<FAQ />} />
             <Route path="3d-print-service/:city" element={<CityLandingPage />} />
+            <Route path="oplossingen/:slug" element={<ApplicationLandingPage />} />
             <Route path="privacy" element={<PrivacyPolicy />} />
             <Route path="terms" element={<TermsOfService />} />
             <Route path="refunds" element={<RefundPolicy />} />

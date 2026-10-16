@@ -218,6 +218,10 @@ export function buildFaqJsonLd(
           "@id": `${origin}/#website`,
         },
       },
+      buildBreadcrumbsJsonLd(canonicalUrl, [
+        { name: tSource.nav.home, url: `${origin}/${language}` },
+        { name: tSource.nav.faq, url: canonicalUrl },
+      ]),
       {
         "@type": "FAQPage",
         "@id": `${canonicalUrl}#faq`,
@@ -245,6 +249,7 @@ export function buildStandardWebPageJsonLd(
 ): SchemaGraph {
   const origin = getValidatedOrigin(businessInfo.website);
   const inLang = htmlLangMap[language] || language;
+  const tSource = translations[language] || translations[defaultLanguage];
 
   return {
     "@context": "https://schema.org",
@@ -260,6 +265,10 @@ export function buildStandardWebPageJsonLd(
           "@id": `${origin}/#website`,
         },
       },
+      buildBreadcrumbsJsonLd(canonicalUrl, [
+        { name: tSource.nav.home, url: `${origin}/${language}` },
+        { name: pageTitle, url: canonicalUrl },
+      ]),
     ],
   };
 }
@@ -320,6 +329,13 @@ export function buildCityJsonLd(
             "@type": "AdministrativeArea",
             name: city.province,
           },
+          ...(city.geo && {
+            geo: {
+              "@type": "GeoCoordinates",
+              latitude: city.geo.lat,
+              longitude: city.geo.lng,
+            },
+          }),
         },
         hasOfferCatalog: {
           "@type": "OfferCatalog",
@@ -374,6 +390,11 @@ export function buildCityJsonLd(
           "@id": `${origin}/#business`,
         },
       },
+      buildBreadcrumbsJsonLd(canonicalUrl, [
+        { name: tSource.nav.home, url: `${origin}/${language}` },
+        { name: tSource.cityPage.badge, url: `${origin}/${language}/#services` },
+        { name: cityName, url: canonicalUrl },
+      ]),
       {
         "@type": "FAQPage",
         "@id": `${canonicalUrl}#faq`,
@@ -381,6 +402,78 @@ export function buildCityJsonLd(
           "@id": `${canonicalUrl}#webpage`,
         },
         mainEntity: faqItems.map((item) => ({
+          "@type": "Question",
+          name: item.q,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.a,
+          },
+        })),
+      },
+    ],
+  };
+}
+
+export function buildApplicationJsonLd(
+  canonicalUrl: string,
+  app: SeoApplication,
+  language: SupportedLanguage,
+  pageTitle: string,
+  pageDescription: string,
+): SchemaGraph {
+  const origin = getValidatedOrigin(businessInfo.website);
+  const inLang = htmlLangMap[language] || language;
+  const tSource = translations[language] || translations[defaultLanguage];
+  const appName = getApplicationName(app, language);
+  const localizedFaqs = app.faqs[language] || app.faqs[defaultLanguage] || [];
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        "@id": `${canonicalUrl}#service`,
+        name: appName,
+        description: pageDescription,
+        serviceType: "3D Printing & Manufacturing",
+        provider: {
+          "@type": "LocalBusiness",
+          "@id": `${origin}/#business`,
+          name: businessInfo.name,
+        },
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "EUR",
+          price: "9.95",
+          availability: "https://schema.org/InStock",
+        },
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${canonicalUrl}#webpage`,
+        url: canonicalUrl,
+        name: pageTitle,
+        description: pageDescription,
+        inLanguage: inLang,
+        isPartOf: {
+          "@id": `${origin}/#website`,
+        },
+        about: {
+          "@id": `${canonicalUrl}#service`,
+        },
+      },
+      buildBreadcrumbsJsonLd(canonicalUrl, [
+        { name: tSource.nav.home, url: `${origin}/${language}` },
+        { name: tSource.seo.schema.catalogName, url: `${origin}/${language}/#services` },
+        { name: appName, url: canonicalUrl },
+      ]),
+      {
+        "@type": "FAQPage",
+        "@id": `${canonicalUrl}#faq`,
+        isPartOf: {
+          "@id": `${canonicalUrl}#webpage`,
+        },
+        mainEntity: localizedFaqs.map((item) => ({
           "@type": "Question",
           name: item.q,
           acceptedAnswer: {
