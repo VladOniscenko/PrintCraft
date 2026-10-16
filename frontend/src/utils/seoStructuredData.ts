@@ -108,7 +108,6 @@ export function buildHomepageJsonLd(
           closes: businessInfo.openingHours.closes,
         },
       ],
-      priceRange: "€€",
       hasOfferCatalog: {
         "@type": "OfferCatalog",
         name: schemaT.catalogName,
@@ -450,12 +449,6 @@ export function buildApplicationJsonLd(
           "@type": "LocalBusiness",
           "@id": `${origin}/#business`,
           name: businessInfo.name,
-        },
-        offers: {
-          "@type": "Offer",
-          priceCurrency: "EUR",
-          price: "9.95",
-          availability: "https://schema.org/InStock",
         },
       },
       {

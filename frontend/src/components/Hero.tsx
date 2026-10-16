@@ -29,20 +29,20 @@ const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
 const FALLBACK_SLIDES: HeroSlide[] = [
   {
     id: "fallback-slide-1",
-    title: "50% Off Black & White PETG Prints",
-    titleNl: "50% Korting op Zwart & Wit PETG Prints",
+    title: "High-Precision PETG & PLA 3D Printing",
+    titleNl: "Hoge Precisie PETG & PLA 3D-Printen",
     subtext:
-      "Special promotion: Get an automatic 50% discount on all custom 3D prints ordered in high-durability Black or White PETG. UV-resistant, impact-proof, and heat tolerant.",
+      "Professional FDM printing: Order custom 3D prints in high-durability Black or White PETG. UV-resistant, impact-proof, and heat tolerant.",
     subtextNl:
-      "Speciale actie: Profiteer van 50% korting op alle 3D-prints in oersterk zwart of wit PETG. Weerbestendig, slagvast en hittebestendig.",
-    priceText: "50% Off Black & White PETG",
-    priceTextNl: "50% Korting op PETG",
+      "Professioneel FDM printen: Bestel 3D-prints in oersterk zwart of wit PETG. Weerbestendig, slagvast en hittebestendig.",
+    priceText: "",
+    priceTextNl: "",
     mediaUrl: "/uploads/hero/cable-holder.stl",
     mediaType: "model3d",
     instructionTooltip:
-      "50% discount applies automatically to all functional prints in Black or White PETG.",
+      "High dimensional precision FDM printing for functional and mechanical components.",
     instructionTooltipNl:
-      "50% korting wordt automatisch verrekend bij selectie van zwart of wit PETG.",
+      "Hoge maatnauwkeurigheid FDM-printen voor functionele en mechanische componenten.",
     isActive: true,
     sortOrder: 1,
   },
@@ -54,8 +54,8 @@ const FALLBACK_SLIDES: HeroSlide[] = [
       "Upload any photo or illustration to transform it into a vibrant, multi-color 3D relief print using optical layer blending. No painting required!",
     subtextNl:
       "Upload een 2D foto of illustratie en verander deze in een tactiel, meerkleurig 3D reliëf schilderij met optische laagmenging.",
-    priceText: "From €14.95 / Painting",
-    priceTextNl: "Vanaf €14,95 / Schilderij",
+    priceText: "",
+    priceTextNl: "",
     mediaUrl: "/uploads/hero/materials.svg",
     mediaType: "image",
     instructionTooltip:
@@ -73,8 +73,8 @@ const FALLBACK_SLIDES: HeroSlide[] = [
       "High-precision FDM 3D printing for functional prototypes, replacement parts, and custom enclosures in 2-5 working days.",
     subtextNl:
       "Precisie FDM 3D-printen voor functionele prototypes, vervangende onderdelen en behuizingen binnen 2-5 werkdagen.",
-    priceText: "Starting from €9.95",
-    priceTextNl: "Vanaf €9,95",
+    priceText: "",
+    priceTextNl: "",
     mediaUrl: "/uploads/hero/snowflake.stl",
     mediaType: "model3d",
     instructionTooltip:
@@ -92,8 +92,8 @@ const FALLBACK_SLIDES: HeroSlide[] = [
       "Ultra-fine 0.12mm layer height reproducing intricate curves, character meshes, and miniatures with silky smoothness.",
     subtextNl:
       "Fijne 0.12mm laaghoogte voor vloeiende rondingen, miniaturen en artistieke modellen met hoge precisie.",
-    priceText: "Starting at €14.50",
-    priceTextNl: "Vanaf €14,50",
+    priceText: "",
+    priceTextNl: "",
     mediaUrl: "/uploads/hero/dino.stl",
     mediaType: "model3d",
     instructionTooltip:

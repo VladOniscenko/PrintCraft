@@ -49,18 +49,18 @@ export const seoApplications: SeoApplication[] = [
       en: "Broken plastic gear, clip, knob, or machine mount? We reproduce discontinued parts with high-strength PETG or impact-absorbing TPU delivered in 2-5 days.",
     },
     description: {
-      nl: "Bespaar hoge vervangingskosten van complete apparaten. Met 3D-printen en reverse engineering maken we exacte replica's van gebroken kunststof tandwielen, behuizingsklemmen, handgrepen en industriële reserveonderdelen.",
+      nl: "Voorkom het vervangen van complete apparaten door één enkel defect onderdeel. Met 3D-printen en reverse engineering maken we exacte replica's van gebroken kunststof tandwielen, behuizingsklemmen, handgrepen en industriële reserveonderdelen.",
       en: "Avoid replacing entire machines due to a single broken plastic component. We manufacture exact functional replicas of gears, clips, brackets, and machine components on demand.",
     },
     benefits: {
       nl: [
-        "Geen minimale afname: enkelstuks vanaf €9,95 tot kleine series",
+        "Geen minimale afname: van enkelstuks tot kleine series",
         "Slijtvast en hittebestendig PETG tot 75°C",
         "Flexibele pakkingen en stootranden in TPU rubber",
-        "Direct online prijsindicatie en snelle PostNL bezorging",
+        "Direct online offerte en snelle PostNL bezorging",
       ],
       en: [
-        "No minimum order quantity: single units from €9.95 to batch runs",
+        "No minimum order quantity: from single units to batch runs",
         "Wear-resistant, high-strength PETG heat resistant up to 75°C",
         "Flexible rubber gaskets and impact bumpers in TPU",
         "Instant online quote calculation and fast 2-5 business days dispatch",
@@ -92,8 +92,8 @@ export const seoApplications: SeoApplication[] = [
           a: "Voor dragende onderdelen, beugels en tandwielen raden we PETG aan vanwege de hoge taaiheid en temperatuurbestendigheid. Voor afdichtingen en stootdempers gebruiken we flexibel TPU.",
         },
         {
-          q: "Wat kost het printen van een vervangend onderdeel?",
-          a: "Als je al een 3D-model (STL/STEP) hebt, begint de printprijs vaak al vanaf €9,95 afhankelijk van volume en materiaal.",
+          q: "Hoe wordt de offerte voor een vervangend onderdeel berekend?",
+          a: "De offerte wordt berekend op basis van de afmetingen, het benodigde materiaal (zoals slijtvast PETG of flexibel TPU) en de productietijd. Upload je 3D-model of foto voor een directe offerte op maat.",
         },
       ],
       en: [
@@ -106,8 +106,8 @@ export const seoApplications: SeoApplication[] = [
           a: "For load-bearing brackets and mechanical gears, PETG is ideal due to its impact toughness and heat resistance. For seals and bumpers, flexible TPU rubber is recommended.",
         },
         {
-          q: "What does printing a replacement part cost?",
-          a: "With a ready 3D file (STL/STEP), pricing typically starts from €9.95 depending on component weight and chosen filament.",
+          q: "How is the quote for a replacement part calculated?",
+          a: "Quotes are calculated based on geometry, required material (such as wear-resistant PETG or flexible TPU), and production time. Upload your 3D model or sketch for an instant custom quote.",
         },
       ],
     },
@@ -215,21 +215,21 @@ export const seoApplications: SeoApplication[] = [
       en: "Speed up manufacturing, quality control, and assembly workflows with custom 3D printed jigs, inspection fixtures, and ergonomic tool mounts.",
     },
     description: {
-      nl: "Traditioneel frezen van productiemallen kost weken en duizenden euro's. Met onze industriële 3D-print service produceren we slijtvaste mallen, laskalibers en montagesjablonen in PETG met ±0.1mm nauwkeurigheid tegen een fractie van de prijs.",
-      en: "CNC milling assembly tooling often costs thousands of euros and takes weeks. Our high-precision FDM service produces rigid jigs, welding fixtures, and alignment gauges in days.",
+      nl: "Traditioneel frezen van productiemallen vergt vaak weken aan doorlooptijd. Met onze industriële 3D-print service produceren we direct slijtvaste mallen, laskalibers en montagesjablonen in PETG met ±0.1mm nauwkeurigheid.",
+      en: "Traditional milling of assembly tooling often involves long lead times. Our high-precision FDM service produces rigid jigs, welding fixtures, and alignment gauges in days directly from your 3D files.",
     },
     benefits: {
       nl: [
         "Productietijd van weken teruggebracht naar 2-5 werkdagen",
         "Sterke PETG gereedschapshouders met hoge stijfheid",
         "Zachte TPU contactoppervlakken voorkomen krassen op kwetsbare delen",
-        "Geen freesprogramma's of matrijskosten nodig",
+        "Directe productie zonder frezen of fysieke spuitgietmatrijzen",
       ],
       en: [
         "Turnaround reduced from weeks to 2-5 business days",
         "Rigid, chemical-resistant PETG suitable for workshop shop floors",
         "Soft TPU contact pads available to avoid marring finished products",
-        "Zero tooling investment or CNC programming setup overhead",
+        "Direct manufacturing without CNC setup or physical molds",
       ],
     },
     recommendedMaterials: ["PETG", "TPU", "PLA"],
@@ -320,7 +320,7 @@ export const seoApplications: SeoApplication[] = [
     },
     metaDescription: {
       nl: "Rapid prototyping service in Nederland voor ingenieurs en productontwikkelaars. Upload STEP/STL voor een directe offerte op functionele kunststof prototypes.",
-      en: "Rapid prototyping service in the Netherlands for product designers and engineers. Upload STEP/STL models for instant pricing on functional plastic prototypes.",
+      en: "Rapid prototyping service in the Netherlands for product designers and engineers. Upload STEP/STL models for an instant custom quote on functional plastic prototypes.",
     },
     metaKeywords: {
       nl: "rapid prototyping Nederland, functioneel kunststof prototype, zakelijk 3D printen, CAD STEP model laten printen, nulserie pre-productie, product prototype laten maken",

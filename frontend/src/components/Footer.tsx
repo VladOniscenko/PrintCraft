@@ -7,7 +7,7 @@ import { dutchCities, getCityName } from "../config/dutchCities";
 
 export default function Footer() {
   const { t, language, localizePath } = useI18n();
-  const featuredCities = dutchCities.slice(0, 18);
+  const featuredCities = dutchCities.slice(0, 17);
 
   return (
     <footer className="site-footer mt-auto">
