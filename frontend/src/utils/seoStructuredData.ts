@@ -1,4 +1,5 @@
 import { businessInfo } from "../config/businessInfo";
+import { translations, type SupportedLanguage } from "../i18n/translations";
 
 export interface SchemaGraph {
   "@context": "https://schema.org";
@@ -132,60 +133,17 @@ export function buildFaqJsonLd(
   const origin = getValidatedOrigin(businessInfo.website);
   const inLang = language === "nl" ? "nl-NL" : "en";
 
-  const faqItems =
-    language === "nl"
-      ? [
-          {
-            q: "Welke 3D-bestanden accepteren jullie?",
-            a: "We accepteren de meest gebruikte bestandsformaten: .STL, .OBJ en .3MF. Andere formaten kun je meestal exporteren naar STL.",
-          },
-          {
-            q: "Wat kost een maatwerk print?",
-            a: "De prijs hangt af van grootte, infill en materiaal. Vraag een offerte aan voor een exacte prijs zonder verborgen kosten.",
-          },
-          {
-            q: "Hoe lang duurt levering?",
-            a: "Meestal printen en verzenden we binnen 2 tot 5 werkdagen. Levertijd hangt af van je locatie.",
-          },
-          {
-            q: "Ik heb een idee maar geen 3D-bestand. Kunnen jullie helpen?",
-            a: "Ja. Deel schetsen of voorbeelden en we helpen met het maken van een printbaar model.",
-          },
-          {
-            q: "Zijn prints voedselveilig?",
-            a: "Standaard printmaterialen zijn meestal niet bedoeld voor direct voedselcontact. We adviseren graag over veiliger afwerking.",
-          },
-          {
-            q: "Wat als mijn print beschadigd aankomt?",
-            a: "Als je item beschadigd aankomt of grote printfouten heeft, stuur binnen 3 dagen een foto en we regelen een herprint.",
-          },
-        ]
-      : [
-          {
-            q: "What type of 3D files do you accept?",
-            a: "We accept the most common 3D files: .STL, .OBJ, and .3MF. If you have a different file type from your design software, you can usually use the Export or Save As option to convert it before uploading.",
-          },
-          {
-            q: "How much does a custom print cost?",
-            a: "Price depends on size, infill, and material. Use Get a Quote for an exact no-hidden-fee price.",
-          },
-          {
-            q: "How long will it take to get my item?",
-            a: "Usually we print and ship within 2 to 5 business days. Shipping depends on location.",
-          },
-          {
-            q: "I have an idea but no 3D file. Can you help?",
-            a: "Yes. Share sketches or references and we can help create a printable model.",
-          },
-          {
-            q: "Are printed parts food-safe?",
-            a: "Standard printed plastics are usually not recommended for direct food contact. We can advise safer finishing options when needed.",
-          },
-          {
-            q: "What if my print arrives damaged?",
-            a: "If your item arrives damaged or with major issues, send a photo within 3 days and we will reprint and reship it.",
-          },
-        ];
+  const faqSource = (translations[language as SupportedLanguage] || translations.en).faq;
+  const faqItems: Array<{ q: string; a: string }> = [];
+  for (let i = 1; i <= 20; i++) {
+    const qKey = `q${i}` as keyof typeof faqSource;
+    const aKey = `a${i}` as keyof typeof faqSource;
+    const question = faqSource[qKey];
+    const answer = faqSource[aKey];
+    if (typeof question === "string" && typeof answer === "string") {
+      faqItems.push({ q: question, a: answer });
+    }
+  }
 
   return {
     "@context": "https://schema.org",

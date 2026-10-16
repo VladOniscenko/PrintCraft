@@ -1,8 +1,10 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import fs from "node:fs";
 import path from "node:path";
 import { businessInfo } from "./src/config/businessInfo";
+import { translations } from "./src/i18n/translations";
 import {
   buildHomepageJsonLd,
   getValidatedOrigin,
@@ -94,6 +96,7 @@ export default defineConfig(({ mode }) => {
               target: devApiOrigin,
               changeOrigin: true,
               secure: false,
+              s,
             },
             "/uploads": {
               target: devApiOrigin,
@@ -108,8 +111,8 @@ export default defineConfig(({ mode }) => {
   const homepageJsonLdString = JSON.stringify(
     buildHomepageJsonLd(
       `${origin}/nl`,
-      `3D Print Service Nederland | ${businessInfo.name} - Snel & Op Maat`,
-      "Professionele 3D print service in Nederland. Upload je 3D-bestand (STL/3MF), kies PLA, PETG of TPU en ontvang direct een offerte. Snelle levering binnen 2-5 werkdagen.",
+      translations.nl.seo.home.title,
+      translations.nl.seo.home.description,
       "nl",
     ),
     null,
@@ -159,6 +162,108 @@ export default defineConfig(({ mode }) => {
               source: file.source,
             });
           }
+        },
+        async closeBundle() {
+          if (mode !== "production") return;
+
+          console.log("\n🚀 Starting build-time SSG prerendering...");
+          const distDir = path.resolve(process.cwd(), "dist");
+          const templatePath = path.join(distDir, "index.html");
+          if (!fs.existsSync(templatePath)) {
+            console.warn("Template index.html not found, skipping prerender.");
+            return;
+          }
+
+          const baseTemplate = await fs.promises.readFile(
+            templatePath,
+            "utf-8",
+          );
+
+          // 1. Build temporary SSR bundle
+          const { build } = await import("vite");
+          await build({
+            build: {
+              ssr: "src/entry-server.tsx",
+              outDir: "dist/.ssr",
+              emptyOutDir: true,
+            },
+            configFile: false,
+          });
+
+          // 2. Import entry-server
+          const ssrEntryPath = path.resolve(distDir, ".ssr/entry-server.js");
+          const { renderPage } = await import(`file://${ssrEntryPath}`);
+
+          const languages = ["nl", "en"] as const;
+
+          const formatHtml = (
+            template: string,
+            renderResult: { html: string; headTags: string; langAttr: string },
+            isRoot: boolean,
+          ) => {
+            let pageHtml = template;
+            pageHtml = pageHtml.replace(
+              /<html\s+lang="[^"]*"/,
+              `<html lang="${renderResult.langAttr}"`,
+            );
+
+            const headStart = "<!--seo-meta-start-->";
+            const headEnd = "<!--seo-meta-end-->";
+            if (pageHtml.includes(headStart) && pageHtml.includes(headEnd)) {
+              const beforeHead = pageHtml.split(headStart)[0];
+              const afterHead = pageHtml.split(headEnd)[1];
+              pageHtml = `${beforeHead}${headStart}\n    ${renderResult.headTags}\n    ${headEnd}${afterHead}`;
+            }
+
+            pageHtml = pageHtml.replace("<!--app-html-->", renderResult.html);
+
+            if (!isRoot) {
+              const redirStart = "<!--root-redirect-start-->";
+              const redirEnd = "<!--root-redirect-end-->";
+              if (
+                pageHtml.includes(redirStart) &&
+                pageHtml.includes(redirEnd)
+              ) {
+                const beforeRedir = pageHtml.split(redirStart)[0];
+                const afterRedir = pageHtml.split(redirEnd)[1];
+                pageHtml = `${beforeRedir}${afterRedir}`;
+              }
+            }
+
+            return pageHtml;
+          };
+
+          // 3. Render all localized public routes
+          for (const route of publicIndexableRoutes) {
+            for (const lang of languages) {
+              const url = `/${lang}${route.subPath}`;
+              const res = renderPage(url);
+              const renderedHtml = formatHtml(baseTemplate, res, false);
+              const outputDir = path.join(distDir, lang, route.subPath);
+              await fs.promises.mkdir(outputDir, { recursive: true });
+              await fs.promises.writeFile(
+                path.join(outputDir, "index.html"),
+                renderedHtml,
+                "utf-8",
+              );
+              console.log(
+                `  ✓ Pre-rendered: ${url} -> dist/${lang}${route.subPath}/index.html`,
+              );
+            }
+          }
+
+          // 4. Render root / (default Dutch + returning user redirect)
+          const rootRes = renderPage("/nl");
+          const rootHtml = formatHtml(baseTemplate, rootRes, true);
+          await fs.promises.writeFile(templatePath, rootHtml, "utf-8");
+          console.log("  ✓ Pre-rendered: / -> dist/index.html");
+
+          // 5. Clean up temporary SSR bundle
+          await fs.promises.rm(path.join(distDir, ".ssr"), {
+            recursive: true,
+            force: true,
+          });
+          console.log("✨ SSG prerendering completed successfully!\n");
         },
       },
     ],

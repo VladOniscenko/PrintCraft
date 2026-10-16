@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { matchPath, useLocation } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext";
+import { translations } from "../i18n/translations";
 import { businessInfo } from "../config/businessInfo";
 import {
   buildFaqJsonLd,
@@ -152,6 +153,60 @@ export function parsePath(rawPath: string): {
   };
 }
 
+export function getRouteSeo(
+  unlocalizedPath: string,
+  lang: "en" | "nl",
+): RouteSeo {
+  const seoData = translations[lang]?.seo || translations.en.seo;
+  const routeMap: Record<string, RouteSeo> = {
+    "/": {
+      title: seoData.home.title,
+      description: seoData.home.description,
+      keywords: seoData.home.keywords,
+      index: true,
+    },
+    "/faq": {
+      title: seoData.faq.title,
+      description: seoData.faq.description,
+      keywords: seoData.faq.keywords,
+      index: true,
+    },
+    "/privacy": {
+      title: seoData.privacy.title,
+      description: seoData.privacy.description,
+      keywords: seoData.privacy.keywords,
+      index: true,
+    },
+    "/terms": {
+      title: seoData.terms.title,
+      description: seoData.terms.description,
+      keywords: seoData.terms.keywords,
+      index: true,
+    },
+    "/refunds": {
+      title: seoData.refunds.title,
+      description: seoData.refunds.description,
+      keywords: seoData.refunds.keywords,
+      index: true,
+    },
+    "/shipping-policy": {
+      title: seoData.shippingPolicy.title,
+      description: seoData.shippingPolicy.description,
+      keywords: seoData.shippingPolicy.keywords,
+      index: true,
+    },
+  };
+
+  return (
+    routeMap[unlocalizedPath] || {
+      title: seoData.notFound.title,
+      description: seoData.notFound.description,
+      keywords: seoData.notFound.keywords,
+      index: false,
+    }
+  );
+}
+
 export default function SeoManager() {
   const location = useLocation();
   const { t, language } = useI18n();
@@ -164,75 +219,47 @@ export default function SeoManager() {
     const activeLang: "en" | "nl" = urlLang ?? language;
     const isNl = activeLang === "nl";
 
-    // Static SEO dictionary indexed by unlocalized route
+    // Dynamic SEO dictionary indexed by unlocalized route from translations
     const seoByRoute: Record<string, RouteSeo> = {
       "/": {
-        title: isNl
-          ? `3D Print Service Nederland | ${businessInfo.name} - Snel & Op Maat`
-          : `3D Printing Service Netherlands | ${businessInfo.name} - Fast & Custom`,
-        description: isNl
-          ? `Professionele 3D print service in Nederland. Upload je 3D-bestand (STL/3MF), kies PLA, PETG of TPU en ontvang direct een offerte. Snelle levering binnen 2-5 werkdagen.`
-          : `Professional 3D printing service in the Netherlands. Upload your 3D model (STL/3MF), choose PLA, PETG or TPU, and get an instant quote. Fast 2-5 business days delivery.`,
-        keywords: isNl
-          ? `3D print service Nederland, 3D printen Rotterdam, online 3D print service, maatwerk 3D print, FDM printen, PLA PETG TPU, prototype printen`
-          : `3D printing service Netherlands, 3D print Rotterdam, custom 3D printing, FDM 3D prints, STL printing quote, rapid prototyping`,
+        title: t("seo.home.title"),
+        description: t("seo.home.description"),
+        keywords: t("seo.home.keywords"),
         index: true,
       },
       "/faq": {
-        title: isNl
-          ? `Veelgestelde Vragen 3D Printen | ${businessInfo.name} FAQ`
-          : `3D Printing FAQ | ${businessInfo.name} Frequently Asked Questions`,
-        description: isNl
-          ? `Vragen over 3D-printen, materialen (PLA/PETG/TPU), levertijden (2-5 werkdagen), bestandstypen (STL/3MF) of prijzen? Bekijk hier alle antwoorden.`
-          : `Questions about 3D printing, materials (PLA/PETG/TPU), turnaround times (2-5 days), file formats (STL/3MF), or pricing? Find all answers here.`,
-        keywords: isNl
-          ? `3D print FAQ Nederland, vragen 3D printen, levertijd 3D print, kosten 3D printen, bestandstypen STL 3MF`
-          : `3D print FAQ Netherlands, 3D printing questions, lead times, 3D printing cost, accepted file types STL 3MF`,
+        title: t("seo.faq.title"),
+        description: t("seo.faq.description"),
+        keywords: t("seo.faq.keywords"),
         index: true,
       },
       "/privacy": {
-        title: isNl
-          ? `Privacybeleid | ${businessInfo.name}`
-          : `Privacy Policy | ${businessInfo.name}`,
-        description: isNl
-          ? `Privacybeleid van ${businessInfo.name}. Hoe wij persoonsgegevens en geüploade 3D-bestanden beveiligen en verwerken conform de AVG.`
-          : `Privacy Policy of ${businessInfo.name}. How we protect and process personal data and uploaded 3D files under GDPR.`,
-        keywords: "privacy policy, AVG, GDPR, data protection",
+        title: t("seo.privacy.title"),
+        description: t("seo.privacy.description"),
+        keywords: t("seo.privacy.keywords"),
         index: true,
       },
       "/terms": {
-        title: isNl
-          ? `Algemene Voorwaarden | ${businessInfo.name}`
-          : `Terms of Service | ${businessInfo.name}`,
-        description: isNl
-          ? `Algemene voorwaarden van ${businessInfo.name} voor 3D-printdiensten, offertes, bestellingen en maatwerkproductie.`
-          : `Terms of Service of ${businessInfo.name} for 3D printing services, quotes, orders and custom manufacturing.`,
-        keywords: "terms of service, algemene voorwaarden, 3D printing terms",
+        title: t("seo.terms.title"),
+        description: t("seo.terms.description"),
+        keywords: t("seo.terms.keywords"),
         index: true,
       },
       "/refunds": {
-        title: isNl
-          ? `Retour- en Terugbetalingsbeleid | ${businessInfo.name}`
-          : `Refund and Return Policy | ${businessInfo.name}`,
-        description: isNl
-          ? `Informatie over onze kwaliteitsgarantie, gratis herprints bij printfouten en ons beleid rond maatwerkbestellingen.`
-          : `Information about our quality guarantee, free reprints for defective prints, and return policy on custom orders.`,
-        keywords: "refund policy, retourbeleid, garantie 3D printen",
+        title: t("seo.refunds.title"),
+        description: t("seo.refunds.description"),
+        keywords: t("seo.refunds.keywords"),
         index: true,
       },
       "/shipping-policy": {
-        title: isNl
-          ? `Verzendbeleid & Levering | ${businessInfo.name}`
-          : `Shipping Policy & Delivery Times | ${businessInfo.name}`,
-        description: isNl
-          ? `Verzendinformatie van ${businessInfo.name}. Snelle levering binnen 2-5 werkdagen in heel Nederland met betrouwbare pakketbezorging.`
-          : `Shipping information for ${businessInfo.name}. Fast delivery within 2-5 business days across the Netherlands.`,
-        keywords: "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
+        title: t("seo.shippingPolicy.title"),
+        description: t("seo.shippingPolicy.description"),
+        keywords: t("seo.shippingPolicy.keywords"),
         index: true,
       },
       "/checkout": {
-        title: `${t("hero.ctaQuote") || (isNl ? "Offerte Aanvragen" : "Request a Quote")} | ${businessInfo.name}`,
-        description: `${t("hero.ctaQuote") || "Quote"} ${businessInfo.name}`,
+        title: `${t("hero.ctaQuote")} | ${businessInfo.name}`,
+        description: `${t("hero.ctaQuote")} ${businessInfo.name}`,
         keywords: "3D print quote",
         index: false,
       },
@@ -335,13 +362,9 @@ export default function SeoManager() {
     const isKnownRoute = isKnownExactRoute || isKnownDynamicRoute;
 
     const notFoundSeo: RouteSeo = {
-      title: isNl
-        ? `Pagina niet gevonden | ${businessInfo.name}`
-        : `Page Not Found | ${businessInfo.name}`,
-      description: isNl
-        ? `De opgevraagde pagina kon niet worden gevonden. Keer terug naar ${businessInfo.name} voor 3D-printdiensten.`
-        : `The requested page could not be found. Return to ${businessInfo.name} for 3D printing services.`,
-      keywords: "404, not found",
+      title: t("seo.notFound.title"),
+      description: t("seo.notFound.description"),
+      keywords: t("seo.notFound.keywords"),
       index: false,
     };
 

@@ -2059,18 +2059,18 @@ export const translations = {
     },
     seo: {
       default: {
-        title: `3D Print Service Netherlands | ${businessInfo.name}`,
+        title: `3D Printing Service Netherlands | ${businessInfo.name} - Fast & Custom`,
         description:
-          "Professional 3D print service for the whole Netherlands. Upload your model and receive a fast quote.",
+          "Professional 3D printing service in the Netherlands. Upload your 3D model (STL/3MF), choose PLA, PETG or TPU, and get an instant quote. Fast 2-5 business days delivery.",
         keywords:
-          "3D print service Netherlands, 3D printing Netherlands, online 3D print service, custom 3D printing",
+          "3D printing service Netherlands, 3D print Rotterdam, custom 3D printing, FDM 3D prints, STL printing quote, rapid prototyping",
       },
       home: {
-        title: `3D Print Service Netherlands | ${businessInfo.name}`,
+        title: `3D Printing Service Netherlands | ${businessInfo.name} - Fast & Custom`,
         description:
-          "Professional 3D print service for prototypes, parts and custom prints across the Netherlands.",
+          "Professional 3D printing service in the Netherlands. Upload your 3D model (STL/3MF), choose PLA, PETG or TPU, and get an instant quote. Fast 2-5 business days delivery.",
         keywords:
-          "3D print service Netherlands, 3D printing Netherlands, custom 3D print service",
+          "3D printing service Netherlands, 3D print Rotterdam, custom 3D printing, FDM 3D prints, STL printing quote, rapid prototyping",
       },
       gallery: {
         title: `3D Print Model Gallery | ${businessInfo.name} Netherlands`,
@@ -2085,15 +2085,37 @@ export const translations = {
         keywords: "PLA printing, PETG printing, 3D filament Netherlands",
       },
       faq: {
-        title: `3D Printing FAQ | ${businessInfo.name} Netherlands`,
+        title: `3D Printing FAQ | ${businessInfo.name} Frequently Asked Questions`,
         description:
-          "Frequently asked questions about lead times, materials, prices and quality.",
-        keywords: "3D print FAQ Netherlands, 3D printing questions",
+          "Questions about 3D printing, materials (PLA/PETG/TPU), turnaround times (2-5 days), file formats (STL/3MF), or pricing? Find all answers here.",
+        keywords:
+          "3D print FAQ Netherlands, 3D printing questions, lead times, 3D printing cost, accepted file types STL 3MF",
+      },
+      privacy: {
+        title: `Privacy Policy | ${businessInfo.name}`,
+        description: `Privacy Policy of ${businessInfo.name}. How we protect and process personal data and uploaded 3D files under GDPR.`,
+        keywords: "privacy policy, AVG, GDPR, data protection",
+      },
+      terms: {
+        title: `Terms of Service | ${businessInfo.name}`,
+        description: `Terms of Service of ${businessInfo.name} for 3D printing services, quotes, orders and custom manufacturing.`,
+        keywords: "terms of service, algemene voorwaarden, 3D printing terms",
+      },
+      refunds: {
+        title: `Refund and Return Policy | ${businessInfo.name}`,
+        description:
+          "Information about our quality guarantee, free reprints for defective prints, and return policy on custom orders.",
+        keywords: "refund policy, retourbeleid, garantie 3D printen",
+      },
+      shippingPolicy: {
+        title: `Shipping Policy & Delivery Times | ${businessInfo.name}`,
+        description: `Shipping information for ${businessInfo.name}. Fast delivery within 2-5 business days across the Netherlands.`,
+        keywords: "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
       },
       notFound: {
-        title: `Page Not Found | ${businessInfo.name} 3D Print Service`,
-        description: `The requested page could not be found. Return to ${businessInfo.name} to start your next 3D print project.`,
-        keywords: `404, page not found, ${businessInfo.name}`,
+        title: `Page Not Found | ${businessInfo.name}`,
+        description: `The requested page could not be found. Return to ${businessInfo.name} for 3D printing services.`,
+        keywords: "404, not found",
       },
     },
     shipping: {
@@ -4358,18 +4380,18 @@ export const translations = {
     },
     seo: {
       default: {
-        title: `3D Print Service Nederland | ${businessInfo.name}`,
+        title: `3D Print Service Nederland | ${businessInfo.name} - Snel & Op Maat`,
         description:
-          "Professionele 3D print service voor heel Nederland. Upload je model en ontvang snel een offerte.",
+          "Professionele 3D print service in Nederland. Upload je 3D-bestand (STL/3MF), kies PLA, PETG of TPU en ontvang direct een offerte. Snelle levering binnen 2-5 werkdagen.",
         keywords:
-          "3D print service Nederland, 3D printen Nederland, online 3D print service, maatwerk 3D print",
+          "3D print service Nederland, 3D printen Rotterdam, online 3D print service, maatwerk 3D print, FDM printen, PLA PETG TPU, prototype printen",
       },
       home: {
-        title: `3D Print Service Nederland | ${businessInfo.name}`,
+        title: `3D Print Service Nederland | ${businessInfo.name} - Snel & Op Maat`,
         description:
-          "Professionele 3D print service voor prototypes, onderdelen en maatwerk prints in heel Nederland.",
+          "Professionele 3D print service in Nederland. Upload je 3D-bestand (STL/3MF), kies PLA, PETG of TPU en ontvang direct een offerte. Snelle levering binnen 2-5 werkdagen.",
         keywords:
-          "3D print service Nederland, 3D printen Nederland, maatwerk 3D print",
+          "3D print service Nederland, 3D printen Rotterdam, online 3D print service, maatwerk 3D print, FDM printen, PLA PETG TPU, prototype printen",
       },
       gallery: {
         title: `3D Print Modellen Galerij | ${businessInfo.name} Nederland`,
@@ -4384,15 +4406,37 @@ export const translations = {
         keywords: "PLA printen, PETG printen, 3D filament Nederland",
       },
       faq: {
-        title: `FAQ 3D Printen | ${businessInfo.name} Nederland`,
+        title: `Veelgestelde Vragen 3D Printen | ${businessInfo.name} FAQ`,
         description:
-          "Veelgestelde vragen over levertijd, materialen, prijzen en kwaliteit.",
-        keywords: "3D print FAQ Nederland, vragen 3D printen",
+          "Vragen over 3D-printen, materialen (PLA/PETG/TPU), levertijden (2-5 werkdagen), bestandstypen (STL/3MF) of prijzen? Bekijk hier alle antwoorden.",
+        keywords:
+          "3D print FAQ Nederland, vragen 3D printen, levertijd 3D print, kosten 3D printen, bestandstypen STL 3MF",
+      },
+      privacy: {
+        title: `Privacybeleid | ${businessInfo.name}`,
+        description: `Privacybeleid van ${businessInfo.name}. Hoe wij persoonsgegevens en geüploade 3D-bestanden beveiligen en verwerken conform de AVG.`,
+        keywords: "privacy policy, AVG, GDPR, data protection",
+      },
+      terms: {
+        title: `Algemene Voorwaarden | ${businessInfo.name}`,
+        description: `Algemene voorwaarden van ${businessInfo.name} voor 3D-printdiensten, offertes, bestellingen en maatwerkproductie.`,
+        keywords: "terms of service, algemene voorwaarden, 3D printing terms",
+      },
+      refunds: {
+        title: `Retour- en Terugbetalingsbeleid | ${businessInfo.name}`,
+        description:
+          "Informatie over onze kwaliteitsgarantie, gratis herprints bij printfouten en ons beleid rond maatwerkbestellingen.",
+        keywords: "refund policy, retourbeleid, garantie 3D printen",
+      },
+      shippingPolicy: {
+        title: `Verzendbeleid & Levering | ${businessInfo.name}`,
+        description: `Verzendinformatie van ${businessInfo.name}. Snelle levering binnen 2-5 werkdagen in heel Nederland met betrouwbare pakketbezorging.`,
+        keywords: "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
       },
       notFound: {
-        title: `Pagina niet gevonden | ${businessInfo.name} 3D Print Service`,
-        description: `De opgevraagde pagina kon niet worden gevonden. Ga terug naar ${businessInfo.name} om je volgende 3D-printproject te starten.`,
-        keywords: `404, pagina niet gevonden, ${businessInfo.name}`,
+        title: `Pagina niet gevonden | ${businessInfo.name}`,
+        description: `De opgevraagde pagina kon niet worden gevonden. Keer terug naar ${businessInfo.name} voor 3D-printdiensten.`,
+        keywords: "404, not found",
       },
     },
     shipping: {

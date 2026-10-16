@@ -38,6 +38,7 @@
       rel="stylesheet"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--seo-meta-start-->
     <title>
       3D Print Service Nederland | __BUSINESS_NAME__ - Snel & Op Maat
     </title>
@@ -61,26 +62,6 @@
       hreflang="x-default"
       href="__BUSINESS_ALTERNATE_DEFAULT__"
     />
-    <noscript>
-      <meta http-equiv="refresh" content="0;url=/nl" />
-    </noscript>
-    <script>
-      (function () {
-        try {
-          var p = window.location.pathname;
-          if (p === "/" || p === "") {
-            var lang = localStorage.getItem("language");
-            var target =
-              (lang === "en" ? "/en" : "/nl") +
-              window.location.search +
-              window.location.hash;
-            window.location.replace(target);
-          }
-        } catch (e) {}
-      })();
-    </script>
-    <meta name="theme-color" content="#133827" />
-
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="nl_NL" />
     <meta
@@ -108,6 +89,29 @@
     <script type="application/ld+json" id="seo-jsonld">
       __BUSINESS_HOMEPAGE_JSONLD__
     </script>
+    <!--seo-meta-end-->
+
+    <!--root-redirect-start-->
+    <noscript>
+      <meta http-equiv="refresh" content="0;url=/nl" />
+    </noscript>
+    <script>
+      (function () {
+        try {
+          var p = window.location.pathname;
+          if (p === "/" || p === "") {
+            var lang = localStorage.getItem("language");
+            var target =
+              (lang === "en" ? "/en" : "/nl") +
+              window.location.search +
+              window.location.hash;
+            window.location.replace(target);
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <!--root-redirect-end-->
+    <meta name="theme-color" content="#133827" />
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->
@@ -120,7 +124,7 @@
       ></iframe
     ></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    <div id="root"></div>
+    <div id="root"><!--app-html--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
