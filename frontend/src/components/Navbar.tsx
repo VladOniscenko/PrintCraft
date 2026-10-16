@@ -4,6 +4,22 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./logos/Logo";
 import { useI18n } from "../i18n/I18nContext";
 
+const prefetchMap: Record<string, () => Promise<unknown>> = {
+  "/orders": () => import("./user/Orders"),
+  "/profile": () => import("./user/Profile"),
+  "/admin": () => import("./admin/AdminDashboard"),
+  "/login": () => import("./Login"),
+  "/checkout": () => import("./Quote"),
+  "/faq": () => import("./FAQ"),
+};
+
+function prefetchRoute(path: string) {
+  const loader = prefetchMap[path];
+  if (loader) {
+    void loader();
+  }
+}
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -68,6 +84,8 @@ const Navbar = () => {
           <Link
             key={link.name}
             to={link.path}
+            onMouseEnter={() => prefetchRoute(link.path)}
+            onFocus={() => prefetchRoute(link.path)}
             className={`rounded-lg px-3 py-2 transition-colors ${
               pathname === link.path || pathname.startsWith(`${link.path}/`)
                 ? "bg-[#ecf6f2] text-[#0f766e]"
@@ -98,7 +116,12 @@ const Navbar = () => {
 
         {!isLoggedIn ? (
           <>
-            <Link to="/login" className="site-btn-soft">
+            <Link
+              to="/login"
+              onMouseEnter={() => prefetchRoute("/login")}
+              onFocus={() => prefetchRoute("/login")}
+              className="site-btn-soft"
+            >
               {t("nav.logIn")}
             </Link>
           </>

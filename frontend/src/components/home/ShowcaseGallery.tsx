@@ -49,12 +49,12 @@ export default function ShowcaseGallery() {
         {pieces.map(({ title, tag, icon: Icon, tone }) => (
           <article
             key={title}
-            className={`group relative min-w-0 min-h-64 overflow-hidden rounded-2xl bg-gradient-to-br ${tone} p-5 text-white shadow-lg transition-transform hover:-translate-y-1`}
+            className={`group relative min-w-0 min-h-64 overflow-hidden rounded-2xl bg-gradient-to-br ${tone} p-5 text-white shadow-lg transition-transform duration-200 hover:-translate-y-1 transform-gpu`}
           >
-            <div className="absolute -right-8 -top-8 h-36 w-36 rounded-full border-[18px] border-white/10" />
+            <div className="absolute -right-8 -top-8 h-36 w-36 rounded-full border-[18px] border-white/10 pointer-events-none" />
             <Icon size={32} className="relative text-white/80" />
             <div className="relative mt-24">
-              <span className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-bold backdrop-blur">
+              <span className="inline-block rounded-full bg-white/20 border border-white/20 px-3 py-1 text-xs font-bold">
                 {t(tag)}
               </span>
               <h3 className="mt-3 text-xl font-black break-words hyphens-auto [overflow-wrap:anywhere]">{t(title)}</h3>

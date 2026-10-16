@@ -175,12 +175,22 @@ export default function Interactive3DViewer({
     const width = container.clientWidth || 400;
     const height = container.clientHeight || 320;
 
+    let isVisible = true;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry?.isIntersecting ?? false;
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
     const renderer = new WebGLRenderer({
       canvas,
       antialias: true,
       alpha: true,
+      powerPreference: "high-performance",
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(width, height, false);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
@@ -258,6 +268,9 @@ export default function Interactive3DViewer({
     const animate = () => {
       if (disposed) return;
       animationFrameId = requestAnimationFrame(animate);
+      if (!isVisible || document.visibilityState === "hidden") {
+        return;
+      }
       controls.update();
       renderer.render(scene, camera);
     };
@@ -265,6 +278,7 @@ export default function Interactive3DViewer({
 
     return () => {
       disposed = true;
+      observer.disconnect();
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
       controls.dispose();

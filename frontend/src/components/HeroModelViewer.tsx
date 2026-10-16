@@ -65,12 +65,22 @@ export default function HeroModelViewer({
     const width = canvas.clientWidth || 560;
     const height = canvas.clientHeight || 360;
 
+    let isVisible = true;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry?.isIntersecting ?? false;
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(canvas);
+
     const renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
       alpha: true,
+      powerPreference: "high-performance",
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(width, height, false);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -91,6 +101,17 @@ export default function HeroModelViewer({
     const handleEnd = () => onInteractionEndRef.current?.();
     controls.addEventListener("start", handleStart);
     controls.addEventListener("end", handleEnd);
+
+    let isScrolling = false;
+    let scrollTimeout: number | null = null;
+    const handleWindowScroll = () => {
+      isScrolling = true;
+      if (scrollTimeout) window.clearTimeout(scrollTimeout);
+      scrollTimeout = window.setTimeout(() => {
+        isScrolling = false;
+      }, 120);
+    };
+    window.addEventListener("scroll", handleWindowScroll, { passive: true });
 
     const keyLight = new THREE.DirectionalLight(0xffffff, 0.7);
     keyLight.position.set(18, 24, 14);
@@ -172,7 +193,12 @@ export default function HeroModelViewer({
     let frameId = 0;
     const animate = () => {
       frameId = window.requestAnimationFrame(animate);
-      controls.update();
+      if (!isVisible || document.visibilityState === "hidden") {
+        return;
+      }
+      if (!isScrolling) {
+        controls.update();
+      }
       renderer.render(scene, camera);
     };
     animate();
@@ -188,6 +214,9 @@ export default function HeroModelViewer({
 
     return () => {
       mounted = false;
+      observer.disconnect();
+      window.removeEventListener("scroll", handleWindowScroll);
+      if (scrollTimeout) window.clearTimeout(scrollTimeout);
       window.removeEventListener("resize", onResize);
       window.cancelAnimationFrame(frameId);
       controls.removeEventListener("start", handleStart);

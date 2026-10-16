@@ -211,9 +211,9 @@ export default function Hero() {
       className="relative w-full rounded-[2.2rem] overflow-hidden bg-gradient-to-br from-[#061e16] via-[#0b3326] to-[#041611] border border-emerald-500/25 shadow-[0_28px_60px_-15px_rgba(4,22,17,0.7)] text-white transition-all"
     >
       {/* Background Accent Gradients & Glows */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-400/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[70%] bg-emerald-400/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none transform-gpu" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-400/15 rounded-full blur-2xl pointer-events-none transform-gpu" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[70%] bg-emerald-400/5 rounded-full blur-2xl pointer-events-none transform-gpu" />
 
       {/* Main Split Layout Container */}
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center p-6 sm:p-10 lg:p-14">
@@ -221,7 +221,7 @@ export default function Hero() {
         <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
           {/* Top Tag & Indicator */}
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 backdrop-blur-md">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
               <span>{isNl ? "Uitgelichte prints" : "Promotional Showcase"}</span>
             </span>
@@ -277,7 +277,7 @@ export default function Hero() {
                 {tooltipOpen ? (
                   <div
                     role="tooltip"
-                    className="absolute left-0 bottom-full mb-3 w-72 sm:w-80 p-4 rounded-2xl bg-[#07241c]/95 border border-emerald-400/40 shadow-[0_15px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl text-xs text-emerald-50 z-50 animate-in fade-in zoom-in-95 duration-150"
+                    className="absolute left-0 bottom-full mb-3 w-72 sm:w-80 p-4 rounded-2xl bg-[#07241c] border border-emerald-400/40 shadow-[0_15px_30px_rgba(0,0,0,0.6)] text-xs text-emerald-50 z-50 animate-in fade-in zoom-in-95 duration-150"
                   >
                     <div className="flex items-center gap-2 pb-2 mb-2 border-b border-emerald-500/20 font-semibold text-emerald-300">
                       <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
@@ -325,14 +325,14 @@ export default function Hero() {
         {/* ================= RIGHT SIDE: Dynamic Media Container ================= */}
         <div className="lg:col-span-5 flex flex-col items-center justify-center">
           <div
-            className="relative w-full h-[340px] sm:h-[400px] lg:h-[450px] rounded-3xl overflow-hidden border border-emerald-500/30 bg-gradient-to-b from-[#08231b]/90 to-[#03130e]/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.55)] flex items-center justify-center group"
+            className="relative w-full h-[340px] sm:h-[400px] lg:h-[450px] rounded-3xl overflow-hidden border border-emerald-500/30 bg-gradient-to-b from-[#08231b] to-[#03130e] shadow-[0_20px_50px_rgba(0,0,0,0.55)] flex items-center justify-center group"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
             onPointerDown={handleInteractionStart}
             onPointerUp={handleInteractionEnd}
           >
             {/* Ambient Media Aura */}
-            <div className="absolute inset-8 rounded-full bg-emerald-400/15 blur-3xl pointer-events-none" />
+            <div className="absolute inset-8 rounded-full bg-emerald-400/15 blur-xl pointer-events-none transform-gpu" />
 
             {/* Media Type Tag Badge */}
             <div className="absolute top-4 right-4 z-40">
