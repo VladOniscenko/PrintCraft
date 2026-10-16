@@ -23,7 +23,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
       media="print"
-      onload="this.media = 'all'"
+      onload="this.media='all'"
     />
     <noscript>
       <link
@@ -39,9 +39,7 @@
     <!-- Deferred Third-Party Analytics (GTM & GA4) to prevent main-thread blocking & layout thrashing -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
+      function gtag() { dataLayer.push(arguments); }
 
       function initAnalytics() {
         if (window._analyticsInitialized) return;
@@ -69,25 +67,13 @@
       }
 
       if ("requestIdleCallback" in window) {
-        requestIdleCallback(
-          function () {
-            setTimeout(initAnalytics, 2500);
-          },
-          { timeout: 4000 },
-        );
+        requestIdleCallback(function () { setTimeout(initAnalytics, 2500); }, { timeout: 4000 });
       } else {
-        window.addEventListener("load", function () {
-          setTimeout(initAnalytics, 2500);
-        });
+        window.addEventListener("load", function () { setTimeout(initAnalytics, 2500); });
       }
-      ["pointerdown", "scroll", "keydown", "touchstart"].forEach(
-        function (evt) {
-          window.addEventListener(evt, initAnalytics, {
-            once: true,
-            passive: true,
-          });
-        },
-      );
+      ["pointerdown", "scroll", "keydown", "touchstart"].forEach(function (evt) {
+        window.addEventListener(evt, initAnalytics, { once: true, passive: true });
+      });
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!--seo-meta-start-->

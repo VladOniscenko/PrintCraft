@@ -1,11 +1,4 @@
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Clock3,
-  ArrowRight,
-  ExternalLink,
-} from "lucide-react";
+import { Mail, Phone, MapPin, Clock3, ArrowRight, ExternalLink } from "lucide-react";
 import { useI18n } from "../i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { businessInfo } from "../config/businessInfo";
@@ -108,11 +101,7 @@ export default function Footer() {
             className="flex items-center gap-2 hover:text-[#0f766e]"
           >
             <Mail size={16} />
-            <span
-              dangerouslySetInnerHTML={{
-                __html: `<!--email_off-->${businessInfo.email}<!--/email_off-->`,
-              }}
-            />
+            <span dangerouslySetInnerHTML={{ __html: `<!--email_off-->${businessInfo.email}<!--/email_off-->` }} />
           </a>
           {businessInfo.phone && (
             <a

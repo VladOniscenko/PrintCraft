@@ -130,10 +130,7 @@ export default function Hero() {
           setCurrentIndex(0);
         }
       } catch (err) {
-        console.warn(
-          "Could not load dynamic hero slides from API, using fallback slides:",
-          err,
-        );
+        console.warn("Could not load dynamic hero slides from API, using fallback slides:", err);
       }
     }
 
@@ -461,10 +458,7 @@ export default function Hero() {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                aria-label={t("hero.goToSlide", {
-                  index: idx + 1,
-                  title: slideItemTitle,
-                })}
+                aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
                 onClick={() => goToSlide(idx)}
                 className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
               >

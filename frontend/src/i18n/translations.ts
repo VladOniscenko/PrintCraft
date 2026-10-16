@@ -5,10 +5,7 @@ export type SupportedLanguage = (typeof supportedLanguages)[number];
 export const defaultLanguage: SupportedLanguage = "nl";
 
 export function isSupportedLanguage(lang: unknown): lang is SupportedLanguage {
-  return (
-    typeof lang === "string" &&
-    (supportedLanguages as readonly string[]).includes(lang)
-  );
+  return typeof lang === "string" && (supportedLanguages as readonly string[]).includes(lang);
 }
 
 export function resolveLanguage(lang: unknown): SupportedLanguage {
@@ -2217,8 +2214,7 @@ export const translations = {
       shippingPolicy: {
         title: `Shipping Policy & Delivery Times | ${businessInfo.name}`,
         description: `Shipping information for ${businessInfo.name}. Fast delivery within 2-5 business days across the Netherlands.`,
-        keywords:
-          "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
+        keywords: "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
       },
       notFound: {
         title: `Page Not Found | ${businessInfo.name}`,
@@ -2239,13 +2235,16 @@ export const translations = {
           "Replacement Parts & Industrial Machine Components",
         replacementServiceDesc:
           "Reverse engineering and reproduction of discontinued or broken plastic machine parts, tools, and custom brackets.",
-        prototypingServiceName: "Rapid Prototyping & Engineering Validation",
+        prototypingServiceName:
+          "Rapid Prototyping & Engineering Validation",
         prototypingServiceDesc:
           "Fast turnaround functional prototypes, STEP/CAD assembly validation, and pre-production testing.",
-        toolingServiceName: "3D Printed Jigs, Fixtures & Tooling",
+        toolingServiceName:
+          "3D Printed Jigs, Fixtures & Tooling",
         toolingServiceDesc:
           "Custom manufacturing of assembly jigs, drill fixtures, inspection gauges, and durable machine components.",
-        batchServiceName: "Short-Run Plastic Batch Production (10–500+ units)",
+        batchServiceName:
+          "Short-Run Plastic Batch Production (10–500+ units)",
         batchServiceDesc:
           "Bridge manufacturing and low-volume production alternative to injection molding with commercial B2B invoicing.",
         cityServiceTemplate: "B2B 3D Printing Service in {city}",
@@ -2262,8 +2261,7 @@ export const translations = {
       precisionBadge: "±0.1mm Industrial Precision",
       materialsBadge: "Eco PLA, PETG & Flexible TPU",
       capabilitiesEyebrow: "Our Services in {city}",
-      capabilitiesTitle:
-        "High-Quality 3D Printing for {city} Makers & Companies",
+      capabilitiesTitle: "High-Quality 3D Printing for {city} Makers & Companies",
       capabilitiesDesc:
         "Whether you need one-off engineering prototypes, replacement machine parts, assembly jigs and fixtures, architectural models, or small-batch production (10–500+ units) in {city}, we provide high-precision FDM manufacturing with instant quotes and B2B invoice billing.",
       cardPrototypesTitle: "Rapid Prototyping",
@@ -4693,8 +4691,7 @@ export const translations = {
       shippingPolicy: {
         title: `Verzendbeleid & Levering | ${businessInfo.name}`,
         description: `Verzendinformatie van ${businessInfo.name}. Snelle levering binnen 2-5 werkdagen in heel Nederland met betrouwbare pakketbezorging.`,
-        keywords:
-          "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
+        keywords: "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
       },
       notFound: {
         title: `Pagina niet gevonden | ${businessInfo.name}`,
@@ -4715,7 +4712,8 @@ export const translations = {
           "Machineonderdelen & Industriële Componenten Nabouwen",
         replacementServiceDesc:
           "Reverse engineering en productie van niet meer leverbare of kapotte kunststof machineonderdelen, mallen en beugels.",
-        prototypingServiceName: "Rapid Prototyping & Engineering Validatie",
+        prototypingServiceName:
+          "Rapid Prototyping & Engineering Validatie",
         prototypingServiceDesc:
           "Snelle functionele prototypes, STEP/CAD-assemblies en nulserie pre-productie met snelle levertijd.",
         toolingServiceName:
@@ -4740,8 +4738,7 @@ export const translations = {
       precisionBadge: "±0.1mm Industriële Precisie",
       materialsBadge: "Duurzaam PLA, PETG & Flexibel TPU",
       capabilitiesEyebrow: "Onze Diensten in {city}",
-      capabilitiesTitle:
-        "Kwalitatief 3D-Printen voor Bedrijven & Makers in {city}",
+      capabilitiesTitle: "Kwalitatief 3D-Printen voor Bedrijven & Makers in {city}",
       capabilitiesDesc:
         "Of je nu eenmalige functionele prototypes zoekt, machineonderdelen, montagemallen en kalibers (jigs & fixtures), of een kleinserie serieproductie (10–500 stuks) in {city}: wij leveren industriële FDM-precisie met directe online offertes en zakelijke facturatie.",
       cardPrototypesTitle: "Rapid Prototyping",
