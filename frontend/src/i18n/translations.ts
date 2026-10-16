@@ -5,10 +5,7 @@ export type SupportedLanguage = (typeof supportedLanguages)[number];
 export const defaultLanguage: SupportedLanguage = "nl";
 
 export function isSupportedLanguage(lang: unknown): lang is SupportedLanguage {
-  return (
-    typeof lang === "string" &&
-    (supportedLanguages as readonly string[]).includes(lang)
-  );
+  return typeof lang === "string" && (supportedLanguages as readonly string[]).includes(lang);
 }
 
 export function resolveLanguage(lang: unknown): SupportedLanguage {
@@ -2255,8 +2252,7 @@ export const translations = {
       shippingPolicy: {
         title: `Shipping Policy & Delivery Times | ${businessInfo.name}`,
         description: `Shipping information for ${businessInfo.name}. Fast delivery within 2-5 business days across the Netherlands.`,
-        keywords:
-          "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
+        keywords: "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
       },
       notFound: {
         title: `Page Not Found | ${businessInfo.name}`,
@@ -2266,24 +2262,27 @@ export const translations = {
       schema: {
         siteDescription:
           "Professional 3D printing service in Rotterdam and across the Netherlands for consumers, students, hobbyists, and businesses. No minimum order quantity.",
-        catalogName:
-          "3D Printing Services for Consumers, Students, Hobbyists & Businesses",
+        catalogName: "3D Printing Services for Consumers, Students, Hobbyists & Businesses",
         fdmServiceName: "Custom FDM 3D Printing (PLA, PETG, TPU)",
         fdmServiceDesc:
           "High-precision FDM 3D printing for single custom parts, cosplay models, student prototypes, and industrial components with ±0.1mm tolerance.",
         hueforgeServiceName: "HueForge Filament Painting (3D Relief Art)",
         hueforgeServiceDesc:
           "Multi-color relief 3D art printing from 2D images using optical layer blending.",
-        replacementServiceName: "Replacement Parts & Consumer Repairs",
+        replacementServiceName:
+          "Replacement Parts & Consumer Repairs",
         replacementServiceDesc:
           "Reverse engineering and reproduction of discontinued household plastic parts, gears, tools, and custom brackets.",
-        prototypingServiceName: "Rapid Prototyping & Student Scale Models",
+        prototypingServiceName:
+          "Rapid Prototyping & Student Scale Models",
         prototypingServiceDesc:
           "Fast turnaround functional prototypes, student project assemblies, and pre-production validation.",
-        toolingServiceName: "3D Printed Jigs, Fixtures & Tooling",
+        toolingServiceName:
+          "3D Printed Jigs, Fixtures & Tooling",
         toolingServiceDesc:
           "Custom manufacturing of assembly jigs, drill fixtures, inspection gauges, and durable machine components.",
-        batchServiceName: "Short-Run Plastic Batch Production (10–500+ units)",
+        batchServiceName:
+          "Short-Run Plastic Batch Production (10–500+ units)",
         batchServiceDesc:
           "Bridge manufacturing and low-volume production alternative to injection molding with commercial B2B invoicing.",
         cityServiceTemplate: "3D Printing Service in {city}",
@@ -2300,8 +2299,7 @@ export const translations = {
       precisionBadge: "±0.1mm Industrial Precision",
       materialsBadge: "Eco PLA, PETG & Flexible TPU",
       capabilitiesEyebrow: "Our Services in {city}",
-      capabilitiesTitle:
-        "3D Printing for Everyone in {city}: Consumers, Students & Businesses",
+      capabilitiesTitle: "3D Printing for Everyone in {city}: Consumers, Students & Businesses",
       capabilitiesDesc:
         "Whether you need a single replacement part, cosplay model, student thesis prototype, architectural maquette, or small-batch commercial production (10–500+ units) in {city}, we provide high-precision FDM manufacturing with instant quotes and fast tracked delivery.",
       cardPrototypesTitle: "Rapid Prototyping",
@@ -2721,8 +2719,7 @@ export const translations = {
       },
       audiences: {
         eyebrow: "Voor Iedereen",
-        title:
-          "3D Printen voor Particulieren, Studenten, Hobbyisten & Bedrijven",
+        title: "3D Printen voor Particulieren, Studenten, Hobbyisten & Bedrijven",
         subtitle:
           "Geen minimale ordergrootte: van één enkel uniek model of cosplay prop tot professionele prototypes en B2B serieproductie.",
         b2cTitle: "Particulieren & Huishoudens",
@@ -4763,8 +4760,7 @@ export const translations = {
       shippingPolicy: {
         title: `Verzendbeleid & Levering | ${businessInfo.name}`,
         description: `Verzendinformatie van ${businessInfo.name}. Snelle levering binnen 2-5 werkdagen in heel Nederland met betrouwbare pakketbezorging.`,
-        keywords:
-          "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
+        keywords: "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
       },
       notFound: {
         title: `Pagina niet gevonden | ${businessInfo.name}`,
@@ -4774,8 +4770,7 @@ export const translations = {
       schema: {
         siteDescription:
           "Professionele 3D print service in Rotterdam en heel Nederland voor particulieren, hobbyisten, studenten en bedrijven. Geen minimale ordergrootte.",
-        catalogName:
-          "3D Print Diensten voor Particulieren, Studenten, Hobbyisten & Bedrijven",
+        catalogName: "3D Print Diensten voor Particulieren, Studenten, Hobbyisten & Bedrijven",
         fdmServiceName: "Maatwerk FDM 3D-Printen (PLA, PETG, TPU)",
         fdmServiceDesc:
           "Precisie 3D-printen van enkelstuks, cosplay objecten, studentenprototypes en machineonderdelen met ±0.1mm industriële tolerantie.",
@@ -4786,7 +4781,8 @@ export const translations = {
           "Vervangende Onderdelen & Huishoudelijke Reparaties",
         replacementServiceDesc:
           "Reverse engineering en reproductie van niet meer leverbare of kapotte kunststof onderdelen voor apparaten, machines en gereedschap.",
-        prototypingServiceName: "Rapid Prototyping & Studenten Maquettes",
+        prototypingServiceName:
+          "Rapid Prototyping & Studenten Maquettes",
         prototypingServiceDesc:
           "Snelle functionele prototypes, studentenprojecten, architectuurmaquettes en nulseries met snelle levertijd.",
         toolingServiceName:
@@ -4811,8 +4807,7 @@ export const translations = {
       precisionBadge: "±0.1mm Industriële Precisie",
       materialsBadge: "Duurzaam PLA, PETG & Flexibel TPU",
       capabilitiesEyebrow: "Onze Diensten in {city}",
-      capabilitiesTitle:
-        "3D-Printen voor Iedereen in {city}: Particulieren, Studenten & Bedrijven",
+      capabilitiesTitle: "3D-Printen voor Iedereen in {city}: Particulieren, Studenten & Bedrijven",
       capabilitiesDesc:
         "Of je nu een particulier bent met een kapot huishoudonderdeel of cosplay-ontwerp, een student met een afstudeerprototype of maquette, een maker, of een bedrijf dat machineonderdelen of kleinseries (10–500 stuks) zoekt in {city}: wij leveren professionele FDM-prints vanaf 1 enkel stuk tot complete series met directe online prijsopgave en snelle bezorging.",
       cardPrototypesTitle: "Rapid Prototyping",
