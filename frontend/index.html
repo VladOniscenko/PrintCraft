@@ -2,43 +2,93 @@
 <html lang="nl-NL">
   <head>
     <meta charset="UTF-8" />
-    <!-- Google Tag Manager -->
-    <script>
-      (function (w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-        var f = d.getElementsByTagName(s)[0],
-          j = d.createElement(s),
-          dl = l != "dataLayer" ? "&l=" + l : "";
-        j.async = true;
-        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
-      })(window, document, "script", "dataLayer", "GTM-NKDJR356");
-    </script>
-    <!-- End Google Tag Manager -->
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-5QT9B5Z9DD"
-    ></script>
+    <!-- Preload Critical Above-The-Fold Hero Image -->
+    <link
+      rel="preload"
+      as="image"
+      href="/uploads/hero/materials.svg"
+      fetchpriority="high"
+      type="image/svg+xml"
+    />
+
+    <!-- Non-Blocking Google Fonts (Space Grotesk) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      />
+    </noscript>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- Deferred Third-Party Analytics (GTM & GA4) to prevent main-thread blocking & layout thrashing -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);
       }
-      gtag("js", new Date());
 
-      gtag("config", "G-5QT9B5Z9DD");
+      function initAnalytics() {
+        if (window._analyticsInitialized) return;
+        window._analyticsInitialized = true;
+
+        // 1. Google Tag Manager
+        (function (w, d, s, l, i) {
+          w[l] = w[l] || [];
+          w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+          var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s),
+            dl = l != "dataLayer" ? "&l=" + l : "";
+          j.async = true;
+          j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+          f.parentNode.insertBefore(j, f);
+        })(window, document, "script", "dataLayer", "GTM-NKDJR356");
+
+        // 2. Google Analytics (gtag.js)
+        var s = document.createElement("script");
+        s.async = true;
+        s.src = "https://www.googletagmanager.com/gtag/js?id=G-5QT9B5Z9DD";
+        document.head.appendChild(s);
+        gtag("js", new Date());
+        gtag("config", "G-5QT9B5Z9DD");
+      }
+
+      if ("requestIdleCallback" in window) {
+        requestIdleCallback(
+          function () {
+            setTimeout(initAnalytics, 2500);
+          },
+          { timeout: 4000 },
+        );
+      } else {
+        window.addEventListener("load", function () {
+          setTimeout(initAnalytics, 2500);
+        });
+      }
+      ["pointerdown", "scroll", "keydown", "touchstart"].forEach(
+        function (evt) {
+          window.addEventListener(evt, initAnalytics, {
+            once: true,
+            passive: true,
+          });
+        },
+      );
     </script>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!--seo-meta-start-->
     <title>

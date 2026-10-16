@@ -1,4 +1,11 @@
-import { Mail, Phone, MapPin, Clock3, ArrowRight, ExternalLink, Share2 } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Clock3,
+  ArrowRight,
+  ExternalLink,
+} from "lucide-react";
 import { useI18n } from "../i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { businessInfo } from "../config/businessInfo";
@@ -19,34 +26,6 @@ export default function Footer() {
           <p className="text-sm text-[#5f6f69] leading-relaxed max-w-sm">
             {t("footer.tagline")}
           </p>
-          <div className="pt-2 space-y-2">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#1b2c26]">
-              {t("footer.socialTitle")}
-            </p>
-            <div className="flex items-center gap-3 text-xs text-[#445853]">
-              <a
-                href="https://www.linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[#0f766e] transition-colors inline-flex items-center gap-1"
-                aria-label={t("footer.shareLinkedIn")}
-              >
-                <Share2 size={13} className="text-emerald-600" />
-                <span>{t("footer.shareLinkedIn")}</span>
-              </a>
-              <span className="text-gray-300">·</span>
-              <a
-                href="https://wa.me/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[#0f766e] transition-colors inline-flex items-center gap-1"
-                aria-label={t("footer.shareWhatsApp")}
-              >
-                <Phone size={13} className="text-emerald-600" />
-                <span>{t("footer.shareWhatsApp")}</span>
-              </a>
-            </div>
-          </div>
         </div>
 
         <div className="text-sm text-[#445853] space-y-2">
@@ -129,7 +108,11 @@ export default function Footer() {
             className="flex items-center gap-2 hover:text-[#0f766e]"
           >
             <Mail size={16} />
-            <span>{businessInfo.email}</span>
+            <span
+              dangerouslySetInnerHTML={{
+                __html: `<!--email_off-->${businessInfo.email}<!--/email_off-->`,
+              }}
+            />
           </a>
           {businessInfo.phone && (
             <a

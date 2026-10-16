@@ -7,21 +7,21 @@ const materials = [
     label: "home.materials.plaTitle",
     text: "home.materials.plaText",
     icon: CircleDot,
-    color: "bg-emerald-50 text-emerald-800 border-emerald-200",
+    color: "bg-emerald-50 text-emerald-950 border-emerald-300",
   },
   {
     name: "PETG",
     label: "home.materials.petgTitle",
     text: "home.materials.petgText",
     icon: Bolt,
-    color: "bg-sky-50 text-sky-800 border-sky-200",
+    color: "bg-sky-50 text-sky-950 border-sky-300",
   },
   {
     name: "TPU",
     label: "home.materials.tpuTitle",
     text: "home.materials.tpuText",
     icon: Ban,
-    color: "bg-amber-50 text-amber-800 border-amber-200",
+    color: "bg-amber-50 text-amber-950 border-amber-300",
   },
 ] as const;
 
@@ -44,11 +44,11 @@ export default function MaterialFeatures() {
         {materials.map(({ name, label, text, icon: Icon, color }) => (
           <article key={name} className={`rounded-2xl border p-5 ${color}`}>
             <Icon size={25} />
-            <p className="mt-6 text-xs font-black uppercase tracking-widest opacity-70">
+            <p className="mt-6 text-xs font-black uppercase tracking-widest">
               {name}
             </p>
             <h3 className="mt-1 text-xl font-black">{t(label)}</h3>
-            <p className="mt-3 text-sm leading-6 opacity-80">{t(text)}</p>
+            <p className="mt-3 text-sm leading-6 font-medium">{t(text)}</p>
           </article>
         ))}
       </div>

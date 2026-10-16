@@ -130,7 +130,10 @@ export default function Hero() {
           setCurrentIndex(0);
         }
       } catch (err) {
-        console.warn("Could not load dynamic hero slides from API, using fallback slides:", err);
+        console.warn(
+          "Could not load dynamic hero slides from API, using fallback slides:",
+          err,
+        );
       }
     }
 
@@ -208,7 +211,7 @@ export default function Hero() {
   return (
     <section
       aria-label={t("hero.slideshowAria")}
-      className="relative w-full rounded-[2.2rem] overflow-hidden bg-gradient-to-br from-[#061e16] via-[#0b3326] to-[#041611] border border-emerald-500/25 shadow-[0_28px_60px_-15px_rgba(4,22,17,0.7)] text-white transition-all"
+      className="relative w-full rounded-[2.2rem] overflow-hidden bg-gradient-to-br from-[#061e16] via-[#0b3326] to-[#041611] border border-emerald-500/25 shadow-[0_28px_60px_-15px_rgba(4,22,17,0.7)] text-white"
     >
       {/* Background Accent Gradients & Glows */}
       <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none transform-gpu" />
@@ -298,14 +301,14 @@ export default function Hero() {
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <Link
               to={localizePath("/checkout")}
-              className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-emerald-500 to-teal-400 text-gray-950 hover:from-emerald-400 hover:to-teal-300 shadow-[0_8px_20px_rgba(16,185,129,0.35)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-emerald-500 to-teal-400 text-gray-950 hover:from-emerald-400 hover:to-teal-300 shadow-[0_8px_20px_rgba(16,185,129,0.35)] transition-transform transition-colors hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>{t("hero.ctaQuote")}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to={localizePath("/faq")}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-semibold text-sm bg-white/10 hover:bg-white/15 border border-white/20 text-white transition-all hover:scale-[1.02]"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-semibold text-sm bg-white/10 hover:bg-white/15 border border-white/20 text-white transition-transform transition-colors hover:scale-[1.02]"
             >
               <span>{t("hero.viewFaq")}</span>
             </Link>
@@ -356,40 +359,34 @@ export default function Hero() {
             </div>
 
             {/* CONDITIONAL MEDIA RENDERING */}
-            {/* 3D Canvas rendering (Three.js) - kept mounted across slides to preserve WebGL context */}
-            <div
-              className={`relative w-full h-full flex items-center justify-center ${
-                currentSlide.mediaType === "model3d" ? "" : "hidden"
-              }`}
-            >
-              <Suspense
-                fallback={
-                  <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
-                    <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
-                    <span>{t("hero.loading3d")}</span>
-                  </div>
-                }
-              >
-                <HeroModelViewer
-                  src={
-                    currentSlide.mediaType === "model3d"
-                      ? resolveAssetUrl(currentSlide.mediaUrl)
-                      : ""
+            {/* 3D Canvas rendering (Three.js) - only mounted for 3D slides to defer heavy Three.js execution */}
+            {currentSlide.mediaType === "model3d" && (
+              <div className="relative w-full h-full flex items-center justify-center">
+                <Suspense
+                  fallback={
+                    <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
+                      <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
+                      <span>{t("hero.loading3d")}</span>
+                    </div>
                   }
-                  className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
-                  onInteractionStart={handleInteractionStart}
-                  onInteractionEnd={handleInteractionEnd}
-                />
-              </Suspense>
+                >
+                  <HeroModelViewer
+                    src={resolveAssetUrl(currentSlide.mediaUrl)}
+                    className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
+                    onInteractionStart={handleInteractionStart}
+                    onInteractionEnd={handleInteractionEnd}
+                  />
+                </Suspense>
 
-              {/* 3D Interactive Instruction Tag */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/60 text-emerald-200/90 border border-emerald-500/20 backdrop-blur-md shadow-sm">
-                  <RotateCcw className="w-3 h-3 text-emerald-400" />
-                  <span>{t("hero.dragToRotate")}</span>
-                </span>
+                {/* 3D Interactive Instruction Tag */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/60 text-emerald-200/90 border border-emerald-500/20 backdrop-blur-md shadow-sm">
+                    <RotateCcw className="w-3 h-3 text-emerald-400" />
+                    <span>{t("hero.dragToRotate")}</span>
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Image rendering for non-3D slides */}
             {currentSlide.mediaType !== "model3d" && (
@@ -399,7 +396,7 @@ export default function Hero() {
                     key={currentSlide.id + currentSlide.mediaUrl}
                     src={resolveAssetUrl(currentSlide.mediaUrl)}
                     alt={slideTitle}
-                    loading="lazy"
+                    fetchPriority="high"
                     decoding="async"
                     onError={() =>
                       setImageError((prev) => ({
@@ -464,14 +461,21 @@ export default function Hero() {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
+                aria-label={t("hero.goToSlide", {
+                  index: idx + 1,
+                  title: slideItemTitle,
+                })}
                 onClick={() => goToSlide(idx)}
-                className={`transition-[width,background-color,opacity] duration-300 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
-                  isActive
-                    ? "w-8 h-2.5 bg-gradient-to-r from-emerald-400 to-teal-300 shadow-sm"
-                    : "w-2.5 h-2.5 bg-white/25 hover:bg-white/50"
-                }`}
-              />
+                className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
+              >
+                <span
+                  className={`block h-2.5 w-8 rounded-full transition-transform transition-opacity duration-300 origin-center will-change-transform ${
+                    isActive
+                      ? "scale-x-100 bg-gradient-to-r from-emerald-400 to-teal-300 shadow-sm opacity-100"
+                      : "scale-x-[0.3125] bg-white/40 hover:bg-white/70 opacity-60"
+                  }`}
+                />
+              </button>
             );
           })}
         </div>

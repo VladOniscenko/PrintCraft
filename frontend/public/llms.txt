@@ -1,0 +1,43 @@
+# Print My 3D - Professionele 3D Print Service Nederland
+
+> Professionele industriële en commerciële 3D-printservice in Nederland. Gespecialiseerd in snelle productie van functionele prototypes, maatwerk machine-onderdelen, elektronica behuizingen en mallen in hoogwaardig PLA, PETG, ABS en TPU.
+
+## Bedrijfsinformatie & Kernwaarden
+
+- Bedrijfsnaam: Print My 3D
+- Website: https://printmy3d.work
+- Locatie: Rotterdam, Nederland
+- Levertijd: Binnen 2 tot 5 werkdagen geleverd in heel Nederland en België
+- Logistiek partner: PostNL Zakelijk
+- Bestandsformaten: STL, 3MF, OBJ, STEP
+
+## Kernoplossingen & Diensten
+
+- [Rapid Prototyping Kunststof](https://printmy3d.work/nl/oplossingen/rapid-prototyping-kunststof): Snelle validatie van mechanische pasvorm en esthetisch design met fijne laaghoogtes.
+- [Vervangende Onderdelen Printen](https://printmy3d.work/nl/oplossingen/vervangende-onderdelen-printen): Reverse-engineering en on-demand vervanging van versleten of niet meer leverbare componenten.
+- [Elektronica Behuizingen op Maat](https://printmy3d.work/nl/oplossingen/elektronica-behuizingen-op-maat): Duurzame behuizingen met exacte kabeldoorvoeren, schroefbussen en klikverbindingen voor PCB's.
+- [Mallen & Kalibers (Jigs & Fixtures)](https://printmy3d.work/nl/oplossingen/mallen-kalibers-jigs-fixtures): Productiehulpmiddelen, boormallen en assemblagekalibers voor fabrieken en werkplaatsen.
+
+## Materialen & Specificaties
+
+- PLA: Biologisch afbreekbaar polymeer voor esthetische modellen, concept-prototypes en visuele controles.
+- PETG: Slagvast, UV-bestendig en chemisch resistent materiaal voor industriële componenten en buitenmontage.
+- TPU: Flexibel elastomeer met hoge slijtvastheid voor trillingsdempers, afdichtingen en flexibele koppelingen.
+- ABS: Hittebestendig en taai thermoplastisch materiaal voor veeleisende mechanische toepassingen.
+
+## Regionale Dekking
+
+- [3D Print Service Amsterdam](https://printmy3d.work/nl/3d-print-service/amsterdam)
+- [3D Print Service Rotterdam](https://printmy3d.work/nl/3d-print-service/rotterdam)
+- [3D Print Service Utrecht](https://printmy3d.work/nl/3d-print-service/utrecht)
+- [3D Print Service Eindhoven](https://printmy3d.work/nl/3d-print-service/eindhoven)
+- [3D Print Service Den Haag](https://printmy3d.work/nl/3d-print-service/den-haag)
+- [3D Print Service Tilburg](https://printmy3d.work/nl/3d-print-service/tilburg)
+- [3D Print Service Groningen](https://printmy3d.work/nl/3d-print-service/groningen)
+- [3D Print Service Breda](https://printmy3d.work/nl/3d-print-service/breda)
+
+## Direct Offerte Aanvragen
+
+- [Offerte Configurator](https://printmy3d.work/nl/checkout): Upload uw STL of 3MF bestand voor automatische geometrie-inspectie en directe orderverwerking.
+- [Veelgestelde Vragen (FAQ)](https://printmy3d.work/nl/faq): Technische richtlijnen voor wanddiktes, toleranties en bestandsoptimalisatie.
+

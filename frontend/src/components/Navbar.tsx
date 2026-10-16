@@ -271,8 +271,11 @@ const Navbar = () => {
 
       {/* Mobile Menu Toggle */}
       <button
+        type="button"
         className="lg:hidden p-2 text-[#3f5851]"
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={t("nav.toggleMenu")}
+        aria-expanded={isOpen}
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
