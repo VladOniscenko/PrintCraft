@@ -17,17 +17,16 @@ type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8];
 export type Leaves<T, D extends number = 6> = [D] extends [never]
   ? never
   : T extends string | number | boolean
-  ? ""
-  : T extends object
-  ? {
-      [K in keyof T & string]: Leaves<T[K], Prev[D]> extends ""
-        ? `${K}`
-        : `${K}.${Leaves<T[K], Prev[D]>}`;
-    }[keyof T & string]
-  : never;
+    ? ""
+    : T extends object
+      ? {
+          [K in keyof T & string]: Leaves<T[K], Prev[D]> extends ""
+            ? `${K}`
+            : `${K}.${Leaves<T[K], Prev[D]>}`;
+        }[keyof T & string]
+      : never;
 
 export const translations = {
-
   en: {
     common: {
       closeDialog: "Close dialog",
@@ -126,19 +125,6 @@ export const translations = {
         petgText: "For functional parts that face heat, moisture and load.",
         tpuTitle: "Flexible",
         tpuText: "For grips, protectors and parts that need to move.",
-      },
-      steps: {
-        eyebrow: "From idea to part",
-        title: "How Our 3D Print Service Works",
-        uploadTitle: "Upload 3D Model",
-        uploadText:
-          "Upload your .STL, .3MF, or .OBJ file, or describe your idea to get an instant tailored quote.",
-        materialTitle: "Choose Material & Infill",
-        materialText:
-          "Select premium PLA, tough PETG, or flexible TPU tailored to your application.",
-        printTitle: "Precision Print & Delivery",
-        printText:
-          "We print with ±0.1mm precision and deliver within 2-5 business days across the Netherlands.",
       },
       modelFinder: {
         badge: "Model Starter",
@@ -304,10 +290,10 @@ export const translations = {
       downloadInvoice: "Download PDF invoice",
       common: {
         page: "Page",
-      closeDialog: "Close dialog",
-      email: "Email",
-      home: "Home",
-      unknown: "Unknown",
+        closeDialog: "Close dialog",
+        email: "Email",
+        home: "Home",
+        unknown: "Unknown",
         of: "of",
         prev: "Prev",
         next: "Next",
@@ -335,7 +321,8 @@ export const translations = {
         cancel: "Cancel",
         editSlide: "Edit slide",
         deleteSlide: "Delete slide",
-        confirmDelete: "Are you sure you want to delete this promotional slide?",
+        confirmDelete:
+          "Are you sure you want to delete this promotional slide?",
         confirmSeed:
           "This will ensure default promotional slides and 3D STL files (cable-holder, dino, materials) exist on the server. Proceed?",
         seedSuccess: "Default slides and 3D STL assets seeded successfully!",
@@ -363,7 +350,8 @@ export const translations = {
         selectedFileForSlide: 'Selected "{fileName}" for slide',
         uploadedFileSuccess: 'Uploaded "{fileName}" successfully.',
         selectedFile: 'Selected "{fileName}"',
-        dropZoneInstruction: "Upload a file with the button above or drag and drop a 3D model into this area.",
+        dropZoneInstruction:
+          "Upload a file with the button above or drag and drop a 3D model into this area.",
         previewAlt: "Preview",
         uploading: "Uploading...",
         uploadFile: "Upload File",
@@ -382,7 +370,8 @@ export const translations = {
         nlInstructionPlaceholder: "Nederlandse instructie...",
         enTitlePlaceholder: "e.g. Rapid Prototyping & Custom 3D Prints",
         enPricePlaceholder: "e.g. Starting from €9.95",
-        enDescPlaceholder: "High-precision FDM 3D printing for prototypes, engineering parts, and personalized designs.",
+        enDescPlaceholder:
+          "High-precision FDM 3D printing for prototypes, engineering parts, and personalized designs.",
         enInstructionPlaceholder: "e.g. Drag to rotate 360°, scroll to zoom",
         sortOrderLabel: "Sort Order",
         chooseFromUploads: "Choose from Uploads",
@@ -964,7 +953,6 @@ export const translations = {
         notFoundLink: "Back to orders",
       },
       orderDetail: {
-
         header: {
           backToOrders: "Back to Orders",
           copyOrderId: "Copy full Order ID",
@@ -992,7 +980,8 @@ export const translations = {
         dashboard: {
           loading: "Loading unified order dashboard...",
           notFound: "Order Not Found",
-          notFoundDesc: "The requested order ID does not exist or has been removed.",
+          notFoundDesc:
+            "The requested order ID does not exist or has been removed.",
           returnToList: "← Return to Orders List",
           markedPaid: "Order marked as paid",
           transitionSuccess: "Order status transitioned to {status}",
@@ -1074,16 +1063,17 @@ export const translations = {
               "This order has been manufactured, quality inspected, and dispatched.",
             cancelledSubtitle:
               "This order was cancelled. Review records and refund status below.",
-            returnedSubtitle:
-              "This order was marked as returned by customer.",
+            returnedSubtitle: "This order was marked as returned by customer.",
             totalPaid: "Total Paid",
             totalFinalized: "Total Finalized",
             notAssigned: "Not assigned",
           },
           readyToPrint: {
             productionAssignmentSaved: "Production assignment saved",
-            selectPrinterError: "Please select a printer before starting print job.",
-            selectMaterialError: "Please select a material before starting print job.",
+            selectPrinterError:
+              "Please select a printer before starting print job.",
+            selectMaterialError:
+              "Please select a material before starting print job.",
             gcodeWarning:
               "G-code is not marked as finalized. Proceed to start printing anyway?",
             gateBadge: "Production Gate",
@@ -1150,8 +1140,7 @@ export const translations = {
               'Click "Confirm Payment Received" when manual bank transfer lands in the business account.',
             ref: "Ref:",
             confirmingPayment: "Confirming...",
-            confirmPaymentMarkAsPaid:
-              "Confirm Payment Received (Mark as Paid)",
+            confirmPaymentMarkAsPaid: "Confirm Payment Received (Mark as Paid)",
             bankTransfer: "Bank Transfer",
           },
           postProcessing: {
@@ -1199,8 +1188,7 @@ export const translations = {
             infill: "Infill",
             layerHeight: "Layer Height",
             completePrintJob: "Complete Print Job",
-            printCompleteMoveToQC:
-              "Print Complete → Move to Post-Processing",
+            printCompleteMoveToQC: "Print Complete → Move to Post-Processing",
             updating: "Updating...",
             modelItemFallback: "Model Item",
           },
@@ -1719,10 +1707,8 @@ export const translations = {
         "Max {max} files per item. Only {count} file(s) were added.",
       successFileReplaced: "File replaced successfully!",
       successItemAdded: "Item confirmed and added to order!",
-      successPaintingUpdated:
-        "Filament painting changes confirmed & saved!",
-      successPaintingAdded:
-        "Filament painting confirmed & added to order!",
+      successPaintingUpdated: "Filament painting changes confirmed & saved!",
+      successPaintingAdded: "Filament painting confirmed & added to order!",
       totalItems: "Total Items",
       qty: "Qty:",
       mat: "Mat:",
@@ -1833,17 +1819,21 @@ export const translations = {
         requestedByTeam: "Changes requested by PrintCraft engineering",
         reasonLabel: "Reason",
         notesLabel: "Engineer Notes",
-        requiresFileNotice: "A replacement 3D model file is required to resolve this issue.",
+        requiresFileNotice:
+          "A replacement 3D model file is required to resolve this issue.",
         submitRevisionTitle: "Submit Updated 3D Model / Revision",
-        submitRevisionDesc: "Upload your corrected 3D model file and describe what was adjusted.",
+        submitRevisionDesc:
+          "Upload your corrected 3D model file and describe what was adjusted.",
         uploadLabel: "Select Replacement 3D Model (.stl, .obj, .3mf, .step)",
         uploading: "Uploading new model...",
-        notesPlaceholder: "Explain what was changed (e.g., fixed non-manifold mesh, thickened walls, scaled)...",
+        notesPlaceholder:
+          "Explain what was changed (e.g., fixed non-manifold mesh, thickened walls, scaled)...",
         customerNotesLabel: "Your Explanation",
         submitBtn: "Submit Revision to PrintCraft",
         submitting: "Submitting...",
         submittedBannerTitle: "Revision Submitted",
-        submittedBannerDesc: "Your updated 3D model and notes have been received and are pending engineer review.",
+        submittedBannerDesc:
+          "Your updated 3D model and notes have been received and are pending engineer review.",
         viewHistoryBtn: "Revision History",
         hideHistoryBtn: "Hide History",
         preview3DBtn: "Preview 3D",
@@ -1915,11 +1905,13 @@ export const translations = {
       filesRemovedDueCancellation: "Files were removed due to cancellation.",
       timeline: "Project Timeline",
       onHoldTitle: "Order On Hold",
-      onHoldDesc: "Production is paused. We will contact you if more information is needed.",
+      onHoldDesc:
+        "Production is paused. We will contact you if more information is needed.",
       returnedTitle: "Order Returned",
       returnedDesc: "This order has been returned to us.",
       cancelledTitle: "Order Cancelled",
-      cancelledDesc: "This order has been cancelled. Please check your email for refund details if you have already paid.",
+      cancelledDesc:
+        "This order has been cancelled. Please check your email for refund details if you have already paid.",
       customItem: "Custom 3D Item",
       itemSingle: "item",
       itemPlural: "items",
@@ -2404,19 +2396,6 @@ export const translations = {
         tpuTitle: "Flexibel",
         tpuText: "Voor grips, beschermers en onderdelen die moeten meebewegen.",
       },
-      steps: {
-        eyebrow: "Van idee naar onderdeel",
-        title: "Hoe Onze 3D Print Service Werkt",
-        uploadTitle: "Upload 3D-Model (.STL / .3MF)",
-        uploadText:
-          "Upload eenvoudig je .STL, .3MF of .OBJ bestand, of beschrijf je idee voor een directe offerte op maat.",
-        materialTitle: "Kies Filament & Eigenschappen",
-        materialText:
-          "Selecteer duurzaam PLA, slagvast PETG of flexibel TPU met de gewenste infill en kleur.",
-        printTitle: "Precisie Printen & Snelle Bezorging",
-        printText:
-          "We printen met ±0.1mm precisie en bezorgen binnen 2-5 werkdagen zorgvuldig verpakt in heel Nederland.",
-      },
       modelFinder: {
         badge: "Model Startpunt",
         bridgeBadge: "Optionele Stap",
@@ -2488,7 +2467,8 @@ export const translations = {
       paused: "Gepauzeerd",
       auto: "Automatisch 5s",
       loadingModel: "3D-model laden...",
-      modelLoadError: "Dit 3D-bestand kon niet worden geladen. Probeer een ander bestand.",
+      modelLoadError:
+        "Dit 3D-bestand kon niet worden geladen. Probeer een ander bestand.",
     },
     materials: {
       title: "Materialen & Kleuren",
@@ -2583,10 +2563,10 @@ export const translations = {
       downloadInvoice: "PDF-factuur downloaden",
       common: {
         page: "Pagina",
-      closeDialog: "Venster sluiten",
-      email: "E-mailadres",
-      home: "Thuis",
-      unknown: "Onbekend",
+        closeDialog: "Venster sluiten",
+        email: "E-mailadres",
+        home: "Thuis",
+        unknown: "Onbekend",
         of: "van",
         prev: "Vorige",
         next: "Volgende",
@@ -2603,7 +2583,8 @@ export const translations = {
       heroSlides: {
         title: "Promotionele Hero Slides",
         seedButton: "Standaard slides laden",
-        seedTooltip: "Zorg dat standaard slides en 3D STL-bestanden aanwezig zijn",
+        seedTooltip:
+          "Zorg dat standaard slides en 3D STL-bestanden aanwezig zijn",
         addSlide: "Nieuwe slide toevoegen",
         noSlidesTitle: "Geen hero slides gevonden in de database",
         noSlidesDesc:
@@ -2614,7 +2595,8 @@ export const translations = {
         cancel: "Annuleren",
         editSlide: "Slide bewerken",
         deleteSlide: "Slide verwijderen",
-        confirmDelete: "Weet je zeker dat je deze promotionele slide wilt verwijderen?",
+        confirmDelete:
+          "Weet je zeker dat je deze promotionele slide wilt verwijderen?",
         confirmSeed:
           "Dit zorgt ervoor dat de standaard promotionele slides en 3D STL-bestanden (kabelhouder, dino, materialen) op de server staan. Doorgaan?",
         seedSuccess: "Standaard slides en 3D STL-bestanden succesvol geladen!",
@@ -2642,7 +2624,8 @@ export const translations = {
         selectedFileForSlide: '"{fileName}" geselecteerd voor slide',
         uploadedFileSuccess: '"{fileName}" succesvol geüpload.',
         selectedFile: '"{fileName}" geselecteerd',
-        dropZoneInstruction: "Upload een bestand met de knop hierboven of sleep een 3D-model naar dit gebied.",
+        dropZoneInstruction:
+          "Upload een bestand met de knop hierboven of sleep een 3D-model naar dit gebied.",
         previewAlt: "Voorbeeld",
         uploading: "Uploaden...",
         uploadFile: "Bestand uploaden",
@@ -2661,8 +2644,10 @@ export const translations = {
         nlInstructionPlaceholder: "Nederlandse instructie...",
         enTitlePlaceholder: "bijv. Snelle Prototyping & Maatwerk 3D-Prints",
         enPricePlaceholder: "bijv. Vanaf €9,95",
-        enDescPlaceholder: "Precisie FDM 3D-printen voor prototypes, technische onderdelen en gepersonaliseerde ontwerpen.",
-        enInstructionPlaceholder: "bijv. Sleep om 360° te draaien, scroll om te zoomen",
+        enDescPlaceholder:
+          "Precisie FDM 3D-printen voor prototypes, technische onderdelen en gepersonaliseerde ontwerpen.",
+        enInstructionPlaceholder:
+          "bijv. Sleep om 360° te draaien, scroll om te zoomen",
         sortOrderLabel: "Sorteervolgorde",
         chooseFromUploads: "Kies uit uploads",
         clearFile: "Bestand wissen",
@@ -2808,7 +2793,8 @@ export const translations = {
         managementTitle: "Orderbeheer",
         loadFailed: "Kon bestellingen niet laden",
         holdReasonRequired: "Reden voor pauzeren mag niet leeg zijn.",
-        trackingRequired: "Track & trace-nummer is verplicht om als verzonden te markeren.",
+        trackingRequired:
+          "Track & trace-nummer is verplicht om als verzonden te markeren.",
         confirmCancel: "Weet je zeker dat je deze bestelling wilt annuleren?",
         pendingQuote: "In afwachting van offerte",
         totalLabel: "Totaal: €{amount}",
@@ -3253,7 +3239,6 @@ export const translations = {
         notFoundLink: "Terug naar orders",
       },
       orderDetail: {
-
         header: {
           backToOrders: "Terug naar orders",
           copyOrderId: "Kopieer volledig Order ID",
@@ -3281,7 +3266,8 @@ export const translations = {
         dashboard: {
           loading: "Gecombineerd orderdashboard laden...",
           notFound: "Order niet gevonden",
-          notFoundDesc: "Het opgevraagde order-ID bestaat niet of is verwijderd.",
+          notFoundDesc:
+            "Het opgevraagde order-ID bestaat niet of is verwijderd.",
           returnToList: "← Terug naar orderoverzicht",
           markedPaid: "Order gemarkeerd als betaald",
           transitionSuccess: "Orderstatus gewijzigd naar {status}",
@@ -3328,7 +3314,8 @@ export const translations = {
           noEventsForFilter: "Geen gebeurtenissen gevonden voor dit filter.",
           by: "Door:",
           deleteNote: "Notitie verwijderen",
-          confirmDeleteNote: "Weet je zeker dat je deze notitie wilt verwijderen?",
+          confirmDeleteNote:
+            "Weet je zeker dat je deze notitie wilt verwijderen?",
           noteDeleted: "Notitie succesvol verwijderd",
           visibleOnlyAdmins: "Alleen zichtbaar voor beheerders",
           visibleToCustomer: "Zichtbaar voor klant",
@@ -3491,8 +3478,7 @@ export const translations = {
             infill: "Vulling",
             layerHeight: "Laaghoogte",
             completePrintJob: "Printopdracht afronden",
-            printCompleteMoveToQC:
-              "Print afgerond → Door naar nabewerking",
+            printCompleteMoveToQC: "Print afgerond → Door naar nabewerking",
             updating: "Bijwerken...",
             modelItemFallback: "Modelartikel",
           },
@@ -3501,7 +3487,8 @@ export const translations = {
             allPricedSuccess: "Alle artikelen berekend via 3D-prijsmodule",
             quoteMessageRequired:
               "Een offertebericht is verplicht om te bevestigen dat klantnotities zijn bekeken.",
-            totalMustBePositive: "Geoffreerd totaalbedrag moet groter zijn dan nul.",
+            totalMustBePositive:
+              "Geoffreerd totaalbedrag moet groter zijn dan nul.",
             quoteFinalizedSuccess:
               "Offerte definitief! Klant is op de hoogte gebracht en verzocht om betaling.",
             badge: "Actie vereist",
@@ -3562,7 +3549,8 @@ export const translations = {
           preview3d: "3D Weergave",
           download: "Downloaden",
           acceptanceNote: "Acceptatienotitie (Optioneel):",
-          acceptancePlaceholder: "bijv. Model gecontroleerd, klaar voor productie",
+          acceptancePlaceholder:
+            "bijv. Model gecontroleerd, klaar voor productie",
           cancel: "Annuleren",
           confirmAccept: "Bevestig acceptatie",
           requestFurtherChanges: "Verdere wijzigingen verzoeken",
@@ -3929,7 +3917,8 @@ export const translations = {
       nameMinLength: "Naam moet minimaal 2 tekens bevatten.",
       passwordMinLength: "Wachtwoord moet minimaal 8 tekens bevatten.",
       passwordRequired: "Wachtwoord is verplicht.",
-      registerFailed: "Account aanmaken mislukt. E-mailadres is mogelijk al in gebruik.",
+      registerFailed:
+        "Account aanmaken mislukt. E-mailadres is mogelijk al in gebruik.",
       email: "E-mailadres",
       password: "Wachtwoord",
       min8Chars: "Minimaal 8 tekens",
@@ -3952,7 +3941,8 @@ export const translations = {
       reviewItemsSubtitle:
         "Controleer je items hieronder. Je kunt instellingen aanpassen of nog een item toevoegen voordat je verdergaat.",
       qualityBestFilamentPainting: "Beste kwaliteit (Filament schilderij)",
-      qualityMediumFilamentPainting: "Gemiddelde kwaliteit (Filament schilderij)",
+      qualityMediumFilamentPainting:
+        "Gemiddelde kwaliteit (Filament schilderij)",
       qualityDraftFilamentPainting: "Concept kwaliteit (Filament schilderij)",
       qualityFilamentPainting: "Filament schilderij",
       solidInfill100: "100% massieve vulling",
@@ -3968,8 +3958,7 @@ export const translations = {
       confirmItemAndAdd: "Item bevestigen en toevoegen aan bestelling",
       cancel: "Annuleren",
       addItemModalTitle: "Item toevoegen aan bestelling",
-      addItemModalSubtitle:
-        "Kies welk type print of model je wilt toevoegen:",
+      addItemModalSubtitle: "Kies welk type print of model je wilt toevoegen:",
       flowCadTitle: "3D Print / Offerte op maat",
       flowCadSubtitle:
         "Upload 3D-modellen (.stl, .obj, .3mf, .step, .stp) voor directe printoffertes.",
@@ -4129,17 +4118,21 @@ export const translations = {
         requestedByTeam: "Wijzigingen aangevraagd door PrintCraft technici",
         reasonLabel: "Reden",
         notesLabel: "Opmerkingen technicus",
-        requiresFileNotice: "Een vervangend 3D-modelbestand is vereist om dit probleem op te lossen.",
+        requiresFileNotice:
+          "Een vervangend 3D-modelbestand is vereist om dit probleem op te lossen.",
         submitRevisionTitle: "Bijgewerkt 3D-model / revisie indienen",
-        submitRevisionDesc: "Upload uw gecorrigeerde 3D-bestand en beschrijf wat er is aangepast.",
+        submitRevisionDesc:
+          "Upload uw gecorrigeerde 3D-bestand en beschrijf wat er is aangepast.",
         uploadLabel: "Selecteer vervangend 3D-model (.stl, .obj, .3mf, .step)",
         uploading: "Nieuw model uploaden...",
-        notesPlaceholder: "Leg uit wat er is gewijzigd (bijv. mesh gerepareerd, wanden verdikt)...",
+        notesPlaceholder:
+          "Leg uit wat er is gewijzigd (bijv. mesh gerepareerd, wanden verdikt)...",
         customerNotesLabel: "Uw toelichting",
         submitBtn: "Revisie indienen bij PrintCraft",
         submitting: "Indienen...",
         submittedBannerTitle: "Revisie ingediend",
-        submittedBannerDesc: "Uw bijgewerkte 3D-model en toelichting zijn ontvangen en worden beoordeeld door onze technici.",
+        submittedBannerDesc:
+          "Uw bijgewerkte 3D-model en toelichting zijn ontvangen en worden beoordeeld door onze technici.",
         viewHistoryBtn: "Revisiegeschiedenis",
         hideHistoryBtn: "Geschiedenis verbergen",
         preview3DBtn: "3D-weergave",
@@ -4212,11 +4205,13 @@ export const translations = {
         "In verband met annulering zijn bestanden verwijderd.",
       timeline: "Project Tijdlijn",
       onHoldTitle: "Order in de wacht",
-      onHoldDesc: "Productie is gepauzeerd. We nemen contact met je op als er meer informatie nodig is.",
+      onHoldDesc:
+        "Productie is gepauzeerd. We nemen contact met je op als er meer informatie nodig is.",
       returnedTitle: "Order geretourneerd",
       returnedDesc: "Deze order is naar ons geretourneerd.",
       cancelledTitle: "Order geannuleerd",
-      cancelledDesc: "Deze order is geannuleerd. Controleer je e-mail voor terugbetalingsdetails als je al hebt betaald.",
+      cancelledDesc:
+        "Deze order is geannuleerd. Controleer je e-mail voor terugbetalingsdetails als je al hebt betaald.",
       customItem: "Aangepast 3D-item",
       itemSingle: "item",
       itemPlural: "items",
@@ -4524,7 +4519,8 @@ export const translations = {
       browseImage: "Afbeelding kiezen",
       previewTitle: "Live 3D Reliëf Voorbeeld",
       generatingTitle: "3D-reliëfmodel genereren...",
-      generatingSubtitle: "Afbeelding omzetten naar meerkleurige 3D-geometrie...",
+      generatingSubtitle:
+        "Afbeelding omzetten naar meerkleurige 3D-geometrie...",
       updatingPreview: "3D-voorbeeld bijwerken...",
       failedPreview: "Kon 3D-voorbeeld niet renderen.",
       uploadedPhoto: "Geüploade foto",
@@ -4551,7 +4547,8 @@ export const translations = {
       colorTheme: "Kleurthema",
       themeClassic4: "Klassiek 4-Kleuren (Zwart / Rood / Geel / Wit)",
       themeMonochrome: "Monochroom Portret (4-Tinten Grijswaarden)",
-      themeSunset: "Zonsondergang Gloed (Marineblauw / Magenta / Oranje / Crème)",
+      themeSunset:
+        "Zonsondergang Gloed (Marineblauw / Magenta / Oranje / Crème)",
       customCombination: "★ Aangepaste kleurcombinatie",
       selectedColorsOrder: "Geselecteerde kleuren (van onder naar boven)",
       orderColumn: "Volgorde",
@@ -4603,4 +4600,3 @@ export const translations = {
 } as const;
 
 export type TranslationKey = Leaves<typeof translations.en>;
-

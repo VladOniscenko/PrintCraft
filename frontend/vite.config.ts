@@ -645,7 +645,8 @@ export default defineConfig(({ mode }) => {
             __BUSINESS_ALTERNATE_DEFAULT__: `${origin}/nl`,
             __BUSINESS_OG_IMAGE__: `${origin}/uploads/hero/materials.svg`,
             __BUSINESS_HOMEPAGE_JSONLD__: homepageJsonLdString,
-            __INITIAL_HTML__: homeInitialHtmlNl,
+            __INITIAL_HTML__:
+              mode === "production" ? "<!--INITIAL_HTML-->" : "",
           };
           for (const [token, value] of Object.entries(values)) {
             html = html.replaceAll(token, value);
@@ -793,12 +794,19 @@ export default defineConfig(({ mode }) => {
 
             // Replace #root inner HTML
             pageHtml = pageHtml.replace(
-              /<div id="root">[\s\S]*?<\/div>/i,
-              `<div id="root">${routeData.initialHtml}</div>`,
+              "<!--INITIAL_HTML-->",
+              routeData.initialHtml,
             );
 
             fs.writeFileSync(path.join(pageDir, "index.html"), pageHtml, "utf-8");
           }
+
+          // Clean up root index.html
+          fs.writeFileSync(
+            indexHtmlPath,
+            baseHtml.replace("<!--INITIAL_HTML-->", ""),
+            "utf-8",
+          );
         },
       },
     ],
