@@ -13,7 +13,6 @@ export default function Home() {
         <Hero />
         <ShowcaseGallery />
         <MaterialFeatures />
-        <HomeSteps />
       </main>
       <Footer />
     </div>

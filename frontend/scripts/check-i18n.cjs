@@ -27,10 +27,17 @@ function getSourceFiles(dir) {
   for (const entry of entries) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name !== "node_modules" && entry.name !== "dist" && entry.name !== "scratch") {
+      if (
+        entry.name !== "node_modules" &&
+        entry.name !== "dist" &&
+        entry.name !== "scratch"
+      ) {
         results.push(...getSourceFiles(full));
       }
-    } else if (entry.isFile() && (entry.name.endsWith(".tsx") || entry.name.endsWith(".ts"))) {
+    } else if (
+      entry.isFile() &&
+      (entry.name.endsWith(".tsx") || entry.name.endsWith(".ts"))
+    ) {
       if (!entry.name.endsWith(".d.ts")) {
         results.push(full);
       }
@@ -45,7 +52,10 @@ function checkCodeUsages(enKeys, nlKeys) {
   const tRegex = /\bt\(\s*["']([^"']+)["']/g;
 
   for (const filePath of files) {
-    if (filePath.includes("translations.ts") || filePath.includes("I18nContext.tsx")) {
+    if (
+      filePath.includes("translations.ts") ||
+      filePath.includes("I18nContext.tsx")
+    ) {
       continue;
     }
     const content = fs.readFileSync(filePath, "utf8");
@@ -145,13 +155,16 @@ function main() {
     for (const err of errors) {
       console.error(`  • [${err.type}] ${err.message}`);
     }
-    console.error(`\nFound ${errors.length} translation errors. Please resolve before proceeding.`);
+    console.error(
+      `\nFound ${errors.length} translation errors. Please resolve before proceeding.`,
+    );
     process.exit(1);
   }
 
-  console.log("✅ All translation keys are synchronized and verified across locales!");
+  console.log(
+    "✅ All translation keys are synchronized and verified across locales!",
+  );
   process.exit(0);
 }
 
 main();
-
