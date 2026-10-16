@@ -2192,13 +2192,6 @@ export const translations = {
     },
     seo: {
       default: {
-        title: `B2B 3D Printing Service Netherlands | Rapid Prototyping & Parts | ${businessInfo.name}`,
-        description:
-          "B2B 3D printing & rapid prototyping service in the Netherlands. Upload CAD/STEP files for functional prototypes, jigs & fixtures, and batch series.",
-        keywords:
-          "B2B 3D printing service Netherlands, rapid prototyping services, zakelijk 3D printen, functional plastic prototypes, STEP CAD file manufacturing, engineering-grade FDM prints, 3D printed jigs and fixtures, short-run plastic batch production, invoice billing for businesses, 3D printen op factuur, order 3D prints online Netherlands",
-      },
-      default: {
         title: `3D Printing Service Rotterdam & Netherlands | B2C, Students & B2B | ${businessInfo.name}`,
         description:
           "3D printing service in Rotterdam and across the Netherlands for consumers, hobbyists, students, and businesses. No minimum order: from single prints and cosplay to prototypes and batch production. Order online directly!",
