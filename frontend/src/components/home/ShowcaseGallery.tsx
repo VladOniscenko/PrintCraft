@@ -57,9 +57,7 @@ export default function ShowcaseGallery() {
               <span className="inline-block rounded-full bg-white/20 border border-white/20 px-3 py-1 text-xs font-bold">
                 {t(tag)}
               </span>
-              <h3 className="mt-3 text-xl font-black break-words hyphens-auto [overflow-wrap:anywhere]">
-                {t(title)}
-              </h3>
+              <h3 className="mt-3 text-xl font-black break-words hyphens-auto [overflow-wrap:anywhere]">{t(title)}</h3>
             </div>
           </article>
         ))}

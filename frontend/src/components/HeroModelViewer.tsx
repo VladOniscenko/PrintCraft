@@ -69,9 +69,7 @@ export default function HeroModelViewer({
   const ext = useMemo(() => getExt(src), [src]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const modelColor = useMemo(() => pickRandomColor(), [src]);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">(
-    "loading",
-  );
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
   const onInteractionStartRef = useRef(onInteractionStart);
   onInteractionStartRef.current = onInteractionStart;
