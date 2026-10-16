@@ -1,5 +1,4 @@
 {
-  "$schema": "https://agenticresourcediscovery.org/schemas/v1/schema.json",
   "specVersion": "1.0",
   "host": {
     "displayName": "Print My 3D",
@@ -7,74 +6,524 @@
   },
   "entries": [
     {
-      "identifier": "urn:ai:printmy3d.work:docs:llmstxt",
+      "identifier": "urn:air:printmy3d.work:docs:llmstxt",
       "displayName": "Print My 3D LLM Guidance",
-      "type": "text/markdown",
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
       "url": "https://printmy3d.work/llms.txt",
-      "description": "Agent guidance and overview of 3D printing capabilities, technical materials, and solutions.",
+      "description": "Agent guidance and overview of 3D printing capabilities, technical materials, tolerances, and solutions.",
       "representativeQueries": [
         "What 3D printing materials are offered?",
         "How fast can prototypes be manufactured and delivered?",
-        "3D printing service in Rotterdam"
+        "3D printing service technical guidelines in the Netherlands"
       ]
     },
     {
-      "identifier": "urn:ai:printmy3d.work:service:rapid-prototyping",
-      "displayName": "Rapid Prototyping Kunststof",
-      "type": "text/html",
-      "url": "https://printmy3d.work/nl/oplossingen/rapid-prototyping-kunststof",
-      "description": "Functional plastic rapid prototyping service in the Netherlands for mechanical verification and fit checks.",
+      "identifier": "urn:air:printmy3d.work:docs:llms-full",
+      "displayName": "Print My 3D Full LLM Documentation",
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
+      "url": "https://printmy3d.work/llms-full.txt",
+      "description": "Comprehensive documentation of all 3D printing solutions, regional Dutch city services, material specs, and FAQs.",
       "representativeQueries": [
-        "Rapid prototyping plastic parts",
-        "Functional 3D printed prototype in PLA or PETG",
-        "Plastic prototyping service Netherlands"
+        "Complete 3D printing documentation",
+        "Technical material specs PLA PETG TPU",
+        "Full 3D printing service directory Netherlands"
       ]
     },
     {
-      "identifier": "urn:ai:printmy3d.work:service:replacement-parts",
-      "displayName": "Vervangende Onderdelen Printen",
-      "type": "text/html",
-      "url": "https://printmy3d.work/nl/oplossingen/vervangende-onderdelen-printen",
-      "description": "Reverse-engineering and production of replacement parts for machines, consumer appliances, and custom components.",
-      "representativeQueries": [
-        "Order replacement parts 3D printed",
-        "Broken part reproduction with 3D printing",
-        "Custom mechanical spare parts"
-      ]
-    },
-    {
-      "identifier": "urn:ai:printmy3d.work:service:enclosures",
-      "displayName": "Elektronica Behuizingen op Maat",
-      "type": "text/html",
-      "url": "https://printmy3d.work/nl/oplossingen/elektronica-behuizingen-op-maat",
-      "description": "Custom printed electronic enclosures, PCB housings, and cable passthrough cases.",
-      "representativeQueries": [
-        "Custom electronics enclosure 3D printing",
-        "PCB housing manufactured to specs",
-        "Electronics enclosure prototype"
-      ]
-    },
-    {
-      "identifier": "urn:ai:printmy3d.work:service:jigs-fixtures",
-      "displayName": "Mallen & Kalibers (Jigs & Fixtures)",
-      "type": "text/html",
-      "url": "https://printmy3d.work/nl/oplossingen/mallen-kalibers-jigs-fixtures",
-      "description": "Manufacturing aids, alignment jigs, drill templates, and inspection fixtures for production lines.",
-      "representativeQueries": [
-        "Custom jigs and fixtures 3D printing",
-        "Manufacturing aids tooling",
-        "Assembly fixture fabrication"
-      ]
-    },
-    {
-      "identifier": "urn:ai:printmy3d.work:service:instant-quote",
+      "identifier": "urn:air:printmy3d.work:service:instant-quote",
       "displayName": "Print My 3D Instant Quote & Upload",
       "type": "text/html",
       "url": "https://printmy3d.work/nl/checkout",
-      "description": "Automated CAD/STL/3MF inspection and quotation tool for on-demand 3D printing.",
+      "description": "Automated CAD/STL/3MF inspection and instant quotation tool for on-demand 3D printing.",
       "representativeQueries": [
         "Upload STL for instant 3D print quote",
-        "Check 3D file printability and order"
+        "Check 3D file printability and order",
+        "Instant 3D printing pricing calculator"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:service:home",
+      "displayName": "Print My 3D - Professionele 3D Print Service Nederland",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl",
+      "description": "B2B and engineering 3D print service in the Netherlands. Upload CAD/STEP for rapid prototyping, jigs, fixtures, and serial production.",
+      "representativeQueries": [
+        "3D print service Nederland",
+        "Online 3D printen bestellen",
+        "Professionele FDM 3D printservice",
+        "3D printing Netherlands"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:service:replacementParts",
+      "displayName": "Vervangende Onderdelen Printen",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/oplossingen/vervangende-onderdelen-printen",
+      "description": "Voorkom het vervangen van complete apparaten door één enkel defect onderdeel. Met 3D-printen en reverse engineering maken we exacte replica's van gebroken kunststof tandwielen, behuizingsklemmen, handgrepen en industriële reserveonderdelen.",
+      "representativeQueries": [
+        "Kapot plastic onderdeel namaken of reserveonderdelen 3D-printen",
+        "Vervangend Onderdeel 3D Printen & Namaken",
+        "vervangend onderdeel 3D printen",
+        "kapot plastic onderdeel namaken"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:service:enclosures",
+      "displayName": "Elektronica Behuizingen op Maat",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/oplossingen/elektronica-behuizingen-op-maat",
+      "description": "Standaard behuizingen passen zelden exact. Met 3D-printen produceren we op maat gemaakte behuizingen inclusief kabeldoorvoeren, display-uitsparingen, ventilatiesleuven en montagelippen in vlamvertragende of hittebestendige materialen.",
+      "representativeQueries": [
+        "Maatwerk PCB casings, sensor mounts en DIN-rail behuizingen",
+        "Elektronica Behuizing 3D Printen op Maat",
+        "elektronica behuizing 3D printen",
+        "custom electronics enclosure"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:service:jigsFixtures",
+      "displayName": "Mallen, Kalibers & Jigs Fixtures",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/oplossingen/mallen-kalibers-jigs-fixtures",
+      "description": "Traditioneel frezen van productiemallen vergt vaak weken aan doorlooptijd. Met onze industriële 3D-print service produceren we direct slijtvaste mallen, laskalibers en montagesjablonen in PETG met ±0.1mm nauwkeurigheid.",
+      "representativeQueries": [
+        "Productiegereedschap, montagemallen en boorkalibers voor werkplaats en fabriek",
+        "Mallen en Kalibers 3D Printen (Jigs & Fixtures)",
+        "mallen en kalibers 3D printen",
+        "jigs & fixtures Nederland"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:service:prototyping",
+      "displayName": "Rapid Prototyping Kunststof",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/oplossingen/rapid-prototyping-kunststof",
+      "description": "Van eerste vormstudie tot mechanisch geteste nulserie: onze FDM rapid prototyping service ondersteunt ingenieursbureaus, startup hardware-ontwikkelaars en machinebouwers met snelle iteraties en zakelijke facturatie.",
+      "representativeQueries": [
+        "Functionele prototypes, CAD/STEP validatie en nulserie pre-productie",
+        "Rapid Prototyping Kunststof in Nederland",
+        "rapid prototyping Nederland",
+        "functioneel kunststof prototype"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:amsterdam",
+      "displayName": "3D Print Service Amsterdam",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/amsterdam",
+      "description": "Professionele industriële FDM 3D-printservice in Amsterdam (Noord-Holland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Amsterdam",
+        "3D printen in Amsterdam",
+        "Prototype laten printen Amsterdam",
+        "3D printing service Amsterdam"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:rotterdam",
+      "displayName": "3D Print Service Rotterdam",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/rotterdam",
+      "description": "Professionele industriële FDM 3D-printservice in Rotterdam (Zuid-Holland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Rotterdam",
+        "3D printen in Rotterdam",
+        "Prototype laten printen Rotterdam",
+        "3D printing service Rotterdam"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:den-haag",
+      "displayName": "3D Print Service Den Haag",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/den-haag",
+      "description": "Professionele industriële FDM 3D-printservice in Den Haag (Zuid-Holland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Den Haag",
+        "3D printen in Den Haag",
+        "Prototype laten printen Den Haag",
+        "3D printing service Den Haag"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:utrecht",
+      "displayName": "3D Print Service Utrecht",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/utrecht",
+      "description": "Professionele industriële FDM 3D-printservice in Utrecht (Utrecht) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Utrecht",
+        "3D printen in Utrecht",
+        "Prototype laten printen Utrecht",
+        "3D printing service Utrecht"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:eindhoven",
+      "displayName": "3D Print Service Eindhoven",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/eindhoven",
+      "description": "Professionele industriële FDM 3D-printservice in Eindhoven (Noord-Brabant) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Eindhoven",
+        "3D printen in Eindhoven",
+        "Prototype laten printen Eindhoven",
+        "3D printing service Eindhoven"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:tilburg",
+      "displayName": "3D Print Service Tilburg",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/tilburg",
+      "description": "Professionele industriële FDM 3D-printservice in Tilburg (Noord-Brabant) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Tilburg",
+        "3D printen in Tilburg",
+        "Prototype laten printen Tilburg",
+        "3D printing service Tilburg"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:groningen",
+      "displayName": "3D Print Service Groningen",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/groningen",
+      "description": "Professionele industriële FDM 3D-printservice in Groningen (Groningen) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Groningen",
+        "3D printen in Groningen",
+        "Prototype laten printen Groningen",
+        "3D printing service Groningen"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:almere",
+      "displayName": "3D Print Service Almere",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/almere",
+      "description": "Professionele industriële FDM 3D-printservice in Almere (Flevoland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Almere",
+        "3D printen in Almere",
+        "Prototype laten printen Almere",
+        "3D printing service Almere"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:breda",
+      "displayName": "3D Print Service Breda",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/breda",
+      "description": "Professionele industriële FDM 3D-printservice in Breda (Noord-Brabant) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Breda",
+        "3D printen in Breda",
+        "Prototype laten printen Breda",
+        "3D printing service Breda"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:nijmegen",
+      "displayName": "3D Print Service Nijmegen",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/nijmegen",
+      "description": "Professionele industriële FDM 3D-printservice in Nijmegen (Gelderland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Nijmegen",
+        "3D printen in Nijmegen",
+        "Prototype laten printen Nijmegen",
+        "3D printing service Nijmegen"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:apeldoorn",
+      "displayName": "3D Print Service Apeldoorn",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/apeldoorn",
+      "description": "Professionele industriële FDM 3D-printservice in Apeldoorn (Gelderland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Apeldoorn",
+        "3D printen in Apeldoorn",
+        "Prototype laten printen Apeldoorn",
+        "3D printing service Apeldoorn"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:haarlem",
+      "displayName": "3D Print Service Haarlem",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/haarlem",
+      "description": "Professionele industriële FDM 3D-printservice in Haarlem (Noord-Holland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Haarlem",
+        "3D printen in Haarlem",
+        "Prototype laten printen Haarlem",
+        "3D printing service Haarlem"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:arnhem",
+      "displayName": "3D Print Service Arnhem",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/arnhem",
+      "description": "Professionele industriële FDM 3D-printservice in Arnhem (Gelderland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Arnhem",
+        "3D printen in Arnhem",
+        "Prototype laten printen Arnhem",
+        "3D printing service Arnhem"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:enschede",
+      "displayName": "3D Print Service Enschede",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/enschede",
+      "description": "Professionele industriële FDM 3D-printservice in Enschede (Overijssel) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Enschede",
+        "3D printen in Enschede",
+        "Prototype laten printen Enschede",
+        "3D printing service Enschede"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:amersfoort",
+      "displayName": "3D Print Service Amersfoort",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/amersfoort",
+      "description": "Professionele industriële FDM 3D-printservice in Amersfoort (Utrecht) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Amersfoort",
+        "3D printen in Amersfoort",
+        "Prototype laten printen Amersfoort",
+        "3D printing service Amersfoort"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:zaanstad",
+      "displayName": "3D Print Service Zaanstad",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/zaanstad",
+      "description": "Professionele industriële FDM 3D-printservice in Zaanstad (Noord-Holland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Zaanstad",
+        "3D printen in Zaanstad",
+        "Prototype laten printen Zaanstad",
+        "3D printing service Zaanstad"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:s-hertogenbosch",
+      "displayName": "3D Print Service 's-Hertogenbosch",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/s-hertogenbosch",
+      "description": "Professionele industriële FDM 3D-printservice in 's-Hertogenbosch (Noord-Brabant) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service 's-Hertogenbosch",
+        "3D printen in 's-Hertogenbosch",
+        "Prototype laten printen 's-Hertogenbosch",
+        "3D printing service 's-Hertogenbosch"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:haarlemmermeer",
+      "displayName": "3D Print Service Haarlemmermeer",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/haarlemmermeer",
+      "description": "Professionele industriële FDM 3D-printservice in Haarlemmermeer (Noord-Holland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Haarlemmermeer",
+        "3D printen in Haarlemmermeer",
+        "Prototype laten printen Haarlemmermeer",
+        "3D printing service Haarlemmermeer"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:zwolle",
+      "displayName": "3D Print Service Zwolle",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/zwolle",
+      "description": "Professionele industriële FDM 3D-printservice in Zwolle (Overijssel) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Zwolle",
+        "3D printen in Zwolle",
+        "Prototype laten printen Zwolle",
+        "3D printing service Zwolle"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:zoetermeer",
+      "displayName": "3D Print Service Zoetermeer",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/zoetermeer",
+      "description": "Professionele industriële FDM 3D-printservice in Zoetermeer (Zuid-Holland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Zoetermeer",
+        "3D printen in Zoetermeer",
+        "Prototype laten printen Zoetermeer",
+        "3D printing service Zoetermeer"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:leiden",
+      "displayName": "3D Print Service Leiden",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/leiden",
+      "description": "Professionele industriële FDM 3D-printservice in Leiden (Zuid-Holland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Leiden",
+        "3D printen in Leiden",
+        "Prototype laten printen Leiden",
+        "3D printing service Leiden"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:leeuwarden",
+      "displayName": "3D Print Service Leeuwarden",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/leeuwarden",
+      "description": "Professionele industriële FDM 3D-printservice in Leeuwarden (Friesland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Leeuwarden",
+        "3D printen in Leeuwarden",
+        "Prototype laten printen Leeuwarden",
+        "3D printing service Leeuwarden"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:dordrecht",
+      "displayName": "3D Print Service Dordrecht",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/dordrecht",
+      "description": "Professionele industriële FDM 3D-printservice in Dordrecht (Zuid-Holland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Dordrecht",
+        "3D printen in Dordrecht",
+        "Prototype laten printen Dordrecht",
+        "3D printing service Dordrecht"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:maastricht",
+      "displayName": "3D Print Service Maastricht",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/maastricht",
+      "description": "Professionele industriële FDM 3D-printservice in Maastricht (Limburg) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Maastricht",
+        "3D printen in Maastricht",
+        "Prototype laten printen Maastricht",
+        "3D printing service Maastricht"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:ede",
+      "displayName": "3D Print Service Ede",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/ede",
+      "description": "Professionele industriële FDM 3D-printservice in Ede (Gelderland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Ede",
+        "3D printen in Ede",
+        "Prototype laten printen Ede",
+        "3D printing service Ede"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:delft",
+      "displayName": "3D Print Service Delft",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/delft",
+      "description": "Professionele industriële FDM 3D-printservice in Delft (Zuid-Holland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Delft",
+        "3D printen in Delft",
+        "Prototype laten printen Delft",
+        "3D printing service Delft"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:deventer",
+      "displayName": "3D Print Service Deventer",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/deventer",
+      "description": "Professionele industriële FDM 3D-printservice in Deventer (Overijssel) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Deventer",
+        "3D printen in Deventer",
+        "Prototype laten printen Deventer",
+        "3D printing service Deventer"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:city:alkmaar",
+      "displayName": "3D Print Service Alkmaar",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/3d-print-service/alkmaar",
+      "description": "Professionele industriële FDM 3D-printservice in Alkmaar (Noord-Holland) met snelle levering binnen 2-5 werkdagen via PostNL Zakelijk.",
+      "representativeQueries": [
+        "3D print service Alkmaar",
+        "3D printen in Alkmaar",
+        "Prototype laten printen Alkmaar",
+        "3D printing service Alkmaar"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:docs:faq",
+      "displayName": "Veelgestelde Vragen & Technische Kennisbank",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/faq",
+      "description": "Veelgestelde vragen over FDM printtoleranties, minimale wanddiktes, bestandseisen en materiaalkeuze (PLA, PETG, TPU, ABS).",
+      "representativeQueries": [
+        "3D printen veelgestelde vragen",
+        "Wat zijn de toleranties van FDM printen?",
+        "Minimale wanddikte 3D print"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:info:shipping-policy",
+      "displayName": "Verzend- en Leveringsbeleid PostNL",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/shipping-policy",
+      "description": "Informatie over verzending, verpakking en levering binnen 2 tot 5 werkdagen via PostNL Zakelijk in heel Nederland en België.",
+      "representativeQueries": [
+        "Wat is de levertijd van 3D prints?",
+        "PostNL bezorging 3D print service"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:info:privacy",
+      "displayName": "Privacybeleid & Bescherming CAD Bestanden",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/privacy",
+      "description": "Privacybeleid en strikte vertrouwelijkheidswaarborgen voor geüploade 3D CAD/STEP-modellen en klantgegevens.",
+      "representativeQueries": [
+        "Vertrouwelijke behandeling 3D CAD bestanden",
+        "Privacybeleid 3D printen"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:info:terms",
+      "displayName": "Algemene Voorwaarden",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/terms",
+      "description": "Algemene leverings- en betalingsvoorwaarden voor zakelijke en particuliere 3D printopdrachten.",
+      "representativeQueries": [
+        "Leveringsvoorwaarden 3D print service",
+        "Garantie op 3D prints"
+      ]
+    },
+    {
+      "identifier": "urn:air:printmy3d.work:info:refunds",
+      "displayName": "Retourbeleid & Kwaliteitsgarantie",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/refunds",
+      "description": "Kwaliteitsgarantie, tolerantiebeoordeling en herfabricagebeleid voor maatwerk 3D-geprinte onderdelen.",
+      "representativeQueries": [
+        "Retourbeleid maatwerk 3D printen",
+        "Herfabricage garantie 3D prints"
       ]
     }
   ]

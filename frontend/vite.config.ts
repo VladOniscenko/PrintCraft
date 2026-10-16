@@ -15,9 +15,38 @@ import {
 } from "./src/utils/seoStructuredData";
 import { dutchCities } from "./src/config/dutchCities";
 import { seoApplications } from "./src/config/seoApplications";
+import {
+  generateAiCatalog,
+  generateLlmsTxt,
+  generateLlmsFullTxt,
+} from "./src/utils/seoAiGenerator";
 
 const origin = getValidatedOrigin(businessInfo.website);
 const today = new Date().toISOString().split("T")[0];
+
+const aiCatalog = generateAiCatalog(origin);
+const aiCatalogJson = JSON.stringify(aiCatalog, null, 2);
+const llmsTxt = generateLlmsTxt(origin);
+const llmsFullTxt = generateLlmsFullTxt(origin);
+
+function syncPublicAiFiles(publicDir: string) {
+  const wellKnownDir = path.join(publicDir, ".well-known");
+  if (!fs.existsSync(wellKnownDir)) {
+    fs.mkdirSync(wellKnownDir, { recursive: true });
+  }
+  fs.writeFileSync(path.join(publicDir, "ai-catalog.json"), aiCatalogJson, "utf-8");
+  fs.writeFileSync(path.join(publicDir, "ard.json"), aiCatalogJson, "utf-8");
+  fs.writeFileSync(path.join(wellKnownDir, "ai-catalog.json"), aiCatalogJson, "utf-8");
+  fs.writeFileSync(path.join(wellKnownDir, "ard.json"), aiCatalogJson, "utf-8");
+  fs.writeFileSync(path.join(publicDir, "llms.txt"), llmsTxt, "utf-8");
+  fs.writeFileSync(path.join(publicDir, "llms-full.txt"), llmsFullTxt, "utf-8");
+}
+
+try {
+  syncPublicAiFiles(path.resolve(process.cwd(), "public"));
+} catch {
+  // Graceful fallback for read-only environments
+}
 
 const publicIndexableRoutes = [
   { subPath: "", priority: "1.0", changefreq: "weekly" },
@@ -86,6 +115,30 @@ ${supportedLanguages
   .join("\n")}
 </urlset>
 `,
+  },
+  "/ai-catalog.json": {
+    contentType: "application/json",
+    source: aiCatalogJson,
+  },
+  "/ard.json": {
+    contentType: "application/json",
+    source: aiCatalogJson,
+  },
+  "/.well-known/ai-catalog.json": {
+    contentType: "application/json",
+    source: aiCatalogJson,
+  },
+  "/.well-known/ard.json": {
+    contentType: "application/json",
+    source: aiCatalogJson,
+  },
+  "/llms.txt": {
+    contentType: "text/markdown",
+    source: llmsTxt,
+  },
+  "/llms-full.txt": {
+    contentType: "text/markdown",
+    source: llmsFullTxt,
   },
 };
 

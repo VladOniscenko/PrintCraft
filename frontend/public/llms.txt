@@ -13,31 +13,61 @@
 
 ## Kernoplossingen & Diensten
 
-- [Rapid Prototyping Kunststof](https://printmy3d.work/nl/oplossingen/rapid-prototyping-kunststof): Snelle validatie van mechanische pasvorm en esthetisch design met fijne laaghoogtes.
-- [Vervangende Onderdelen Printen](https://printmy3d.work/nl/oplossingen/vervangende-onderdelen-printen): Reverse-engineering en on-demand vervanging van versleten of niet meer leverbare componenten.
-- [Elektronica Behuizingen op Maat](https://printmy3d.work/nl/oplossingen/elektronica-behuizingen-op-maat): Duurzame behuizingen met exacte kabeldoorvoeren, schroefbussen en klikverbindingen voor PCB's.
-- [Mallen & Kalibers (Jigs & Fixtures)](https://printmy3d.work/nl/oplossingen/mallen-kalibers-jigs-fixtures): Productiehulpmiddelen, boormallen en assemblagekalibers voor fabrieken en werkplaatsen.
+- [Vervangende Onderdelen Printen](https://printmy3d.work/nl/oplossingen/vervangende-onderdelen-printen): Is er een plastic onderdeel van een apparaat, machine, oldtimer of gereedschap afgebroken? Wij reproduceren niet meer leverbare onderdelen in slijtvast PETG of rubberachtig TPU.
+- [Elektronica Behuizingen op Maat](https://printmy3d.work/nl/oplossingen/elektronica-behuizingen-op-maat): Perfect passende behuizingen voor printplaten (PCB), Raspberry Pi, ESP32, sensoren en industriële IoT-hardware met snap-fit deksels en schroefdraadinzetstukken.
+- [Mallen, Kalibers & Jigs Fixtures](https://printmy3d.work/nl/oplossingen/mallen-kalibers-jigs-fixtures): Versnel je assemblage- en inspectieprocessen met op maat gemaakte kalibers, montagemallen, gereedschapshouders en boorsjablonen binnen 2 tot 5 werkdagen.
+- [Rapid Prototyping Kunststof](https://printmy3d.work/nl/oplossingen/rapid-prototyping-kunststof): Zet je CAD- of STEP-model direct om in een tastbaar, functioneel prototype. Valideer ergonomie, passing en sterkte binnen 2 tot 5 werkdagen vóór kostbare serieproductie.
 
 ## Materialen & Specificaties
 
-- PLA: Biologisch afbreekbaar polymeer voor esthetische modellen, concept-prototypes en visuele controles.
-- PETG: Slagvast, UV-bestendig en chemisch resistent materiaal voor industriële componenten en buitenmontage.
-- TPU: Flexibel elastomeer met hoge slijtvastheid voor trillingsdempers, afdichtingen en flexibele koppelingen.
+- PLA: Biologisch afbreekbaar polymeer voor esthetische modellen, concept-prototypes en visuele controles (±0.1mm tolerantie).
+- PETG: Slagvast, UV-bestendig en chemisch resistent materiaal (tot 75°C) voor industriële componenten en buitenmontage.
+- TPU: Flexibel elastomeer met hoge slijtvastheid (Shore 95A) voor trillingsdempers, afdichtingen en flexibele koppelingen.
 - ABS: Hittebestendig en taai thermoplastisch materiaal voor veeleisende mechanische toepassingen.
 
-## Regionale Dekking
+## Regionale Dekking (Steden in Nederland)
 
-- [3D Print Service Amsterdam](https://printmy3d.work/nl/3d-print-service/amsterdam)
-- [3D Print Service Rotterdam](https://printmy3d.work/nl/3d-print-service/rotterdam)
-- [3D Print Service Utrecht](https://printmy3d.work/nl/3d-print-service/utrecht)
-- [3D Print Service Eindhoven](https://printmy3d.work/nl/3d-print-service/eindhoven)
-- [3D Print Service Den Haag](https://printmy3d.work/nl/3d-print-service/den-haag)
-- [3D Print Service Tilburg](https://printmy3d.work/nl/3d-print-service/tilburg)
-- [3D Print Service Groningen](https://printmy3d.work/nl/3d-print-service/groningen)
-- [3D Print Service Breda](https://printmy3d.work/nl/3d-print-service/breda)
+- [3D Print Service Amsterdam](https://printmy3d.work/nl/3d-print-service/amsterdam): Lokale 3D-printservice voor Amsterdam (Noord-Holland) met snelle bezorging.
+- [3D Print Service Rotterdam](https://printmy3d.work/nl/3d-print-service/rotterdam): Lokale 3D-printservice voor Rotterdam (Zuid-Holland) met snelle bezorging.
+- [3D Print Service Den Haag](https://printmy3d.work/nl/3d-print-service/den-haag): Lokale 3D-printservice voor Den Haag (Zuid-Holland) met snelle bezorging.
+- [3D Print Service Utrecht](https://printmy3d.work/nl/3d-print-service/utrecht): Lokale 3D-printservice voor Utrecht (Utrecht) met snelle bezorging.
+- [3D Print Service Eindhoven](https://printmy3d.work/nl/3d-print-service/eindhoven): Lokale 3D-printservice voor Eindhoven (Noord-Brabant) met snelle bezorging.
+- [3D Print Service Tilburg](https://printmy3d.work/nl/3d-print-service/tilburg): Lokale 3D-printservice voor Tilburg (Noord-Brabant) met snelle bezorging.
+- [3D Print Service Groningen](https://printmy3d.work/nl/3d-print-service/groningen): Lokale 3D-printservice voor Groningen (Groningen) met snelle bezorging.
+- [3D Print Service Almere](https://printmy3d.work/nl/3d-print-service/almere): Lokale 3D-printservice voor Almere (Flevoland) met snelle bezorging.
+- [3D Print Service Breda](https://printmy3d.work/nl/3d-print-service/breda): Lokale 3D-printservice voor Breda (Noord-Brabant) met snelle bezorging.
+- [3D Print Service Nijmegen](https://printmy3d.work/nl/3d-print-service/nijmegen): Lokale 3D-printservice voor Nijmegen (Gelderland) met snelle bezorging.
+- [3D Print Service Apeldoorn](https://printmy3d.work/nl/3d-print-service/apeldoorn): Lokale 3D-printservice voor Apeldoorn (Gelderland) met snelle bezorging.
+- [3D Print Service Haarlem](https://printmy3d.work/nl/3d-print-service/haarlem): Lokale 3D-printservice voor Haarlem (Noord-Holland) met snelle bezorging.
+- [3D Print Service Arnhem](https://printmy3d.work/nl/3d-print-service/arnhem): Lokale 3D-printservice voor Arnhem (Gelderland) met snelle bezorging.
+- [3D Print Service Enschede](https://printmy3d.work/nl/3d-print-service/enschede): Lokale 3D-printservice voor Enschede (Overijssel) met snelle bezorging.
+- [3D Print Service Amersfoort](https://printmy3d.work/nl/3d-print-service/amersfoort): Lokale 3D-printservice voor Amersfoort (Utrecht) met snelle bezorging.
+- [3D Print Service Zaanstad](https://printmy3d.work/nl/3d-print-service/zaanstad): Lokale 3D-printservice voor Zaanstad (Noord-Holland) met snelle bezorging.
+- [3D Print Service 's-Hertogenbosch](https://printmy3d.work/nl/3d-print-service/s-hertogenbosch): Lokale 3D-printservice voor 's-Hertogenbosch (Noord-Brabant) met snelle bezorging.
+- [3D Print Service Haarlemmermeer](https://printmy3d.work/nl/3d-print-service/haarlemmermeer): Lokale 3D-printservice voor Haarlemmermeer (Noord-Holland) met snelle bezorging.
+- [3D Print Service Zwolle](https://printmy3d.work/nl/3d-print-service/zwolle): Lokale 3D-printservice voor Zwolle (Overijssel) met snelle bezorging.
+- [3D Print Service Zoetermeer](https://printmy3d.work/nl/3d-print-service/zoetermeer): Lokale 3D-printservice voor Zoetermeer (Zuid-Holland) met snelle bezorging.
+- [3D Print Service Leiden](https://printmy3d.work/nl/3d-print-service/leiden): Lokale 3D-printservice voor Leiden (Zuid-Holland) met snelle bezorging.
+- [3D Print Service Leeuwarden](https://printmy3d.work/nl/3d-print-service/leeuwarden): Lokale 3D-printservice voor Leeuwarden (Friesland) met snelle bezorging.
+- [3D Print Service Dordrecht](https://printmy3d.work/nl/3d-print-service/dordrecht): Lokale 3D-printservice voor Dordrecht (Zuid-Holland) met snelle bezorging.
+- [3D Print Service Maastricht](https://printmy3d.work/nl/3d-print-service/maastricht): Lokale 3D-printservice voor Maastricht (Limburg) met snelle bezorging.
+- [3D Print Service Ede](https://printmy3d.work/nl/3d-print-service/ede): Lokale 3D-printservice voor Ede (Gelderland) met snelle bezorging.
+- [3D Print Service Delft](https://printmy3d.work/nl/3d-print-service/delft): Lokale 3D-printservice voor Delft (Zuid-Holland) met snelle bezorging.
+- [3D Print Service Deventer](https://printmy3d.work/nl/3d-print-service/deventer): Lokale 3D-printservice voor Deventer (Overijssel) met snelle bezorging.
+- [3D Print Service Alkmaar](https://printmy3d.work/nl/3d-print-service/alkmaar): Lokale 3D-printservice voor Alkmaar (Noord-Holland) met snelle bezorging.
 
-## Direct Offerte Aanvragen
+## Direct Offerte Aanvragen & Bestandsinspectie
 
 - [Offerte Configurator](https://printmy3d.work/nl/checkout): Upload uw STL of 3MF bestand voor automatische geometrie-inspectie en directe orderverwerking.
-- [Veelgestelde Vragen (FAQ)](https://printmy3d.work/nl/faq): Technische richtlijnen voor wanddiktes, toleranties en bestandsoptimalisatie.
 
+## Kennisbank, Beleid & Klantenservice
+
+- [Veelgestelde Vragen (FAQ)](https://printmy3d.work/nl/faq): Technische richtlijnen voor wanddiktes, toleranties en bestandsoptimalisatie.
+- [Verzendbeleid](https://printmy3d.work/nl/shipping-policy): Informatie over verzending binnen 2-5 werkdagen met PostNL.
+- [Privacybeleid](https://printmy3d.work/nl/privacy): Vertrouwelijke bescherming van persoonsgegevens en CAD-bestanden.
+- [Algemene Voorwaarden](https://printmy3d.work/nl/terms): Leverings- en betalingsvoorwaarden voor zakelijke en particuliere opdrachten.
+- [Retourbeleid](https://printmy3d.work/nl/refunds): Richtlijnen voor kwaliteitsgarantie en herfabricage van maatwerkproducten.
+
+## Volledige Documentatie (LLMs Full)
+
+- [Volledige Documentatie](https://printmy3d.work/llms-full.txt): Compleet geconsolideerd tekstbestand met alle technische specificaties, FAQs en stedeninformatie.
