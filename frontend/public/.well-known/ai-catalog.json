@@ -43,15 +43,16 @@
     },
     {
       "identifier": "urn:air:printmy3d.work:service:home",
-      "displayName": "Print My 3D - Professionele 3D Print Service Nederland",
+      "displayName": "Print My 3D - 3D Print Service Rotterdam & Nederland (B2C, Studenten & B2B)",
       "type": "text/html",
       "url": "https://printmy3d.work/nl",
-      "description": "B2B and engineering 3D print service in the Netherlands. Upload CAD/STEP for rapid prototyping, jigs, fixtures, and serial production.",
+      "description": "Allround 3D print service in Rotterdam en heel Nederland voor particulieren (B2C), hobbyisten, studenten én bedrijven (B2B). Geen minimale ordergrootte: van enkelstuks, cosplay props, studenten afstudeerprojecten en vervangende onderdelen tot industriële prototypes en kleinseries.",
       "representativeQueries": [
-        "3D print service Nederland",
-        "Online 3D printen bestellen",
-        "Professionele FDM 3D printservice",
-        "3D printing Netherlands"
+        "3D print service Rotterdam",
+        "3D print shop Rotterdam",
+        "3D printen particulier Rotterdam",
+        "3D printen studenten Rotterdam",
+        "Online 3D printen bestellen"
       ]
     },
     {

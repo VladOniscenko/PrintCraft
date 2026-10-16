@@ -35,7 +35,9 @@ export function getDomainFromOrigin(origin: string): string {
  * Automatically generates an Agentic Resource Discovery (ARD) compliant catalog
  * manifest containing entries for every indexable URL on the site.
  */
-export function generateAiCatalog(originUrl: string = businessInfo.website): ArdCatalog {
+export function generateAiCatalog(
+  originUrl: string = businessInfo.website,
+): ArdCatalog {
   const origin = getValidatedOrigin(originUrl);
   const domain = getDomainFromOrigin(origin);
 
@@ -91,10 +93,7 @@ export function generateAiCatalog(originUrl: string = businessInfo.website): Ard
         "3D print shop Rotterdam",
         "3D printen particulier Rotterdam",
         "3D printen studenten Rotterdam",
-        "Cosplay 3D printen miniaturen",
-        "3D print service Nederland",
         "Online 3D printen bestellen",
-        "3D print op maat zonder minimum",
       ],
     },
   ];
@@ -216,7 +215,9 @@ export function generateAiCatalog(originUrl: string = businessInfo.website): Ard
  * Generates llms.txt adhering to the llmstxt.org specification,
  * dynamically linking to all core solutions, cities, and tools.
  */
-export function generateLlmsTxt(originUrl: string = businessInfo.website): string {
+export function generateLlmsTxt(
+  originUrl: string = businessInfo.website,
+): string {
   const origin = getValidatedOrigin(originUrl);
 
   const solutionLinks = seoApplications
@@ -291,7 +292,9 @@ ${cityLinks}
  * Generates llms-full.txt providing full-text documentation of all solutions,
  * detailed technical material specifications, FAQs, and city coordinates.
  */
-export function generateLlmsFullTxt(originUrl: string = businessInfo.website): string {
+export function generateLlmsFullTxt(
+  originUrl: string = businessInfo.website,
+): string {
   const origin = getValidatedOrigin(originUrl);
 
   const solutionSections = seoApplications
@@ -393,4 +396,3 @@ ${cityDirectory}
 5. **Productie & Verzending**: Productie gestart binnen 24 uur, verzonden via PostNL Zakelijk met Track & Trace.
 `;
 }
-
