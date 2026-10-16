@@ -29,25 +29,6 @@ const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
 const FALLBACK_SLIDES: HeroSlide[] = [
   {
     id: "fallback-slide-1",
-    title: "High-Precision PETG & PLA 3D Printing",
-    titleNl: "Hoge Precisie PETG & PLA 3D-Printen",
-    subtext:
-      "Professional FDM printing: Order custom 3D prints in high-durability Black or White PETG. UV-resistant, impact-proof, and heat tolerant.",
-    subtextNl:
-      "Professioneel FDM printen: Bestel 3D-prints in oersterk zwart of wit PETG. Weerbestendig, slagvast en hittebestendig.",
-    priceText: "",
-    priceTextNl: "",
-    mediaUrl: "/uploads/hero/cable-holder.stl",
-    mediaType: "model3d",
-    instructionTooltip:
-      "High dimensional precision FDM printing for functional and mechanical components.",
-    instructionTooltipNl:
-      "Hoge maatnauwkeurigheid FDM-printen voor functionele en mechanische componenten.",
-    isActive: true,
-    sortOrder: 1,
-  },
-  {
-    id: "fallback-slide-2",
     title: "HueForge Filament Painting: Turn Pictures into 3D Art",
     titleNl: "HueForge Filament Painting: Maak van je Foto 3D Kunst",
     subtext:
@@ -62,6 +43,25 @@ const FALLBACK_SLIDES: HeroSlide[] = [
       "Drop any picture in our configurator for an instant 3D relief preview with color swaps.",
     instructionTooltipNl:
       "Sleep je afbeelding in onze configurator voor een directe full-color 3D reliëf weergave.",
+    isActive: true,
+    sortOrder: 1,
+  },
+  {
+    id: "fallback-slide-2",
+    title: "High-Precision PETG & PLA 3D Printing",
+    titleNl: "Hoge Precisie PETG & PLA 3D-Printen",
+    subtext:
+      "Professional FDM printing: Order custom 3D prints in high-durability Black or White PETG. UV-resistant, impact-proof, and heat tolerant.",
+    subtextNl:
+      "Professioneel FDM printen: Bestel 3D-prints in oersterk zwart of wit PETG. Weerbestendig, slagvast en hittebestendig.",
+    priceText: "",
+    priceTextNl: "",
+    mediaUrl: "/uploads/hero/cable-holder.stl",
+    mediaType: "model3d",
+    instructionTooltip:
+      "High dimensional precision FDM printing for functional and mechanical components.",
+    instructionTooltipNl:
+      "Hoge maatnauwkeurigheid FDM-printen voor functionele en mechanische componenten.",
     isActive: true,
     sortOrder: 2,
   },
@@ -126,7 +126,12 @@ export default function Hero() {
       try {
         const data = await getActiveHeroSlides();
         if (active && Array.isArray(data) && data.length > 0) {
-          setSlides(data);
+          const sorted = [...data].sort((a, b) => {
+            if (a.mediaType === "image" && b.mediaType !== "image") return -1;
+            if (a.mediaType !== "image" && b.mediaType === "image") return 1;
+            return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+          });
+          setSlides(sorted);
           setCurrentIndex(0);
         }
       } catch (err) {

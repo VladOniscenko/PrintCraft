@@ -1,75 +1,81 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "name": "Print My 3D",
-  "description": "Professional 3D printing and rapid prototyping service in the Netherlands.",
-  "website": "https://printmy3d.work",
-  "version": "1.0.0",
-  "manufacturing": {
-    "leadTime": "2-5 business days",
-    "deliveryRegions": ["NL", "BE"],
-    "carrier": "PostNL",
-    "tolerances": "±0.2mm",
-    "acceptedFileFormats": [".stl", ".3mf", ".obj", ".step"]
+  "$schema": "https://agenticresourcediscovery.org/schemas/v1/schema.json",
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "Print My 3D",
+    "identifier": "printmy3d.work"
   },
-  "services": [
+  "entries": [
     {
-      "id": "rapid-prototyping",
-      "name": "Rapid Prototyping Kunststof",
+      "identifier": "urn:ai:printmy3d.work:docs:llmstxt",
+      "displayName": "Print My 3D LLM Guidance",
+      "type": "text/markdown",
+      "url": "https://printmy3d.work/llms.txt",
+      "description": "Agent guidance and overview of 3D printing capabilities, technical materials, and solutions.",
+      "representativeQueries": [
+        "What 3D printing materials are offered?",
+        "How fast can prototypes be manufactured and delivered?",
+        "3D printing service in Rotterdam"
+      ]
+    },
+    {
+      "identifier": "urn:ai:printmy3d.work:service:rapid-prototyping",
+      "displayName": "Rapid Prototyping Kunststof",
+      "type": "text/html",
       "url": "https://printmy3d.work/nl/oplossingen/rapid-prototyping-kunststof",
-      "description": "Fast turn-around 3D printing for functional and visual prototyping.",
-      "technologies": ["FDM", "FFF"],
-      "materials": ["PLA", "PETG", "ABS", "TPU"]
+      "description": "Functional plastic rapid prototyping service in the Netherlands for mechanical verification and fit checks.",
+      "representativeQueries": [
+        "Rapid prototyping plastic parts",
+        "Functional 3D printed prototype in PLA or PETG",
+        "Plastic prototyping service Netherlands"
+      ]
     },
     {
-      "id": "replacement-parts",
-      "name": "Vervangende Onderdelen Printen",
+      "identifier": "urn:ai:printmy3d.work:service:replacement-parts",
+      "displayName": "Vervangende Onderdelen Printen",
+      "type": "text/html",
       "url": "https://printmy3d.work/nl/oplossingen/vervangende-onderdelen-printen",
-      "description": "Exact replacement components for machinery, appliances, and tools.",
-      "technologies": ["FDM"],
-      "materials": ["PETG", "ABS"]
+      "description": "Reverse-engineering and production of replacement parts for machines, consumer appliances, and custom components.",
+      "representativeQueries": [
+        "Order replacement parts 3D printed",
+        "Broken part reproduction with 3D printing",
+        "Custom mechanical spare parts"
+      ]
     },
     {
-      "id": "enclosures",
-      "name": "Elektronica Behuizingen op Maat",
+      "identifier": "urn:ai:printmy3d.work:service:enclosures",
+      "displayName": "Elektronica Behuizingen op Maat",
+      "type": "text/html",
       "url": "https://printmy3d.work/nl/oplossingen/elektronica-behuizingen-op-maat",
-      "description": "Custom housings for electronics, PCB mounting, and connector integration.",
-      "technologies": ["FDM"],
-      "materials": ["PLA", "PETG", "ABS"]
+      "description": "Custom printed electronic enclosures, PCB housings, and cable passthrough cases.",
+      "representativeQueries": [
+        "Custom electronics enclosure 3D printing",
+        "PCB housing manufactured to specs",
+        "Electronics enclosure prototype"
+      ]
     },
     {
-      "id": "jigs-fixtures",
-      "name": "Mallen & Kalibers (Jigs & Fixtures)",
+      "identifier": "urn:ai:printmy3d.work:service:jigs-fixtures",
+      "displayName": "Mallen & Kalibers (Jigs & Fixtures)",
+      "type": "text/html",
       "url": "https://printmy3d.work/nl/oplossingen/mallen-kalibers-jigs-fixtures",
-      "description": "Manufacturing aids, alignment jigs, and inspection fixtures.",
-      "technologies": ["FDM"],
-      "materials": ["PETG", "TPU"]
-    }
-  ],
-  "materials": [
-    {
-      "code": "PLA",
-      "name": "Polylactic Acid",
-      "category": "Standard Thermoplastic",
-      "features": ["High detail fidelity", "Smooth surface finish", "Biodegradable base"]
+      "description": "Manufacturing aids, alignment jigs, drill templates, and inspection fixtures for production lines.",
+      "representativeQueries": [
+        "Custom jigs and fixtures 3D printing",
+        "Manufacturing aids tooling",
+        "Assembly fixture fabrication"
+      ]
     },
     {
-      "code": "PETG",
-      "name": "Polyethylene Terephthalate Glycol",
-      "category": "Engineering Polymer",
-      "features": ["Impact resistant", "Chemical resistant", "UV stable", "Weatherproof"]
-    },
-    {
-      "code": "TPU",
-      "name": "Thermoplastic Polyurethane",
-      "category": "Elastomer",
-      "features": ["High flexibility", "Shore 95A hardness", "Vibration dampening", "Abrasion resistant"]
-    },
-    {
-      "code": "ABS",
-      "name": "Acrylonitrile Butadiene Styrene",
-      "category": "Structural Thermoplastic",
-      "features": ["Heat resistant up to 90°C", "High toughness", "Machinable"]
+      "identifier": "urn:ai:printmy3d.work:service:instant-quote",
+      "displayName": "Print My 3D Instant Quote & Upload",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/checkout",
+      "description": "Automated CAD/STL/3MF inspection and quotation tool for on-demand 3D printing.",
+      "representativeQueries": [
+        "Upload STL for instant 3D print quote",
+        "Check 3D file printability and order"
+      ]
     }
   ]
 }
-

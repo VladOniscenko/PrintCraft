@@ -1,0 +1,81 @@
+{
+  "$schema": "https://agenticresourcediscovery.org/schemas/v1/schema.json",
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "Print My 3D",
+    "identifier": "printmy3d.work"
+  },
+  "entries": [
+    {
+      "identifier": "urn:ai:printmy3d.work:docs:llmstxt",
+      "displayName": "Print My 3D LLM Guidance",
+      "type": "text/markdown",
+      "url": "https://printmy3d.work/llms.txt",
+      "description": "Agent guidance and overview of 3D printing capabilities, technical materials, and solutions.",
+      "representativeQueries": [
+        "What 3D printing materials are offered?",
+        "How fast can prototypes be manufactured and delivered?",
+        "3D printing service in Rotterdam"
+      ]
+    },
+    {
+      "identifier": "urn:ai:printmy3d.work:service:rapid-prototyping",
+      "displayName": "Rapid Prototyping Kunststof",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/oplossingen/rapid-prototyping-kunststof",
+      "description": "Functional plastic rapid prototyping service in the Netherlands for mechanical verification and fit checks.",
+      "representativeQueries": [
+        "Rapid prototyping plastic parts",
+        "Functional 3D printed prototype in PLA or PETG",
+        "Plastic prototyping service Netherlands"
+      ]
+    },
+    {
+      "identifier": "urn:ai:printmy3d.work:service:replacement-parts",
+      "displayName": "Vervangende Onderdelen Printen",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/oplossingen/vervangende-onderdelen-printen",
+      "description": "Reverse-engineering and production of replacement parts for machines, consumer appliances, and custom components.",
+      "representativeQueries": [
+        "Order replacement parts 3D printed",
+        "Broken part reproduction with 3D printing",
+        "Custom mechanical spare parts"
+      ]
+    },
+    {
+      "identifier": "urn:ai:printmy3d.work:service:enclosures",
+      "displayName": "Elektronica Behuizingen op Maat",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/oplossingen/elektronica-behuizingen-op-maat",
+      "description": "Custom printed electronic enclosures, PCB housings, and cable passthrough cases.",
+      "representativeQueries": [
+        "Custom electronics enclosure 3D printing",
+        "PCB housing manufactured to specs",
+        "Electronics enclosure prototype"
+      ]
+    },
+    {
+      "identifier": "urn:ai:printmy3d.work:service:jigs-fixtures",
+      "displayName": "Mallen & Kalibers (Jigs & Fixtures)",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/oplossingen/mallen-kalibers-jigs-fixtures",
+      "description": "Manufacturing aids, alignment jigs, drill templates, and inspection fixtures for production lines.",
+      "representativeQueries": [
+        "Custom jigs and fixtures 3D printing",
+        "Manufacturing aids tooling",
+        "Assembly fixture fabrication"
+      ]
+    },
+    {
+      "identifier": "urn:ai:printmy3d.work:service:instant-quote",
+      "displayName": "Print My 3D Instant Quote & Upload",
+      "type": "text/html",
+      "url": "https://printmy3d.work/nl/checkout",
+      "description": "Automated CAD/STL/3MF inspection and quotation tool for on-demand 3D printing.",
+      "representativeQueries": [
+        "Upload STL for instant 3D print quote",
+        "Check 3D file printability and order"
+      ]
+    }
+  ]
+}

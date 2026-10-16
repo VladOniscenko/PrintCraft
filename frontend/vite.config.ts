@@ -190,10 +190,34 @@ export default defineConfig(({ mode }) => {
             return;
           }
 
-          const baseTemplate = await fs.promises.readFile(
+          let baseTemplate = await fs.promises.readFile(
             templatePath,
             "utf-8",
           );
+
+          // Find emitted CSS file in dist/assets and inline it to eliminate render-blocking stylesheet
+          const assetsDir = path.join(distDir, "assets");
+          try {
+            const assetFiles = await fs.promises.readdir(assetsDir);
+            const cssFile = assetFiles.find(
+              (f) => f.startsWith("index-") && f.endsWith(".css"),
+            );
+            if (cssFile) {
+              const cssPath = path.join(assetsDir, cssFile);
+              const cssContent = await fs.promises.readFile(cssPath, "utf-8");
+              const cssLinkRegex =
+                /<link\s+[^>]*rel=["']stylesheet["'][^>]*href=["']\/assets\/index-[^"']+\.css["'][^>]*>/;
+              if (cssLinkRegex.test(baseTemplate)) {
+                baseTemplate = baseTemplate.replace(
+                  cssLinkRegex,
+                  `<style id="inlined-app-css">\n${cssContent}\n</style>`,
+                );
+                console.log(`  ✓ Inlined critical CSS: /assets/${cssFile}`);
+              }
+            }
+          } catch (err) {
+            console.warn("Could not inline CSS:", err);
+          }
 
           // 1. Build temporary SSR bundle
           const { build } = await import("vite");
