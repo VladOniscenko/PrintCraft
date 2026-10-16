@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 import type { StatusPanelProps } from "../types";
 import ModelInspectorModal from "../../ModelInspectorModal";
-import Generate3MFButton from "../Generate3MFButton";
 
 export default function PrintingPanel({
   order,
@@ -159,7 +158,6 @@ export default function PrintingPanel({
                       </button>
                     );
                   })()}
-                  <Generate3MFButton item={item} />
                 </div>
               </div>
 

@@ -157,7 +157,7 @@ export default function AdminOrderDetail() {
             <CustomerShippingCard order={order} onRefresh={fetchOrder} />
 
             {/* Card 2: Uploaded Files & 3D Assets (.stl, .step, images) */}
-            <FilesAssetsCard order={order} />
+            <FilesAssetsCard order={order} onRefresh={fetchOrder} />
 
             {/* Card 3: Unified Communication Timeline & Note Composer */}
             <CommunicationTimelineCard order={order} onRefresh={fetchOrder} />

@@ -105,8 +105,6 @@ public class AdminOrderItemDto
     public string PrintQuality { get; set; } = "Standard (0.20mm)";
     public bool SupportsNeeded { get; set; }
 
-    public Guid? AutoForgeJobId { get; set; }
-
     public List<OrderItemAttachmentDto> Attachments { get; set; } = new();
     public List<OrderFileAssetDto> Files { get; set; } = new();
 }

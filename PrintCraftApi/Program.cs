@@ -59,12 +59,6 @@ builder.Services.AddSingleton<IPricingQueue, PricingQueue>();
 builder.Services.AddHostedService<PricingBackgroundWorker>();
 builder.Services.AddScoped<OrderStatusStateMachine>();
 
-var autoForgeConfig = new AutoForgeConfig();
-builder.Configuration.GetSection("AutoForge").Bind(autoForgeConfig);
-builder.Services.AddSingleton(autoForgeConfig);
-builder.Services.AddScoped<AutoForgeService>();
-builder.Services.AddSingleton<AutoForgeQueueService>();
-builder.Services.AddHostedService<AutoForgeWorker>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -353,7 +347,6 @@ using (var scope = app.Services.CreateScope())
     db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PrintQuality\" character varying(64) NOT NULL DEFAULT 'Standard (0.20mm)';");
     db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"SupportsNeeded\" boolean NOT NULL DEFAULT FALSE;");
     db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PlateCost\" double precision NOT NULL DEFAULT 2.0;");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"AutoForgeJobId\" uuid NULL;");
 
     // Epic 8: State machine production fields
     db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedPrinter\" text NULL;");

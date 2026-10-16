@@ -14,6 +14,7 @@ import ModelInspectorModal from "../../ModelInspectorModal";
 
 interface FilesAssetsCardProps {
   order: OrderDetailsDto;
+  onRefresh?: () => void | Promise<void>;
 }
 
 export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {

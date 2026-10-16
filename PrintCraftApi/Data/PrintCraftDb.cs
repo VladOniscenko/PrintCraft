@@ -23,7 +23,6 @@ public class PrintCraftDb : DbContext
     public DbSet<QuoteDraft> QuoteDrafts => Set<QuoteDraft>();
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
     public DbSet<HeroSlide> HeroSlides => Set<HeroSlide>();
-    public DbSet<AutoForgeJob> AutoForgeJobs => Set<AutoForgeJob>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

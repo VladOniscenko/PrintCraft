@@ -28,9 +28,6 @@ namespace PrintCraftApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AutoForgeJobId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasColumnType("text");
@@ -121,33 +118,6 @@ namespace PrintCraftApi.Migrations
                     b.HasIndex("OrderItemId", "Kind");
 
                     b.ToTable("OrderItemAttachments");
-                });
-
-            modelBuilder.Entity("PrintCraftApi.Models.AutoForgeJob", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FilePath")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AutoForgeJobs");
                 });
 
             modelBuilder.Entity("PrintCraftApi.Models.EmailTemplate", b =>

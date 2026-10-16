@@ -6,6 +6,7 @@ using PrintCraftApi.Data;
 using System.Text;
 using System.Text.Json;
 using PrintCraftApi.Validation;
+using PrintCraftApi.Models;
 
 namespace PrintCraftApi.Controllers;
 
@@ -247,6 +248,149 @@ public class UploadController : ControllerBase
             .ToArray();
 
         return Ok(files);
+    }
+
+    [HttpPost("models/cleanup")]
+    [Authorize(Roles = "admin")]
+    [EnableRateLimiting("AuthBurst")]
+    public async Task<IActionResult> CleanupOldOrderModels()
+    {
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+        if (!Directory.Exists(uploadsFolder))
+            return Ok(new { deletedCount = 0, freedBytes = 0L, message = "No files found to clean up." });
+
+        var eligibleStatuses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "cancelled", "completed", "returned", "delivered"
+        };
+
+        // All orders with items and attachments
+        var orders = await _db.Orders
+            .Include(o => o.Items)
+            .ThenInclude(i => i.Attachments)
+            .ToListAsync();
+
+        // Hero slide media URLs that must never be deleted
+        var heroSlideMediaUrls = await _db.HeroSlides
+            .AsNoTracking()
+            .Select(s => s.MediaUrl)
+            .Where(m => !string.IsNullOrWhiteSpace(m))
+            .ToListAsync();
+
+        var heroSlideFileNames = heroSlideMediaUrls
+            .Select(url => ExtractFileNameFromAssetUrl(url))
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        // Map file names to the set of orders referencing them
+        var orderReferencesByFile = new Dictionary<string, List<Order>>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var order in orders)
+        {
+            foreach (var item in order.Items)
+            {
+                var candidateNames = new[]
+                {
+                    ExtractFileNameFromAssetUrl(item.FileUrl),
+                    ExtractFileNameFromAssetUrl(item.ImageUrl),
+                }.Concat(item.Attachments.Select(a => ExtractFileNameFromAssetUrl(a.Url)))
+                .Where(n => !string.IsNullOrWhiteSpace(n));
+
+                foreach (var name in candidateNames)
+                {
+                    if (!orderReferencesByFile.TryGetValue(name!, out var list))
+                    {
+                        list = new List<Order>();
+                        orderReferencesByFile[name!] = list;
+                    }
+                    if (!list.Any(o => o.Id == order.Id))
+                    {
+                        list.Add(order);
+                    }
+                }
+            }
+        }
+
+        var allDiskFiles = Directory
+            .EnumerateFiles(uploadsFolder, "*", SearchOption.AllDirectories)
+            .Select(p => new FileInfo(p))
+            .Where(info => AllowedExtensions.Contains(info.Extension) && !info.Name.EndsWith(UploadMetadataSuffix, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        int deletedCount = 0;
+        long freedBytes = 0;
+        var deletedFileNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var fileInfo in allDiskFiles)
+        {
+            var fileName = fileInfo.Name;
+            var relPath = Path.GetRelativePath(uploadsFolder, fileInfo.FullName).Replace('\\', '/');
+            var url = $"/uploads/{relPath}";
+
+            // Protected if in hero slides
+            if (heroSlideFileNames.Contains(fileName) || heroSlideMediaUrls.Any(m => string.Equals(m, url, StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            orderReferencesByFile.TryGetValue(fileName, out var linkedOrders);
+
+            // A file is eligible for cleanup if it is connected to orders AND ALL connected orders have an eligible status (cancelled, completed, returned, delivered)
+            // Or if it is completely unlinked to any order (orphan)
+            bool isOnlyDoneOrders = linkedOrders != null && linkedOrders.Count > 0 && linkedOrders.All(o => eligibleStatuses.Contains(o.Status));
+            bool isOrphan = linkedOrders == null || linkedOrders.Count == 0;
+
+            if (isOnlyDoneOrders || isOrphan)
+            {
+                try
+                {
+                    var size = fileInfo.Length;
+                    fileInfo.Delete();
+                    DeleteUploadMetadataIfExists(fileInfo.FullName);
+                    deletedCount++;
+                    freedBytes += size;
+                    deletedFileNames.Add(fileName);
+                }
+                catch
+                {
+                    // Ignore deletion failures for individual locked files
+                }
+            }
+        }
+
+        // Clean up DB references for deleted files on eligible orders
+        if (deletedFileNames.Count > 0)
+        {
+            foreach (var order in orders.Where(o => eligibleStatuses.Contains(o.Status)))
+            {
+                foreach (var item in order.Items)
+                {
+                    var attsToRemove = item.Attachments
+                        .Where(a => deletedFileNames.Contains(ExtractFileNameFromAssetUrl(a.Url) ?? ""))
+                        .ToList();
+                    foreach (var att in attsToRemove)
+                    {
+                        _db.OrderItemAttachments.Remove(att);
+                    }
+
+                    if (!string.IsNullOrEmpty(item.FileUrl) &&
+                        deletedFileNames.Contains(ExtractFileNameFromAssetUrl(item.FileUrl) ?? ""))
+                    {
+                        item.FileUrl = null;
+                    }
+
+                }
+            }
+
+            await _db.SaveChangesAsync();
+        }
+
+        return Ok(new
+        {
+            deletedCount,
+            freedBytes,
+            message = $"Cleanup completed. Deleted {deletedCount} files."
+        });
     }
 
     [HttpDelete("models")]

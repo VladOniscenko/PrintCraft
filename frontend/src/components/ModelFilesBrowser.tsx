@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Boxes, ExternalLink, RefreshCcw, Search } from "lucide-react";
+import { Boxes, ExternalLink, RefreshCcw, Search, Trash2, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import AdminLayout from "./admin/AdminLayout";
 import AdminBreadcrumb from "./admin/AdminBreadcrumb";
@@ -33,6 +33,35 @@ export default function ModelFilesBrowser() {
   const [query, setQuery] = useState("");
   const [files, setFiles] = useState<ModelFile[]>([]);
   const [deletingFileName, setDeletingFileName] = useState<string | null>(null);
+  const [cleaningUp, setCleaningUp] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const handleCleanup = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to clean up unused files? Files connected only to cancelled, completed, or returned orders (and orphan uploads) will be deleted. Active order files and hero slide media are strictly preserved."
+    );
+    if (!confirmed) return;
+
+    setCleaningUp(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      const res = await api.post<{ deletedCount: number; freedBytes: number; message: string }>("/upload/models/cleanup");
+      const { deletedCount, freedBytes } = res.data;
+      setSuccessMessage(
+        deletedCount > 0
+          ? `Cleanup completed: deleted ${deletedCount} files (${formatBytes(freedBytes)} freed).`
+          : "No eligible files found to clean up."
+      );
+      await fetchFiles();
+    } catch (err: any) {
+      const message = err?.response?.data?.message || "Failed to clean up files.";
+      setError(message);
+    } finally {
+      setCleaningUp(false);
+    }
+  };
 
   const fetchFiles = async () => {
     setLoading(true);
@@ -110,6 +139,17 @@ export default function ModelFilesBrowser() {
 
             <div className="flex items-center gap-3">
               <button
+                onClick={() => void handleCleanup()}
+                disabled={cleaningUp || loading}
+                className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50/70 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100/70 transition-colors disabled:opacity-50"
+                type="button"
+                title="Safely clean up files from cancelled, completed, and returned orders"
+              >
+                {cleaningUp ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                <span>{cleaningUp ? "Cleaning..." : "Cleanup"}</span>
+              </button>
+
+              <button
                 onClick={() => void fetchFiles()}
                 className="site-btn-soft inline-flex items-center gap-2"
                 type="button"
@@ -148,7 +188,21 @@ export default function ModelFilesBrowser() {
             <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
               {error}
             </div>
-          ) : visibleFiles.length === 0 ? (
+          ) : (
+            <>
+              {successMessage && (
+                <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800 flex items-center justify-between text-sm">
+                  <span>{successMessage}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSuccessMessage(null)}
+                    className="text-emerald-700 hover:text-emerald-900 font-bold ml-2 text-base leading-none"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+              {visibleFiles.length === 0 ? (
             <div className="mt-8 rounded-2xl border border-dashed border-[#cfded7] bg-[#f8fbfa] p-12 text-center text-[#4e6660]">
               <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#2f5a4f]">
                 <Boxes size={22} />
@@ -254,6 +308,8 @@ export default function ModelFilesBrowser() {
               </table>
             </div>
           )}
+        </>
+      )}
         </section>
       </main>
     </AdminLayout>
