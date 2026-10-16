@@ -177,11 +177,21 @@ public static class OrderCustomerMapper
                     SupportsNeeded = item.SupportsNeeded,
                     Files = files,
                     Attachments = files,
+                    ActiveChangeRequest = (item.ChangeRequests ?? new List<OrderItemChangeRequest>())
+                        .Where(cr => cr.Status == "pending_customer" || cr.Status == "revision_submitted")
+                        .OrderByDescending(cr => cr.RequestedAt)
+                        .Select(cr => MapChangeRequest(cr))
+                        .FirstOrDefault(),
+                    ChangeRequests = (item.ChangeRequests ?? new List<OrderItemChangeRequest>())
+                        .OrderByDescending(cr => cr.RequestedAt)
+                        .Select(cr => MapChangeRequest(cr))
+                        .ToList(),
                     // Internal slicing & manufacturing metrics (PlateCost, FilamentUsedGrams, EstimatedPrintTime)
                     // are never returned to customer endpoints.
                 };
             })
             .ToList();
+
 
         // Customer payments
         var payments = (order.Payments ?? new List<Payment>())
@@ -238,4 +248,30 @@ public static class OrderCustomerMapper
             Notes = noteItems,
         };
     }
+
+    private static OrderItemChangeRequestDto MapChangeRequest(OrderItemChangeRequest cr)
+    {
+        return new OrderItemChangeRequestDto
+        {
+            Id = cr.Id,
+            OrderItemId = cr.OrderItemId,
+            OrderId = cr.OrderId,
+            Status = cr.Status,
+            ReasonCategory = cr.ReasonCategory,
+            AdminNotes = cr.AdminNotes,
+            RequiresNewFile = cr.RequiresNewFile,
+            RequestedBy = cr.RequestedBy,
+            RequestedAt = cr.RequestedAt,
+            PreviousFileUrl = cr.PreviousFileUrl,
+            PreviousFileName = cr.PreviousFileName,
+            SubmittedFileUrl = cr.SubmittedFileUrl,
+            SubmittedFileName = cr.SubmittedFileName,
+            CustomerNotes = cr.CustomerNotes,
+            SubmittedAt = cr.SubmittedAt,
+            ResolvedBy = cr.ResolvedBy,
+            ResolutionNotes = cr.ResolutionNotes,
+            ResolvedAt = cr.ResolvedAt,
+        };
+    }
 }
+

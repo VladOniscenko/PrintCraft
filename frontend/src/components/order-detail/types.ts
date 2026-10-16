@@ -19,6 +19,7 @@ export interface StatusSummary {
 export interface OrderSectionProps {
   order: Order;
   t: TranslateFn;
+  onRefresh?: () => void | Promise<void>;
   onManualPaymentNotification?: () => void;
   manualPaymentNotificationDisabled?: boolean;
 }

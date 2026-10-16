@@ -7,6 +7,7 @@ import type {
   OrderCommunication,
   OrderNote,
   PaymentAttempt,
+  OrderItemChangeRequestDto,
 } from "../../types/order";
 
 export type {
@@ -18,6 +19,7 @@ export type {
   OrderCommunication,
   OrderNote,
   PaymentAttempt,
+  OrderItemChangeRequestDto,
 };
 
 export interface StatusTransitionPayload {

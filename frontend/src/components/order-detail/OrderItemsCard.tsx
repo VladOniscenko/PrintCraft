@@ -16,6 +16,7 @@ import type { OrderSectionProps } from "./types";
 import { resolveAssetUrl } from "../../utils/assetUrl";
 import { getFilamentHexColor } from "../Interactive3DViewer";
 import ModelInspectorModal from "../ModelInspectorModal";
+import CustomerItemChangeRequestBanner from "./CustomerItemChangeRequestBanner";
 
 const Interactive3DViewer = lazy(() => import("../Interactive3DViewer"));
 
@@ -147,7 +148,11 @@ function getPrimaryPreviewFile(itemFiles: ItemFile[]): ItemFile | null {
   return itemFiles[0] || null;
 }
 
-export default function OrderItemsCard({ order, t }: OrderItemsCardProps) {
+export default function OrderItemsCard({
+  order,
+  t,
+  onRefresh,
+}: OrderItemsCardProps) {
   const isCancelledOrder = (order.status || "").toLowerCase() === "cancelled";
   const [activeModalItemIndex, setActiveModalItemIndex] = useState<number | null>(
     null,
@@ -226,6 +231,17 @@ export default function OrderItemsCard({ order, t }: OrderItemsCardProps) {
                     >
                       {item.fileName}
                     </h3>
+                    {item.activeChangeRequest?.status === "pending_customer" && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-500 text-white tracking-wide uppercase shadow-2xs animate-pulse">
+                        <AlertCircle size={12} />
+                        Action Required
+                      </span>
+                    )}
+                    {item.activeChangeRequest?.status === "revision_submitted" && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800 border border-sky-300">
+                        Revision Under Review
+                      </span>
+                    )}
                   </div>
 
                   {/* Redesigned Specifications Container (Spacious, No Overflow) */}
@@ -325,6 +341,18 @@ export default function OrderItemsCard({ order, t }: OrderItemsCardProps) {
                         <span className="italic">"{item.notes}"</span>
                       </div>
                     </div>
+                  )}
+
+                  {/* Customer Item Change Request & Revision Loop Banner */}
+                  {item.id && (
+                    <CustomerItemChangeRequestBanner
+                      orderId={order.id}
+                      itemId={item.id}
+                      itemFileName={item.fileName}
+                      changeRequest={item.activeChangeRequest}
+                      history={item.changeRequests}
+                      onRefresh={onRefresh}
+                    />
                   )}
                 </div>
 

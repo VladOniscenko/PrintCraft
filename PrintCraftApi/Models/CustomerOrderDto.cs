@@ -70,6 +70,8 @@ public class CustomerOrderItemDto
 
     public List<CustomerItemFileDto> Files { get; set; } = new();
     public List<CustomerItemFileDto> Attachments { get; set; } = new();
+    public OrderItemChangeRequestDto? ActiveChangeRequest { get; set; }
+    public List<OrderItemChangeRequestDto> ChangeRequests { get; set; } = new();
 }
 
 public class CustomerItemFileDto

@@ -17,6 +17,7 @@ import { formatCurrencyAmount } from "../../../utils/currency";
 import api from "../../../services/api";
 import { useNotify } from "../../../context/NotifyContext";
 import ModelInspectorModal from "../../ModelInspectorModal";
+import AdminItemChangeRequestControl from "../items/AdminItemChangeRequestControl";
 
 export default function QuoteRequestedPanel({
   order,
@@ -367,6 +368,23 @@ export default function QuoteRequestedPanel({
                     </strong>
                   </div>
                 </div>
+
+                {/* Change Request & Revision Loop Control */}
+                <AdminItemChangeRequestControl
+                  orderId={order.id}
+                  itemId={item.id}
+                  itemFileName={item.fileName}
+                  activeChangeRequest={item.activeChangeRequest}
+                  changeRequests={item.changeRequests}
+                  onRefresh={onRefresh}
+                  onPreviewModel={(fileUrl, fileName) =>
+                    setPreviewItem({
+                      ...item,
+                      fileUrl,
+                      fileName: fileName || item.fileName || "model",
+                    })
+                  }
+                />
               </div>
             );
           })}

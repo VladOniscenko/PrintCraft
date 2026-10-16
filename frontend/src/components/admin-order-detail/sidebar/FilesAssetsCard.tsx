@@ -147,6 +147,24 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
                           {file.material}
                         </span>
                       )}
+                      {(() => {
+                        const linkedItem = order.items?.find((i) => i.id === file.itemId);
+                        if (linkedItem?.activeChangeRequest?.status === "pending_customer") {
+                          return (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-amber-100 text-amber-800 border-amber-300">
+                              Change Requested
+                            </span>
+                          );
+                        }
+                        if (linkedItem?.activeChangeRequest?.status === "revision_submitted") {
+                          return (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-emerald-100 text-emerald-800 border-emerald-300">
+                              Revision Submitted
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                   </div>
                 </div>

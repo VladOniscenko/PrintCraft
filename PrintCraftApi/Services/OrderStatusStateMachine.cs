@@ -209,6 +209,14 @@ public sealed class OrderStatusStateMachine
             return TransitionResult.Fail(
                 "Quoted total must be greater than zero before advancing.");
 
+        var pendingRevisions = await _db.OrderItemChangeRequests
+            .Where(cr => cr.OrderId == order.Id && (cr.Status == "pending_customer" || cr.Status == "revision_submitted"))
+            .CountAsync();
+
+        if (pendingRevisions > 0)
+            return TransitionResult.Fail(
+                $"Cannot advance to Awaiting Payment while {pendingRevisions} item(s) have active change requests awaiting customer response or admin review.");
+
         // Apply transition
         order.Status = OrderStatus.AwaitingPayment;
         QuoteLifecycle.MarkQuoteConfirmed(order, DateTime.UtcNow);

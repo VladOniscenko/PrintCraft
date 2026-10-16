@@ -77,6 +77,8 @@ public class OrdersController : ControllerBase
             .Where(o => o.UserId == userId)
             .Include(o => o.Items)
             .ThenInclude(i => i.Attachments)
+            .Include(o => o.Items)
+            .ThenInclude(i => i.ChangeRequests)
             .Include(o => o.Payments)
             .Include(o => o.Notes)
             .OrderByDescending(o => o.CreatedAt)
@@ -102,6 +104,8 @@ public class OrdersController : ControllerBase
             .AsSplitQuery()
             .Include(o => o.Items)
             .ThenInclude(i => i.Attachments)
+            .Include(o => o.Items)
+            .ThenInclude(i => i.ChangeRequests)
             .Include(o => o.Payments)
             .Include(o => o.Notes)
             .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId, cancellationToken);

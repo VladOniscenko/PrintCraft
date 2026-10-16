@@ -10,6 +10,7 @@ import type { StatusPanelProps } from "../types";
 import api from "../../../services/api";
 import { useNotify } from "../../../context/NotifyContext";
 import ModelInspectorModal from "../../ModelInspectorModal";
+import AdminItemChangeRequestControl from "../items/AdminItemChangeRequestControl";
 
 const PRINTER_OPTIONS = [
   "Prusa MK4 #1 (0.4mm Nozzle)",
@@ -311,6 +312,23 @@ export default function ReadyToPrintPanel({
                   <strong>{item.supportsNeeded ? "Required" : "None"}</strong>
                 </div>
               </div>
+
+              {/* Order Item Change Request & Revision Loop Control */}
+              <AdminItemChangeRequestControl
+                orderId={order.id}
+                itemId={item.id}
+                itemFileName={item.fileName}
+                activeChangeRequest={item.activeChangeRequest}
+                changeRequests={item.changeRequests}
+                onRefresh={onRefresh}
+                onPreviewModel={(fileUrl, fileName) =>
+                  setPreviewItem({
+                    ...item,
+                    fileUrl,
+                    fileName: fileName || item.fileName || "model",
+                  })
+                }
+              />
             </div>
           ))}
         </div>

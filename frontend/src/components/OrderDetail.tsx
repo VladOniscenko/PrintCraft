@@ -232,6 +232,7 @@ export default function OrderDetail() {
             <OrderItemsCard
               order={order}
               t={t}
+              onRefresh={refreshOrderData}
             />
             <OrderTimeline
               statusStep={statusSummary.step}

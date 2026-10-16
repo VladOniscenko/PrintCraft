@@ -23,6 +23,7 @@ public class PrintCraftDb : DbContext
     public DbSet<QuoteDraft> QuoteDrafts => Set<QuoteDraft>();
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
     public DbSet<HeroSlide> HeroSlides => Set<HeroSlide>();
+    public DbSet<OrderItemChangeRequest> OrderItemChangeRequests => Set<OrderItemChangeRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -63,6 +64,24 @@ public class PrintCraftDb : DbContext
 
         modelBuilder.Entity<OrderItemAttachment>()
             .HasIndex(a => new { a.OrderItemId, a.Kind });
+
+        modelBuilder.Entity<OrderItemChangeRequest>()
+            .HasIndex(cr => new { cr.OrderItemId, cr.Status });
+
+        modelBuilder.Entity<OrderItemChangeRequest>()
+            .HasIndex(cr => new { cr.OrderId, cr.RequestedAt });
+
+        modelBuilder.Entity<OrderItemChangeRequest>()
+            .HasOne(cr => cr.OrderItem)
+            .WithMany(i => i.ChangeRequests)
+            .HasForeignKey(cr => cr.OrderItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<OrderItemChangeRequest>()
+            .HasOne(cr => cr.Order)
+            .WithMany()
+            .HasForeignKey(cr => cr.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<VisitEvent>()
             .HasIndex(v => v.VisitedAt);

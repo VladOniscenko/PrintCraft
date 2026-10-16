@@ -107,6 +107,8 @@ public class AdminOrderItemDto
 
     public List<OrderItemAttachmentDto> Attachments { get; set; } = new();
     public List<OrderFileAssetDto> Files { get; set; } = new();
+    public OrderItemChangeRequestDto? ActiveChangeRequest { get; set; }
+    public List<OrderItemChangeRequestDto> ChangeRequests { get; set; } = new();
 }
 
 public class OrderItemAttachmentDto

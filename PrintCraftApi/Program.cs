@@ -378,6 +378,33 @@ using (var scope = app.Services.CreateScope())
     db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"HoldReason\" text NULL;");
     db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"FlaggedForRefundReview\" boolean NOT NULL DEFAULT FALSE;");
 
+    db.Database.ExecuteSqlRaw(@"
+        CREATE TABLE IF NOT EXISTS ""OrderItemChangeRequests"" (
+            ""Id"" uuid NOT NULL PRIMARY KEY,
+            ""OrderItemId"" uuid NOT NULL,
+            ""OrderId"" uuid NOT NULL,
+            ""Status"" text NOT NULL DEFAULT 'pending_customer',
+            ""ReasonCategory"" text NOT NULL DEFAULT 'broken_geometry',
+            ""AdminNotes"" text NOT NULL DEFAULT '',
+            ""RequiresNewFile"" boolean NOT NULL DEFAULT TRUE,
+            ""RequestedBy"" text NULL,
+            ""RequestedAt"" timestamp with time zone NOT NULL DEFAULT NOW(),
+            ""PreviousFileUrl"" text NULL,
+            ""PreviousFileName"" text NULL,
+            ""SubmittedFileUrl"" text NULL,
+            ""SubmittedFileName"" text NULL,
+            ""CustomerNotes"" text NULL,
+            ""SubmittedAt"" timestamp with time zone NULL,
+            ""ResolvedBy"" text NULL,
+            ""ResolutionNotes"" text NULL,
+            ""ResolvedAt"" timestamp with time zone NULL,
+            CONSTRAINT ""FK_OrderItemChangeRequests_OrderItems_OrderItemId"" FOREIGN KEY (""OrderItemId"") REFERENCES ""OrderItems""(""Id"") ON DELETE CASCADE,
+            CONSTRAINT ""FK_OrderItemChangeRequests_Orders_OrderId"" FOREIGN KEY (""OrderId"") REFERENCES ""Orders""(""Id"") ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS ""IX_OrderItemChangeRequests_OrderItemId_Status"" ON ""OrderItemChangeRequests""(""OrderItemId"", ""Status"");
+        CREATE INDEX IF NOT EXISTS ""IX_OrderItemChangeRequests_OrderId_RequestedAt"" ON ""OrderItemChangeRequests""(""OrderId"", ""RequestedAt"");
+    ");
+
     HeroSlideSeeder.EnsureSeedAssets(app.Environment.WebRootPath, app.Environment.ContentRootPath);
     await HeroSlideSeeder.EnsureDatabaseSeededAsync(db);
 }

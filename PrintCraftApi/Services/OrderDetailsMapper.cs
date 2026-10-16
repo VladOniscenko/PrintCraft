@@ -268,8 +268,18 @@ public static class OrderDetailsMapper
             SupportsNeeded = item.SupportsNeeded,
             Attachments = attachments,
             Files = itemFiles,
+            ActiveChangeRequest = (item.ChangeRequests ?? new List<OrderItemChangeRequest>())
+                .Where(cr => cr.Status == "pending_customer" || cr.Status == "revision_submitted")
+                .OrderByDescending(cr => cr.RequestedAt)
+                .Select(cr => MapChangeRequest(cr))
+                .FirstOrDefault(),
+            ChangeRequests = (item.ChangeRequests ?? new List<OrderItemChangeRequest>())
+                .OrderByDescending(cr => cr.RequestedAt)
+                .Select(cr => MapChangeRequest(cr))
+                .ToList(),
         };
     }
+
 
     public static List<OrderFileAssetDto> ExtractFiles(Order order)
     {
@@ -516,8 +526,77 @@ public static class OrderDetailsMapper
             });
         }
 
+        if (order.Items != null)
+        {
+            foreach (var item in order.Items)
+            {
+                if (item.ChangeRequests == null) continue;
+                foreach (var cr in item.ChangeRequests)
+                {
+                    events.Add(new OrderTimelineEventDto
+                    {
+                        Id = $"cr_req_{cr.Id}",
+                        Type = "change_request",
+                        Timestamp = cr.RequestedAt,
+                        Title = $"Changes Requested: {item.fileName ?? "3D Model"}",
+                        Content = $"[{FormatReasonCategory(cr.ReasonCategory)}] {cr.AdminNotes}",
+                        Author = cr.RequestedBy ?? "Admin",
+                        Visibility = "customer",
+                        Metadata = new Dictionary<string, string?>
+                        {
+                            ["changeRequestId"] = cr.Id.ToString(),
+                            ["orderItemId"] = item.Id.ToString(),
+                            ["reasonCategory"] = cr.ReasonCategory,
+                            ["requiresNewFile"] = cr.RequiresNewFile.ToString(),
+                        }
+                    });
+
+                    if (cr.SubmittedAt.HasValue)
+                    {
+                        events.Add(new OrderTimelineEventDto
+                        {
+                            Id = $"cr_sub_{cr.Id}",
+                            Type = "revision_submitted",
+                            Timestamp = cr.SubmittedAt.Value,
+                            Title = $"Revision Submitted: {item.fileName ?? "3D Model"}",
+                            Content = !string.IsNullOrWhiteSpace(cr.CustomerNotes) ? cr.CustomerNotes : $"Updated file uploaded: {cr.SubmittedFileName ?? "file"}",
+                            Author = "Customer",
+                            Visibility = "customer",
+                            Metadata = new Dictionary<string, string?>
+                            {
+                                ["changeRequestId"] = cr.Id.ToString(),
+                                ["orderItemId"] = item.Id.ToString(),
+                                ["submittedFileUrl"] = cr.SubmittedFileUrl,
+                                ["submittedFileName"] = cr.SubmittedFileName,
+                            }
+                        });
+                    }
+
+                    if (cr.ResolvedAt.HasValue && cr.Status == "resolved")
+                    {
+                        events.Add(new OrderTimelineEventDto
+                        {
+                            Id = $"cr_res_{cr.Id}",
+                            Type = "change_resolved",
+                            Timestamp = cr.ResolvedAt.Value,
+                            Title = $"Revision Accepted: {item.fileName ?? "3D Model"}",
+                            Content = cr.ResolutionNotes ?? "Model changes accepted by admin.",
+                            Author = cr.ResolvedBy ?? "Admin",
+                            Visibility = "customer",
+                            Metadata = new Dictionary<string, string?>
+                            {
+                                ["changeRequestId"] = cr.Id.ToString(),
+                                ["orderItemId"] = item.Id.ToString(),
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
         return events.OrderByDescending(e => e.Timestamp).ToList();
     }
+
 
     public static List<string> GetAllowedTransitions(string currentStatus, bool isPaid)
     {
@@ -592,5 +671,44 @@ public static class OrderDetailsMapper
             _ => string.IsNullOrWhiteSpace(status) ? "Unknown" : status,
         };
     }
+
+    private static string FormatReasonCategory(string? reason)
+    {
+        return (reason ?? "").ToLowerInvariant() switch
+        {
+            "broken_geometry" => "Broken Geometry / Non-Manifold",
+            "wall_thickness" => "Wall Thickness Issue",
+            "scale_or_size" => "Scale / Dimensions Issue",
+            "unsupported_format" => "Unsupported Format",
+            "orientation" => "Orientation / Support Issue",
+            _ => "Changes Requested",
+        };
+    }
+
+    private static OrderItemChangeRequestDto MapChangeRequest(OrderItemChangeRequest cr)
+    {
+        return new OrderItemChangeRequestDto
+        {
+            Id = cr.Id,
+            OrderItemId = cr.OrderItemId,
+            OrderId = cr.OrderId,
+            Status = cr.Status,
+            ReasonCategory = cr.ReasonCategory,
+            AdminNotes = cr.AdminNotes,
+            RequiresNewFile = cr.RequiresNewFile,
+            RequestedBy = cr.RequestedBy,
+            RequestedAt = cr.RequestedAt,
+            PreviousFileUrl = cr.PreviousFileUrl,
+            PreviousFileName = cr.PreviousFileName,
+            SubmittedFileUrl = cr.SubmittedFileUrl,
+            SubmittedFileName = cr.SubmittedFileName,
+            CustomerNotes = cr.CustomerNotes,
+            SubmittedAt = cr.SubmittedAt,
+            ResolvedBy = cr.ResolvedBy,
+            ResolutionNotes = cr.ResolutionNotes,
+            ResolvedAt = cr.ResolvedAt,
+        };
+    }
 }
+
 

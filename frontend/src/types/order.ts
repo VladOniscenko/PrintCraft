@@ -114,7 +114,31 @@ export interface OrderItem {
   uploadType?: "native-3d" | "filament-painting";
   layerSwaps?: import("./filamentPainting").LayerSwapInstruction[];
   palettePresetId?: string;
+  activeChangeRequest?: OrderItemChangeRequestDto | null;
+  changeRequests?: OrderItemChangeRequestDto[];
 }
+
+export interface OrderItemChangeRequestDto {
+  id: string;
+  orderItemId: string;
+  orderId: string;
+  status: "pending_customer" | "revision_submitted" | "resolved" | "superseded" | string;
+  reasonCategory: string;
+  adminNotes: string;
+  requiresNewFile: boolean;
+  requestedBy?: string | null;
+  requestedAt: string;
+  previousFileUrl?: string | null;
+  previousFileName?: string | null;
+  submittedFileUrl?: string | null;
+  submittedFileName?: string | null;
+  customerNotes?: string | null;
+  submittedAt?: string | null;
+  resolvedBy?: string | null;
+  resolutionNotes?: string | null;
+  resolvedAt?: string | null;
+}
+
 
 export interface QuoteItemFile {
   url: string;
@@ -188,7 +212,10 @@ export interface AdminOrderItem {
     kind: string;
   }>;
   files?: OrderFileAsset[];
+  activeChangeRequest?: OrderItemChangeRequestDto | null;
+  changeRequests?: OrderItemChangeRequestDto[];
 }
+
 
 export interface OrderStatusHistoryEntry {
   id: string;

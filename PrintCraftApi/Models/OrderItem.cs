@@ -25,4 +25,5 @@ public class OrderItem
     public double UnitPrice { get; set; } = 0;
 
     public List<OrderItemAttachment> Attachments { get; set; } = new();
+    public List<PrintCraftApi.Models.OrderItemChangeRequest> ChangeRequests { get; set; } = new();
 }

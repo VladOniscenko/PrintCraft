@@ -767,6 +767,8 @@ public class AdminController : ControllerBase
             .AsSplitQuery()
             .Include(o => o.Items)
                 .ThenInclude(i => i.Attachments)
+            .Include(o => o.Items)
+                .ThenInclude(i => i.ChangeRequests)
             .Include(o => o.Payments)
             .Include(o => o.Notes)
             .Include(o => o.Communications)
