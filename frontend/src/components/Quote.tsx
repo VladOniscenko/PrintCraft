@@ -363,7 +363,6 @@ export default function Quote() {
     0,
     steps.findIndex((s) => s.id === currentStepId),
   );
-  const canGoBack = currentStepIndex > 0;
   const [agreementAccepted, setAgreementAccepted] = useState(false);
 
   // Step 1 is now Models
@@ -1892,9 +1891,7 @@ export default function Quote() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* Main Content Area */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6">
             {/* STEP 1: MODELS */}
             {currentStepId === "models" && (
               <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
@@ -3222,15 +3219,6 @@ export default function Quote() {
                                           </span>
                                         </>
                                       )}
-                                      {item.estimatedPrintTime && (
-                                        <>
-                                          <span className="text-gray-400">|</span>
-                                          <span className="text-gray-700 font-medium">
-                                            {t("quote.estTime")}{" "}
-                                            {item.estimatedPrintTime}
-                                          </span>
-                                        </>
-                                      )}
                                     </>
                                   )}
                                 </div>
@@ -3414,6 +3402,20 @@ export default function Quote() {
                     </div>
                   </div>
                 </div>
+
+                {/* Step Navigation */}
+                <div className="pt-6 mt-8 border-t border-gray-100 flex items-center justify-between gap-4">
+                  <div />
+                  <button
+                    type="button"
+                    onClick={goToNextStep}
+                    disabled={items.length === 0}
+                    className="bg-[#133827] text-white px-7 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm ml-auto"
+                  >
+                    <span>{t("quote.nextStep")}</span>
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
               </div>
             )}
 
@@ -3440,7 +3442,7 @@ export default function Quote() {
                       <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
                         <CheckCircle size={22} />
                       </div>
-                      <div>
+                      <div className="flex-1 min-w-0">
                         <h4 className="font-bold text-emerald-950 text-base">
                           {t("quote.loggedInAs")}:{" "}
                           <span className="text-emerald-700">
@@ -3451,37 +3453,31 @@ export default function Quote() {
                           {currentUser?.email}
                         </p>
                       </div>
-                    </div>
-
-                    <div className="mt-6 flex flex-wrap items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCurrentStepId("shipping");
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className="bg-[#133827] text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-sm"
-                      >
-                        <span>{t("quote.continueToShipping")}</span>
-                        <ChevronRight size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCurrentStepId("models");
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className="border border-gray-200 bg-white text-gray-700 px-4 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2"
-                      >
-                        <ChevronLeft size={16} />
-                        <span>{t("quote.backToModels")}</span>
-                      </button>
                       <button
                         type="button"
                         onClick={handleSwitchAccount}
                         className="text-xs font-semibold text-gray-500 hover:text-red-600 underline ml-auto transition-colors"
                       >
                         {t("quote.switchAccount")}
+                      </button>
+                    </div>
+
+                    <div className="mt-6 flex items-center justify-between gap-3 pt-6 border-t border-emerald-100">
+                      <button
+                        type="button"
+                        onClick={goToPreviousStep}
+                        className="border border-gray-200 bg-white text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2"
+                      >
+                        <ChevronLeft size={16} />
+                        <span>{t("quote.backToModels")}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={goToNextStep}
+                        className="bg-[#133827] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-sm"
+                      >
+                        <span>{t("quote.continueToShipping")}</span>
+                        <ChevronRight size={16} />
                       </button>
                     </div>
                   </div>
@@ -3611,7 +3607,15 @@ export default function Quote() {
                           />
                         </div>
 
-                        <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                        <div className="pt-6 mt-6 flex items-center justify-between gap-3 border-t border-gray-100">
+                          <button
+                            type="button"
+                            onClick={goToPreviousStep}
+                            className="border border-gray-200 bg-white text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2"
+                          >
+                            <ChevronLeft size={16} />
+                            <span>{t("quote.backToModels")}</span>
+                          </button>
                           <button
                             type="submit"
                             disabled={authLoading}
@@ -3682,7 +3686,15 @@ export default function Quote() {
                           />
                         </div>
 
-                        <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                        <div className="pt-6 mt-6 flex items-center justify-between gap-3 border-t border-gray-100">
+                          <button
+                            type="button"
+                            onClick={goToPreviousStep}
+                            className="border border-gray-200 bg-white text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2"
+                          >
+                            <ChevronLeft size={16} />
+                            <span>{t("quote.backToModels")}</span>
+                          </button>
                           <button
                             type="submit"
                             disabled={authLoading}
@@ -3961,6 +3973,26 @@ export default function Quote() {
                       )}
                     </div>
                   </div>
+
+                  {/* Step Navigation */}
+                  <div className="pt-6 mt-8 border-t border-gray-100 flex items-center justify-between gap-4">
+                    <button
+                      type="button"
+                      onClick={goToPreviousStep}
+                      className="border border-gray-200 bg-white text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2"
+                    >
+                      <ChevronLeft size={16} />
+                      <span>{t("quote.backStep")}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goToNextStep}
+                      className="bg-[#133827] text-white px-7 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-sm"
+                    >
+                      <span>{t("quote.reviewStep")}</span>
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -4136,126 +4168,72 @@ export default function Quote() {
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* Right Sidebar */}
-          <div className="lg:col-span-1 sticky top-6">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
-              <div>
-                <h4 className="font-bold text-gray-800 text-lg mb-2">
-                  {t("quote.orderSummary")}
-                </h4>
-                <p className="text-sm text-gray-600 mb-6 pb-6 border-b border-gray-100">
-                  {currentStepId === "models"
-                    ? t("quote.step2SidebarNote")
-                    : currentStepId === "account"
-                      ? t("quote.stepAccountNote")
-                      : currentStepId === "shipping"
-                        ? t("quote.shippingDetailsNote")
-                        : t("quote.reviewSidebarNote")}
-                </p>
-
-                <div className="flex justify-between items-center mb-6 font-semibold text-gray-700">
-                  <span>{t("quote.totalItems")}</span>
-                  <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-bold text-gray-800">
-                    {items.reduce((acc, curr) => acc + curr.count, 0)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-auto pt-6">
-                <p className="text-xs leading-relaxed text-[#5e7069] mb-4 text-center">
-                  {t("quote.pricingDisclaimer")}{" "}
-                  <Link
-                    to="/terms"
-                    className="font-semibold text-emerald-700 hover:underline"
-                  >
-                    {t("footer.terms")}
-                  </Link>
-                </p>
-
-                <div className="flex flex-col gap-3">
-                  {currentStepId === "review" && (
-                    <label className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-left text-sm text-emerald-950">
+                  {/* Pricing Disclaimer & Terms & Conditions agreement */}
+                  <div className="mt-8 pt-6 border-t border-gray-100 space-y-4">
+                    <label className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 text-left text-sm text-emerald-950 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={agreementAccepted}
                         onChange={(event) =>
                           setAgreementAccepted(event.target.checked)
                         }
-                        className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
+                        className="mt-1 h-4 w-4 shrink-0 accent-emerald-600 rounded"
                       />
                       <span>
                         {t("orderDetail.agreementText")}{" "}
                         <Link
                           to="/terms"
                           target="_blank"
-                          className="font-bold underline"
+                          className="font-bold underline text-emerald-800 hover:text-emerald-950"
                         >
                           {t("orderDetail.agreementLink")}
                         </Link>
                       </span>
                     </label>
-                  )}
-                  <button
-                    type="button"
-                    onClick={
-                      currentStepId === "review" ? handleSubmit : goToNextStep
-                    }
-                    disabled={
-                      isSubmitting ||
-                      (currentStepId === "models" && items.length === 0) ||
-                      (currentStepId === "account" && authLoading)
-                    }
-                    className="w-full bg-[#133827] text-white font-bold py-4 rounded-xl hover:bg-[#1c4d37] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
-                  >
-                    {isSubmitting || authLoading ? (
-                      <Loader2 className="animate-spin" />
-                    ) : currentStepId === "review" ? (
-                      <>
-                        <CheckCircle size={20} />
-                        {t("quote.submit")}
-                      </>
-                    ) : (
-                      <>
-                        {currentStepId === "models"
-                          ? t("quote.nextStep")
-                          : currentStepId === "account"
-                            ? isLoggedIn
-                              ? t("quote.nextStep")
-                              : authMode === "register"
-                                ? t("quote.registerToContinue")
-                                : t("quote.loginToContinue")
-                            : t("quote.reviewStep")}
-                        <ChevronRight size={18} />
-                      </>
-                    )}
-                  </button>
 
-                  {canGoBack && (
-                    <button
-                      type="button"
-                      onClick={goToPreviousStep}
-                      disabled={isSubmitting || authLoading}
-                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <ChevronLeft size={16} />
-                      {t("quote.backStep")}
-                    </button>
-                  )}
-                </div>
+                    <p className="text-xs leading-relaxed text-[#5e7069] text-center">
+                      {t("quote.pricingDisclaimer")}{" "}
+                      <Link
+                        to="/terms"
+                        className="font-semibold text-emerald-700 hover:underline"
+                      >
+                        {t("footer.terms")}
+                      </Link>
+                    </p>
 
-                <div className="mt-5 flex items-center justify-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  {t("quote.secure")}
+                    {/* Step Navigation */}
+                    <div className="flex items-center justify-between gap-4 pt-2">
+                      <button
+                        type="button"
+                        onClick={goToPreviousStep}
+                        disabled={isSubmitting}
+                        className="border border-gray-200 bg-white text-gray-700 px-5 py-3.5 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 disabled:opacity-50"
+                      >
+                        <ChevronLeft size={16} />
+                        <span>{t("quote.backStep")}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className="bg-[#133827] text-white px-7 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
+                      >
+                        {isSubmitting ? (
+                          <Loader2 className="animate-spin" size={18} />
+                        ) : (
+                          <>
+                            <CheckCircle size={20} />
+                            <span>{t("quote.submit")}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
-        </div>
       </main>
       <Footer />
     </div>

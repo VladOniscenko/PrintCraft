@@ -27,7 +27,6 @@ import {
   Box,
   Layers,
   HelpCircle,
-  CheckCircle2,
   AlertTriangle,
   Loader2,
   Palette,
@@ -41,7 +40,6 @@ import {
 } from "../utils/modelDimensions";
 import type { Filament } from "../types";
 import { useI18n } from "../i18n/I18nContext";
-import { translateColorText } from "../utils/formatters";
 
 export interface Interactive3DViewerProps {
   fileUrl?: string;
@@ -109,7 +107,7 @@ export default function Interactive3DViewer({
   file,
   fileName,
   colorName = "Black",
-  materialName = "PLA",
+  materialName: _materialName = "PLA",
   scaleFactor = 1.0,
   filaments,
   onDimensionsDetected,
@@ -618,23 +616,7 @@ export default function Interactive3DViewer({
         )}
 
         {/* Floating Top Controls */}
-        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none gap-2">
-          {/* Material & Color Live Badge */}
-          <div className="pointer-events-auto flex items-center gap-1.5 bg-slate-900/80 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/10 text-xs shadow-md">
-            <span
-              className="w-3.5 h-3.5 rounded-full border border-white/30 shadow-inner shrink-0"
-              style={{
-                backgroundColor: `#${effectiveHex.toString(16).padStart(6, "0")}`,
-              }}
-            />
-            <span className="font-bold text-white truncate max-w-[100px] text-xs">
-              {translateColorText(colorName, t)}
-            </span>
-            {!compact && (
-              <span className="text-slate-400 font-medium">({materialName})</span>
-            )}
-          </div>
-
+        <div className="absolute top-2.5 right-2.5 flex items-center justify-end pointer-events-none gap-2">
           {/* Quick Interactive Canvas Actions */}
           <div className="pointer-events-auto flex items-center gap-1 bg-slate-900/80 backdrop-blur-md p-1 rounded-xl border border-white/10 shadow-md">
             <button
@@ -720,13 +702,6 @@ export default function Interactive3DViewer({
             )}
           </div>
         </div>
-
-        {/* Interaction Hint (Bottom Left) */}
-        <div className="absolute bottom-2 left-2.5 pointer-events-none">
-          <p className="text-[9px] text-slate-400/80 tracking-wide font-medium bg-slate-950/60 px-1.5 py-0.5 rounded backdrop-blur-sm">
-            {compact ? t("viewer3d.hintCompact") : t("viewer3d.hintFull")}
-          </p>
-        </div>
       </div>
 
       {compact ? (
@@ -782,19 +757,12 @@ export default function Interactive3DViewer({
             </div>
 
             {/* Build Volume Compliance Badge */}
-            {baseDimensions && (
+            {baseDimensions && !fitsBuildVolume && (
               <div className="flex items-center">
-                {fitsBuildVolume ? (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                    <CheckCircle2 size={13} />
-                    {t("viewer3d.fitsBuildPlate")}
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30">
-                    <AlertTriangle size={13} />
-                    {t("viewer3d.exceedsBuildVolume")}
-                  </span>
-                )}
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                  <AlertTriangle size={13} />
+                  {t("viewer3d.exceedsBuildVolume")}
+                </span>
               </div>
             )}
           </div>

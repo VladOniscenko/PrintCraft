@@ -32,6 +32,8 @@ export interface FilamentPaintingConfig {
   layerHeightMm?: number;
   maxDepthMm?: number;
   minBaseThicknessMm?: number;
+  slotId?: string;
+  sessionId?: string;
 }
 
 export interface FilamentPaintingGenerationResult {

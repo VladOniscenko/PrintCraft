@@ -384,6 +384,12 @@ export default function FilamentPaintingPanel({
   // Prevent reactive debounce on initial mount before image is selected
   const hasInitializedRef = useRef(false);
   const activeRequestSeqRef = useRef(0);
+  const convertedPngRef = useRef<File | null>(null);
+
+  // Session / Visitor Slot ID for file reuse (overwrites draft during edits)
+  const slotIdRef = useRef<string>(
+    `slot_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+  );
 
   // Core API generation function
   const requestGeneration = useCallback(
@@ -393,23 +399,33 @@ export default function FilamentPaintingPanel({
       qualityToUse: HueForgeQualityPreset,
     ) => {
       const seq = ++activeRequestSeqRef.current;
-      const pngBlob = await convertImageToPngBlob(file);
-      const pngFile = new File(
-        [pngBlob],
-        file.name.replace(/\.[^/.]+$/, ".png"),
-        {
-          type: "image/png",
-        },
-      );
+      
+      let pngFile = convertedPngRef.current;
+      if (!pngFile) {
+        const pngBlob = await convertImageToPngBlob(file);
+        pngFile = new File(
+          [pngBlob],
+          file.name.replace(/\.[^/.]+$/, ".png"),
+          {
+            type: "image/png",
+          },
+        );
+        convertedPngRef.current = pngFile;
+      }
 
-      // Strict enforcement of max 4 colors
-      const safePalette = paletteToUse.slice(0, 4);
+      // Strict enforcement of max 4 colors and clean auto-distributed layer heights
+      const safePalette = paletteToUse.slice(0, 4).map((item) => ({
+        ...item,
+        startHeightMm: 0,
+        endHeightMm: 0,
+      }));
 
       const config: FilamentPaintingConfig = {
         quality: qualityToUse,
         targetWidthMm,
         targetHeightMm,
         palette: safePalette,
+        slotId: slotIdRef.current,
       };
 
       const formData = new FormData();
@@ -430,6 +446,8 @@ export default function FilamentPaintingPanel({
       if (!file.type.startsWith("image/")) return;
 
       setSelectedFile(file);
+      convertedPngRef.current = null;
+      slotIdRef.current = `slot_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
       const url = URL.createObjectURL(file);
       setImagePreviewUrl(url);
 
@@ -577,7 +595,15 @@ export default function FilamentPaintingPanel({
   const handleRemoveColor = (index: number) => {
     if (customPalette.length <= 2) return;
     setSelectedPresetId("custom");
-    setCustomPalette((prev) => prev.filter((_, i) => i !== index).slice(0, 4));
+    const nextPalette = customPalette
+      .filter((_, i) => i !== index)
+      .slice(0, 4)
+      .map((item) => ({
+        ...item,
+        startHeightMm: 0,
+        endHeightMm: 0,
+      }));
+    setCustomPalette(nextPalette);
   };
 
   const handleMoveColor = (index: number, direction: "up" | "down") => {
@@ -588,7 +614,13 @@ export default function FilamentPaintingPanel({
     const temp = updated[index];
     updated[index] = updated[targetIndex];
     updated[targetIndex] = temp;
-    setCustomPalette(updated.slice(0, 4));
+    setCustomPalette(
+      updated.slice(0, 4).map((item) => ({
+        ...item,
+        startHeightMm: 0,
+        endHeightMm: 0,
+      })),
+    );
   };
 
   // Step 4: Clean State Reset on Add to Order
@@ -600,6 +632,7 @@ export default function FilamentPaintingPanel({
       targetWidthMm,
       targetHeightMm,
       palette: customPalette.slice(0, 4),
+      slotId: slotIdRef.current,
     };
 
     onAddToOrder({
@@ -609,6 +642,7 @@ export default function FilamentPaintingPanel({
     });
 
     // Completely reset the configurator state
+    slotIdRef.current = `slot_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
     setSelectedFile(null);
     setImagePreviewUrl(null);
     setImageDimensions(null);
@@ -723,10 +757,10 @@ export default function FilamentPaintingPanel({
                   </div>
 
                   {/* Custom Width & Height Inputs */}
-                  <div className="flex items-center gap-2 pt-0.5">
-                    <div className="flex-1 flex items-center justify-between gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1 focus-within:ring-2 focus-within:ring-emerald-500">
-                      <span className="text-[11px] font-semibold text-gray-500 shrink-0">{t("filamentPainting.widthMm")}</span>
-                      <div className="flex items-center gap-1">
+                  <div className="grid grid-cols-2 gap-2 pt-0.5">
+                    <div className="flex items-center justify-between gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 min-w-0 focus-within:ring-2 focus-within:ring-emerald-500">
+                      <span className="text-[11px] font-semibold text-gray-600 truncate">{t("filamentPainting.widthMm")}</span>
+                      <div className="flex items-center gap-1 shrink-0">
                         <input
                           type="number"
                           min="50"
@@ -741,15 +775,15 @@ export default function FilamentPaintingPanel({
                               setTargetHeightMm(Math.round(val * aspect));
                             }
                           }}
-                          className="w-12 bg-transparent text-xs font-bold text-gray-800 text-right outline-none"
+                          className="w-10 bg-transparent text-xs font-bold text-gray-800 text-right outline-none"
                         />
-                        <span className="text-[10px] text-gray-400">mm</span>
+                        <span className="text-[10px] font-medium text-gray-400">mm</span>
                       </div>
                     </div>
 
-                    <div className="flex-1 flex items-center justify-between gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1 focus-within:ring-2 focus-within:ring-emerald-500">
-                      <span className="text-[11px] font-semibold text-gray-500 shrink-0">{t("filamentPainting.heightMm")}</span>
-                      <div className="flex items-center gap-1">
+                    <div className="flex items-center justify-between gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 min-w-0 focus-within:ring-2 focus-within:ring-emerald-500">
+                      <span className="text-[11px] font-semibold text-gray-600 truncate">{t("filamentPainting.heightMm")}</span>
+                      <div className="flex items-center gap-1 shrink-0">
                         <input
                           type="number"
                           min="50"
@@ -759,9 +793,9 @@ export default function FilamentPaintingPanel({
                             setTargetHeightMm(Math.max(20, Number(e.target.value)))
                           }
                           disabled={lockAspectRatio && !!imageDimensions}
-                          className="w-12 bg-transparent text-xs font-bold text-gray-800 text-right outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="w-10 bg-transparent text-xs font-bold text-gray-800 text-right outline-none disabled:opacity-60 disabled:cursor-not-allowed"
                         />
-                        <span className="text-[10px] text-gray-400">mm</span>
+                        <span className="text-[10px] font-medium text-gray-400">mm</span>
                       </div>
                     </div>
                   </div>
@@ -863,7 +897,7 @@ export default function FilamentPaintingPanel({
               <div className="space-y-1.5">
                 {customPalette.map((item, idx) => (
                   <div
-                    key={`palette-slot-${idx}`}
+                    key={`palette-slot-${item.filamentId || idx}`}
                     className="p-1.5 rounded-lg border border-gray-200 bg-gray-50/70 hover:bg-gray-50 transition-all flex items-center justify-between gap-2"
                   >
                     {/* Swatch & Store PLA Dropdown */}
@@ -951,8 +985,7 @@ export default function FilamentPaintingPanel({
 
               {liveResult && (
                 <span className="text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-                  {liveResult.dimensions.x} × {liveResult.dimensions.y} mm · ~
-                  {liveResult.estimatedGrams}g PLA
+                  {liveResult.dimensions.x} × {liveResult.dimensions.y} mm
                 </span>
               )}
             </div>
@@ -975,8 +1008,8 @@ export default function FilamentPaintingPanel({
               ) : liveResult?.modelGlbUrl ? (
                 <>
                   <Interactive3DViewer
-                    key={liveResult.modelGlbUrl}
-                    fileUrl={liveResult.modelGlbUrl}
+                    key={`${liveResult.modelGlbUrl}-${customPalette.length}-${activeRequestSeqRef.current}`}
+                    fileUrl={`${liveResult.modelGlbUrl}?seq=${activeRequestSeqRef.current}`}
                     fileName={liveResult.modelGlbUrl}
                     className="w-full h-full min-h-[380px]"
                     compact={false}
@@ -991,11 +1024,6 @@ export default function FilamentPaintingPanel({
                       <span>{t("filamentPainting.updatingPreview")}</span>
                     </div>
                   )}
-
-                  <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-xl bg-black/75 backdrop-blur-md border border-white/10 text-white text-[11px] font-medium flex items-center gap-2.5 z-20">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>{t("filamentPainting.interactiveHint")}</span>
-                  </div>
                 </>
               ) : (
                 <div className="flex flex-col items-center justify-center p-6 text-slate-400 text-xs">
@@ -1072,7 +1100,7 @@ export default function FilamentPaintingPanel({
                 </h4>
                 <p className="text-xs text-gray-500">
                   {liveResult
-                    ? `${liveResult.dimensions.x} × ${liveResult.dimensions.y} mm · ~${liveResult.estimatedGrams}g PLA · ${customPalette.length} ${t("filamentPainting.colorsCount")}`
+                    ? `${liveResult.dimensions.x} × ${liveResult.dimensions.y} mm · ${customPalette.length} ${t("filamentPainting.colorsCount")}`
                     : t("filamentPainting.configuring")}
                 </p>
               </div>

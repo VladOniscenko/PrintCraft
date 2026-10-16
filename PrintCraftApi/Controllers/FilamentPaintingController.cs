@@ -45,6 +45,8 @@ public class FilamentPaintingController : ControllerBase
         public double? LayerHeightMm { get; set; }
         public double? MaxDepthMm { get; set; }
         public double? MinBaseThicknessMm { get; set; }
+        public string? SlotId { get; set; }
+        public string? SessionId { get; set; }
     }
 
     public sealed class GeneratePaintingResponseDto
@@ -77,7 +79,6 @@ public class FilamentPaintingController : ControllerBase
     /// </summary>
     [HttpPost("/api/3d-generate-painting")]
     [DisableRequestSizeLimit]
-    [EnableRateLimiting("UploadLimit")]
     public async Task<IActionResult> GeneratePainting(
         [FromForm] IFormFile? image,
         [FromForm] string? config)
@@ -154,21 +155,17 @@ public class FilamentPaintingController : ControllerBase
         for (int i = 0; i < colorCount; i++)
         {
             var p = requestConfig.Palette[i];
-            // If heights not explicitly defined, or need calibration to current maxDepth:
-            if (p.StartHeightMm <= 0 && p.EndHeightMm <= 0 || p.EndHeightMm > maxDepth + 0.05)
+            if (i == 0)
             {
-                if (i == 0)
-                {
-                    p.StartHeightMm = 0.0;
-                    p.EndHeightMm = Math.Round(minBaseThickness, 2);
-                }
-                else
-                {
-                    double startH = minBaseThickness + (i - 1) * stepPerBand;
-                    double endH = i == colorCount - 1 ? maxDepth : minBaseThickness + i * stepPerBand;
-                    p.StartHeightMm = Math.Round(startH, 2);
-                    p.EndHeightMm = Math.Round(endH, 2);
-                }
+                p.StartHeightMm = 0.0;
+                p.EndHeightMm = Math.Round(minBaseThickness, 2);
+            }
+            else
+            {
+                double startH = minBaseThickness + (i - 1) * stepPerBand;
+                double endH = i == colorCount - 1 ? maxDepth : minBaseThickness + i * stepPerBand;
+                p.StartHeightMm = Math.Round(startH, 2);
+                p.EndHeightMm = Math.Round(endH, 2);
             }
         }
 
@@ -198,7 +195,59 @@ public class FilamentPaintingController : ControllerBase
         var uploadsDir = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads");
         Directory.CreateDirectory(uploadsDir);
 
-        var fileBaseName = Guid.NewGuid().ToString("N");
+        // Visitor / Session / Slot ID reuse:
+        // Instead of generating a brand new Guid on every tweak, associate the file base name with
+        // the visitor/session ID or item slot ID (e.g., temp_{visitorId}_{slotId}) so subsequent edits
+        // overwrite the previous draft rather than creating redundant files.
+        var visitorId = Request.Headers["X-Visitor-Id"].FirstOrDefault()?.Trim();
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value?.Trim();
+
+        var cleanVisitor = SanitizeIdentifier(!string.IsNullOrWhiteSpace(userId) ? userId : visitorId);
+        var cleanSlot = SanitizeIdentifier(requestConfig.SlotId ?? requestConfig.SessionId);
+
+        string fileBaseName;
+        if (!string.IsNullOrWhiteSpace(cleanVisitor) && !string.IsNullOrWhiteSpace(cleanSlot))
+        {
+            fileBaseName = $"temp_{cleanVisitor}_{cleanSlot}";
+        }
+        else if (!string.IsNullOrWhiteSpace(cleanSlot))
+        {
+            fileBaseName = $"temp_{cleanSlot}";
+        }
+        else if (!string.IsNullOrWhiteSpace(cleanVisitor))
+        {
+            fileBaseName = $"temp_{cleanVisitor}_{Guid.NewGuid():N}";
+        }
+        else
+        {
+            fileBaseName = $"temp_{Guid.NewGuid():N}";
+        }
+
+        // Clean up any stale image with a different extension for this slot if format changed
+        try
+        {
+            var existingFiles = Directory.GetFiles(uploadsDir, $"{fileBaseName}.*");
+            foreach (var existing in existingFiles)
+            {
+                var existingExt = Path.GetExtension(existing).ToLowerInvariant();
+                if (existingExt != ext && existingExt != ".glb" && existingExt != ".stl" &&
+                    !existing.EndsWith(".upload-meta.json", StringComparison.OrdinalIgnoreCase) &&
+                    !existing.EndsWith(".config.json", StringComparison.OrdinalIgnoreCase))
+                {
+                    System.IO.File.Delete(existing);
+                    var metaPath = existing + ".upload-meta.json";
+                    if (System.IO.File.Exists(metaPath))
+                    {
+                        System.IO.File.Delete(metaPath);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Failed to clean up stale image variations for {FileBaseName}", fileBaseName);
+        }
+
         var imageSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}{ext}");
 
         byte[] imageBytes;
@@ -210,7 +259,7 @@ public class FilamentPaintingController : ControllerBase
 
         var configSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}.config.json");
         await System.IO.File.WriteAllTextAsync(configSavedPath, JsonSerializer.Serialize(requestConfig));
-        
+
         await System.IO.File.WriteAllBytesAsync(imageSavedPath, imageBytes);
         var imageRelativeUrl = $"/uploads/{fileBaseName}{ext}";
 
@@ -275,8 +324,6 @@ public class FilamentPaintingController : ControllerBase
         await System.IO.File.WriteAllBytesAsync(stlSavedPath, stlBytes);
         await System.IO.File.WriteAllBytesAsync(glbSavedPath, glbBytes);
 
-        var visitorId = Request.Headers["X-Visitor-Id"].FirstOrDefault()?.Trim();
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         var ownerKey = !string.IsNullOrWhiteSpace(userId)
             ? $"user:{userId}"
             : (!string.IsNullOrWhiteSpace(visitorId) ? $"anon:{visitorId}" : "anon:system");
@@ -377,5 +424,20 @@ public class FilamentPaintingController : ControllerBase
             }
         }
         return new DecodedImage { Width = width, Height = height, RgbBytes = rgb };
+    }
+
+    private static string SanitizeIdentifier(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+        var cleaned = new System.Text.StringBuilder(raw.Length);
+        foreach (var ch in raw)
+        {
+            if (char.IsLetterOrDigit(ch) || ch == '-' || ch == '_')
+            {
+                cleaned.Append(ch);
+            }
+        }
+        var result = cleaned.ToString();
+        return result.Length > 40 ? result[..40] : result;
     }
 }

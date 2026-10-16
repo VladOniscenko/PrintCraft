@@ -57,6 +57,7 @@ builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<IPrintPricingService, PrintPricingService>();
 builder.Services.AddSingleton<IPricingQueue, PricingQueue>();
 builder.Services.AddHostedService<PricingBackgroundWorker>();
+builder.Services.AddHostedService<UploadCleanupBackgroundService>();
 builder.Services.AddScoped<OrderStatusStateMachine>();
 
 builder.Services.AddEndpointsApiExplorer();
