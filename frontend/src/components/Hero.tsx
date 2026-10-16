@@ -118,9 +118,11 @@ export default function Hero() {
 
   const isNl = language === "nl";
 
-  // Fetch active slides from .NET API
+  // Fetch active slides from .NET API after initial paint / during idle
   useEffect(() => {
     let active = true;
+    let idleHandle: number | null = null;
+    let timeoutHandle: number | null = null;
 
     async function loadSlides() {
       try {
@@ -139,10 +141,28 @@ export default function Hero() {
       }
     }
 
-    loadSlides();
+    const idleWindow = typeof window !== "undefined" ? (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void }) : null;
+    if (idleWindow && typeof idleWindow.requestIdleCallback === "function") {
+      idleHandle = idleWindow.requestIdleCallback(
+        () => {
+          void loadSlides();
+        },
+        { timeout: 3000 },
+      );
+    } else {
+      timeoutHandle = setTimeout(() => {
+        void loadSlides();
+      }, 2000) as unknown as number;
+    }
 
     return () => {
       active = false;
+      if (idleHandle !== null && idleWindow && typeof idleWindow.cancelIdleCallback === "function") {
+        idleWindow.cancelIdleCallback(idleHandle);
+      }
+      if (timeoutHandle !== null) {
+        clearTimeout(timeoutHandle);
+      }
     };
   }, []);
 

@@ -37,7 +37,7 @@ function shouldSendVisit(eventType: "pageview" | "heartbeat", path: string) {
   return true;
 }
 
-const Home = lazy(() => import("./components/Home.tsx"));
+import Home from "./components/Home.tsx";
 const Login = lazy(() => import("./components/Login.tsx"));
 const Quote = lazy(() => import("./components/Quote.tsx"));
 const Signup = lazy(() => import("./components/Signup.tsx"));
@@ -178,7 +178,19 @@ function VisitTracker() {
       }
     };
 
-    void sendVisit("pageview");
+    const idleWindow = typeof window !== "undefined" ? (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }) : null;
+    if (idleWindow && typeof idleWindow.requestIdleCallback === "function") {
+      idleWindow.requestIdleCallback(
+        () => {
+          if (!stopped) void sendVisit("pageview");
+        },
+        { timeout: 3500 },
+      );
+    } else {
+      setTimeout(() => {
+        if (!stopped) void sendVisit("pageview");
+      }, 2500);
+    }
 
     const heartbeatId = window.setInterval(() => {
       if (document.visibilityState === "visible") {

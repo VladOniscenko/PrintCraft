@@ -46,13 +46,15 @@
         })(window, document, "script", "dataLayer", "GTM-NKDJR356");
       }
 
-      if ("requestIdleCallback" in window) {
-        requestIdleCallback(function () { setTimeout(initAnalytics, 2500); }, { timeout: 4000 });
-      } else {
-        window.addEventListener("load", function () { setTimeout(initAnalytics, 2500); });
+      var gtmTimer = setTimeout(initAnalytics, 6000);
+      var userEvents = ["pointerdown", "scroll", "keydown", "touchstart"];
+      function onUserInteract() {
+        clearTimeout(gtmTimer);
+        userEvents.forEach(function (e) { window.removeEventListener(e, onUserInteract); });
+        initAnalytics();
       }
-      ["pointerdown", "scroll", "keydown", "touchstart"].forEach(function (evt) {
-        window.addEventListener(evt, initAnalytics, { once: true, passive: true });
+      userEvents.forEach(function (e) {
+        window.addEventListener(e, onUserInteract, { once: true, passive: true });
       });
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

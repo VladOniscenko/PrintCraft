@@ -362,22 +362,21 @@ export default defineConfig(({ mode }) => {
     ],
     build: {
       sourcemap: true,
-      modulePreload: false,
+      modulePreload: true,
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (id.includes("node_modules/three")) return "three-vendor";
-            if (
-              id.includes("node_modules/react") ||
-              id.includes("node_modules/react-dom")
-            ) {
-              return "react-vendor";
+            if (id.includes("node_modules/three")) {
+              return "three-vendor";
             }
-            if (id.includes("node_modules/react-router-dom"))
-              return "router-vendor";
-            if (id.includes("node_modules/lucide-react")) return "icons-vendor";
-            if (id.includes("node_modules/@dnd-kit")) return "dnd-kit-vendor";
-            if (id.includes("node_modules/axios")) return "network-vendor";
+            if (
+              id.includes("node_modules/react/") ||
+              id.includes("node_modules/react-dom/") ||
+              id.includes("node_modules/react-router-dom/") ||
+              id.includes("node_modules/react-router/")
+            ) {
+              return "framework";
+            }
           },
         },
       },
