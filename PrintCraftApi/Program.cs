@@ -312,7 +312,7 @@ if (!string.Equals(Path.GetFullPath(altWebRoot), Path.GetFullPath(webRoot), Stri
 app.MapControllers();
 
 // Explicit fail-safe endpoint for serving uploaded files (including .glb, .stl, images)
-app.MapGet("/uploads/{**filePath}", (string filePath, IWebHostEnvironment env) =>
+app.MapGet("/uploads/{**filePath}", (string filePath, IWebHostEnvironment env, HttpContext context) =>
 {
     if (string.IsNullOrWhiteSpace(filePath))
         return Results.NotFound();
@@ -354,6 +354,13 @@ app.MapGet("/uploads/{**filePath}", (string filePath, IWebHostEnvironment env) =
         ".svg" => "image/svg+xml",
         _ => "application/octet-stream"
     };
+
+    if (cleanPath.StartsWith("temp_", StringComparison.OrdinalIgnoreCase) || context.Request.Query.ContainsKey("v"))
+    {
+        context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+        context.Response.Headers.Pragma = "no-cache";
+        context.Response.Headers.Expires = "0";
+    }
 
     return Results.File(targetPath, contentType, enableRangeProcessing: true);
 });

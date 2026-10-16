@@ -1289,7 +1289,7 @@ export default function Quote() {
     const newItem: OrderItem = {
       uploadType: "filament-painting",
       fileName: `${baseName}_painting`,
-      fileUrl: productionFileUrl || liveResult.modelGlbUrl || "",
+      fileUrl: liveResult.modelGlbUrl || productionFileUrl || "",
       imageUrl: liveResult.previewImageUrl || "",
       material: defaultMat,
       color: paletteSummary,
@@ -2407,17 +2407,23 @@ export default function Quote() {
 
                         {/* Interactive WebGL 3D Viewer with Live Color Preview, Dimension Check, and UX Instructions */}
                         {(() => {
-                          const modelFile = (item.files || []).find(
+                          const glbModel = (item.files || []).find(
+                            (f) => f.kind === "model" && f.url.toLowerCase().includes(".glb"),
+                          );
+                          const modelFile = glbModel || (item.files || []).find(
                             (f) => f.kind === "model",
                           );
                           const activeModelUrl =
+                            (item.uploadType === "filament-painting"
+                              ? (glbModel?.url || (item.fileUrl && item.fileUrl.toLowerCase().includes(".glb") ? item.fileUrl : undefined))
+                              : undefined) ||
                             modelFile?.url ||
                             (item.fileUrl &&
                             MODEL_EXTENSIONS.has(getFileExtension(item.fileUrl))
                               ? item.fileUrl
                               : undefined);
                           const activeModelName =
-                            modelFile?.name || item.fileName || "model.stl";
+                            modelFile?.name || item.fileName || "model.glb";
 
                           if (!activeModelUrl && !itemHasModel(item))
                             return null;
@@ -2433,6 +2439,7 @@ export default function Quote() {
                                 }
                               >
                                 <Interactive3DViewer
+                                  key={activeModelUrl}
                                   fileUrl={activeModelUrl}
                                   fileName={activeModelName}
                                   colorName={

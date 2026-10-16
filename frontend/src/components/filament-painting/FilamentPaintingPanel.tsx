@@ -75,7 +75,7 @@ export interface FilamentPaintingPanelProps {
   className?: string;
 }
 
-const DEFAULT_PRESET_ID = "monochrome-greyscale";
+const DEFAULT_PRESET_ID = "standard-4-color";
 
 // Standard default solid color names for customer 3D filament paintings
 const DEFAULT_SOLID_COLOR_KEYWORDS = [
@@ -1030,6 +1030,7 @@ export default function FilamentPaintingPanel({
                     }
                   >
                     <Interactive3DViewer
+                      key={liveResult.modelGlbUrl}
                       fileUrl={liveResult.modelGlbUrl}
                       fileName={liveResult.modelGlbUrl}
                       className="w-full h-full min-h-[380px]"

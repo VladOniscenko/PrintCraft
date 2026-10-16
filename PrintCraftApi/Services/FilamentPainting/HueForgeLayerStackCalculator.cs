@@ -31,6 +31,7 @@ public class HueForgeLayerStackCalculator
         int totalLayers = 1 + (int)Math.Floor(Math.Max(0.0, maxDepth - baseHeight) / layerHeight + 1e-6);
 
         ColorRgb currentColor = sortedPalette[0].Color;
+        ColorRgb substrateColor = sortedPalette[0].Color;
         double currentFilamentExtrudedThickness = 0.0;
         FilamentPaletteItem? previousFilament = null;
 
@@ -45,6 +46,7 @@ public class HueForgeLayerStackCalculator
             if (previousFilament != activeFilament)
             {
                 // Swapped filament
+                substrateColor = currentColor;
                 currentFilamentExtrudedThickness = currentLayerThickness;
                 previousFilament = activeFilament;
             }
@@ -53,19 +55,21 @@ public class HueForgeLayerStackCalculator
                 currentFilamentExtrudedThickness += currentLayerThickness;
             }
 
-            // Apply Beer-Lambert layer blending
+            // Apply Beer-Lambert layer blending based on cumulative active filament thickness
             if (layer == 1)
             {
                 // Substrate layer starts with base filament's full opaque color
                 currentColor = activeFilament.Color;
+                substrateColor = activeFilament.Color;
             }
             else
             {
+                double effectiveTd = Math.Max(0.15, Math.Min(activeFilament.TransmissionDistanceMm, 0.6));
                 currentColor = TransmissionDistanceModel.BlendLayer(
-                    currentColor,
+                    substrateColor,
                     activeFilament.Color,
-                    currentLayerThickness,
-                    activeFilament.TransmissionDistanceMm
+                    currentFilamentExtrudedThickness,
+                    effectiveTd
                 );
             }
 

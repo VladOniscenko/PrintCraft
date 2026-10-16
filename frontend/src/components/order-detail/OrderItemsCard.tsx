@@ -68,11 +68,35 @@ function getItemFiles(item: {
   fileUrl?: string;
   fileName?: string;
   imageUrl?: string;
+  activeChangeRequest?: {
+    submittedFileUrl?: string | null;
+    submittedFileName?: string | null;
+  } | null;
+  changeRequests?: Array<{
+    submittedFileUrl?: string | null;
+    submittedFileName?: string | null;
+  }>;
 }): ItemFile[] {
   const entries: ItemFile[] = [];
 
+  const revisedFileUrl =
+    item.activeChangeRequest?.submittedFileUrl ||
+    item.changeRequests?.find((cr) => cr.submittedFileUrl)?.submittedFileUrl;
+  const revisedFileName =
+    item.activeChangeRequest?.submittedFileName ||
+    item.changeRequests?.find((cr) => cr.submittedFileUrl)?.submittedFileName;
+
+  if (revisedFileUrl) {
+    entries.push({
+      url: revisedFileUrl,
+      name: revisedFileName || "revised-model",
+      kind: getFileKindFromName(revisedFileName || revisedFileUrl),
+    });
+  }
+
   for (const file of item.files || []) {
     if (!file?.url) continue;
+    if (entries.some((entry) => entry.url === file.url)) continue;
     entries.push({
       url: file.url,
       name: file.name || "file",
@@ -242,6 +266,13 @@ export default function OrderItemsCard({
                         Revision Under Review
                       </span>
                     )}
+                    {previewFile &&
+                      (previewFile.url === item.activeChangeRequest?.submittedFileUrl ||
+                        item.changeRequests?.some((cr) => cr.submittedFileUrl === previewFile.url)) && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          Revised 3D Model
+                        </span>
+                      )}
                   </div>
 
                   {/* Redesigned Specifications Container (Spacious, No Overflow) */}
@@ -349,6 +380,8 @@ export default function OrderItemsCard({
                       orderId={order.id}
                       itemId={item.id}
                       itemFileName={item.fileName}
+                      material={item.material}
+                      color={item.color}
                       changeRequest={item.activeChangeRequest}
                       history={item.changeRequests}
                       onRefresh={onRefresh}

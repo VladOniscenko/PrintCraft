@@ -10,20 +10,24 @@ import {
   ChevronUp,
   History,
   Info,
-  ExternalLink,
   MessageSquareQuote,
   X,
+  Eye,
+  Download,
 } from "lucide-react";
 import api from "../../services/api";
 import { useNotify } from "../../context/NotifyContext";
 import { useI18n } from "../../i18n/I18nContext";
 import type { OrderItemChangeRequestDto } from "../../types/order";
 import { resolveAssetUrl } from "../../utils/assetUrl";
+import ModelInspectorModal from "../ModelInspectorModal";
 
 interface CustomerItemChangeRequestBannerProps {
   orderId: string;
   itemId: string;
   itemFileName?: string;
+  material?: string;
+  color?: string;
   changeRequest?: OrderItemChangeRequestDto | null;
   history?: OrderItemChangeRequestDto[];
   onRefresh?: () => void | Promise<void>;
@@ -33,6 +37,8 @@ export default function CustomerItemChangeRequestBanner({
   orderId,
   itemId,
   itemFileName,
+  material,
+  color,
   changeRequest,
   history = [],
   onRefresh,
@@ -42,6 +48,10 @@ export default function CustomerItemChangeRequestBanner({
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [showHistory, setShowHistory] = useState(false);
+  const [inspectingModel, setInspectingModel] = useState<{
+    url: string;
+    name: string;
+  } | null>(null);
 
   // Form states
   const [customerNotes, setCustomerNotes] = useState("");
@@ -243,14 +253,30 @@ export default function CustomerItemChangeRequestBanner({
                           )}
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setUploadedFile(null)}
-                        className="p-1 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                        title="Remove uploaded file"
-                      >
-                        <X size={16} />
-                      </button>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setInspectingModel({
+                              url: uploadedFile.url,
+                              name: uploadedFile.name,
+                            })
+                          }
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition-colors cursor-pointer"
+                          title="Preview 3D model before submitting"
+                        >
+                          <Eye size={13} />
+                          <span>Preview 3D</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setUploadedFile(null)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                          title="Remove uploaded file"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div
@@ -374,18 +400,37 @@ export default function CustomerItemChangeRequestBanner({
               )}
 
               {changeRequest.submittedFileUrl && (
-                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-sky-900 bg-white/90 border border-sky-200 px-3 py-1.5 rounded-lg">
-                  <FileCheck size={14} className="text-emerald-600 shrink-0" />
-                  <span>
-                    Uploaded File: {changeRequest.submittedFileName || "Updated Model"}
-                  </span>
+                <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-900 bg-white/90 border border-sky-200 px-3 py-1.5 rounded-lg">
+                    <FileCheck size={14} className="text-emerald-600 shrink-0" />
+                    <span className="truncate max-w-[200px] sm:max-w-xs">
+                      {changeRequest.submittedFileName || "Updated Model"}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setInspectingModel({
+                        url: changeRequest.submittedFileUrl!,
+                        name: changeRequest.submittedFileName || "Revised Model",
+                      })
+                    }
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-2xs transition-colors cursor-pointer"
+                  >
+                    <Eye size={13} />
+                    <span>Preview 3D</span>
+                  </button>
+
                   <a
                     href={resolveAssetUrl(changeRequest.submittedFileUrl)}
+                    download={changeRequest.submittedFileName || "revised-model"}
                     target="_blank"
                     rel="noreferrer"
-                    className="ml-1 text-sky-600 hover:text-sky-800 hover:underline inline-flex items-center gap-0.5"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold transition-colors cursor-pointer"
                   >
-                    <ExternalLink size={12} />
+                    <Download size={13} />
+                    <span>Download</span>
                   </a>
                 </div>
               )}
@@ -457,9 +502,39 @@ export default function CustomerItemChangeRequestBanner({
                           <strong>Customer Note:</strong> "{req.customerNotes}"
                         </p>
                         {req.submittedFileName && (
-                          <p className="text-slate-500 text-[11px]">
-                            File: {req.submittedFileName}
-                          </p>
+                          <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                            <span className="text-slate-600 text-[11px] font-medium">
+                              File: <strong>{req.submittedFileName}</strong>
+                            </span>
+                            {req.submittedFileUrl && (
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setInspectingModel({
+                                      url: req.submittedFileUrl!,
+                                      name: req.submittedFileName || "Revised Model",
+                                    })
+                                  }
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 text-[11px] font-bold transition-colors cursor-pointer"
+                                  title="Preview this revised model"
+                                >
+                                  <Eye size={11} />
+                                  <span>Preview 3D</span>
+                                </button>
+                                <a
+                                  href={resolveAssetUrl(req.submittedFileUrl)}
+                                  download={req.submittedFileName || "revised-model"}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 text-[11px] font-semibold transition-colors cursor-pointer"
+                                  title="Download revised file"
+                                >
+                                  <Download size={11} />
+                                </a>
+                              </div>
+                            )}
+                          </div>
                         )}
                         {req.submittedAt && (
                           <p className="text-[10px] text-slate-400">
@@ -487,6 +562,18 @@ export default function CustomerItemChangeRequestBanner({
             </div>
           )}
         </div>
+      )}
+
+      {/* ── 3D Model Inspector Modal for Revised Models ── */}
+      {inspectingModel && (
+        <ModelInspectorModal
+          isOpen={!!inspectingModel}
+          onClose={() => setInspectingModel(null)}
+          fileName={inspectingModel.name}
+          fileUrl={inspectingModel.url}
+          material={material}
+          color={color}
+        />
       )}
     </div>
   );
