@@ -53,3 +53,4 @@ This single command runs three required stages in sequence:
 3. `npm run lint:i18n`: Runs custom AST ESLint rules (`i18n/no-hardcoded-jsx` and `i18n/no-hardcoded-ui-strings`) to ensure 0 hardcoded strings exist in JSX or UI notification APIs.
 
 If any check fails, resolve the missing keys or unlocalized text before completing your task.
+
