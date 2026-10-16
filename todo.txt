@@ -1,2 +1,0 @@
-- destroy Hardware & Material Assignment from my project i dont want this logic inside of it. remove from frontends and backend and database.
--
