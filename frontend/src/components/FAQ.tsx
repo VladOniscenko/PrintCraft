@@ -1,10 +1,11 @@
 // src/components/FAQ.tsx
 import { useState } from "react";
 import Navbar from "./Navbar";
-import { ChevronDown, ChevronUp, MessageCircleQuestion } from "lucide-react";
+import { ChevronDown, ChevronUp, Mail, MessageCircleQuestion } from "lucide-react";
 import { useI18n } from "../i18n/I18nContext";
 import Footer from "./Footer";
 import { Link } from "react-router-dom";
+import { businessInfo } from "../config/businessInfo";
 
 export default function FAQ() {
   const { t } = useI18n();
@@ -92,10 +93,19 @@ export default function FAQ() {
 
         {/* Contact Support Box */}
         <div className="site-card reveal-up stagger-4 mt-10 text-center p-8">
-          <p className="text-[#5f726c] mb-4">{t("faq.contactText")}</p>
-          <Link to="/privacy" className="site-btn-primary">
-            {t("faq.contactCta")}
-          </Link>
+          <p className="text-[#5f726c] mb-5">{t("faq.contactText")}</p>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <a
+              href={`mailto:${businessInfo.email}`}
+              className="site-btn-primary inline-flex items-center gap-2"
+            >
+              <Mail size={16} />
+              <span>{businessInfo.email}</span>
+            </a>
+            <Link to="/checkout" className="site-btn-soft">
+              {t("hero.ctaQuote")}
+            </Link>
+          </div>
         </div>
       </main>
 

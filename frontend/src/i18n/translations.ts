@@ -108,19 +108,16 @@ export const translations: Record<
       },
       steps: {
         eyebrow: "From idea to part",
-        title: "It is that simple",
-        uploadTitle: "Upload or describe",
-        uploadText: "Share your file or tell us what you want made.",
-        materialTitle: "Choose your material",
-        materialText: "Select the properties that matter for your application.",
-        printTitle: "We print and deliver",
-        printText: "We align the details, print carefully and send it to you.",
-      },
-      how: {
-        bridgeBadge: "Next Step",
-        bridgeTitle: "How does it work from idea to delivery?",
-        bridgeSubtitle:
-          "First, understand the simple process so you know exactly what happens after your request.",
+        title: "How Our 3D Print Service Works",
+        uploadTitle: "Upload 3D Model",
+        uploadText:
+          "Upload your .STL, .3MF, or .OBJ file, or describe your idea to get an instant tailored quote.",
+        materialTitle: "Choose Material & Infill",
+        materialText:
+          "Select premium PLA, tough PETG, or flexible TPU tailored to your application.",
+        printTitle: "Precision Print & Delivery",
+        printText:
+          "We print with ±0.1mm precision and deliver within 2-5 business days across the Netherlands.",
       },
       modelFinder: {
         badge: "Model Starter",
@@ -172,25 +169,6 @@ export const translations: Record<
       highQualityValue: "Precision prints",
       eco: "Eco-Friendly",
       ecoValue: "Sustainable materials",
-    },
-    how: {
-      title: "How It Works",
-      step1: {
-        title: "Request",
-        desc: "Upload your 3D file or describe your idea.",
-      },
-      step2: {
-        title: "Review & Quote",
-        desc: "We review your file and send a personalized price.",
-      },
-      step3: {
-        title: "We Print",
-        desc: "Your order is printed with care on our printers.",
-      },
-      step4: {
-        title: "Packed & Shipped",
-        desc: "We ship your high-quality print to your door.",
-      },
     },
     materials: {
       title: "Materials & Colors",
@@ -1228,8 +1206,8 @@ export const translations: Record<
       subtitle:
         "Got questions about 3D printing, shipping, or materials? We have got you covered.",
       contactText:
-        "Still looking for an answer? See our privacy policy for contact details.",
-      contactCta: "View other pages",
+        "Still looking for an answer or need tailored advice for your 3D design? Contact us directly or request an instant quote.",
+      contactCta: "Request a Quote",
       q1: "What type of 3D files do you accept?",
       a1: "We accept the most common 3D files: .STL, .OBJ, and .3MF. If you have a different file type from your design software, you can usually use the Export or Save As option to convert it before uploading.",
       q2: "How much does a custom print cost?",
@@ -1814,21 +1792,16 @@ export const translations: Record<
       },
       steps: {
         eyebrow: "Van idee naar onderdeel",
-        title: "Zo simpel is het",
-        uploadTitle: "Upload of beschrijf",
-        uploadText: "Deel je bestand of vertel wat je wilt laten maken.",
-        materialTitle: "Kies je materiaal",
+        title: "Hoe Onze 3D Print Service Werkt",
+        uploadTitle: "Upload 3D-Model (.STL / .3MF)",
+        uploadText:
+          "Upload eenvoudig je .STL, .3MF of .OBJ bestand, of beschrijf je idee voor een directe offerte op maat.",
+        materialTitle: "Kies Filament & Eigenschappen",
         materialText:
-          "Selecteer de eigenschappen die belangrijk zijn voor jouw toepassing.",
-        printTitle: "Wij printen & bezorgen",
+          "Selecteer duurzaam PLA, slagvast PETG of flexibel TPU met de gewenste infill en kleur.",
+        printTitle: "Precisie Printen & Snelle Bezorging",
         printText:
-          "We stemmen de details af, printen zorgvuldig en sturen het naar je op.",
-      },
-      how: {
-        bridgeBadge: "Volgende Stap",
-        bridgeTitle: "Hoe werkt het van idee tot levering?",
-        bridgeSubtitle:
-          "Begrijp eerst het eenvoudige proces, zodat je precies weet wat er gebeurt na je aanvraag.",
+          "We printen met ±0.1mm precisie en bezorgen binnen 2-5 werkdagen zorgvuldig verpakt in heel Nederland.",
       },
       modelFinder: {
         badge: "Model Startpunt",
@@ -1880,25 +1853,6 @@ export const translations: Record<
       highQualityValue: "Nauwkeurige prints",
       eco: "Duurzaam",
       ecoValue: "Milieuvriendelijke materialen",
-    },
-    how: {
-      title: "Hoe Het Werkt",
-      step1: {
-        title: "Aanvraag",
-        desc: "Upload je 3D-bestand of beschrijf je idee.",
-      },
-      step2: {
-        title: "Controle & Offerte",
-        desc: "We controleren je bestand en sturen een persoonlijke prijs.",
-      },
-      step3: {
-        title: "Wij Printen",
-        desc: "Je bestelling wordt zorgvuldig geprint op onze printers.",
-      },
-      step4: {
-        title: "Verpakt & Verzonden",
-        desc: "We verzenden je hoogwaardige print naar je adres.",
-      },
     },
     materials: {
       title: "Materialen & Kleuren",
@@ -2953,8 +2907,8 @@ export const translations: Record<
       subtitle:
         "Vragen over 3D printen, levering of materialen? We helpen je graag.",
       contactText:
-        "Nog steeds op zoek naar een antwoord? Bekijk ons privacybeleid voor contactgegevens.",
-      contactCta: "Bekijk andere pagina's",
+        "Nog een specifieke vraag over jouw 3D-model, gewenste materialen of toleranties? Neem contact op of vraag direct een offerte aan.",
+      contactCta: "Vraag een Offerte Aan",
       q1: "Welke 3D-bestanden accepteren jullie?",
       a1: "We accepteren de meest gebruikte bestandsformaten: .STL, .OBJ en .3MF. Andere formaten kun je meestal exporteren naar STL.",
       q2: "Wat kost een maatwerk print?",

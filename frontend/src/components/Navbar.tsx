@@ -60,7 +60,11 @@ const Navbar = () => {
     navigate("/");
   };
 
-  const navLinks: Array<{ name: string; path: string }> = [];
+  const navLinks: Array<{ name: string; path: string }> = [
+    { name: t("nav.home"), path: "/" },
+    { name: t("nav.faq"), path: "/faq" },
+    { name: t("hero.ctaQuote"), path: "/checkout" },
+  ];
 
   // If logged in, add "My Orders" and admin dashboard (for admins) to the navigation
   const visibleLinks = isLoggedIn

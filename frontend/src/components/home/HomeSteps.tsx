@@ -1,4 +1,5 @@
-import { Box, PackageCheck, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, Box, PackageCheck, SlidersHorizontal } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useI18n } from "../../i18n/I18nContext";
 
 const steps = [
@@ -48,6 +49,15 @@ export default function HomeSteps() {
             <p className="mt-2 text-sm leading-6 text-[#5f736d]">{t(text)}</p>
           </article>
         ))}
+      </div>
+      <div className="flex justify-center pt-2">
+        <Link
+          to="/checkout"
+          className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-500 hover:to-teal-500 shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <span>{t("hero.ctaQuote")}</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
     </section>
   );
