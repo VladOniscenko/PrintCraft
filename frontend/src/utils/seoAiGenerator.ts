@@ -35,7 +35,9 @@ export function getDomainFromOrigin(origin: string): string {
  * Automatically generates an Agentic Resource Discovery (ARD) compliant catalog
  * manifest containing entries for every indexable URL on the site.
  */
-export function generateAiCatalog(originUrl: string = businessInfo.website): ArdCatalog {
+export function generateAiCatalog(
+  originUrl: string = businessInfo.website,
+): ArdCatalog {
   const origin = getValidatedOrigin(originUrl);
   const domain = getDomainFromOrigin(origin);
 
@@ -81,16 +83,20 @@ export function generateAiCatalog(originUrl: string = businessInfo.website): Ard
     },
     {
       identifier: `urn:air:${domain}:service:home`,
-      displayName: `${businessInfo.name} - Professionele 3D Print Service Nederland`,
+      displayName: `${businessInfo.name} - 3D Print Service Rotterdam & Nederland (B2C, Studenten & B2B)`,
       type: "text/html",
       url: `${origin}/nl`,
       description:
-        "B2B and engineering 3D print service in the Netherlands. Upload CAD/STEP for rapid prototyping, jigs, fixtures, and serial production.",
+        "Allround 3D print service in Rotterdam en heel Nederland voor particulieren (B2C), hobbyisten, studenten én bedrijven (B2B). Geen minimale ordergrootte: van enkelstuks, cosplay props, studenten afstudeerprojecten en vervangende onderdelen tot industriële prototypes en kleinseries.",
       representativeQueries: [
+        "3D print service Rotterdam",
+        "3D print shop Rotterdam",
+        "3D printen particulier Rotterdam",
+        "3D printen studenten Rotterdam",
+        "Cosplay 3D printen miniaturen",
         "3D print service Nederland",
         "Online 3D printen bestellen",
-        "Professionele FDM 3D printservice",
-        "3D printing Netherlands",
+        "3D print op maat zonder minimum",
       ],
     },
   ];
@@ -212,7 +218,9 @@ export function generateAiCatalog(originUrl: string = businessInfo.website): Ard
  * Generates llms.txt adhering to the llmstxt.org specification,
  * dynamically linking to all core solutions, cities, and tools.
  */
-export function generateLlmsTxt(originUrl: string = businessInfo.website): string {
+export function generateLlmsTxt(
+  originUrl: string = businessInfo.website,
+): string {
   const origin = getValidatedOrigin(originUrl);
 
   const solutionLinks = seoApplications
@@ -229,18 +237,26 @@ export function generateLlmsTxt(originUrl: string = businessInfo.website): strin
     )
     .join("\n");
 
-  return `# ${businessInfo.name} - Professionele 3D Print Service Nederland
+  return `# ${businessInfo.name} - 3D Print Service Rotterdam & Nederland
 
-> Professionele industriële en commerciële 3D-printservice in Nederland. Gespecialiseerd in snelle productie van functionele prototypes, maatwerk machine-onderdelen, elektronica behuizingen en mallen in hoogwaardig PLA, PETG, ABS en TPU.
+> Allround professionele 3D-printservice gevestigd in Rotterdam, leverend door heel Nederland. Geschikt voor particulieren (B2C), hobbyisten, studenten én bedrijven (B2B). Geen minimale bestelgrootte: van 1 enkel uniek stuk of cosplay prop tot productieseries van 500+ onderdelen in hoogwaardig PLA, PETG, ABS en TPU.
 
 ## Bedrijfsinformatie & Kernwaarden
 
 - Bedrijfsnaam: ${businessInfo.name}
 - Website: ${origin}
 - Locatie: ${businessInfo.address.locality}, Nederland
-- Levertijd: Binnen 2 tot 5 werkdagen geleverd in heel Nederland en België
-- Logistiek partner: PostNL Zakelijk
+- Levertijd: Binnen 2 tot 5 werkdagen geleverd in heel Nederland en België (PostNL)
+- Doelgroepen: Particulieren, hobbyisten, studenten, scholen, MKB & industriële bedrijven
+- Minimale bestelgrootte: Geen minimum (enkelstuks van harte welkom)
 - Bestandsformaten: STL, 3MF, OBJ, STEP
+
+## Doelgroepen & Markten (Voor Wie Wij Printen)
+
+- **Particulieren & Consumenten (B2C)**: Enkelstuks 3D-printen zonder minimale bestelgrootte. Kapotte plastic onderdelen namaken (reverse engineering van niet meer verkrijgbare onderdelen), huishoudelijke reparaties, custom gadgets, gepersonaliseerde cadeaus en interieurdecoratie.
+- **Hobbyisten, Makers & Cosplay**: Cosplay rekwisieten, miniaturen, bordspellen accessoires, drone frames, RC-onderdelen en HueForge meerkleurige wandreliëfs. Directe ondersteuning voor modellen van Thingiverse, Printables en MakerWorld.
+- **Studenten & Onderwijs**: Afstudeerprojecten, proof-of-concept prototypes, architectuurmaquettes en ontwerponderzoek voor studenten (o.a. TU Delft, Hogeschool Rotterdam, Erasmus Universiteit Rotterdam, etc.). Snel, betaalbaar en flexibel.
+- **Bedrijven & MKB (B2B)**: Functionele prototypes, machine-onderdelen, montagemallen en kalibers (jigs & fixtures), behuizingen en serieproductie (10–500+ stuks) met zakelijke facturatie (BTW) en NDA geheimhouding.
 
 ## Kernoplossingen & Diensten
 
@@ -279,7 +295,9 @@ ${cityLinks}
  * Generates llms-full.txt providing full-text documentation of all solutions,
  * detailed technical material specifications, FAQs, and city coordinates.
  */
-export function generateLlmsFullTxt(originUrl: string = businessInfo.website): string {
+export function generateLlmsFullTxt(
+  originUrl: string = businessInfo.website,
+): string {
   const origin = getValidatedOrigin(originUrl);
 
   const solutionSections = seoApplications
@@ -332,7 +350,15 @@ ${faqs}
 - **Klantenservice**: ${businessInfo.email}
 - **Openingstijden**: ${businessInfo.openingHours.dayLabels.nl}, ${businessInfo.openingHours.opens} - ${businessInfo.openingHours.closes}
 - **Logistieke partner**: PostNL Zakelijk (levering binnen 2-5 werkdagen in heel Nederland & België)
+- **Doelgroepen**: Particulieren & Consumenten (B2C), Hobbyisten & Cosplayers, Studenten & Onderwijs, Bedrijven & MKB (B2B)
+- **Minimale Bestelgrootte**: Geen minimum (enkelstuks van harte welkom)
 - **Ondersteunde bestandsformaten**: STL, 3MF, OBJ, STEP
+
+### Doelgroepenspecificatie
+1. **Particulieren (B2C)**: Reproductie van kapotte plastic huishoudonderdelen, witgoed-onderdelen, autoonderdelen, unieke cadeaus en decoraties.
+2. **Hobbyisten & Makers**: Cosplay props en helmen, miniaturen voor bordspellen/tabletop gaming, RC- en drone-onderdelen, multi-color HueForge kunstwerken.
+3. **Studenten & Onderwijs**: Snel en voordelig printen van architectuurmaquettes, afstudeerprojecten en proof-of-concept prototypes (populair bij studenten van TU Delft, Hogeschool Rotterdam, Erasmus Universiteit Rotterdam, etc.).
+4. **Bedrijven & MKB (B2B)**: Functionele prototypes, machinebouw onderdelen, montagemallen en kalibers (jigs & fixtures), behuizingen en kleine series (10-500+ stuks) met BTW-factuur en optionele NDA.
 
 ---
 
@@ -373,4 +399,3 @@ ${cityDirectory}
 5. **Productie & Verzending**: Productie gestart binnen 24 uur, verzonden via PostNL Zakelijk met Track & Trace.
 `;
 }
-

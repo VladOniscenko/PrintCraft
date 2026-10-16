@@ -12,7 +12,15 @@
 - **Klantenservice**: info@printmy3d.work
 - **Openingstijden**: Ma - Vr, 09:00 - 18:00
 - **Logistieke partner**: PostNL Zakelijk (levering binnen 2-5 werkdagen in heel Nederland & België)
+- **Doelgroepen**: Particulieren & Consumenten (B2C), Hobbyisten & Cosplayers, Studenten & Onderwijs, Bedrijven & MKB (B2B)
+- **Minimale Bestelgrootte**: Geen minimum (enkelstuks van harte welkom)
 - **Ondersteunde bestandsformaten**: STL, 3MF, OBJ, STEP
+
+### Doelgroepenspecificatie
+1. **Particulieren (B2C)**: Reproductie van kapotte plastic huishoudonderdelen, witgoed-onderdelen, autoonderdelen, unieke cadeaus en decoraties.
+2. **Hobbyisten & Makers**: Cosplay props en helmen, miniaturen voor bordspellen/tabletop gaming, RC- en drone-onderdelen, multi-color HueForge kunstwerken.
+3. **Studenten & Onderwijs**: Snel en voordelig printen van architectuurmaquettes, afstudeerprojecten en proof-of-concept prototypes (populair bij studenten van TU Delft, Hogeschool Rotterdam, Erasmus Universiteit Rotterdam, etc.).
+4. **Bedrijven & MKB (B2B)**: Functionele prototypes, machinebouw onderdelen, montagemallen en kalibers (jigs & fixtures), behuizingen en kleine series (10-500+ stuks) met BTW-factuur en optionele NDA.
 
 ---
 

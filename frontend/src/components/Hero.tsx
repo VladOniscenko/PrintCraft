@@ -137,11 +137,23 @@ export default function Hero() {
           setCurrentIndex(0);
         }
       } catch (err) {
-        console.warn("Could not load dynamic hero slides from API, using fallback slides:", err);
+        console.warn(
+          "Could not load dynamic hero slides from API, using fallback slides:",
+          err,
+        );
       }
     }
 
-    const idleWindow = typeof window !== "undefined" ? (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void }) : null;
+    const idleWindow =
+      typeof window !== "undefined"
+        ? (window as unknown as {
+            requestIdleCallback?: (
+              cb: () => void,
+              opts?: { timeout: number },
+            ) => number;
+            cancelIdleCallback?: (id: number) => void;
+          })
+        : null;
     if (idleWindow && typeof idleWindow.requestIdleCallback === "function") {
       idleHandle = idleWindow.requestIdleCallback(
         () => {
@@ -157,7 +169,11 @@ export default function Hero() {
 
     return () => {
       active = false;
-      if (idleHandle !== null && idleWindow && typeof idleWindow.cancelIdleCallback === "function") {
+      if (
+        idleHandle !== null &&
+        idleWindow &&
+        typeof idleWindow.cancelIdleCallback === "function"
+      ) {
         idleWindow.cancelIdleCallback(idleHandle);
       }
       if (timeoutHandle !== null) {
@@ -244,26 +260,57 @@ export default function Hero() {
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center p-6 sm:p-10 lg:p-14">
         {/* ================= LEFT SIDE: Text, Price, Tooltip, Actions ================= */}
         <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
-          {/* Top Tag & Indicator */}
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{t("hero.promotionalBadge")}</span>
-            </span>
-            <span className="text-xs font-mono text-emerald-200/60 tracking-wider">
-              {String(currentIndex + 1).padStart(2, "0")} /{" "}
-              {String(totalSlides).padStart(2, "0")}
-            </span>
-          </div>
+          {/* Main Service H1 & Audience Scope */}
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                {t("hero.badgeNoMinimum")}
+              </span>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/10 text-emerald-100 border border-white/15">
+                {t("hero.badgeB2c")}
+              </span>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/10 text-emerald-100 border border-white/15">
+                {t("hero.badgeStudents")}
+              </span>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/10 text-emerald-100 border border-white/15">
+                {t("hero.badgeHobby")}
+              </span>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/10 text-emerald-100 border border-white/15">
+                {t("hero.badgeB2b")}
+              </span>
+            </div>
 
-          {/* Title */}
-          <div className="space-y-3">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.08] text-white">
-              {slideTitle}
-            </h1>
-            <p className="text-base sm:text-lg text-emerald-50/80 leading-relaxed max-w-xl font-normal">
-              {slideSubtext}
-            </p>
+            <div className="space-y-2">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.08] text-white">
+                {t("hero.mainHeading")}
+              </h1>
+              <p className="text-sm sm:text-base font-semibold text-emerald-300">
+                {t("hero.subHeading")}
+              </p>
+              <p className="text-sm sm:text-base text-emerald-50/90 leading-relaxed max-w-xl font-normal">
+                {t("hero.introText")}
+              </p>
+            </div>
+
+            {/* Active Slide Spotlight */}
+            <div className="pt-3 border-t border-emerald-500/20">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  <Sparkles className="w-3 h-3 text-emerald-400" />
+                  <span>{t("hero.promotionalBadge")}</span>
+                </span>
+                <span className="text-[11px] font-mono text-emerald-200/60 tracking-wider">
+                  {String(currentIndex + 1).padStart(2, "0")} /{" "}
+                  {String(totalSlides).padStart(2, "0")}
+                </span>
+              </div>
+              <h2 className="mt-2 text-lg sm:text-xl font-bold tracking-tight text-white">
+                {slideTitle}
+              </h2>
+              <p className="mt-1 text-xs sm:text-sm text-emerald-100/80 leading-relaxed max-w-xl font-normal">
+                {slideSubtext}
+              </p>
+            </div>
           </div>
 
           {/* Price & Instruction Tooltip Accents */}
@@ -483,7 +530,10 @@ export default function Hero() {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
+                aria-label={t("hero.goToSlide", {
+                  index: idx + 1,
+                  title: slideItemTitle,
+                })}
                 onClick={() => goToSlide(idx)}
                 className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
               >

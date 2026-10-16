@@ -27,7 +27,9 @@
     <!-- Deferred Third-Party Analytics (GTM) to prevent main-thread blocking & layout thrashing -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag() { dataLayer.push(arguments); }
+      function gtag() {
+        dataLayer.push(arguments);
+      }
 
       function initAnalytics() {
         if (window._analyticsInitialized) return;
@@ -50,25 +52,31 @@
       var userEvents = ["pointerdown", "scroll", "keydown", "touchstart"];
       function onUserInteract() {
         clearTimeout(gtmTimer);
-        userEvents.forEach(function (e) { window.removeEventListener(e, onUserInteract); });
+        userEvents.forEach(function (e) {
+          window.removeEventListener(e, onUserInteract);
+        });
         initAnalytics();
       }
       userEvents.forEach(function (e) {
-        window.addEventListener(e, onUserInteract, { once: true, passive: true });
+        window.addEventListener(e, onUserInteract, {
+          once: true,
+          passive: true,
+        });
       });
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!--seo-meta-start-->
     <title>
-      3D Print Service Nederland | __BUSINESS_NAME__ - Snel & Op Maat
+      3D Print Service Rotterdam & Nederland | Particulier, Studenten & Zakelijk
+      | PrintMy3D
     </title>
     <meta
       name="description"
-      content="B2B 3D print service in Nederland voor ingenieurs & machinebouwers. Upload CAD/STEP voor rapid prototyping, jigs & fixtures en kleinserie productie."
+      content="Dé 3D print service in Rotterdam en heel Nederland voor particulieren, hobbyisten, studenten én bedrijven. Geen minimale afname: van enkelstuks, cosplay en prototypes tot B2B serieproductie. Direct online bestellen!"
     />
     <meta
       name="keywords"
-      content="3D print service Nederland, 3D printen Rotterdam, online 3D print service, maatwerk 3D print, FDM printen, PLA PETG TPU, prototype printen"
+      content="3d print service rotterdam, 3d print shop rotterdam, 3d printen rotterdam, 3d printen particulier, 3d printen studenten rotterdam, cosplay 3d printen, hobby 3d printen, stl laten printen, rapid prototyping nederland, zakelijk 3d printen, 3d printen zonder minimum, goedkoop 3d printen rotterdam, fdm 3d print service, 3d print op maat rotterdam"
     />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="__BUSINESS_NAME__" />
@@ -84,27 +92,32 @@
     />
     <link rel="ard" href="https://printmy3d.work/.well-known/ard.json" />
     <link rel="ai-catalog" href="https://printmy3d.work/ai-catalog.json" />
-    <link rel="alternate" type="text/markdown" href="https://printmy3d.work/llms.txt" title="LLM Guidance" />
+    <link
+      rel="alternate"
+      type="text/markdown"
+      href="https://printmy3d.work/llms.txt"
+      title="LLM Guidance"
+    />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="nl_NL" />
     <meta
       property="og:title"
-      content="3D Print Service Nederland | __BUSINESS_NAME__ - Snel & Op Maat"
+      content="3D Print Service Rotterdam & Nederland | Particulier, Studenten & Zakelijk | PrintMy3D"
     />
     <meta
       property="og:description"
-      content="Professionele 3D print service in Nederland. Upload je 3D-bestand (STL/3MF), kies PLA, PETG of TPU en ontvang direct een offerte. Snelle levering binnen 2-5 werkdagen."
+      content="Dé 3D print service in Rotterdam en heel Nederland voor particulieren, hobbyisten, studenten én bedrijven. Geen minimale afname: van enkelstuks, cosplay en prototypes tot B2B serieproductie. Direct online bestellen!"
     />
     <meta property="og:image" content="__BUSINESS_OG_IMAGE__" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="3D Print Service Nederland | __BUSINESS_NAME__ - Snel & Op Maat"
+      content="3D Print Service Rotterdam & Nederland | Particulier, Studenten & Zakelijk | PrintMy3D"
     />
     <meta
       name="twitter:description"
-      content="Upload je model en ontvang snel een offerte voor 3D prints in heel Nederland. Snelle levering binnen 2-5 werkdagen."
+      content="Dé 3D print service in Rotterdam en heel Nederland voor particulieren, hobbyisten, studenten én bedrijven. Geen minimale afname: van enkelstuks, cosplay en prototypes tot B2B serieproductie. Direct online bestellen!"
     />
     <meta name="twitter:image" content="__BUSINESS_OG_IMAGE__" />
 

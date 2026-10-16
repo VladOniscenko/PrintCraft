@@ -78,6 +78,15 @@ export function buildHomepageJsonLd(
       url: origin,
       email: businessInfo.email,
       image: ogImage,
+      knowsAbout: [
+        "3D Printing Rotterdam",
+        "Particulier 3D Printen",
+        "Studenten 3D Printen",
+        "Hobby & Cosplay 3D Printing",
+        "Rapid Prototyping",
+        "FDM 3D Printing",
+        "B2B Serial Production",
+      ],
       address: {
         "@type": "PostalAddress",
         addressLocality: businessInfo.address.locality,
