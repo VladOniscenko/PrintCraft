@@ -1756,7 +1756,7 @@ export const translations: Record<
           "Van een eerste idee tot een onderdeel dat elke dag moet presteren. Jij levert de richting, wij maken het tastbaar.",
         partTitle: "Functionele onderdelen",
         partTag: "Nauwkeurig",
-        prototypeTitle: "Productprototypes",
+        prototypeTitle: "Product prototypes",
         prototypeTag: "Snel getest",
         caseTitle: "Sterke behuizingen",
         caseTag: "Sterk",
