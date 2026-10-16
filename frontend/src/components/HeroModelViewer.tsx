@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 import { useI18n } from "../i18n/I18nContext";
 
 type HeroModelViewerProps = {
@@ -208,6 +207,9 @@ export default function HeroModelViewer({
       // Clean up meshes in modelGroup
       modelGroup.traverse((obj: any) => {
         if (obj instanceof THREE.Mesh) {
+          if (obj.geometry) {
+            obj.geometry.dispose();
+          }
           if (Array.isArray(obj.material)) {
             obj.material.forEach((m: any) => m.dispose());
           } else {
@@ -291,37 +293,48 @@ export default function HeroModelViewer({
     }
 
     setStatus("loading");
-    const loader = new STLLoader();
-    loader.load(
-      src,
-      (geometry: any) => {
-        if (!active) {
-          geometry.dispose();
-          return;
-        }
+    void (async () => {
+      try {
+        const { STLLoader } = await import(
+          "three/examples/jsm/loaders/STLLoader.js"
+        );
+        if (!active) return;
+        const loader = new STLLoader();
+        loader.load(
+          src,
+          (geometry: any) => {
+            if (!active) {
+              geometry.dispose();
+              return;
+            }
 
-        geometry.computeBoundingBox();
-        geometry.computeBoundingSphere();
-        const radius = geometry.boundingSphere?.radius ?? 0;
-        if (!Number.isFinite(radius) || radius <= 0) {
-          setStatus("error");
-          geometry.dispose();
-          return;
-        }
+            geometry.computeBoundingBox();
+            geometry.computeBoundingSphere();
+            const radius = geometry.boundingSphere?.radius ?? 0;
+            if (!Number.isFinite(radius) || radius <= 0) {
+              setStatus("error");
+              geometry.dispose();
+              return;
+            }
 
-        geometry.center();
-        geometry.computeVertexNormals();
+            geometry.center();
+            geometry.computeVertexNormals();
 
-        // Cache for subsequent slide cycles
-        geometryCache.set(src, geometry);
-        applyGeometry(geometry);
-      },
-      undefined,
-      () => {
+            // Cache for subsequent slide cycles
+            geometryCache.set(src, geometry);
+            applyGeometry(geometry);
+          },
+          undefined,
+          () => {
+            if (!active) return;
+            setStatus("error");
+          },
+        );
+      } catch {
         if (!active) return;
         setStatus("error");
-      },
-    );
+      }
+    })();
 
     return () => {
       active = false;

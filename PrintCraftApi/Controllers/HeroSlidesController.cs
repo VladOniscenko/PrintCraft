@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using PrintCraftApi.Data;
 using PrintCraftApi.Models;
 
@@ -11,13 +12,18 @@ namespace PrintCraftApi.Controllers;
 [Route("api/hero-slides")]
 public class HeroSlidesController : ControllerBase
 {
+    private const string ActiveSlidesCacheKey = "catalog:hero-slides:active";
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
+
     private readonly PrintCraftDb _db;
     private readonly IWebHostEnvironment? _env;
+    private readonly IMemoryCache? _cache;
 
-    public HeroSlidesController(PrintCraftDb db, IWebHostEnvironment? env = null)
+    public HeroSlidesController(PrintCraftDb db, IWebHostEnvironment? env = null, IMemoryCache? cache = null)
     {
         _db = db;
         _env = env;
+        _cache = cache;
     }
 
     /// <summary>
@@ -25,15 +31,21 @@ public class HeroSlidesController : ControllerBase
     /// </summary>
     [HttpGet("active")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetActive()
+    public async Task<IActionResult> GetActive(CancellationToken cancellationToken = default)
     {
+        if (_cache != null && _cache.TryGetValue(ActiveSlidesCacheKey, out List<HeroSlide>? cached) && cached != null)
+        {
+            return Ok(cached);
+        }
+
         var activeSlides = await _db.HeroSlides
             .AsNoTracking()
             .Where(s => s.IsActive)
             .OrderBy(s => s.SortOrder)
             .ThenBy(s => s.CreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
+        _cache?.Set(ActiveSlidesCacheKey, activeSlides, CacheDuration);
         return Ok(activeSlides);
     }
 
@@ -43,7 +55,7 @@ public class HeroSlidesController : ControllerBase
     /// </summary>
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAll([FromQuery] bool? activeOnly, [FromQuery] bool? all)
+    public async Task<IActionResult> GetAll([FromQuery] bool? activeOnly, [FromQuery] bool? all, CancellationToken cancellationToken = default)
     {
         var query = _db.HeroSlides.AsNoTracking();
 
@@ -55,7 +67,7 @@ public class HeroSlidesController : ControllerBase
         var slides = await query
             .OrderBy(s => s.SortOrder)
             .ThenBy(s => s.CreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return Ok(slides);
     }
@@ -65,11 +77,11 @@ public class HeroSlidesController : ControllerBase
     /// </summary>
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken = default)
     {
         var slide = await _db.HeroSlides
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id);
+            .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
 
         if (slide is null)
         {
@@ -84,7 +96,7 @@ public class HeroSlidesController : ControllerBase
     /// </summary>
     [HttpPost]
     [AllowAnonymous]
-    public async Task<IActionResult> Create([FromBody] HeroSlide slide)
+    public async Task<IActionResult> Create([FromBody] HeroSlide slide, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(slide.Title))
         {
@@ -122,7 +134,8 @@ public class HeroSlidesController : ControllerBase
         };
 
         _db.HeroSlides.Add(newSlide);
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(cancellationToken);
+        _cache?.Remove(ActiveSlidesCacheKey);
 
         return CreatedAtAction(nameof(GetById), new { id = newSlide.Id }, newSlide);
     }
@@ -132,7 +145,7 @@ public class HeroSlidesController : ControllerBase
     /// </summary>
     [HttpPut("{id:guid}")]
     [AllowAnonymous]
-    public async Task<IActionResult> Update(Guid id, [FromBody] HeroSlide request)
+    public async Task<IActionResult> Update(Guid id, [FromBody] HeroSlide request, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(request.Title))
         {
@@ -149,7 +162,7 @@ public class HeroSlidesController : ControllerBase
             return BadRequest(new { message = "MediaType must be either 'image' or 'model3d'." });
         }
 
-        var existing = await _db.HeroSlides.FirstOrDefaultAsync(s => s.Id == id);
+        var existing = await _db.HeroSlides.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         if (existing is null)
         {
             return NotFound(new { message = "Hero slide not found." });
@@ -169,7 +182,8 @@ public class HeroSlidesController : ControllerBase
         existing.SortOrder = request.SortOrder;
         existing.UpdatedAt = DateTime.UtcNow;
 
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(cancellationToken);
+        _cache?.Remove(ActiveSlidesCacheKey);
 
         return Ok(existing);
     }
@@ -179,16 +193,17 @@ public class HeroSlidesController : ControllerBase
     /// </summary>
     [HttpDelete("{id:guid}")]
     [AllowAnonymous]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
-        var existing = await _db.HeroSlides.FirstOrDefaultAsync(s => s.Id == id);
+        var existing = await _db.HeroSlides.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         if (existing is null)
         {
             return NotFound(new { message = "Hero slide not found." });
         }
 
         _db.HeroSlides.Remove(existing);
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(cancellationToken);
+        _cache?.Remove(ActiveSlidesCacheKey);
 
         return NoContent();
     }
@@ -198,12 +213,12 @@ public class HeroSlidesController : ControllerBase
     /// </summary>
     [HttpPost("seed-defaults")]
     [AllowAnonymous]
-    public async Task<IActionResult> SeedDefaults()
+    public async Task<IActionResult> SeedDefaults(CancellationToken cancellationToken = default)
     {
         HeroSlideSeeder.EnsureSeedAssets(_env?.WebRootPath, _env?.ContentRootPath);
 
         var defaults = HeroSlideSeeder.GetDefaultSlides();
-        var existingIds = await _db.HeroSlides.Select(s => s.Id).ToListAsync();
+        var existingIds = await _db.HeroSlides.Select(s => s.Id).ToListAsync(cancellationToken);
 
         foreach (var def in defaults)
         {
@@ -213,12 +228,14 @@ public class HeroSlidesController : ControllerBase
             }
         }
 
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(cancellationToken);
+        _cache?.Remove(ActiveSlidesCacheKey);
 
         var allSlides = await _db.HeroSlides
+            .AsNoTracking()
             .OrderBy(s => s.SortOrder)
             .ThenBy(s => s.CreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return Ok(allSlides);
     }
@@ -227,6 +244,8 @@ public class HeroSlidesController : ControllerBase
     /// Uploads a media file (3D model or image) specifically for hero slides.
     /// </summary>
     [HttpPost("upload")]
+    [RequestSizeLimit(50 * 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 50 * 1024 * 1024)]
     [AllowAnonymous]
     public async Task<IActionResult> Upload([FromForm] IFormFile? file)
     {

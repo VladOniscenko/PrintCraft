@@ -364,6 +364,8 @@ function MediaSelectorModal({
                           <img
                             src={resolveAssetUrl(file.url)}
                             alt={file.fileName}
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-contain p-1"
                             onError={(e) => {
                               (e.target as HTMLElement).style.display = "none";
@@ -999,6 +1001,8 @@ export default function AdminHeroSlides() {
                                   <img
                                     src={resolveAssetUrl(editFormData.mediaUrl)}
                                     alt="Preview"
+                                    loading="lazy"
+                                    decoding="async"
                                     className="w-full h-full object-contain"
                                     onError={(e) => {
                                       (e.target as HTMLElement).style.display =
@@ -1235,6 +1239,8 @@ export default function AdminHeroSlides() {
                             <img
                               src={resolveAssetUrl(slide.mediaUrl)}
                               alt={slide.title}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-contain"
                             />
                           </div>
@@ -1480,6 +1486,8 @@ export default function AdminHeroSlides() {
                             <img
                               src={resolveAssetUrl(createMediaUrl)}
                               alt="Preview"
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-contain"
                               onError={(e) => {
                                 (e.target as HTMLElement).style.display =

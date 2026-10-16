@@ -78,7 +78,8 @@ public class FilamentPaintingController : ControllerBase
     /// Converts a 2D image and TD-based filament palette into layer swaps, 3D heightmap, and print preview.
     /// </summary>
     [HttpPost("/api/3d-generate-painting")]
-    [DisableRequestSizeLimit]
+    [RequestSizeLimit(52_428_800)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 52_428_800)]
     public async Task<IActionResult> GeneratePainting(
         [FromForm] IFormFile? image,
         [FromForm] string? config)
@@ -250,17 +251,14 @@ public class FilamentPaintingController : ControllerBase
 
         var imageSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}{ext}");
 
-        byte[] imageBytes;
-        using (var ms = new MemoryStream())
+        await using (var fs = new FileStream(imageSavedPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true))
         {
-            await image.CopyToAsync(ms);
-            imageBytes = ms.ToArray();
+            await image.CopyToAsync(fs);
         }
 
         var configSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}.config.json");
         await System.IO.File.WriteAllTextAsync(configSavedPath, JsonSerializer.Serialize(requestConfig));
 
-        await System.IO.File.WriteAllBytesAsync(imageSavedPath, imageBytes);
         var imageRelativeUrl = $"/uploads/{fileBaseName}{ext}";
 
         // Calculate physical dimensions
@@ -270,8 +268,10 @@ public class FilamentPaintingController : ControllerBase
 
         // Decode source image to extract RGB pixels
         DecodedImage decoded;
+        byte[]? imageBytes = null;
         try
         {
+            imageBytes = await System.IO.File.ReadAllBytesAsync(imageSavedPath);
             decoded = SimpleImageReader.Decode(imageBytes);
         }
         catch (Exception ex)
@@ -341,7 +341,7 @@ public class FilamentPaintingController : ControllerBase
             Directory.CreateDirectory(altUploadsDir);
             await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.stl"), stlBytes);
             await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.glb"), glbBytes);
-            await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}{ext}"), imageBytes);
+            System.IO.File.Copy(imageSavedPath, Path.Combine(altUploadsDir, $"{fileBaseName}{ext}"), overwrite: true);
 
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}{ext}{metaSuffix}"), metaJson);
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.stl{metaSuffix}"), metaJson);

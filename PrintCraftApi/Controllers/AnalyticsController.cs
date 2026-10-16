@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrintCraftApi.Data;
 using PrintCraftApi.Models;
+using PrintCraftApi.Services;
 
 namespace PrintCraftApi.Controllers;
 
@@ -14,10 +15,12 @@ namespace PrintCraftApi.Controllers;
 public class AnalyticsController : ControllerBase
 {
     private readonly PrintCraftDb _db;
+    private readonly IVisitorTrackingQueue? _trackingQueue;
 
-    public AnalyticsController(PrintCraftDb db)
+    public AnalyticsController(PrintCraftDb db, IVisitorTrackingQueue? trackingQueue = null)
     {
         _db = db;
+        _trackingQueue = trackingQueue;
     }
 
     [AllowAnonymous]
@@ -47,8 +50,8 @@ public class AnalyticsController : ControllerBase
         {
             // 2. Fallback to IP + UserAgent hash, and issue cookie
             var visitorSource = ResolveVisitorSource(userIdClaim, Request.Headers["X-Visitor-Id"].FirstOrDefault(), HttpContext);
-            var userAgent = Request.Headers["User-Agent"].ToString();
-            visitorKey = HashValue($"{visitorSource}|{userAgent}");
+            var userAgentHeader = Request.Headers["User-Agent"].ToString();
+            visitorKey = HashValue($"{visitorSource}|{userAgentHeader}");
 
             Response.Cookies.Append("pc_vid", visitorKey, new CookieOptions
             {
@@ -57,6 +60,26 @@ public class AnalyticsController : ControllerBase
                 Secure = true,
                 SameSite = SameSiteMode.Lax
             });
+        }
+
+        var countryCode = Request.Headers["CF-IPCountry"].FirstOrDefault()?.Trim().ToUpperInvariant();
+        var city = Request.Headers["CF-IPCity"].FirstOrDefault()?.Trim();
+        var userAgent = Request.Headers["User-Agent"].ToString();
+
+        if (_trackingQueue != null)
+        {
+            await _trackingQueue.EnqueueAsync(new VisitorTrackEvent(
+                parsedUserId,
+                visitorKey,
+                eventType,
+                pagePath,
+                string.IsNullOrWhiteSpace(countryCode) ? "UN" : countryCode,
+                string.IsNullOrWhiteSpace(city) ? null : city,
+                userAgent,
+                DateTime.UtcNow
+            ));
+
+            return Ok(new { tracked = true });
         }
 
         // Avoid database bloat: Find existing daily session for this visitor/page
@@ -97,8 +120,6 @@ public class AnalyticsController : ControllerBase
             return Ok(new { tracked = true, updated = true });
         }
 
-        var countryCode = Request.Headers["CF-IPCountry"].FirstOrDefault()?.Trim().ToUpperInvariant();
-        var city = Request.Headers["CF-IPCity"].FirstOrDefault()?.Trim();
 
         _db.VisitEvents.Add(new VisitEvent
         {

@@ -393,6 +393,8 @@ export default function Hero() {
                     key={currentSlide.id + currentSlide.mediaUrl}
                     src={resolveAssetUrl(currentSlide.mediaUrl)}
                     alt={slideTitle}
+                    loading="lazy"
+                    decoding="async"
                     onError={() =>
                       setImageError((prev) => ({
                         ...prev,

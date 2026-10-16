@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using PrintCraftApi.Data;
 using PrintCraftApi.Models;
 
@@ -10,6 +11,9 @@ namespace PrintCraftApi.Controllers;
 [Route("api/[controller]")]
 public class FilamentsController : ControllerBase
 {
+    private const string FilamentsCacheKey = "catalog:filaments";
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
+
     public sealed class UpdateFilamentRequest
     {
         public string Name { get; set; } = string.Empty;
@@ -20,22 +24,33 @@ public class FilamentsController : ControllerBase
     }
 
     private readonly PrintCraftDb _db;
+    private readonly IMemoryCache? _cache;
 
-    public FilamentsController(PrintCraftDb db)
+    public FilamentsController(PrintCraftDb db, IMemoryCache? cache = null)
     {
         _db = db;
+        _cache = cache;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
     {
-        var filaments = await _db.Filaments.ToListAsync();
+        if (_cache != null && _cache.TryGetValue(FilamentsCacheKey, out List<Filament>? cached) && cached != null)
+        {
+            return Ok(cached);
+        }
+
+        var filaments = await _db.Filaments
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        _cache?.Set(FilamentsCacheKey, filaments, CacheDuration);
         return Ok(filaments);
     }
 
     [HttpPost]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> Create([FromBody] Filament filament)
+    public async Task<IActionResult> Create([FromBody] Filament filament, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(filament.Name) || string.IsNullOrWhiteSpace(filament.Material) || string.IsNullOrWhiteSpace(filament.Color))
             return BadRequest(new { message = "Name, material and color are required." });
@@ -44,13 +59,14 @@ public class FilamentsController : ControllerBase
             return BadRequest(new { message = "Price and stock cannot be negative." });
 
         _db.Filaments.Add(filament);
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(cancellationToken);
+        _cache?.Remove(FilamentsCacheKey);
         return CreatedAtAction(nameof(GetAll), new { id = filament.Id }, filament);
     }
 
     [HttpPut("{id:guid}")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateFilamentRequest request)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateFilamentRequest request, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Material) || string.IsNullOrWhiteSpace(request.Color))
             return BadRequest(new { message = "Name, material and color are required." });
@@ -58,7 +74,7 @@ public class FilamentsController : ControllerBase
         if (request.PricePerGram < 0 || request.StockQuantity < 0)
             return BadRequest(new { message = "Price and stock cannot be negative." });
 
-        var filament = await _db.Filaments.FirstOrDefaultAsync(f => f.Id == id);
+        var filament = await _db.Filaments.FirstOrDefaultAsync(f => f.Id == id, cancellationToken);
         if (filament is null)
             return NotFound(new { message = "Filament not found." });
 
@@ -68,20 +84,22 @@ public class FilamentsController : ControllerBase
         filament.PricePerGram = request.PricePerGram;
         filament.StockQuantity = request.StockQuantity;
 
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(cancellationToken);
+        _cache?.Remove(FilamentsCacheKey);
         return Ok(filament);
     }
 
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
-        var filament = await _db.Filaments.FirstOrDefaultAsync(f => f.Id == id);
+        var filament = await _db.Filaments.FirstOrDefaultAsync(f => f.Id == id, cancellationToken);
         if (filament is null)
             return NotFound(new { message = "Filament not found." });
 
         _db.Filaments.Remove(filament);
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(cancellationToken);
+        _cache?.Remove(FilamentsCacheKey);
         return NoContent();
     }
 }

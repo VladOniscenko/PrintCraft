@@ -171,6 +171,8 @@ export default function ModelInspectorModal({
               <img
                 src={resolveAssetUrl(fileUrl)}
                 alt={fileName}
+                loading="lazy"
+                decoding="async"
                 className="max-h-[70vh] max-w-full object-contain rounded-xl"
               />
             </div>

@@ -26,6 +26,7 @@ public sealed class InvoiceOptions
 public interface IInvoiceService
 {
     byte[] Generate(Order order, User? customer, string? language = "en");
+    void Generate(Order order, User? customer, Stream outputStream, string? language = "en");
 }
 
 public sealed class InvoiceService : IInvoiceService
@@ -48,6 +49,16 @@ public sealed class InvoiceService : IInvoiceService
     }
 
     public byte[] Generate(Order order, User? customer, string? language = "en")
+    {
+        return BuildDocument(order, customer, language).GeneratePdf();
+    }
+
+    public void Generate(Order order, User? customer, Stream outputStream, string? language = "en")
+    {
+        BuildDocument(order, customer, language).GeneratePdf(outputStream);
+    }
+
+    private IDocument BuildDocument(Order order, User? customer, string? language = "en")
     {
         var currency = string.IsNullOrWhiteSpace(_options.CurrencyCode) ? "EUR" : _options.CurrencyCode.Trim().ToUpperInvariant();
         var labels = InvoiceLabels.For(language);
@@ -99,7 +110,7 @@ public sealed class InvoiceService : IInvoiceService
 
             // ── Slim Footer ─────────────────────────────────────────────────
             page.Footer().Element(container => ComposeFooter(container, sellerName, labels));
-        })).GeneratePdf();
+        }));
     }
 
     private void ComposeHeader(IContainer container, string invoiceNumber, Order order, string sellerName, InvoiceLabels labels, CultureInfo culture)

@@ -4,6 +4,8 @@ import React, {
   useEffect,
   useRef,
   useCallback,
+  lazy,
+  Suspense,
 } from "react";
 import {
   Upload,
@@ -26,9 +28,8 @@ import {
   type HueForgeQualityPreset,
   CURATED_PALETTES,
 } from "../../types/filamentPainting";
-import Interactive3DViewer, {
-  getFilamentHexColor,
-} from "../Interactive3DViewer";
+import { getFilamentHexColor } from "../Interactive3DViewer";
+const Interactive3DViewer = lazy(() => import("../Interactive3DViewer"));
 import api from "../../services/api";
 import { useI18n } from "../../i18n/I18nContext";
 import { translateColorText } from "../../utils/formatters";
@@ -1007,13 +1008,22 @@ export default function FilamentPaintingPanel({
                 </div>
               ) : liveResult?.modelGlbUrl ? (
                 <>
-                  <Interactive3DViewer
-                    key={`${liveResult.modelGlbUrl}-${customPalette.length}-${activeRequestSeqRef.current}`}
-                    fileUrl={`${liveResult.modelGlbUrl}?seq=${activeRequestSeqRef.current}`}
-                    fileName={liveResult.modelGlbUrl}
-                    className="w-full h-full min-h-[380px]"
-                    compact={false}
-                  />
+                  <Suspense
+                    fallback={
+                      <div className="w-full h-full min-h-[380px] bg-slate-900 border border-slate-800 rounded-xl flex flex-col items-center justify-center text-slate-400 gap-2">
+                        <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+                        <span className="text-xs font-semibold">Loading 3D preview...</span>
+                      </div>
+                    }
+                  >
+                    <Interactive3DViewer
+                      key={`${liveResult.modelGlbUrl}-${customPalette.length}-${activeRequestSeqRef.current}`}
+                      fileUrl={`${liveResult.modelGlbUrl}?seq=${activeRequestSeqRef.current}`}
+                      fileName={liveResult.modelGlbUrl}
+                      className="w-full h-full min-h-[380px]"
+                      compact={false}
+                    />
+                  </Suspense>
 
                   {isRegenerating && (
                     <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-white/10 text-emerald-300 text-xs font-semibold flex items-center gap-2 shadow-lg z-20">
@@ -1039,6 +1049,8 @@ export default function FilamentPaintingPanel({
                   <img
                     src={imagePreviewUrl}
                     alt="Source thumbnail"
+                    loading="lazy"
+                    decoding="async"
                     className="w-10 h-10 rounded-lg object-cover border border-gray-200 shrink-0 bg-slate-900"
                   />
                 )}

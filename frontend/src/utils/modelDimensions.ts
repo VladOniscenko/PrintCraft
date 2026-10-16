@@ -1,8 +1,4 @@
 import { Box3, Vector3 } from "three";
-import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
-import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader.js";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 export const MAX_DIMENSION_MM = 256;
 export const MIN_SCALE = 0.1;
@@ -45,7 +41,7 @@ export function clampScale(scale: number, maxScale: number): number {
   return Math.max(MIN_SCALE, Math.min(scale, maxScale));
 }
 
-export async function detectModelDimensionsFromBuffer(
+export async function detectModelDimensionsDirect(
   buffer: ArrayBuffer,
   fileName: string,
 ): Promise<{ x: number; y: number; z: number } | null> {
@@ -54,6 +50,7 @@ export async function detectModelDimensionsFromBuffer(
 
   try {
     if (ext === ".stl") {
+      const { STLLoader } = await import("three/examples/jsm/loaders/STLLoader.js");
       const loader = new STLLoader();
       const geometry = loader.parse(buffer);
       geometry.computeBoundingBox();
@@ -64,11 +61,13 @@ export async function detectModelDimensionsFromBuffer(
       const x = roundMillimeters(Math.abs(size.x));
       const y = roundMillimeters(Math.abs(size.y));
       const z = roundMillimeters(Math.abs(size.z));
+      geometry.dispose();
       if (x <= 0 || y <= 0 || z <= 0) return null;
       return { x, y, z };
     }
 
     if (ext === ".3mf") {
+      const { ThreeMFLoader } = await import("three/examples/jsm/loaders/3MFLoader.js");
       const loader = new ThreeMFLoader();
       const group = loader.parse(buffer);
       const box = new Box3().setFromObject(group);
@@ -83,6 +82,7 @@ export async function detectModelDimensionsFromBuffer(
     }
 
     if (ext === ".obj") {
+      const { OBJLoader } = await import("three/examples/jsm/loaders/OBJLoader.js");
       const loader = new OBJLoader();
       const text = new TextDecoder().decode(buffer);
       const group = loader.parse(text);
@@ -98,6 +98,7 @@ export async function detectModelDimensionsFromBuffer(
     }
 
     if (ext === ".glb" || ext === ".gltf") {
+      const { GLTFLoader } = await import("three/examples/jsm/loaders/GLTFLoader.js");
       const loader = new GLTFLoader();
       const gltf = await loader.parseAsync(buffer, "");
       const box = new Box3().setFromObject(gltf.scene);
@@ -116,6 +117,84 @@ export async function detectModelDimensionsFromBuffer(
     console.warn("Could not detect model dimensions:", err);
     return null;
   }
+}
+
+let workerInstance: Worker | null = null;
+const pendingWorkerRequests = new Map<
+  string,
+  {
+    resolve: (dims: { x: number; y: number; z: number } | null) => void;
+  }
+>();
+
+function getWorker(): Worker | null {
+  if (typeof window === "undefined" || typeof Worker === "undefined") return null;
+  if (!workerInstance) {
+    try {
+      workerInstance = new Worker(
+        new URL("../workers/modelParser.worker.ts", import.meta.url),
+        { type: "module" },
+      );
+      workerInstance.onmessage = (
+        e: MessageEvent<{
+          id: string;
+          success: boolean;
+          dims?: { x: number; y: number; z: number } | null;
+        }>,
+      ) => {
+        const req = pendingWorkerRequests.get(e.data.id);
+        if (req) {
+          pendingWorkerRequests.delete(e.data.id);
+          req.resolve(e.data.success ? e.data.dims || null : null);
+        }
+      };
+      workerInstance.onerror = (err) => {
+        console.warn("Model parser worker error, falling back to main thread:", err);
+        workerInstance?.terminate();
+        workerInstance = null;
+      };
+    } catch {
+      workerInstance = null;
+    }
+  }
+  return workerInstance;
+}
+
+export async function detectModelDimensionsFromBuffer(
+  buffer: ArrayBuffer,
+  fileName: string,
+): Promise<{ x: number; y: number; z: number } | null> {
+  const ext = getFileExtension(fileName);
+  if (!MODEL_EXTENSIONS.has(ext)) return null;
+
+  const worker = getWorker();
+  if (worker) {
+    try {
+      return await new Promise<{ x: number; y: number; z: number } | null>(
+        (resolve) => {
+          const id =
+            Math.random().toString(36).slice(2) + Date.now().toString(36);
+          pendingWorkerRequests.set(id, { resolve });
+
+          // Send a copy via transferable buffer so the caller's buffer isn't detached
+          const copy = buffer.slice(0);
+          worker.postMessage({ id, buffer: copy, fileName }, [copy]);
+
+          // Safety timeout of 10s before fallback
+          setTimeout(() => {
+            if (pendingWorkerRequests.has(id)) {
+              pendingWorkerRequests.delete(id);
+              detectModelDimensionsDirect(buffer, fileName).then(resolve);
+            }
+          }, 10000);
+        },
+      );
+    } catch {
+      return detectModelDimensionsDirect(buffer, fileName);
+    }
+  }
+
+  return detectModelDimensionsDirect(buffer, fileName);
 }
 
 export async function detectModelDimensions(file: File): Promise<{

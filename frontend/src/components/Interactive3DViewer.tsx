@@ -17,10 +17,28 @@ import {
   DoubleSide,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
-import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader.js";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+
+function disposeHierarchy(obj: any) {
+  if (!obj) return;
+  obj.traverse((child: any) => {
+    if (child.isMesh) {
+      if (child.geometry) {
+        child.geometry.dispose();
+      }
+      if (child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach((m: any) => {
+            if (m.map) m.map.dispose();
+            m.dispose();
+          });
+        } else {
+          if (child.material.map) child.material.map.dispose();
+          child.material.dispose();
+        }
+      }
+    }
+  });
+}
 import {
   RotateCw,
   RotateCcw,
@@ -147,6 +165,7 @@ export default function Interactive3DViewer({
   const fitParamsRef = useRef<{ center: any; maxDim: number } | null>(
     null,
   );
+  const requestRenderRef = useRef<() => void>(() => {});
 
   // Derive hex color from filament data or color name
   const effectiveHex = (() => {
@@ -251,6 +270,32 @@ export default function Interactive3DViewer({
     });
     materialRef.current = mat;
 
+    let renderRequested = false;
+    const requestRender = () => {
+      if (!renderRequested && !disposed) {
+        renderRequested = true;
+        animationFrameId = requestAnimationFrame(render);
+      }
+    };
+    requestRenderRef.current = requestRender;
+
+    const render = () => {
+      renderRequested = false;
+      if (disposed) return;
+      if (!isVisible || document.visibilityState === "hidden") {
+        return;
+      }
+      const moved = controls.update();
+      renderer.render(scene, camera);
+
+      // Keep rendering if camera is still in motion (damping inertia or continuous auto-rotate)
+      if (moved || controls.autoRotate) {
+        requestRender();
+      }
+    };
+
+    controls.addEventListener("change", requestRender);
+
     // Resize Observer
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -260,28 +305,29 @@ export default function Interactive3DViewer({
           renderer.setSize(w, h, false);
           camera.aspect = w / h;
           camera.updateProjectionMatrix();
+          requestRender();
         }
       }
     });
     resizeObserver.observe(container);
 
-    const animate = () => {
-      if (disposed) return;
-      animationFrameId = requestAnimationFrame(animate);
-      if (!isVisible || document.visibilityState === "hidden") {
-        return;
-      }
-      controls.update();
-      renderer.render(scene, camera);
-    };
-    animate();
+    requestRender();
 
     return () => {
       disposed = true;
       observer.disconnect();
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
+      controls.removeEventListener("change", requestRender);
       controls.dispose();
+      disposeHierarchy(meshGroup);
+      if (originalModelRef.current) {
+        disposeHierarchy(originalModelRef.current);
+        originalModelRef.current = null;
+      }
+      if (gridHelperRef.current?.geometry) {
+        gridHelperRef.current.geometry.dispose();
+      }
       renderer.dispose();
       mat.dispose();
     };
@@ -291,6 +337,9 @@ export default function Interactive3DViewer({
   useEffect(() => {
     if (controlsRef.current) {
       controlsRef.current.autoRotate = autoRotate;
+      if (autoRotate) {
+        requestRenderRef.current();
+      }
     }
   }, [autoRotate]);
 
@@ -298,12 +347,14 @@ export default function Interactive3DViewer({
   useEffect(() => {
     if (materialRef.current) {
       materialRef.current.color.setHex(effectiveHex);
+      requestRenderRef.current();
     }
   }, [effectiveHex]);
 
   useEffect(() => {
     if (gridHelperRef.current) {
       gridHelperRef.current.visible = showGrid;
+      requestRenderRef.current();
     }
   }, [showGrid]);
 
@@ -311,6 +362,7 @@ export default function Interactive3DViewer({
   useEffect(() => {
     if (materialRef.current) {
       materialRef.current.wireframe = wireframe;
+      requestRenderRef.current();
     }
   }, [wireframe]);
 
@@ -368,17 +420,29 @@ export default function Interactive3DViewer({
         let group: any = null;
 
         if (format === "glb") {
+          const { GLTFLoader } = await import(
+            "three/examples/jsm/loaders/GLTFLoader.js"
+          );
           const loader = new GLTFLoader();
           const gltf = await loader.parseAsync(buffer, "");
           group = gltf.scene;
         } else if (format === "3mf") {
+          const { ThreeMFLoader } = await import(
+            "three/examples/jsm/loaders/3MFLoader.js"
+          );
           const loader = new ThreeMFLoader();
           group = loader.parse(buffer);
         } else if (format === "obj") {
+          const { OBJLoader } = await import(
+            "three/examples/jsm/loaders/OBJLoader.js"
+          );
           const loader = new OBJLoader();
           const text = new TextDecoder().decode(buffer);
           group = loader.parse(text);
         } else {
+          const { STLLoader } = await import(
+            "three/examples/jsm/loaders/STLLoader.js"
+          );
           const loader = new STLLoader();
           geometry = loader.parse(buffer);
         }
@@ -388,11 +452,15 @@ export default function Interactive3DViewer({
         const meshGroup = meshGroupRef.current;
         if (!meshGroup || !materialRef.current) return;
 
-        // Clear previous meshes
+        // Clear previous meshes with full recursive hierarchy cleanup
         while (meshGroup.children.length > 0) {
           const child = meshGroup.children[0] as any;
           meshGroup.remove(child);
-          if (child.geometry) child.geometry.dispose();
+          disposeHierarchy(child);
+        }
+        if (originalModelRef.current) {
+          disposeHierarchy(originalModelRef.current);
+          originalModelRef.current = null;
         }
 
         let computedBox: any;
@@ -555,9 +623,8 @@ export default function Interactive3DViewer({
       camera.lookAt(center);
       controls.update();
     }
-    
+    requestRenderRef.current();
   }, [count, baseDimensions, scaleFactor, modelVersion]);
-
 
   // 6. Visual Scaling of the mesh group when scaleFactor changes
   useEffect(() => {
@@ -565,6 +632,7 @@ export default function Interactive3DViewer({
     if (meshGroup && baseDimensions) {
       const s = Math.max(0.05, scaleFactor);
       meshGroup.scale.set(s, s, s);
+      requestRenderRef.current();
     }
   }, [scaleFactor, baseDimensions]);
 
@@ -581,6 +649,7 @@ export default function Interactive3DViewer({
     camera.position.set(dist * 0.7, targetY + dist * 0.75, dist * 0.95);
     camera.lookAt(controls.target);
     controls.update();
+    requestRenderRef.current();
   };
 
   // Scaled dimensions in mm

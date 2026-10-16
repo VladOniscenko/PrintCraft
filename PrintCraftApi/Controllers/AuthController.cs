@@ -36,7 +36,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("register")]
     [EnableRateLimiting("AuthBurst")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest req)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest req, CancellationToken cancellationToken = default)
     {
         var name = req.Name?.Trim();
         var email = req.Email?.Trim().ToLowerInvariant();
@@ -52,7 +52,7 @@ public class AuthController : ControllerBase
         if (string.IsNullOrWhiteSpace(req.Password) || req.Password.Length < 8)
             return BadRequest(new { message = "Password must be at least 8 characters." });
 
-        if (await _db.Users.AnyAsync(u => u.Email == email))
+        if (await _db.Users.AnyAsync(u => u.Email == email, cancellationToken))
             return BadRequest(new { message = "Email already exists." });
 
         var user = new User
@@ -64,19 +64,19 @@ public class AuthController : ControllerBase
         };
 
         _db.Users.Add(user);
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(cancellationToken);
         return Ok(new { message = "User registered!" });
     }
 
     [HttpPost("login")]
     [EnableRateLimiting("AuthBurst")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest req)
+    public async Task<IActionResult> Login([FromBody] LoginRequest req, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
             return Unauthorized(new { message = "Invalid email or password." });
 
         var normalizedEmail = req.Email.Trim().ToLowerInvariant();
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == normalizedEmail);
+        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == normalizedEmail, cancellationToken);
         if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
             return Unauthorized(new { message = "Invalid email or password." });
 
@@ -108,12 +108,12 @@ public class AuthController : ControllerBase
 
     [HttpGet("me")]
     [Authorize]
-    public async Task<IActionResult> GetMe()
+    public async Task<IActionResult> GetMe(CancellationToken cancellationToken = default)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userId == null) return Unauthorized(new { message = "Unauthorized." });
 
-        var user = await _db.Users.FindAsync(Guid.Parse(userId));
+        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId), cancellationToken);
         return user != null
             ? Ok(new { user.Id, user.Name, user.Email, user.Role })
             : NotFound();

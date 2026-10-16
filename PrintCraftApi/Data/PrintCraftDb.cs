@@ -85,6 +85,28 @@ public class PrintCraftDb : DbContext
             .Property(o => o.AgreementVersion)
             .HasMaxLength(32);
 
+        modelBuilder.Entity<Order>()
+            .HasIndex(o => o.Status);
+
+        modelBuilder.Entity<Order>()
+            .HasIndex(o => o.CreatedAt);
+
+        modelBuilder.Entity<Order>()
+            .HasIndex(o => o.UserId);
+
+        modelBuilder.Entity<Order>()
+            .HasIndex(o => new { o.UserId, o.CreatedAt });
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<Filament>()
+            .HasIndex(f => new { f.Material, f.Color });
+
+        modelBuilder.Entity<OrderItem>()
+            .HasIndex(i => i.OrderId);
+
         modelBuilder.Entity<ManualPaymentNotification>()
             .HasIndex(n => new { n.OrderId, n.CreatedAt });
 

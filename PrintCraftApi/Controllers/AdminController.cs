@@ -404,11 +404,11 @@ public class AdminController : ControllerBase
 
 
     [HttpGet("summary")]
-    public async Task<IActionResult> GetSummary()
+    public async Task<IActionResult> GetSummary(CancellationToken cancellationToken = default)
     {
-        var totalUsers = await _db.Users.CountAsync();
-        var totalOrders = await _db.Orders.CountAsync();
-        var pendingOrders = await _db.Orders.CountAsync(o => o.Status == OrderStatus.QuoteRequested || o.Status == "pending" || o.Status == "quoted");
+        var totalUsers = await _db.Users.CountAsync(cancellationToken);
+        var totalOrders = await _db.Orders.CountAsync(cancellationToken);
+        var pendingOrders = await _db.Orders.CountAsync(o => o.Status == OrderStatus.QuoteRequested || o.Status == "pending" || o.Status == "quoted", cancellationToken);
 
         return Ok(new
         {
@@ -419,12 +419,19 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("orders/{id:guid}/invoice")]
-    public async Task<IActionResult> DownloadInvoice([FromRoute] Guid id, [FromQuery] string? language = "en")
+    public async Task<IActionResult> DownloadInvoice([FromRoute] Guid id, [FromQuery] string? language = "en", CancellationToken cancellationToken = default)
     {
-        var order = await _db.Orders.Include(o => o.Items).Include(o => o.Payments).FirstOrDefaultAsync(o => o.Id == id);
+        var order = await _db.Orders
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(o => o.Items)
+            .Include(o => o.Payments)
+            .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
         if (order == null) return NotFound(new { message = "Order not found" });
 
-        var customer = order.UserId.HasValue ? await _db.Users.FindAsync(order.UserId.Value) : null;
+        var customer = order.UserId.HasValue 
+            ? await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == order.UserId.Value, cancellationToken) 
+            : null;
         var pdf = _invoiceService.Generate(order, customer, language);
         return File(pdf, "application/pdf", $"invoice-{order.Id:N}.pdf");
     }
@@ -608,7 +615,8 @@ public class AdminController : ControllerBase
         [FromQuery] DateTime? fromUtc,
         [FromQuery] DateTime? toUtc,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 50)
+        [FromQuery] int pageSize = 50,
+        CancellationToken cancellationToken = default)
     {
         if (page <= 0) page = 1;
         if (pageSize <= 0) pageSize = 50;
@@ -646,7 +654,7 @@ public class AdminController : ControllerBase
         if (toUtc.HasValue)
             query = query.Where(p => p.CreatedAt <= toUtc.Value);
 
-        var totalCount = await query.CountAsync();
+        var totalCount = await query.CountAsync(cancellationToken);
 
         var results = await query
             .OrderByDescending(p => p.CreatedAt)
@@ -680,7 +688,7 @@ public class AdminController : ControllerBase
                         p.Order.OrderType
                     }
             })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return Ok(new { results, totalCount, page, pageSize });
     }
@@ -692,12 +700,14 @@ public class AdminController : ControllerBase
         [FromQuery] string? sortBy,
         [FromQuery] string? sortDir,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20)
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
         if (page <= 0) page = 1;
         if (pageSize <= 0) pageSize = 20;
 
         var query = _db.Orders
+            .AsSplitQuery()
             .Include(o => o.Items)
                 .ThenInclude(i => i.Attachments)
             .Include(o => o.Payments)
@@ -739,33 +749,34 @@ public class AdminController : ControllerBase
             _ => query.OrderByDescending(o => o.CreatedAt),
         };
 
-        var totalCount = await query.CountAsync();
+        var totalCount = await query.CountAsync(cancellationToken);
         var results = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
-        await RefreshQuoteStatusesAsync(results, "system");
+        await RefreshQuoteStatusesAsync(results, "system", cancellationToken);
 
         return Ok(new { results, totalCount, page, pageSize });
     }
 
     [HttpGet("orders/{id:guid}")]
-    public async Task<IActionResult> GetOrderById([FromRoute] Guid id)
+    public async Task<IActionResult> GetOrderById([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
         var order = await _db.Orders
+            .AsSplitQuery()
             .Include(o => o.Items)
                 .ThenInclude(i => i.Attachments)
             .Include(o => o.Payments)
             .Include(o => o.Notes)
             .Include(o => o.Communications)
             .Include(o => o.StatusHistory)
-            .FirstOrDefaultAsync(o => o.Id == id);
+            .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
 
         if (order == null)
             return NotFound(new { message = "Order not found" });
 
-        await RefreshQuoteStatusesAsync(new[] { order }, "system");
+        await RefreshQuoteStatusesAsync(new[] { order }, "system", cancellationToken);
 
         var recipient = await ResolveOrderEmailRecipientAsync(order);
         var email = recipient?.Email ?? string.Empty;
@@ -775,41 +786,44 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("orders/{id:guid}/communications")]
-    public async Task<IActionResult> GetOrderCommunications([FromRoute] Guid id)
+    public async Task<IActionResult> GetOrderCommunications([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
-        var exists = await _db.Orders.AnyAsync(o => o.Id == id);
+        var exists = await _db.Orders.AnyAsync(o => o.Id == id, cancellationToken);
         if (!exists) return NotFound(new { message = "Order not found" });
 
         var entries = await _db.OrderCommunications
+            .AsNoTracking()
             .Where(c => c.OrderId == id)
             .OrderByDescending(c => c.SentAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return Ok(entries);
     }
 
     [HttpGet("orders/{id:guid}/status-history")]
-    public async Task<IActionResult> GetOrderStatusHistory([FromRoute] Guid id)
+    public async Task<IActionResult> GetOrderStatusHistory([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
-        var exists = await _db.Orders.AnyAsync(o => o.Id == id);
+        var exists = await _db.Orders.AnyAsync(o => o.Id == id, cancellationToken);
         if (!exists) return NotFound(new { message = "Order not found" });
 
         var entries = await _db.OrderStatusHistory
+            .AsNoTracking()
             .Where(s => s.OrderId == id)
             .OrderByDescending(s => s.ChangedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return Ok(entries);
     }
 
     [HttpGet("orders/{id:guid}/notes")]
-    public async Task<IActionResult> GetOrderNotes([FromRoute] Guid id, [FromQuery] string? visibility)
+    public async Task<IActionResult> GetOrderNotes([FromRoute] Guid id, [FromQuery] string? visibility, CancellationToken cancellationToken = default)
     {
-        var exists = await _db.Orders.AnyAsync(o => o.Id == id);
+        var exists = await _db.Orders.AnyAsync(o => o.Id == id, cancellationToken);
         if (!exists) return NotFound(new { message = "Order not found" });
 
         var normalizedVisibility = NormalizeNoteVisibility(visibility);
         var query = _db.OrderNotes
+            .AsNoTracking()
             .Where(n => n.OrderId == id)
             .AsQueryable();
 
@@ -823,21 +837,22 @@ public class AdminController : ControllerBase
 
         var notes = await query
             .OrderByDescending(n => n.CreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return Ok(notes);
     }
 
     [HttpGet("orders/{id:guid}/payments")]
-    public async Task<IActionResult> GetOrderPayments([FromRoute] Guid id)
+    public async Task<IActionResult> GetOrderPayments([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
-        var exists = await _db.Orders.AnyAsync(o => o.Id == id);
+        var exists = await _db.Orders.AnyAsync(o => o.Id == id, cancellationToken);
         if (!exists) return NotFound(new { message = "Order not found" });
 
         var payments = await _db.Payments
+            .AsNoTracking()
             .Where(p => p.OrderId == id)
             .OrderByDescending(p => p.CreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return Ok(payments);
     }
@@ -1011,32 +1026,32 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("users")]
-    public async Task<IActionResult> GetUsers([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    public async Task<IActionResult> GetUsers([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
     {
         if (page <= 0) page = 1;
         if (pageSize <= 0) pageSize = 20;
 
-        var query = _db.Users.AsQueryable();
+        var query = _db.Users.AsNoTracking().AsQueryable();
         if (!string.IsNullOrEmpty(search))
         {
             var q = search.ToLower();
             query = query.Where(u => EF.Functions.ILike(u.Name, $"%{q}%") || EF.Functions.ILike(u.Email, $"%{q}%") || EF.Functions.ILike(u.Role, $"%{q}%"));
         }
 
-        var totalCount = await query.CountAsync();
+        var totalCount = await query.CountAsync(cancellationToken);
         var results = await query
             .OrderBy(u => u.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(u => new AdminUserDto(u.Id, u.Name, u.Email, u.Role))
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
         return Ok(new { results, totalCount, page, pageSize });
     }
 
     [HttpGet("users/{id:guid}")]
-    public async Task<IActionResult> GetUserById([FromRoute] Guid id)
+    public async Task<IActionResult> GetUserById([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
-        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
         if (user == null) return NotFound(new { message = "User not found" });
 
         var orders = await _db.Orders.AsNoTracking()
@@ -1054,8 +1069,8 @@ public class AdminController : ControllerBase
                 o.CreatedAt,
                 o.UpdatedAt,
                 Payments = o.Payments.OrderByDescending(p => p.CreatedAt).Select(p => new { p.Id, p.Provider, p.Reference, p.Amount, p.Currency, p.Status, p.PaidAt, p.CreatedAt })
-            }).ToListAsync();
-        var addresses = await _db.UserAddresses.AsNoTracking().Where(a => a.UserId == id).OrderByDescending(a => a.IsDefault).ThenByDescending(a => a.LastUsedAt).ToListAsync();
+            }).ToListAsync(cancellationToken);
+        var addresses = await _db.UserAddresses.AsNoTracking().Where(a => a.UserId == id).OrderByDescending(a => a.IsDefault).ThenByDescending(a => a.LastUsedAt).ToListAsync(cancellationToken);
 
         return Ok(new
         {
@@ -1510,7 +1525,7 @@ public class AdminController : ControllerBase
         }
     }
 
-    private async Task RefreshQuoteStatusesAsync(IEnumerable<Order> orders, string changedBy)
+    private async Task RefreshQuoteStatusesAsync(IEnumerable<Order> orders, string changedBy, CancellationToken cancellationToken = default)
     {
         var transitions = new List<(Guid OrderId, string PreviousStatus, string NewStatus, string Note)>();
         var changed = false;
@@ -1523,6 +1538,8 @@ public class AdminController : ControllerBase
                 continue;
 
             changed = true;
+            _db.Orders.Attach(order);
+            _db.Entry(order).State = EntityState.Modified;
 
             if (result.StatusChanged)
             {
@@ -1537,7 +1554,7 @@ public class AdminController : ControllerBase
         if (!changed)
             return;
 
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(cancellationToken);
 
         foreach (var transition in transitions)
         {

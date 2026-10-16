@@ -258,8 +258,8 @@ public class PrintPricingService : IPrintPricingService
         }
 
         // Look up filament price
-        var filament = await db.Filaments.FirstOrDefaultAsync(f => f.Material == orderItem.Material && f.Color == orderItem.Color)
-                       ?? await db.Filaments.FirstOrDefaultAsync(f => f.Material == orderItem.Material);
+        var filament = await db.Filaments.AsNoTracking().FirstOrDefaultAsync(f => f.Material == orderItem.Material && f.Color == orderItem.Color)
+                       ?? await db.Filaments.AsNoTracking().FirstOrDefaultAsync(f => f.Material == orderItem.Material);
         decimal pricePerGram = filament?.PricePerGram ?? 0.05m;
 
         // Pricing computation based on time and weight (for the entire batch of 'count' items)

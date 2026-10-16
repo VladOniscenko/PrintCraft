@@ -217,6 +217,8 @@ namespace PrintCraftApi.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Material", "Color");
+
                     b.ToTable("Filaments");
                 });
 
@@ -496,6 +498,14 @@ namespace PrintCraftApi.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
                     b.ToTable("Orders");
                 });
 
@@ -747,6 +757,9 @@ namespace PrintCraftApi.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

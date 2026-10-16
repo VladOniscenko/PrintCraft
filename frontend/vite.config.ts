@@ -99,6 +99,8 @@ export default defineConfig(({ mode }) => {
             if (id.includes("node_modules/react-router-dom"))
               return "router-vendor";
             if (id.includes("node_modules/lucide-react")) return "icons-vendor";
+            if (id.includes("node_modules/@dnd-kit")) return "dnd-kit-vendor";
+            if (id.includes("node_modules/axios")) return "network-vendor";
           },
         },
       },

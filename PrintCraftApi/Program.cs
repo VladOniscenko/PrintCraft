@@ -46,13 +46,34 @@ if (string.IsNullOrWhiteSpace(builder.Configuration["BackendBaseUrl"]))
 
 var frontendBaseUrl = builder.Configuration["FrontendBaseUrl"]!.TrimEnd('/');
 
-builder.Services.AddDbContext<PrintCraftDb>(opt => opt.UseNpgsql(connectionString));
+builder.Services.AddDbContextPool<PrintCraftDb>(opt => opt.UseNpgsql(connectionString));
+builder.Services.AddMemoryCache();
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
 builder.Services.AddHttpClient();
-builder.Services.AddSingleton<IDiscordWebhookService, DiscordWebhookService>();
+
+// Discord Webhooks (Background Queue + Direct Service)
+builder.Services.AddSingleton<DiscordWebhookService>();
+builder.Services.AddSingleton<IBackgroundWebhookQueue, BackgroundWebhookQueue>();
+builder.Services.AddHostedService<BackgroundWebhookWorker>();
+builder.Services.AddSingleton<IDiscordWebhookService, QueuedDiscordWebhookService>();
+
 builder.Services.AddScoped<IQuoteDraftService, QuoteDraftService>();
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
 builder.Services.Configure<InvoiceOptions>(builder.Configuration.GetSection("Invoice"));
-builder.Services.AddTransient<IEmailService, GmailSmtpEmailService>();
+
+// SMTP Email (Background Queue + Gmail SMTP Sender)
+builder.Services.AddTransient<GmailSmtpEmailService>();
+builder.Services.AddSingleton<IBackgroundEmailQueue, BackgroundEmailQueue>();
+builder.Services.AddHostedService<BackgroundEmailWorker>();
+builder.Services.AddSingleton<IEmailService, QueuedEmailService>();
+
+// Visitor Tracking (Background Queue + Batch Persistence Worker)
+builder.Services.AddSingleton<IVisitorTrackingQueue, VisitorTrackingQueue>();
+builder.Services.AddHostedService<VisitorTrackingBackgroundWorker>();
+
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<IPrintPricingService, PrintPricingService>();
 builder.Services.AddSingleton<IPricingQueue, PricingQueue>();
@@ -243,6 +264,7 @@ app.UseExceptionHandler(errorApp =>
 
 app.UseHttpsRedirection();
 app.UseCors("AllowReact");
+app.UseResponseCompression();
 app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();

@@ -105,6 +105,8 @@ export default function AdminUploadedModelViewerPage() {
                   <img
                     src={modelUrl}
                     alt={safeFileName}
+                    loading="lazy"
+                    decoding="async"
                     className="max-h-full max-w-full rounded-xl object-contain"
                   />
                 </div>

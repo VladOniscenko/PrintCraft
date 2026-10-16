@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
-import { Box3, Mesh, MeshStandardMaterial, Vector3 } from "three";
-import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
-import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader.js";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
-import { STLExporter } from "three/examples/jsm/exporters/STLExporter.js";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { Mesh, MeshStandardMaterial } from "three";
+import {
+  detectModelDimensions,
+  detectModelDimensionsFromBuffer,
+} from "../utils/modelDimensions";
 import {
   Upload,
   Trash2,
@@ -36,8 +36,10 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Navbar from "./Navbar";
-import Interactive3DViewer from "./Interactive3DViewer";
-import FilamentPaintingPanel from "./filament-painting/FilamentPaintingPanel";
+const Interactive3DViewer = lazy(() => import("./Interactive3DViewer"));
+const FilamentPaintingPanel = lazy(
+  () => import("./filament-painting/FilamentPaintingPanel"),
+);
 import type {
   FilamentPaintingConfig,
   FilamentPaintingGenerationResult,
@@ -138,76 +140,125 @@ function itemHasModel(item: OrderItem): boolean {
   return false;
 }
 
-async function detectModelDimensionsFromBuffer(
-  buffer: ArrayBuffer,
-  fileName: string,
-): Promise<{ x: number; y: number; z: number } | null> {
-  const ext = getFileExtension(fileName);
-  if (!MODEL_EXTENSIONS.has(ext)) return null;
-
-  try {
-    if (ext === ".stl") {
-      const loader = new STLLoader();
-      const geometry = loader.parse(buffer);
-      geometry.computeBoundingBox();
-      const box = geometry.boundingBox;
-      if (!box) return null;
-      const size = new Vector3();
-      box.getSize(size);
-      const x = roundMillimeters(Math.abs(size.x));
-      const y = roundMillimeters(Math.abs(size.y));
-      const z = roundMillimeters(Math.abs(size.z));
-      if (x <= 0 || y <= 0 || z <= 0) return null;
-      return { x, y, z };
-    }
-
-    if (ext === ".3mf") {
-      const loader = new ThreeMFLoader();
-      const group = loader.parse(buffer);
-      const box = new Box3().setFromObject(group);
-      if (box.isEmpty()) return null;
-      const size = new Vector3();
-      box.getSize(size);
-      const x = roundMillimeters(Math.abs(size.x));
-      const y = roundMillimeters(Math.abs(size.y));
-      const z = roundMillimeters(Math.abs(size.z));
-      if (x <= 0 || y <= 0 || z <= 0) return null;
-      return { x, y, z };
-    }
-
-    if (ext === ".obj") {
-      const loader = new OBJLoader();
-      const text = new TextDecoder().decode(buffer);
-      const group = loader.parse(text);
-      const box = new Box3().setFromObject(group);
-      if (box.isEmpty()) return null;
-      const size = new Vector3();
-      box.getSize(size);
-      const x = roundMillimeters(Math.abs(size.x));
-      const y = roundMillimeters(Math.abs(size.y));
-      const z = roundMillimeters(Math.abs(size.z));
-      if (x <= 0 || y <= 0 || z <= 0) return null;
-      return { x, y, z };
-    }
-
-    return null;
-  } catch (err) {
-    console.warn("Could not detect model dimensions:", err);
-    return null;
-  }
+interface DebouncedRangeSliderProps {
+  min: number | string;
+  max: number | string;
+  step?: number | string;
+  value: number;
+  onChange: (val: number) => void;
+  className?: string;
 }
 
-async function detectModelDimensions(file: File): Promise<{
-  x: number;
-  y: number;
-  z: number;
-} | null> {
-  try {
-    const buffer = await file.arrayBuffer();
-    return await detectModelDimensionsFromBuffer(buffer, file.name);
-  } catch {
-    return null;
-  }
+function DebouncedRangeSlider({
+  min,
+  max,
+  step,
+  value,
+  onChange,
+  className,
+}: DebouncedRangeSliderProps) {
+  const [localVal, setLocalVal] = useState(value);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setLocalVal(value);
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nextVal = Number(e.target.value);
+    setLocalVal(nextVal);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onChange(nextVal);
+    }, 70);
+  };
+
+  const handleCommit = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    onChange(localVal);
+  };
+
+  return (
+    <input
+      type="range"
+      min={min}
+      max={max}
+      step={step}
+      value={localVal}
+      onChange={handleChange}
+      onMouseUp={handleCommit}
+      onTouchEnd={handleCommit}
+      className={className}
+    />
+  );
+}
+
+interface DebouncedNumberInputProps {
+  value: number | undefined;
+  onChange: (val: number | undefined) => void;
+  placeholder?: string;
+  min?: string | number;
+  max?: string | number;
+  step?: string | number;
+  className?: string;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+}
+
+function DebouncedNumberInput({
+  value,
+  onChange,
+  placeholder,
+  min,
+  max,
+  step,
+  className,
+  onKeyDown,
+}: DebouncedNumberInputProps) {
+  const [localVal, setLocalVal] = useState<string>(
+    value !== undefined ? String(value) : "",
+  );
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setLocalVal(value !== undefined ? String(value) : "");
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    setLocalVal(raw);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      const parsed = raw === "" ? undefined : parseFloat(raw);
+      onChange(parsed);
+    }, 200);
+  };
+
+  const handleBlur = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    const parsed = localVal === "" ? undefined : parseFloat(localVal);
+    onChange(parsed);
+  };
+
+  return (
+    <input
+      type="number"
+      min={min}
+      max={max}
+      step={step}
+      placeholder={placeholder}
+      value={localVal}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      onKeyDown={onKeyDown}
+      className={className}
+    />
+  );
 }
 
 interface SavedAddress {
@@ -1604,6 +1655,10 @@ export default function Quote() {
             }
 
             const sourceBuffer = await sourceResponse.arrayBuffer();
+            const [{ STLLoader }, { STLExporter }] = await Promise.all([
+              import("three/examples/jsm/loaders/STLLoader.js"),
+              import("three/examples/jsm/exporters/STLExporter.js"),
+            ]);
             const loader = new STLLoader();
             const geometry = loader.parse(sourceBuffer);
             geometry.scale(
@@ -1617,6 +1672,7 @@ export default function Quote() {
             const exported = exporter.parse(mesh, {
               binary: true,
             }) as DataView | ArrayBuffer | string;
+            geometry.dispose();
 
             let scaledBlob: Blob;
             if (typeof exported === "string") {
@@ -1976,13 +2032,22 @@ export default function Quote() {
                       </button>
                     </div>
 
-                    <FilamentPaintingPanel
-                      filamentsCatalog={filaments}
-                      initialFile={pendingPaintingFile}
-                      onAddToOrder={(payload) => {
-                        handleFilamentPaintingAdded(payload);
-                      }}
-                    />
+                    <Suspense
+                      fallback={
+                        <div className="w-full h-80 rounded-2xl bg-white border border-gray-200 flex flex-col items-center justify-center text-gray-500 gap-2 p-8">
+                          <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+                          <span className="text-xs font-semibold">Loading painting studio...</span>
+                        </div>
+                      }
+                    >
+                      <FilamentPaintingPanel
+                        filamentsCatalog={filaments}
+                        initialFile={pendingPaintingFile}
+                        onAddToOrder={(payload) => {
+                          handleFilamentPaintingAdded(payload);
+                        }}
+                      />
+                    </Suspense>
                   </div>
                 )}
 
@@ -2359,67 +2424,76 @@ export default function Quote() {
 
                           return (
                             <div className="mb-5">
-                              <Interactive3DViewer
-                                fileUrl={activeModelUrl}
-                                fileName={activeModelName}
-                                colorName={
-                                  item.color ||
-                                  getColorsForMaterial(item.material)[0] ||
-                                  "Black"
+                              <Suspense
+                                fallback={
+                                  <div className="w-full h-72 sm:h-80 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-slate-400 gap-2">
+                                    <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+                                    <span className="text-xs font-semibold">Loading 3D viewer...</span>
+                                  </div>
                                 }
-                                materialName={item.material}
-                                scaleFactor={
-                                  item.scaleFactor ?? item.dimensionScale ?? 1.0
-                                }
-                                count={item.count}
-                                filaments={filaments}
-                                showHelp={true}
-                                onDimensionsDetected={(dims: {
-                                  x: number;
-                                  y: number;
-                                  z: number;
-                                }) => {
-                                  if (!hasDimensionValue(item.dimensionBaseX)) {
-                                    setItems((prev) => {
-                                      const next = [...prev];
-                                      if (
-                                        !next[idx] ||
-                                        hasDimensionValue(
-                                          next[idx].dimensionBaseX,
-                                        )
-                                      )
-                                        return next;
-                                      const maxScale = getMaximumScaleForBase(
-                                        dims.x,
-                                        dims.y,
-                                        dims.z,
-                                      );
-                                      const scale = clampScale(
-                                        next[idx].scaleFactor ?? 1.0,
-                                        maxScale,
-                                      );
-                                      next[idx] = {
-                                        ...next[idx],
-                                        dimensionBaseX: dims.x,
-                                        dimensionBaseY: dims.y,
-                                        dimensionBaseZ: dims.z,
-                                        dimensionScale: scale,
-                                        scaleFactor: scale,
-                                        dimensionX: roundMillimeters(
-                                          dims.x * scale,
-                                        ),
-                                        dimensionY: roundMillimeters(
-                                          dims.y * scale,
-                                        ),
-                                        dimensionZ: roundMillimeters(
-                                          dims.z * scale,
-                                        ),
-                                      };
-                                      return next;
-                                    });
+                              >
+                                <Interactive3DViewer
+                                  fileUrl={activeModelUrl}
+                                  fileName={activeModelName}
+                                  colorName={
+                                    item.color ||
+                                    getColorsForMaterial(item.material)[0] ||
+                                    "Black"
                                   }
-                                }}
-                              />
+                                  materialName={item.material}
+                                  scaleFactor={
+                                    item.scaleFactor ?? item.dimensionScale ?? 1.0
+                                  }
+                                  count={item.count}
+                                  filaments={filaments}
+                                  showHelp={true}
+                                  onDimensionsDetected={(dims: {
+                                    x: number;
+                                    y: number;
+                                    z: number;
+                                  }) => {
+                                    if (!hasDimensionValue(item.dimensionBaseX)) {
+                                      setItems((prev) => {
+                                        const next = [...prev];
+                                        if (
+                                          !next[idx] ||
+                                          hasDimensionValue(
+                                            next[idx].dimensionBaseX,
+                                          )
+                                        )
+                                          return next;
+                                        const maxScale = getMaximumScaleForBase(
+                                          dims.x,
+                                          dims.y,
+                                          dims.z,
+                                        );
+                                        const scale = clampScale(
+                                          next[idx].scaleFactor ?? 1.0,
+                                          maxScale,
+                                        );
+                                        next[idx] = {
+                                          ...next[idx],
+                                          dimensionBaseX: dims.x,
+                                          dimensionBaseY: dims.y,
+                                          dimensionBaseZ: dims.z,
+                                          dimensionScale: scale,
+                                          scaleFactor: scale,
+                                          dimensionX: roundMillimeters(
+                                            dims.x * scale,
+                                          ),
+                                          dimensionY: roundMillimeters(
+                                            dims.y * scale,
+                                          ),
+                                          dimensionZ: roundMillimeters(
+                                            dims.z * scale,
+                                          ),
+                                        };
+                                        return next;
+                                      });
+                                    }
+                                  }}
+                                />
+                              </Suspense>
                             </div>
                           );
                         })()}
@@ -2690,18 +2764,14 @@ export default function Quote() {
                                         </span>
                                       )}
                                     </div>
-                                    <input
-                                      type="range"
+                                    <DebouncedRangeSlider
                                       min="0.1"
                                       max={hasBaseDimensions ? maxScale : 3.0}
                                       step={SCALE_STEP}
                                       value={currentScale}
                                       className="w-full accent-emerald-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                                      onChange={(e) =>
-                                        updateItemScale(
-                                          idx,
-                                          Number(e.target.value),
-                                        )
+                                      onChange={(val) =>
+                                        updateItemScale(idx, val)
                                       }
                                     />
                                     <div className="flex justify-between items-center text-[11px] text-gray-500 pt-0.5">
@@ -2823,24 +2893,19 @@ export default function Quote() {
                                     <label className="text-[11px] font-semibold text-gray-600 mb-1 block">
                                       {t("quote.dimensionLength")}
                                     </label>
-                                    <input
-                                      type="number"
+                                    <DebouncedNumberInput
                                       min="1"
                                       max="256"
                                       step="1"
                                       placeholder="X mm"
-                                      value={item.dimensionX ?? ""}
+                                      value={item.dimensionX}
                                       onKeyDown={(e) => {
                                         if (e.key === "Enter") {
                                           e.preventDefault();
                                           (e.target as HTMLInputElement).blur();
                                         }
                                       }}
-                                      onChange={(e) => {
-                                        const val =
-                                          e.target.value === ""
-                                            ? undefined
-                                            : parseFloat(e.target.value);
+                                      onChange={(val) => {
                                         updateItemDimensions(
                                           idx,
                                           val,
@@ -2855,24 +2920,19 @@ export default function Quote() {
                                     <label className="text-[11px] font-semibold text-gray-600 mb-1 block">
                                       {t("quote.dimensionWidth")}
                                     </label>
-                                    <input
-                                      type="number"
+                                    <DebouncedNumberInput
                                       min="1"
                                       max="256"
                                       step="1"
                                       placeholder="Y mm"
-                                      value={item.dimensionY ?? ""}
+                                      value={item.dimensionY}
                                       onKeyDown={(e) => {
                                         if (e.key === "Enter") {
                                           e.preventDefault();
                                           (e.target as HTMLInputElement).blur();
                                         }
                                       }}
-                                      onChange={(e) => {
-                                        const val =
-                                          e.target.value === ""
-                                            ? undefined
-                                            : parseFloat(e.target.value);
+                                      onChange={(val) => {
                                         updateItemDimensions(
                                           idx,
                                           item.dimensionX,
@@ -2887,24 +2947,19 @@ export default function Quote() {
                                     <label className="text-[11px] font-semibold text-gray-600 mb-1 block">
                                       {t("quote.dimensionHeight")}
                                     </label>
-                                    <input
-                                      type="number"
+                                    <DebouncedNumberInput
                                       min="1"
                                       max="256"
                                       step="1"
                                       placeholder="Z mm"
-                                      value={item.dimensionZ ?? ""}
+                                      value={item.dimensionZ}
                                       onKeyDown={(e) => {
                                         if (e.key === "Enter") {
                                           e.preventDefault();
                                           (e.target as HTMLInputElement).blur();
                                         }
                                       }}
-                                      onChange={(e) => {
-                                        const val =
-                                          e.target.value === ""
-                                            ? undefined
-                                            : parseFloat(e.target.value);
+                                      onChange={(val) => {
                                         updateItemDimensions(
                                           idx,
                                           item.dimensionX,
@@ -3146,6 +3201,8 @@ export default function Quote() {
                                 <img
                                   src={resolveAssetUrl(item.imageUrl)}
                                   alt={item.fileName || "Thumbnail"}
+                                  loading="lazy"
+                                  decoding="async"
                                   className="w-14 h-14 rounded-xl object-cover border border-gray-200 bg-gray-50 shrink-0 shadow-2xs"
                                 />
                               ) : isPainting ? (

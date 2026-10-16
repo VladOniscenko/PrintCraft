@@ -389,6 +389,8 @@ export default function OrderItemsCard({ order, t }: OrderItemsCardProps) {
                         <img
                           src={resolveAssetUrl(previewFile.url)}
                           alt={previewFile.name}
+                          loading="lazy"
+                          decoding="async"
                           className="max-h-full max-w-full object-contain rounded-lg"
                         />
                       </div>

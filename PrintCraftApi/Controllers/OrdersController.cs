@@ -61,63 +61,67 @@ public class OrdersController : ControllerBase
 
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
     {
         var userIdStr = User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
 
         var userId = Guid.Parse(userIdStr);
-        var userExists = await _db.Users.AnyAsync(u => u.Id == userId);
+        var userExists = await _db.Users.AnyAsync(u => u.Id == userId, cancellationToken);
         if (!userExists)
             return Unauthorized(new { message = "User account no longer exists. Please log in again." });
 
         var orders = await _db.Orders
+            .AsNoTracking()
+            .AsSplitQuery()
             .Where(o => o.UserId == userId)
             .Include(o => o.Items)
             .ThenInclude(i => i.Attachments)
             .Include(o => o.Payments)
             .Include(o => o.Notes)
             .OrderByDescending(o => o.CreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
-        await RefreshQuoteStatusesAsync(orders, "system");
+        await RefreshQuoteStatusesAsync(orders, "system", cancellationToken);
 
         return Ok(orders.Select(MapOrderForCustomer));
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById([FromRoute] Guid id)
+    public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
         var userIdStr = User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
 
         var userId = Guid.Parse(userIdStr);
-        var userExists = await _db.Users.AnyAsync(u => u.Id == userId);
+        var userExists = await _db.Users.AnyAsync(u => u.Id == userId, cancellationToken);
         if (!userExists)
             return Unauthorized(new { message = "User account no longer exists. Please log in again." });
 
         var order = await _db.Orders
+            .AsSplitQuery()
             .Include(o => o.Items)
             .ThenInclude(i => i.Attachments)
             .Include(o => o.Payments)
             .Include(o => o.Notes)
-            .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+            .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId, cancellationToken);
 
         if (order != null)
-            await RefreshQuoteStatusesAsync(new[] { order }, "system");
+            await RefreshQuoteStatusesAsync(new[] { order }, "system", cancellationToken);
 
         return order != null ? Ok(MapOrderForCustomer(order)) : NotFound(new { message = "Order not found or access denied." });
     }
 
     [HttpGet("{id:guid}/status")]
-    public async Task<IActionResult> GetOrderStatus([FromRoute] Guid id)
+    public async Task<IActionResult> GetOrderStatus([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
         var userIdStr = User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
 
         var userId = Guid.Parse(userIdStr);
         var order = await _db.Orders
-            .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+            .AsNoTracking()
+            .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId, cancellationToken);
 
         if (order == null)
             return NotFound(new { message = "Order not found or access denied." });
@@ -134,24 +138,25 @@ public class OrdersController : ControllerBase
     }
 
     [HttpGet("{id:guid}/payments")]
-    public async Task<IActionResult> GetPayments([FromRoute] Guid id)
+    public async Task<IActionResult> GetPayments([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
         var userIdStr = User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
 
         var userId = Guid.Parse(userIdStr);
-        var userExists = await _db.Users.AnyAsync(u => u.Id == userId);
+        var userExists = await _db.Users.AnyAsync(u => u.Id == userId, cancellationToken);
         if (!userExists)
             return Unauthorized(new { message = "User account no longer exists. Please log in again." });
 
-        var orderExists = await _db.Orders.AnyAsync(o => o.Id == id && o.UserId == userId);
+        var orderExists = await _db.Orders.AnyAsync(o => o.Id == id && o.UserId == userId, cancellationToken);
         if (!orderExists)
             return NotFound(new { message = "Order not found or access denied." });
 
         var payments = await _db.Payments
+            .AsNoTracking()
             .Where(p => p.OrderId == id)
             .OrderByDescending(p => p.CreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return Ok(payments);
     }
@@ -728,7 +733,7 @@ public class OrdersController : ControllerBase
         return Ok(new { message = "Payment notification received. We will verify your transfer shortly." });
     }
 
-    private async Task RefreshQuoteStatusesAsync(IEnumerable<Order> orders, string changedBy)
+    private async Task RefreshQuoteStatusesAsync(IEnumerable<Order> orders, string changedBy, CancellationToken cancellationToken = default)
     {
         var transitions = new List<(Guid OrderId, string PreviousStatus, string NewStatus, string Note)>();
         var changed = false;
@@ -741,6 +746,8 @@ public class OrdersController : ControllerBase
                 continue;
 
             changed = true;
+            _db.Orders.Attach(order);
+            _db.Entry(order).State = EntityState.Modified;
 
             if (result.StatusChanged)
             {
@@ -755,7 +762,7 @@ public class OrdersController : ControllerBase
         if (!changed)
             return;
 
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(cancellationToken);
 
         foreach (var transition in transitions)
         {

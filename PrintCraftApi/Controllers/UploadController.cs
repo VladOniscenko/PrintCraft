@@ -89,7 +89,8 @@ public class UploadController : ControllerBase
     }
 
     [HttpPost]
-    [DisableRequestSizeLimit]
+    [RequestSizeLimit(MaxUploadBytes)]
+    [RequestFormLimits(MultipartBodyLengthLimit = MaxUploadBytes)]
     [AllowAnonymous]
     [EnableRateLimiting("UploadLimit")]
     public async Task<IActionResult> Upload([FromForm] IFormFile file)
@@ -148,71 +149,66 @@ public class UploadController : ControllerBase
     [HttpGet("models")]
     [Authorize(Roles = "admin")]
     [EnableRateLimiting("AuthBurst")]
-    public IActionResult GetUploadedModels()
+    public async Task<IActionResult> GetUploadedModels(CancellationToken cancellationToken = default)
     {
         var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
         if (!Directory.Exists(uploadsFolder))
             return Ok(Array.Empty<object>());
 
-        var activeOrderFileNames = _db.Orders
+        var orderData = await _db.Orders
             .AsNoTracking()
-            .Include(o => o.Items)
-            .ThenInclude(i => i.Attachments)
-            .AsEnumerable()
-            .Where(order => !IsOrderDone(order.Status))
-            .SelectMany(order => order.Items.SelectMany(item => new[]
-            {
-                ExtractFileNameFromAssetUrl(item.FileUrl),
-                ExtractFileNameFromAssetUrl(item.ImageUrl),
-            }.Concat(item.Attachments.Select(a => ExtractFileNameFromAssetUrl(a.Url)))))
-            .Where(name => !string.IsNullOrWhiteSpace(name))
-            .Cast<string>()
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var linkedOrderFileNames = _db.Orders
-            .AsNoTracking()
-            .Include(o => o.Items)
-            .ThenInclude(i => i.Attachments)
-            .AsEnumerable()
-            .SelectMany(order => order.Items.SelectMany(item => new[]
-            {
-                ExtractFileNameFromAssetUrl(item.FileUrl),
-                ExtractFileNameFromAssetUrl(item.ImageUrl),
-            }.Concat(item.Attachments.Select(a => ExtractFileNameFromAssetUrl(a.Url)))))
-            .Where(name => !string.IsNullOrWhiteSpace(name))
-            .Cast<string>()
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var orderLinksByFileName = _db.Orders
-            .AsNoTracking()
-            .Include(o => o.Items)
-            .ThenInclude(i => i.Attachments)
             .OrderByDescending(o => o.CreatedAt)
-            .AsEnumerable()
-            .SelectMany(order => order.Items.SelectMany((item, index) => new[]
+            .Select(o => new
+            {
+                OrderId = o.Id,
+                Status = o.Status,
+                Items = o.Items.Select(item => new
+                {
+                    FileUrl = item.FileUrl,
+                    ImageUrl = item.ImageUrl,
+                    AttachmentUrls = item.Attachments.Select(a => a.Url).ToList()
+                }).ToList()
+            })
+            .ToListAsync(cancellationToken);
+
+        var activeOrderFileNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var linkedOrderFileNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var orderLinksByFileName = new Dictionary<string, (Guid orderId, int itemIndex)>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var order in orderData)
+        {
+            bool isActive = !IsOrderDone(order.Status);
+            for (int i = 0; i < order.Items.Count; i++)
+            {
+                var item = order.Items[i];
+                var candidateNames = new[]
                 {
                     ExtractFileNameFromAssetUrl(item.FileUrl),
-                    ExtractFileNameFromAssetUrl(item.ImageUrl),
-                }.Concat(item.Attachments.Select(a => ExtractFileNameFromAssetUrl(a.Url)))
-                .Where(name => !string.IsNullOrWhiteSpace(name))
-                .Select(name => new
-                {
-                    orderId = order.Id,
-                    itemIndex = index,
-                    fileName = name,
-                })))
-            .Where(x => !string.IsNullOrWhiteSpace(x.fileName))
-            .GroupBy(x => x.fileName!, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(
-                g => g.Key,
-                g => g.First(),
-                StringComparer.OrdinalIgnoreCase);
+                    ExtractFileNameFromAssetUrl(item.ImageUrl)
+                }.Concat(item.AttachmentUrls.Select(ExtractFileNameFromAssetUrl))
+                .Where(name => !string.IsNullOrWhiteSpace(name));
 
-        var heroSlideMediaUrls = _db.HeroSlides
+                foreach (var name in candidateNames)
+                {
+                    if (name == null) continue;
+                    linkedOrderFileNames.Add(name);
+                    if (isActive)
+                    {
+                        activeOrderFileNames.Add(name);
+                    }
+                    if (!orderLinksByFileName.ContainsKey(name))
+                    {
+                        orderLinksByFileName[name] = (order.OrderId, i);
+                    }
+                }
+            }
+        }
+
+        var heroSlideMediaUrls = (await _db.HeroSlides
             .AsNoTracking()
             .Select(s => s.MediaUrl)
             .Where(m => !string.IsNullOrWhiteSpace(m))
-            .AsEnumerable()
+            .ToListAsync(cancellationToken))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var files = Directory
@@ -237,8 +233,8 @@ public class UploadController : ControllerBase
                     sizeBytes = info.Length,
                     lastModifiedUtc = info.LastWriteTimeUtc,
                     url,
-                    orderId = link?.orderId,
-                    itemIndex = link?.itemIndex,
+                    orderId = link != default ? (Guid?)link.orderId : null,
+                    itemIndex = link != default ? (int?)link.itemIndex : null,
                     linkedToOrder,
                     linkedToActiveOrder,
                     linkedToHeroSlide,
