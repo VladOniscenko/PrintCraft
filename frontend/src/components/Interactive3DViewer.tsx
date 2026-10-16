@@ -35,7 +35,10 @@ import {
   Maximize2,
 } from "lucide-react";
 import { resolveAssetUrl } from "../utils/assetUrl";
-import { MAX_DIMENSION_MM, roundMillimeters } from "../utils/modelDimensions";
+import {
+  MAX_DIMENSION_MM,
+  roundMillimeters,
+} from "../utils/modelDimensions";
 import type { Filament } from "../types";
 import { useI18n } from "../i18n/I18nContext";
 import { translateColorText } from "../utils/formatters";
@@ -143,7 +146,9 @@ export default function Interactive3DViewer({
   const materialRef = useRef<any>(null);
   const originalModelRef = useRef<any>(null);
   const gridHelperRef = useRef<any>(null);
-  const fitParamsRef = useRef<{ center: any; maxDim: number } | null>(null);
+  const fitParamsRef = useRef<{ center: any; maxDim: number } | null>(
+    null,
+  );
 
   // Derive hex color from filament data or color name
   const effectiveHex = (() => {
@@ -312,8 +317,7 @@ export default function Interactive3DViewer({
         } else if (fileUrl) {
           const resolved = resolveAssetUrl(fileUrl);
           const res = await fetch(resolved);
-          if (!res.ok)
-            throw new Error(`Could not load model: ${res.statusText}`);
+          if (!res.ok) throw new Error(`Could not load model: ${res.statusText}`);
           buffer = await res.arrayBuffer();
         } else {
           setLoading(false);
@@ -336,15 +340,8 @@ export default function Interactive3DViewer({
 
         if (format === "stl") {
           const urlStr = (fileUrl || "").toLowerCase().split("?")[0];
-          const nameStr = (fileName || file?.name || "")
-            .toLowerCase()
-            .split("?")[0];
-          if (
-            urlStr.endsWith(".glb") ||
-            urlStr.endsWith(".gltf") ||
-            nameStr.endsWith(".glb") ||
-            nameStr.endsWith(".gltf")
-          ) {
+          const nameStr = (fileName || file?.name || "").toLowerCase().split("?")[0];
+          if (urlStr.endsWith(".glb") || urlStr.endsWith(".gltf") || nameStr.endsWith(".glb") || nameStr.endsWith(".gltf")) {
             format = "glb";
           } else if (urlStr.endsWith(".3mf") || nameStr.endsWith(".3mf")) {
             format = "3mf";
@@ -439,9 +436,9 @@ export default function Interactive3DViewer({
         } else {
           throw new Error("Unsupported 3D geometry format");
         }
-
+        
         originalModelRef.current = baseObject;
-
+        
         // Compute base box
         computedBox = new Box3().setFromObject(baseObject);
 
@@ -462,7 +459,7 @@ export default function Interactive3DViewer({
           center: new Vector3(0, (by * scaleFactor) / 2, 0),
           maxDim,
         };
-
+        
         // We trigger the render effect via modelVersion and baseDimensions
         resetCameraView(maxDim * scaleFactor);
         setModelVersion((v) => v + 1);
@@ -483,6 +480,7 @@ export default function Interactive3DViewer({
     };
   }, [file, fileUrl, fileName]);
 
+
   // 5.5 Render instances based on count
   useEffect(() => {
     const meshGroup = meshGroupRef.current;
@@ -495,7 +493,7 @@ export default function Interactive3DViewer({
 
     const baseObj = originalModelRef.current;
     const computedBox = new Box3().setFromObject(baseObj);
-
+    
     // To sit perfectly on the grid (y = 0), we offset by -minY
     const boxMinY = computedBox.min.y;
 
@@ -510,29 +508,30 @@ export default function Interactive3DViewer({
 
     for (let i = 0; i < safeCount; i++) {
       const clone = baseObj.clone();
-
+      
       const r = Math.floor(i / cols);
       const c = i % cols;
-
+      
       const offsetX = (c - (cols - 1) / 2) * spacingX;
       const offsetZ = (r - (rows - 1) / 2) * spacingZ;
-
+      
       clone.position.x += offsetX;
       clone.position.z += offsetZ;
       clone.position.y += -boxMinY; // Sit on plate
-
+      
       meshGroup.add(clone);
     }
+    
 
     // reset meshGroup position y just in case
     meshGroup.position.y = 0;
-
+    
     // Auto-fit camera to new instances
     const groupBox = new Box3().setFromObject(meshGroup);
     const groupSize = new Vector3();
     groupBox.getSize(groupSize);
     const maxGroupDim = Math.max(groupSize.x, groupSize.y, groupSize.z) || 50;
-
+    
     const camera = cameraRef.current;
     const controls = controlsRef.current;
     if (camera && controls) {
@@ -540,15 +539,13 @@ export default function Interactive3DViewer({
       groupBox.getCenter(center);
       const dist = Math.max(40, maxGroupDim * 1.5);
       controls.target.copy(center);
-      camera.position.set(
-        center.x + dist * 0.7,
-        center.y + dist * 0.75,
-        center.z + dist * 0.95,
-      );
+      camera.position.set(center.x + dist * 0.7, center.y + dist * 0.75, center.z + dist * 0.95);
       camera.lookAt(center);
       controls.update();
     }
+    
   }, [count, baseDimensions, scaleFactor, modelVersion]);
+
 
   // 6. Visual Scaling of the mesh group when scaleFactor changes
   useEffect(() => {
@@ -566,7 +563,7 @@ export default function Interactive3DViewer({
 
     const dim = effectiveDim || fitParamsRef.current?.maxDim || 60;
     const dist = Math.max(40, dim * 2.2);
-    const targetY = fitParamsRef.current?.center?.y ?? dim * 0.2;
+    const targetY = fitParamsRef.current?.center?.y ?? (dim * 0.2);
 
     controls.target.set(0, targetY, 0);
     camera.position.set(dist * 0.7, targetY + dist * 0.75, dist * 0.95);
@@ -575,15 +572,9 @@ export default function Interactive3DViewer({
   };
 
   // Scaled dimensions in mm
-  const scaledX = baseDimensions
-    ? roundMillimeters(baseDimensions.x * scaleFactor)
-    : undefined;
-  const scaledY = baseDimensions
-    ? roundMillimeters(baseDimensions.y * scaleFactor)
-    : undefined;
-  const scaledZ = baseDimensions
-    ? roundMillimeters(baseDimensions.z * scaleFactor)
-    : undefined;
+  const scaledX = baseDimensions ? roundMillimeters(baseDimensions.x * scaleFactor) : undefined;
+  const scaledY = baseDimensions ? roundMillimeters(baseDimensions.y * scaleFactor) : undefined;
+  const scaledZ = baseDimensions ? roundMillimeters(baseDimensions.z * scaleFactor) : undefined;
 
   const fitsBuildVolume =
     scaledX && scaledY && scaledZ
@@ -602,9 +593,7 @@ export default function Interactive3DViewer({
       <div
         ref={containerRef}
         className={`relative w-full ${
-          compact
-            ? "h-56 min-h-[220px]"
-            : "flex-1 min-h-[320px] sm:min-h-[360px]"
+          compact ? "h-56 min-h-[220px]" : "flex-1 min-h-[320px] sm:min-h-[360px]"
         } cursor-grab active:cursor-grabbing select-none`}
         style={{ backgroundColor: bgColor }}
       >
@@ -642,9 +631,7 @@ export default function Interactive3DViewer({
               {translateColorText(colorName, t)}
             </span>
             {!compact && (
-              <span className="text-slate-400 font-medium">
-                ({materialName})
-              </span>
+              <span className="text-slate-400 font-medium">({materialName})</span>
             )}
           </div>
 
@@ -751,9 +738,7 @@ export default function Interactive3DViewer({
                 {scaledX} × {scaledY} × {scaledZ} mm
               </span>
             ) : (
-              <span className="text-slate-400">
-                {t("quote.detectingDimensions")}
-              </span>
+              <span className="text-slate-400">{t("quote.detectingDimensions")}</span>
             )}
           </div>
           {onExpand && (
@@ -791,9 +776,7 @@ export default function Interactive3DViewer({
                     )}
                   </p>
                 ) : (
-                  <p className="text-xs text-slate-400">
-                    {t("quote.detectingDimensions")}
-                  </p>
+                  <p className="text-xs text-slate-400">{t("quote.detectingDimensions")}</p>
                 )}
               </div>
             </div>
@@ -855,3 +838,4 @@ export default function Interactive3DViewer({
     </div>
   );
 }
+
