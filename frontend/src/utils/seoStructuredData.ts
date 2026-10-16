@@ -5,7 +5,11 @@ import {
   defaultLanguage,
   type SupportedLanguage,
 } from "../i18n/translations";
-import { dutchCities, getCityName, type DutchCity } from "../config/dutchCities";
+import {
+  dutchCities,
+  getCityName,
+  type DutchCity,
+} from "../config/dutchCities";
 import {
   getApplicationName,
   type SeoApplication,
@@ -345,7 +349,10 @@ export function buildCityJsonLd(
               "@type": "Offer",
               itemOffered: {
                 "@type": "Service",
-                name: schemaT.cityServiceTemplate.replaceAll("{city}", cityName),
+                name: schemaT.cityServiceTemplate.replaceAll(
+                  "{city}",
+                  cityName,
+                ),
                 description: pageDescription,
               },
             },
@@ -392,7 +399,10 @@ export function buildCityJsonLd(
       },
       buildBreadcrumbsJsonLd(canonicalUrl, [
         { name: tSource.nav.home, url: `${origin}/${language}` },
-        { name: tSource.cityPage.badge, url: `${origin}/${language}/#services` },
+        {
+          name: tSource.cityPage.badge,
+          url: `${origin}/${language}/#services`,
+        },
         { name: cityName, url: canonicalUrl },
       ]),
       {
@@ -464,7 +474,10 @@ export function buildApplicationJsonLd(
       },
       buildBreadcrumbsJsonLd(canonicalUrl, [
         { name: tSource.nav.home, url: `${origin}/${language}` },
-        { name: tSource.seo.schema.catalogName, url: `${origin}/${language}/#services` },
+        {
+          name: tSource.seo.schema.catalogName,
+          url: `${origin}/${language}/#services`,
+        },
         { name: appName, url: canonicalUrl },
       ]),
       {
