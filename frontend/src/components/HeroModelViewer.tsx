@@ -31,13 +31,9 @@ function getExt(path: string): string {
 }
 
 // Module-level geometry cache: keeps parsed STL geometries in memory so switching slides is instant
-const geometryCache = new Map<string, THREE.BufferGeometry>();
+const geometryCache = new Map<string, any>();
 
-function fitObject(
-  object: THREE.Object3D,
-  camera: THREE.PerspectiveCamera,
-  controls: OrbitControls,
-): void {
+function fitObject(object: any, camera: any, controls: any): void {
   const box = new THREE.Box3().setFromObject(object);
   const center = box.getCenter(new THREE.Vector3());
   object.position.sub(center);
@@ -69,7 +65,9 @@ export default function HeroModelViewer({
   const ext = useMemo(() => getExt(src), [src]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const modelColor = useMemo(() => pickRandomColor(), [src]);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
+  );
 
   const onInteractionStartRef = useRef(onInteractionStart);
   onInteractionStartRef.current = onInteractionStart;
@@ -77,19 +75,18 @@ export default function HeroModelViewer({
   onInteractionEndRef.current = onInteractionEnd;
 
   // Persistent Three.js scene references across slide transitions
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const controlsRef = useRef<OrbitControls | null>(null);
-  const modelGroupRef = useRef<THREE.Group | null>(null);
-  const fillLightRef = useRef<THREE.DirectionalLight | null>(null);
+  const sceneRef = useRef<any>(null);
+  const rendererRef = useRef<any>(null);
+  const cameraRef = useRef<any>(null);
+  const controlsRef = useRef<any>(null);
+  const modelGroupRef = useRef<any>(null);
+  const fillLightRef = useRef<any>(null);
 
   // 1. One-time Setup: Initialize WebGLRenderer, Camera, Lights, OrbitControls, Animation Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    let mounted = true;
     let isVisible = true;
     let isScrolling = false;
     let scrollTimeout: number | null = null;
@@ -198,7 +195,6 @@ export default function HeroModelViewer({
     resizeObserver.observe(canvas);
 
     return () => {
-      mounted = false;
       observer.disconnect();
       resizeObserver.disconnect();
       window.removeEventListener("scroll", handleWindowScroll);
@@ -210,10 +206,10 @@ export default function HeroModelViewer({
       renderer.dispose();
 
       // Clean up meshes in modelGroup
-      modelGroup.traverse((obj) => {
+      modelGroup.traverse((obj: any) => {
         if (obj instanceof THREE.Mesh) {
           if (Array.isArray(obj.material)) {
-            obj.material.forEach((m) => m.dispose());
+            obj.material.forEach((m: any) => m.dispose());
           } else {
             obj.material.dispose();
           }
@@ -252,7 +248,7 @@ export default function HeroModelViewer({
     }
 
     // Helper to display a loaded BufferGeometry
-    const applyGeometry = (geometry: THREE.BufferGeometry) => {
+    const applyGeometry = (geometry: any) => {
       if (!active || !modelGroupRef.current) return;
 
       // Clean previous meshes and their materials
@@ -261,7 +257,7 @@ export default function HeroModelViewer({
         modelGroup.remove(child);
         if (child instanceof THREE.Mesh) {
           if (Array.isArray(child.material)) {
-            child.material.forEach((m) => m.dispose());
+            child.material.forEach((m: any) => m.dispose());
           } else {
             child.material.dispose();
           }
@@ -298,7 +294,7 @@ export default function HeroModelViewer({
     const loader = new STLLoader();
     loader.load(
       src,
-      (geometry) => {
+      (geometry: any) => {
         if (!active) {
           geometry.dispose();
           return;
