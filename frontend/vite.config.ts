@@ -74,169 +74,7 @@ ${publicIndexableRoutes
   },
 };
 
-const homeInitialHtmlNl = `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <header class="site-navbar px-5 py-3.5 flex items-center justify-between border-b border-[#d8e6df] bg-white/80">
-    <a href="/nl" class="font-black text-xl text-[#0f766e]">${businessInfo.name}</a>
-    <nav class="flex items-center gap-4 text-sm font-medium">
-      <a href="/nl" class="text-[#0f766e] font-bold">Home</a>
-      <a href="/nl/faq" class="text-gray-700 hover:text-[#0f766e]">FAQ</a>
-      <a href="/nl/checkout" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-500">Offerte Aanvragen</a>
-    </nav>
-  </header>
-  <main class="site-main px-4 py-12 space-y-12 max-w-5xl mx-auto w-full">
-    <section class="text-center space-y-5">
-      <p class="text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">3D Print Service Nederland · Rotterdam</p>
-      <h1 class="text-4xl sm:text-5xl font-black text-[#17231f] tracking-tight">
-        Professionele 3D Print Service Nederland
-      </h1>
-      <p class="text-base sm:text-lg text-[#4a5f58] max-w-2xl mx-auto leading-relaxed">
-        Upload je 3D-bestand (.STL of .3MF), kies uit hoogwaardig PLA, slagvast PETG of flexibel TPU en ontvang direct een offerte op maat. Snelle levering binnen 2-5 werkdagen in heel Nederland.
-      </p>
-      <div class="flex flex-wrap justify-center gap-4 pt-3">
-        <a href="/nl/checkout" class="px-7 py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md hover:from-emerald-500 hover:to-teal-500">
-          Direct Offerte Aanvragen
-        </a>
-        <a href="/nl/faq" class="px-6 py-3.5 rounded-2xl font-semibold text-sm bg-white border border-[#d8e6df] text-gray-800 hover:bg-gray-50">
-          Veelgestelde Vragen
-        </a>
-      </div>
-    </section>
-    <section class="space-y-6">
-      <h2 class="text-2xl font-black text-[#17231f]">Hoe Onze 3D Print Service Werkt</h2>
-      <div class="grid gap-4 md:grid-cols-3">
-        <article class="p-6 rounded-2xl border border-[#d8e6df] bg-white shadow-sm space-y-3">
-          <span class="text-sm font-black text-amber-600">01</span>
-          <h3 class="text-xl font-black text-[#17231f]">Upload 3D-Model (.STL / .3MF)</h3>
-          <p class="text-sm leading-6 text-[#5f736d]">Sleep je bestand in onze 3D configurator voor automatische afmetings- en volumeberekening.</p>
-        </article>
-        <article class="p-6 rounded-2xl border border-[#d8e6df] bg-white shadow-sm space-y-3">
-          <span class="text-sm font-black text-amber-600">02</span>
-          <h3 class="text-xl font-black text-[#17231f]">Kies Filament &amp; Eigenschappen</h3>
-          <p class="text-sm leading-6 text-[#5f736d]">Kies uit duurzaam PLA, slagvast PETG of flexibel TPU in diverse kleuren met transparante prijzen.</p>
-        </article>
-        <article class="p-6 rounded-2xl border border-[#d8e6df] bg-white shadow-sm space-y-3">
-          <span class="text-sm font-black text-amber-600">03</span>
-          <h3 class="text-xl font-black text-[#17231f]">Precisie Printen &amp; Bezorging</h3>
-          <p class="text-sm leading-6 text-[#5f736d]">Geprint met ±0.1mm nauwkeurigheid en binnen 2-5 werkdagen zorgvuldig verpakt bezorgd.</p>
-        </article>
-      </div>
-    </section>
-    <section class="rounded-[2rem] bg-[#102b25] p-6 text-white sm:p-10 space-y-6">
-      <h2 class="text-2xl sm:text-3xl font-black">Ondersteunde Materialen &amp; Filamenten</h2>
-      <div class="grid gap-4 md:grid-cols-3 text-gray-900">
-        <div class="rounded-2xl border p-5 bg-emerald-50 text-emerald-900">
-          <p class="text-xs font-black uppercase tracking-widest opacity-70">PLA</p>
-          <h3 class="mt-1 text-xl font-black">Dagelijks Gebruik</h3>
-          <p class="mt-2 text-sm leading-6">Ideaal voor prototypes, organizers, schaalmodellen en decoratieve prints.</p>
-        </div>
-        <div class="rounded-2xl border p-5 bg-sky-50 text-sky-900">
-          <p class="text-xs font-black uppercase tracking-widest opacity-70">PETG</p>
-          <h3 class="mt-1 text-xl font-black">Extra Sterk &amp; Weerbestendig</h3>
-          <p class="mt-2 text-sm leading-6">Voor functionele behuizingen en onderdelen die mechanische belasting en vocht moeten doorstaan.</p>
-        </div>
-        <div class="rounded-2xl border p-5 bg-amber-50 text-amber-900">
-          <p class="text-xs font-black uppercase tracking-widest opacity-70">TPU</p>
-          <h3 class="mt-1 text-xl font-black">Flexibel &amp; Schokabsorberend</h3>
-          <p class="mt-2 text-sm leading-6">Voor grips, beschermhoezen, pakkingen en onderdelen die moeten buigen.</p>
-        </div>
-      </div>
-    </section>
-  </main>
-  <footer class="mt-auto border-t border-[#d8e6df] bg-white px-6 py-6 text-center text-xs text-[#5f736d]">
-    <div class="flex flex-wrap justify-center gap-6 mb-3">
-      <a href="/nl/privacy" class="hover:text-emerald-700">Privacybeleid</a>
-      <a href="/nl/terms" class="hover:text-emerald-700">Algemene Voorwaarden</a>
-      <a href="/nl/refunds" class="hover:text-emerald-700">Retourbeleid</a>
-      <a href="/nl/shipping-policy" class="hover:text-emerald-700">Verzendbeleid</a>
-      <a href="/nl/faq" class="hover:text-emerald-700">FAQ</a>
-    </div>
-    <p>© 2026 ${businessInfo.name}. Professionele 3D Print Service Nederland.</p>
-  </footer>
-</div>
-`.trim();
 
-const homeInitialHtmlEn = `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <header class="site-navbar px-5 py-3.5 flex items-center justify-between border-b border-[#d8e6df] bg-white/80">
-    <a href="/en" class="font-black text-xl text-[#0f766e]">${businessInfo.name}</a>
-    <nav class="flex items-center gap-4 text-sm font-medium">
-      <a href="/en" class="text-[#0f766e] font-bold">Home</a>
-      <a href="/en/faq" class="text-gray-700 hover:text-[#0f766e]">FAQ</a>
-      <a href="/en/checkout" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-500">Get Quote</a>
-    </nav>
-  </header>
-  <main class="site-main px-4 py-12 space-y-12 max-w-5xl mx-auto w-full">
-    <section class="text-center space-y-5">
-      <p class="text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">3D Printing Service Netherlands · Rotterdam</p>
-      <h1 class="text-4xl sm:text-5xl font-black text-[#17231f] tracking-tight">
-        Professional 3D Printing Service Netherlands
-      </h1>
-      <p class="text-base sm:text-lg text-[#4a5f58] max-w-2xl mx-auto leading-relaxed">
-        Upload your 3D file (.STL or .3MF), choose premium PLA, impact-resistant PETG or flexible TPU, and get an instant custom quote. Fast delivery within 2-5 business days across the Netherlands.
-      </p>
-      <div class="flex flex-wrap justify-center gap-4 pt-3">
-        <a href="/en/checkout" class="px-7 py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md hover:from-emerald-500 hover:to-teal-500">
-          Get Instant 3D Quote
-        </a>
-        <a href="/en/faq" class="px-6 py-3.5 rounded-2xl font-semibold text-sm bg-white border border-[#d8e6df] text-gray-800 hover:bg-gray-50">
-          Frequently Asked Questions
-        </a>
-      </div>
-    </section>
-    <section class="space-y-6">
-      <h2 class="text-2xl font-black text-[#17231f]">How Our 3D Printing Service Works</h2>
-      <div class="grid gap-4 md:grid-cols-3">
-        <article class="p-6 rounded-2xl border border-[#d8e6df] bg-white shadow-sm space-y-3">
-          <span class="text-sm font-black text-amber-600">01</span>
-          <h3 class="text-xl font-black text-[#17231f]">Upload 3D Model (.STL / .3MF)</h3>
-          <p class="text-sm leading-6 text-[#5f736d]">Drop your model into our 3D configurator for instant volume, size and geometry validation.</p>
-        </article>
-        <article class="p-6 rounded-2xl border border-[#d8e6df] bg-white shadow-sm space-y-3">
-          <span class="text-sm font-black text-amber-600">02</span>
-          <h3 class="text-xl font-black text-[#17231f]">Choose Filament &amp; Specs</h3>
-          <p class="text-sm leading-6 text-[#5f736d]">Pick from daily PLA, industrial PETG or shock-absorbing TPU in various colors with live pricing.</p>
-        </article>
-        <article class="p-6 rounded-2xl border border-[#d8e6df] bg-white shadow-sm space-y-3">
-          <span class="text-sm font-black text-amber-600">03</span>
-          <h3 class="text-xl font-black text-[#17231f]">Precision Printing &amp; Delivery</h3>
-          <p class="text-sm leading-6 text-[#5f736d]">Manufactured with ±0.1mm precision and shipped securely within 2-5 business days across the Netherlands.</p>
-        </article>
-      </div>
-    </section>
-    <section class="rounded-[2rem] bg-[#102b25] p-6 text-white sm:p-10 space-y-6">
-      <h2 class="text-2xl sm:text-3xl font-black">Supported Materials &amp; Filaments</h2>
-      <div class="grid gap-4 md:grid-cols-3 text-gray-900">
-        <div class="rounded-2xl border p-5 bg-emerald-50 text-emerald-900">
-          <p class="text-xs font-black uppercase tracking-widest opacity-70">PLA</p>
-          <h3 class="mt-1 text-xl font-black">Daily Use &amp; Prototyping</h3>
-          <p class="mt-2 text-sm leading-6">Ideal for rapid prototypes, visual architectural models, organizers, and decorative prints.</p>
-        </div>
-        <div class="rounded-2xl border p-5 bg-sky-50 text-sky-900">
-          <p class="text-xs font-black uppercase tracking-widest opacity-70">PETG</p>
-          <h3 class="mt-1 text-xl font-black">Strong &amp; Weather-Resistant</h3>
-          <p class="mt-2 text-sm leading-6">Great for mechanical housings, outdoor applications, and functional end-use parts.</p>
-        </div>
-        <div class="rounded-2xl border p-5 bg-amber-50 text-amber-900">
-          <p class="text-xs font-black uppercase tracking-widest opacity-70">TPU</p>
-          <h3 class="mt-1 text-xl font-black">Flexible &amp; Shock-Absorbing</h3>
-          <p class="mt-2 text-sm leading-6">Engineered for vibration dampers, custom seals, durable protective sleeves, and flexible hinges.</p>
-        </div>
-      </div>
-    </section>
-  </main>
-  <footer class="mt-auto border-t border-[#d8e6df] bg-white px-6 py-6 text-center text-xs text-[#5f736d]">
-    <div class="flex flex-wrap justify-center gap-6 mb-3">
-      <a href="/en/privacy" class="hover:text-emerald-700">Privacy Policy</a>
-      <a href="/en/terms" class="hover:text-emerald-700">Terms of Service</a>
-      <a href="/en/refunds" class="hover:text-emerald-700">Refund Policy</a>
-      <a href="/en/shipping-policy" class="hover:text-emerald-700">Shipping Policy</a>
-      <a href="/en/faq" class="hover:text-emerald-700">FAQ</a>
-    </div>
-    <p>© 2026 ${businessInfo.name}. Professional 3D Printing Service Netherlands.</p>
-  </footer>
-</div>
-`.trim();
 
 const preRenderPages: Record<
   string,
@@ -247,7 +85,6 @@ const preRenderPages: Record<
     description: string;
     keywords: string;
     jsonLd: SchemaGraph;
-    initialHtml: string;
   }
 > = {
   "/nl": {
@@ -264,7 +101,6 @@ const preRenderPages: Record<
       "Professionele 3D print service in Nederland. Upload je 3D-bestand (STL/3MF), kies PLA, PETG of TPU en ontvang direct een offerte. Snelle levering binnen 2-5 werkdagen.",
       "nl",
     ),
-    initialHtml: homeInitialHtmlNl,
   },
   "/en": {
     lang: "en",
@@ -280,7 +116,6 @@ const preRenderPages: Record<
       "Professional 3D printing service in the Netherlands. Upload your 3D file (.STL / .3MF), choose PLA, PETG or TPU, and get an instant quote. Fast delivery within 2-5 business days.",
       "en",
     ),
-    initialHtml: homeInitialHtmlEn,
   },
   "/nl/faq": {
     lang: "nl",
@@ -296,123 +131,21 @@ const preRenderPages: Record<
       "Vragen over 3D-printen, materialen (PLA/PETG/TPU), levertijden (2-5 werkdagen), bestandstypen (STL/3MF) of prijzen? Bekijk hier alle antwoorden.",
       "nl",
     ),
-    initialHtml: `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <header class="site-navbar px-5 py-3.5 flex items-center justify-between border-b border-[#d8e6df] bg-white/80">
-    <a href="/nl" class="font-black text-xl text-[#0f766e]">${businessInfo.name}</a>
-    <nav class="flex items-center gap-4 text-sm font-medium">
-      <a href="/nl" class="text-gray-700 hover:text-[#0f766e]">Home</a>
-      <a href="/nl/faq" class="text-[#0f766e] font-bold">FAQ</a>
-      <a href="/nl/checkout" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-500">Offerte Aanvragen</a>
-    </nav>
-  </header>
-  <main class="site-main max-w-4xl px-4 py-12 mx-auto w-full space-y-8">
-    <div class="text-center space-y-3">
-      <h1 class="text-3xl sm:text-4xl font-black text-[#17231f]">Veelgestelde Vragen 3D Printen</h1>
-      <p class="text-base text-[#5f736d]">Vragen over 3D printen, levering of materialen? We helpen je graag.</p>
-    </div>
-    <div class="space-y-4">
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">Welke 3D-bestanden accepteren jullie?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">We accepteren de meest gebruikte bestandsformaten: .STL, .OBJ en .3MF. Andere formaten kun je meestal exporteren naar STL.</p>
-      </div>
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">Wat kost een maatwerk print?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">De prijs hangt af van grootte, infill en materiaal. Vraag een offerte aan voor een exacte prijs zonder verborgen kosten.</p>
-      </div>
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">Hoe lang duurt levering?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">Meestal printen en verzenden we binnen 2 tot 5 werkdagen. Levertijd hangt af van je locatie in Nederland.</p>
-      </div>
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">Ik heb een idee maar geen 3D-bestand. Kunnen jullie helpen?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">Ja. Deel schetsen of voorbeelden en we helpen met het maken van een printbaar model.</p>
-      </div>
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">Zijn prints voedselveilig?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">Standaard printmaterialen zijn meestal niet bedoeld voor direct voedselcontact. We adviseren graag over veiliger afwerking.</p>
-      </div>
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">Wat als mijn print beschadigd aankomt?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">Als je item beschadigd aankomt of grote printfouten heeft, stuur binnen 3 dagen een foto en we regelen een herprint.</p>
-      </div>
-    </div>
-    <div class="p-8 bg-white rounded-2xl border border-[#d8e6df] text-center space-y-4">
-      <p class="text-sm text-[#5f736d]">Nog een specifieke vraag over jouw 3D-model, gewenste materialen of toleranties?</p>
-      <div class="flex flex-wrap justify-center gap-4">
-        <a href="mailto:${businessInfo.email}" class="px-6 py-3 rounded-xl bg-emerald-700 text-white font-bold text-sm hover:bg-emerald-600">${businessInfo.email}</a>
-        <a href="/nl/checkout" class="px-6 py-3 rounded-xl bg-gray-100 text-gray-800 font-bold text-sm hover:bg-gray-200">Vraag een Offerte Aan</a>
-      </div>
-    </div>
-  </main>
-</div>
-`.trim(),
   },
   "/en/faq": {
     lang: "en",
     subPath: "/faq",
-    title: `Frequently Asked Questions 3D Printing | ${businessInfo.name} FAQ`,
+    title: `3D Printing FAQ | ${businessInfo.name} Frequently Asked Questions`,
     description:
-      "Questions about 3D printing, materials (PLA/PETG/TPU), turnaround times (2-5 business days), file formats (STL/3MF) or pricing? Find all answers here.",
+      "Questions about 3D printing, materials (PLA/PETG/TPU), turnaround times (2-5 days), file formats (STL/3MF), or pricing? Find all answers here.",
     keywords:
-      "3D printing FAQ Netherlands, 3D printing questions, 3D print lead time, 3D printing cost, STL 3MF file formats",
+      "3D print FAQ Netherlands, 3D printing questions, lead times, 3D printing cost, accepted file types STL 3MF",
     jsonLd: buildFaqJsonLd(
       `${origin}/en/faq`,
-      `Frequently Asked Questions 3D Printing | ${businessInfo.name} FAQ`,
-      "Questions about 3D printing, materials (PLA/PETG/TPU), turnaround times (2-5 business days), file formats (STL/3MF) or pricing? Find all answers here.",
+      `3D Printing FAQ | ${businessInfo.name} Frequently Asked Questions`,
+      "Questions about 3D printing, materials (PLA/PETG/TPU), turnaround times (2-5 days), file formats (STL/3MF), or pricing? Find all answers here.",
       "en",
     ),
-    initialHtml: `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <header class="site-navbar px-5 py-3.5 flex items-center justify-between border-b border-[#d8e6df] bg-white/80">
-    <a href="/en" class="font-black text-xl text-[#0f766e]">${businessInfo.name}</a>
-    <nav class="flex items-center gap-4 text-sm font-medium">
-      <a href="/en" class="text-gray-700 hover:text-[#0f766e]">Home</a>
-      <a href="/en/faq" class="text-[#0f766e] font-bold">FAQ</a>
-      <a href="/en/checkout" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-500">Get Quote</a>
-    </nav>
-  </header>
-  <main class="site-main max-w-4xl px-4 py-12 mx-auto w-full space-y-8">
-    <div class="text-center space-y-3">
-      <h1 class="text-3xl sm:text-4xl font-black text-[#17231f]">Frequently Asked Questions 3D Printing</h1>
-      <p class="text-base text-[#5f736d]">Have questions about 3D printing, turnaround times, or materials? We are here to help.</p>
-    </div>
-    <div class="space-y-4">
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">Which 3D file formats do you accept?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">We support standard 3D formats including .STL, .OBJ and .3MF files. Most CAD packages can export directly to .STL or .3MF.</p>
-      </div>
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">How much does custom 3D printing cost?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">Pricing depends on part dimensions, infill percentage and material. Upload your file to our configurator for an instant transparent quote.</p>
-      </div>
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">What is your turnaround and delivery time?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">Most custom prints are manufactured and shipped within 2 to 5 business days across the Netherlands.</p>
-      </div>
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">I have an idea but no 3D file. Can you help?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">Yes! Send us sketches, specifications or drawings and we will assist you in modeling a printable 3D design.</p>
-      </div>
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">Are 3D printed parts food-safe?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">Standard FDM filaments are not certified for direct food contact. We can advise on food-grade coatings and post-processing.</p>
-      </div>
-      <div class="p-6 bg-white rounded-2xl border border-[#d8e6df] shadow-sm">
-        <h2 class="text-lg font-bold text-[#17231f] mb-2">What if my print arrives damaged or defective?</h2>
-        <p class="text-sm text-[#5f736d] leading-relaxed">If your print arrives damaged or has manufacturing defects, send us photos within 3 days and we will reprint it for free.</p>
-      </div>
-    </div>
-    <div class="p-8 bg-white rounded-2xl border border-[#d8e6df] text-center space-y-4">
-      <p class="text-sm text-[#5f736d]">Have a specific project question or custom volume requirements?</p>
-      <div class="flex flex-wrap justify-center gap-4">
-        <a href="mailto:${businessInfo.email}" class="px-6 py-3 rounded-xl bg-emerald-700 text-white font-bold text-sm hover:bg-emerald-600">${businessInfo.email}</a>
-        <a href="/en/checkout" class="px-6 py-3 rounded-xl bg-gray-100 text-gray-800 font-bold text-sm hover:bg-gray-200">Request Custom Quote</a>
-      </div>
-    </div>
-  </main>
-</div>
-`.trim(),
   },
   "/nl/privacy": {
     lang: "nl",
@@ -426,14 +159,6 @@ const preRenderPages: Record<
       `Privacybeleid van ${businessInfo.name}.`,
       "nl",
     ),
-    initialHtml: `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <main class="site-main max-w-4xl px-4 py-12 mx-auto w-full space-y-6">
-    <h1 class="text-3xl font-black text-[#17231f]">Privacybeleid</h1>
-    <p class="text-sm text-[#5f736d] leading-relaxed">Wij hechten veel waarde aan de bescherming van je persoonsgegevens en de intellectuele eigendom van je geüploade 3D-modellen conform de Algemene Verordening Gegevensbescherming (AVG/GDPR).</p>
-  </main>
-</div>
-`.trim(),
   },
   "/en/privacy": {
     lang: "en",
@@ -447,14 +172,6 @@ const preRenderPages: Record<
       `Privacy Policy of ${businessInfo.name}.`,
       "en",
     ),
-    initialHtml: `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <main class="site-main max-w-4xl px-4 py-12 mx-auto w-full space-y-6">
-    <h1 class="text-3xl font-black text-[#17231f]">Privacy Policy</h1>
-    <p class="text-sm text-[#5f736d] leading-relaxed">We strictly protect your personal information and uploaded 3D design files in compliance with the General Data Protection Regulation (GDPR).</p>
-  </main>
-</div>
-`.trim(),
   },
   "/nl/terms": {
     lang: "nl",
@@ -468,14 +185,6 @@ const preRenderPages: Record<
       `Algemene voorwaarden van ${businessInfo.name}.`,
       "nl",
     ),
-    initialHtml: `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <main class="site-main max-w-4xl px-4 py-12 mx-auto w-full space-y-6">
-    <h1 class="text-3xl font-black text-[#17231f]">Algemene Voorwaarden</h1>
-    <p class="text-sm text-[#5f736d] leading-relaxed">Algemene voorwaarden voor maatwerk 3D-printdiensten, levertijden, aansprakelijkheid en bestellingen via ${businessInfo.name}.</p>
-  </main>
-</div>
-`.trim(),
   },
   "/en/terms": {
     lang: "en",
@@ -489,14 +198,6 @@ const preRenderPages: Record<
       `Terms and Conditions of ${businessInfo.name}.`,
       "en",
     ),
-    initialHtml: `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <main class="site-main max-w-4xl px-4 py-12 mx-auto w-full space-y-6">
-    <h1 class="text-3xl font-black text-[#17231f]">Terms of Service</h1>
-    <p class="text-sm text-[#5f736d] leading-relaxed">Terms and conditions covering custom manufacturing orders, tolerances, turnaround and delivery through ${businessInfo.name}.</p>
-  </main>
-</div>
-`.trim(),
   },
   "/nl/refunds": {
     lang: "nl",
@@ -510,14 +211,6 @@ const preRenderPages: Record<
       `Retour- en Terugbetalingsbeleid van ${businessInfo.name}.`,
       "nl",
     ),
-    initialHtml: `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <main class="site-main max-w-4xl px-4 py-12 mx-auto w-full space-y-6">
-    <h1 class="text-3xl font-black text-[#17231f]">Retour- en Terugbetalingsbeleid</h1>
-    <p class="text-sm text-[#5f736d] leading-relaxed">Kwaliteitsbelofte: Mocht een print fabricagefouten vertonen of beschadigd arriveren, verzorgen wij kosteloos een herprint.</p>
-  </main>
-</div>
-`.trim(),
   },
   "/en/refunds": {
     lang: "en",
@@ -531,14 +224,6 @@ const preRenderPages: Record<
       `Refund & Returns Policy of ${businessInfo.name}.`,
       "en",
     ),
-    initialHtml: `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <main class="site-main max-w-4xl px-4 py-12 mx-auto w-full space-y-6">
-    <h1 class="text-3xl font-black text-[#17231f]">Refund &amp; Returns Policy</h1>
-    <p class="text-sm text-[#5f736d] leading-relaxed">Quality Promise: If any print arrives with manufacturing defects or shipping damage, we reprint and ship it free of charge.</p>
-  </main>
-</div>
-`.trim(),
   },
   "/nl/shipping-policy": {
     lang: "nl",
@@ -552,14 +237,6 @@ const preRenderPages: Record<
       `Verzendbeleid van ${businessInfo.name}.`,
       "nl",
     ),
-    initialHtml: `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <main class="site-main max-w-4xl px-4 py-12 mx-auto w-full space-y-6">
-    <h1 class="text-3xl font-black text-[#17231f]">Verzendbeleid &amp; Levering</h1>
-    <p class="text-sm text-[#5f736d] leading-relaxed">Wij leveren in heel Nederland met een gemiddelde doorlooptijd van 2 tot 5 werkdagen na orderbevestiging.</p>
-  </main>
-</div>
-`.trim(),
   },
   "/en/shipping-policy": {
     lang: "en",
@@ -573,14 +250,6 @@ const preRenderPages: Record<
       `Shipping policy of ${businessInfo.name}.`,
       "en",
     ),
-    initialHtml: `
-<div class="min-h-screen bg-[#f4f8f6] text-[#17231f] flex flex-col font-sans">
-  <main class="site-main max-w-4xl px-4 py-12 mx-auto w-full space-y-6">
-    <h1 class="text-3xl font-black text-[#17231f]">Shipping &amp; Delivery Policy</h1>
-    <p class="text-sm text-[#5f736d] leading-relaxed">We deliver across the Netherlands with an average turnaround time of 2 to 5 business days after order confirmation.</p>
-  </main>
-</div>
-`.trim(),
   },
 };
 
@@ -676,12 +345,21 @@ export default defineConfig(({ mode }) => {
             });
           }
         },
-        closeBundle() {
+        async closeBundle() {
           const distDir = path.resolve(process.cwd(), "dist");
           const indexHtmlPath = path.join(distDir, "index.html");
           if (!fs.existsSync(indexHtmlPath)) return;
 
           const baseHtml = fs.readFileSync(indexHtmlPath, "utf-8");
+
+          const { createServer } = await import("vite");
+          const renderVite = await createServer({
+            server: { middlewareMode: true },
+            appType: "custom",
+          });
+          const { renderPage } = (await renderVite.ssrLoadModule(
+            "/src/prerender.tsx",
+          )) as { renderPage: (url: string) => string };
 
           for (const [routePath, routeData] of Object.entries(preRenderPages)) {
             const pageDir = path.join(distDir, routePath.replace(/^\//, ""));
@@ -792,14 +470,17 @@ export default defineConfig(({ mode }) => {
               `<script type="application/ld+json" id="seo-jsonld">\n${JSON.stringify(routeData.jsonLd, null, 2)}\n    </script>`,
             );
 
-            // Replace #root inner HTML
+            // Replace #root inner HTML with dynamically rendered React page
+            const dynamicHtml = renderPage(routePath);
             pageHtml = pageHtml.replace(
               "<!--INITIAL_HTML-->",
-              routeData.initialHtml,
+              dynamicHtml,
             );
 
             fs.writeFileSync(path.join(pageDir, "index.html"), pageHtml, "utf-8");
           }
+
+          await renderVite.close();
 
           // Clean up root index.html
           fs.writeFileSync(
