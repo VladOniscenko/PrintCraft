@@ -11,19 +11,11 @@ export default function Home() {
       <Navbar />
       <main className="site-main px-2 sm:px-4 py-10 space-y-12">
         <Hero />
-        <div className="content-auto">
-          <ShowcaseGallery />
-        </div>
-        <div className="content-auto">
-          <MaterialFeatures />
-        </div>
-        <div className="content-auto">
-          <HomeSteps />
-        </div>
+        <ShowcaseGallery />
+        <MaterialFeatures />
+        <HomeSteps />
       </main>
-      <div className="content-auto">
-        <Footer />
-      </div>
+      <Footer />
     </div>
   );
 }

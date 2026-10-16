@@ -130,7 +130,10 @@ export default function Hero() {
           setCurrentIndex(0);
         }
       } catch (err) {
-        console.warn("Could not load dynamic hero slides from API, using fallback slides:", err);
+        console.warn(
+          "Could not load dynamic hero slides from API, using fallback slides:",
+          err,
+        );
       }
     }
 
@@ -195,7 +198,7 @@ export default function Hero() {
         timerRef.current = null;
       }
     };
-  }, [isPaused, nextSlide, totalSlides, currentIndex]);
+  }, [isPaused, nextSlide, totalSlides]);
 
   const handleInteractionStart = useCallback(() => {
     setIsPaused(true);
@@ -223,7 +226,9 @@ export default function Hero() {
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{isNl ? "Uitgelichte prints" : "Promotional Showcase"}</span>
+              <span>
+                {isNl ? "Uitgelichte prints" : "Promotional Showcase"}
+              </span>
             </span>
             <span className="text-xs font-mono text-emerald-200/60 tracking-wider">
               {String(currentIndex + 1).padStart(2, "0")} /{" "}
@@ -266,11 +271,17 @@ export default function Hero() {
                   onMouseLeave={() => setTooltipOpen(false)}
                   onFocus={() => setTooltipOpen(true)}
                   onBlur={() => setTooltipOpen(false)}
-                  aria-label={isNl ? "Instructies en printtips bekijken" : "View slide instructions and printing tips"}
+                  aria-label={
+                    isNl
+                      ? "Instructies en printtips bekijken"
+                      : "View slide instructions and printing tips"
+                  }
                   className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-emerald-100 bg-white/5 border border-emerald-500/25 hover:border-emerald-400/60 hover:bg-white/10 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
                 >
                   <HelpCircle className="w-4 h-4 text-emerald-400" />
-                  <span>{isNl ? "Print- & modelgids" : "Printing & Model Guide"}</span>
+                  <span>
+                    {isNl ? "Print- & modelgids" : "Printing & Model Guide"}
+                  </span>
                 </button>
 
                 {/* Floating Tooltip Card */}
@@ -281,7 +292,11 @@ export default function Hero() {
                   >
                     <div className="flex items-center gap-2 pb-2 mb-2 border-b border-emerald-500/20 font-semibold text-emerald-300">
                       <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>{isNl ? "Specificaties & Instructies" : "Specifications & Instructions"}</span>
+                      <span>
+                        {isNl
+                          ? "Specificaties & Instructies"
+                          : "Specifications & Instructions"}
+                      </span>
                     </div>
                     <p className="leading-relaxed text-emerald-100/90">
                       {slideTooltip}
@@ -300,7 +315,11 @@ export default function Hero() {
               to="/checkout"
               className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-emerald-500 to-teal-400 text-gray-950 hover:from-emerald-400 hover:to-teal-300 shadow-[0_8px_20px_rgba(16,185,129,0.35)] transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span>{isNl ? "Vraag een Offerte Aan" : (t("hero.ctaQuote") || "Get Instant 3D Quote")}</span>
+              <span>
+                {isNl
+                  ? "Vraag een Offerte Aan"
+                  : t("hero.ctaQuote") || "Get Instant 3D Quote"}
+              </span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -344,42 +363,57 @@ export default function Hero() {
               ) : (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-950/85 border border-teal-400/40 text-teal-300 backdrop-blur-md shadow-lg">
                   <ImageIcon className="w-3.5 h-3.5 text-teal-400" />
-                  <span>{isNl ? "Uitgelichte afbeelding" : "Promotional Image"}</span>
+                  <span>
+                    {isNl ? "Uitgelichte afbeelding" : "Promotional Image"}
+                  </span>
                 </span>
               )}
             </div>
 
             {/* CONDITIONAL MEDIA RENDERING */}
-            {currentSlide.mediaType === "model3d" ? (
-              // 3D Canvas rendering (Three.js)
-              <div className="relative w-full h-full flex items-center justify-center">
-                <Suspense
-                  fallback={
-                    <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
-                      <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
-                      <span>{isNl ? "3D weergave laden..." : "Loading 3D preview..."}</span>
-                    </div>
+            {/* 3D Canvas rendering (Three.js) - kept mounted across slides to preserve WebGL context */}
+            <div
+              className={`relative w-full h-full flex items-center justify-center ${
+                currentSlide.mediaType === "model3d" ? "" : "hidden"
+              }`}
+            >
+              <Suspense
+                fallback={
+                  <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
+                    <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
+                    <span>
+                      {isNl ? "3D weergave laden..." : "Loading 3D preview..."}
+                    </span>
+                  </div>
+                }
+              >
+                <HeroModelViewer
+                  src={
+                    currentSlide.mediaType === "model3d"
+                      ? resolveAssetUrl(currentSlide.mediaUrl)
+                      : ""
                   }
-                >
-                  <HeroModelViewer
-                    key={currentSlide.id + currentSlide.mediaUrl}
-                    src={resolveAssetUrl(currentSlide.mediaUrl)}
-                    className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
-                    onInteractionStart={handleInteractionStart}
-                    onInteractionEnd={handleInteractionEnd}
-                  />
-                </Suspense>
+                  className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
+                  onInteractionStart={handleInteractionStart}
+                  onInteractionEnd={handleInteractionEnd}
+                />
+              </Suspense>
 
-                {/* 3D Interactive Instruction Tag */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/60 text-emerald-200/90 border border-emerald-500/20 backdrop-blur-md shadow-sm">
-                    <RotateCcw className="w-3 h-3 text-emerald-400" />
-                    <span>{isNl ? "Sleep om te draaien · Scroll om te zoomen" : "Drag to rotate · Scroll to zoom"}</span>
+              {/* 3D Interactive Instruction Tag */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/60 text-emerald-200/90 border border-emerald-500/20 backdrop-blur-md shadow-sm">
+                  <RotateCcw className="w-3 h-3 text-emerald-400" />
+                  <span>
+                    {isNl
+                      ? "Sleep om te draaien · Scroll om te zoomen"
+                      : "Drag to rotate · Scroll to zoom"}
                   </span>
-                </div>
+                </span>
               </div>
-            ) : (
-              // Image tag rendering
+            </div>
+
+            {/* Image rendering for non-3D slides */}
+            {currentSlide.mediaType !== "model3d" && (
               <div className="relative w-full h-full flex items-center justify-center p-4">
                 {!imageError[currentSlide.id] ? (
                   <img
@@ -437,7 +471,9 @@ export default function Hero() {
         <div
           className="flex items-center justify-center gap-2.5 justify-self-center"
           role="tablist"
-          aria-label={isNl ? "Diavoorstelling paginering" : "Slideshow pagination"}
+          aria-label={
+            isNl ? "Diavoorstelling paginering" : "Slideshow pagination"
+          }
         >
           {slides.map((slide, idx) => {
             const isActive = idx === currentIndex;
@@ -449,11 +485,15 @@ export default function Hero() {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                aria-label={isNl ? `Ga naar dia ${idx + 1}: ${slideItemTitle}` : `Go to slide ${idx + 1}: ${slideItemTitle}`}
+                aria-label={
+                  isNl
+                    ? `Ga naar dia ${idx + 1}: ${slideItemTitle}`
+                    : `Go to slide ${idx + 1}: ${slideItemTitle}`
+                }
                 onClick={() => goToSlide(idx)}
-                className={`transition-all duration-300 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+                className={`transition-[width,background-color,opacity] duration-300 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
                   isActive
-                    ? "w-8 h-2.5 bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_12px_rgba(52,211,153,0.8)]"
+                    ? "w-8 h-2.5 bg-gradient-to-r from-emerald-400 to-teal-300 shadow-sm"
                     : "w-2.5 h-2.5 bg-white/25 hover:bg-white/50"
                 }`}
               />
@@ -469,7 +509,13 @@ export default function Hero() {
             }`}
           />
           <span className="text-right">
-            {isPaused ? (isNl ? "Gepauzeerd" : "Paused") : (isNl ? "Automatisch 5s" : "Auto 5s")}
+            {isPaused
+              ? isNl
+                ? "Gepauzeerd"
+                : "Paused"
+              : isNl
+                ? "Automatisch 5s"
+                : "Auto 5s"}
           </span>
         </div>
       </div>

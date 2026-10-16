@@ -30,6 +30,34 @@ function getExt(path: string): string {
   return (parts[parts.length - 1] ?? "").toLowerCase();
 }
 
+// Module-level geometry cache: keeps parsed STL geometries in memory so switching slides is instant
+const geometryCache = new Map<string, THREE.BufferGeometry>();
+
+function fitObject(
+  object: THREE.Object3D,
+  camera: THREE.PerspectiveCamera,
+  controls: OrbitControls,
+): void {
+  const box = new THREE.Box3().setFromObject(object);
+  const center = box.getCenter(new THREE.Vector3());
+  object.position.sub(center);
+
+  const fittedBox = new THREE.Box3().setFromObject(object);
+  const size = fittedBox.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z) || 1;
+  const fovInRadians = THREE.MathUtils.degToRad(camera.fov);
+  const cameraDistance = (maxDim * 0.5) / Math.tan(fovInRadians * 0.5);
+
+  camera.near = Math.max(0.01, cameraDistance / 200);
+  camera.far = Math.max(1000, cameraDistance * 30);
+  camera.updateProjectionMatrix();
+
+  controls.target.set(0, 0, 0);
+  camera.position.set(0, maxDim * 0.18, cameraDistance * 1.35);
+  camera.lookAt(controls.target);
+  controls.update();
+}
+
 export default function HeroModelViewer({
   src,
   className,
@@ -41,53 +69,65 @@ export default function HeroModelViewer({
   const ext = useMemo(() => getExt(src), [src]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const modelColor = useMemo(() => pickRandomColor(), [src]);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
+  );
 
   const onInteractionStartRef = useRef(onInteractionStart);
   onInteractionStartRef.current = onInteractionStart;
   const onInteractionEndRef = useRef(onInteractionEnd);
   onInteractionEndRef.current = onInteractionEnd;
 
-  useEffect(() => {
-    setStatus("loading");
-  }, [src]);
+  // Persistent Three.js scene references across slide transitions
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
+  const modelGroupRef = useRef<THREE.Group | null>(null);
+  const fillLightRef = useRef<THREE.DirectionalLight | null>(null);
 
+  // 1. One-time Setup: Initialize WebGLRenderer, Camera, Lights, OrbitControls, Animation Loop
   useEffect(() => {
-    const isSupported = ext === "stl" || ext === "" || ext === "model3d";
-    if (!isSupported || !canvasRef.current) {
-      setStatus("error");
-      return;
-    }
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
     let mounted = true;
+    let isVisible = true;
+    let isScrolling = false;
+    let scrollTimeout: number | null = null;
 
-    const canvas = canvasRef.current;
     const width = canvas.clientWidth || 560;
     const height = canvas.clientHeight || 360;
 
-    let isVisible = true;
+    // Viewport intersection observer to completely halt rendering when offscreen
     const observer = new IntersectionObserver(
       ([entry]) => {
         isVisible = entry?.isIntersecting ?? false;
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(canvas);
 
+    // Initialize WebGLRenderer with shader check disabled to eliminate synchronous GPU IPC pauses
     const renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
       alpha: true,
       powerPreference: "high-performance",
     });
+    // Critical fix: disable synchronous shader program linking info log queries that stall main thread
+    renderer.debug.checkShaderErrors = false;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(width, height, false);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    rendererRef.current = renderer;
 
     const scene = new THREE.Scene();
+    sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
     camera.position.set(0, 16, 34);
+    cameraRef.current = camera;
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -96,23 +136,27 @@ export default function HeroModelViewer({
     controls.enablePan = false;
     controls.target.set(0, 0, 0);
     controls.update();
+    controlsRef.current = controls;
 
     const handleStart = () => onInteractionStartRef.current?.();
     const handleEnd = () => onInteractionEndRef.current?.();
     controls.addEventListener("start", handleStart);
     controls.addEventListener("end", handleEnd);
 
-    let isScrolling = false;
-    let scrollTimeout: number | null = null;
+    // Scroll listener: pause WebGL render passes during page scroll to give 100% frame time to compositor
     const handleWindowScroll = () => {
       isScrolling = true;
-      if (scrollTimeout) window.clearTimeout(scrollTimeout);
+      if (scrollTimeout !== null) {
+        window.clearTimeout(scrollTimeout);
+      }
       scrollTimeout = window.setTimeout(() => {
         isScrolling = false;
-      }, 120);
+        scrollTimeout = null;
+      }, 140);
     };
     window.addEventListener("scroll", handleWindowScroll, { passive: true });
 
+    // Scene Lighting
     const keyLight = new THREE.DirectionalLight(0xffffff, 0.7);
     keyLight.position.set(18, 24, 14);
     scene.add(keyLight);
@@ -120,121 +164,175 @@ export default function HeroModelViewer({
     const fillLight = new THREE.DirectionalLight(modelColor, 1.05);
     fillLight.position.set(-18, 12, -10);
     scene.add(fillLight);
+    fillLightRef.current = fillLight;
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.18));
 
-    function fitObject(object: any): void {
-      const box = new THREE.Box3().setFromObject(object);
-      const center = box.getCenter(new THREE.Vector3());
-      object.position.sub(center);
-
-      const fittedBox = new THREE.Box3().setFromObject(object);
-      const size = fittedBox.getSize(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z) || 1;
-      const fovInRadians = THREE.MathUtils.degToRad(camera.fov);
-      const cameraDistance = (maxDim * 0.5) / Math.tan(fovInRadians * 0.5);
-
-      camera.near = Math.max(0.01, cameraDistance / 200);
-      camera.far = Math.max(1000, cameraDistance * 30);
-      camera.updateProjectionMatrix();
-
-      controls.target.set(0, 0, 0);
-      camera.position.set(0, maxDim * 0.18, cameraDistance * 1.35);
-      camera.lookAt(controls.target);
-      controls.update();
-    }
-
     const modelGroup = new THREE.Group();
     scene.add(modelGroup);
+    modelGroupRef.current = modelGroup;
 
-    if (ext === "stl" || ext === "" || ext === "model3d") {
-      const loader = new STLLoader();
-      loader.load(
-        src,
-        (geometry: any) => {
-          if (!mounted) return;
-
-          geometry.computeBoundingBox();
-          geometry.computeBoundingSphere();
-          const radius = geometry.boundingSphere?.radius ?? 0;
-          if (!Number.isFinite(radius) || radius <= 0) {
-            setStatus("error");
-            return;
-          }
-
-          geometry.center();
-          geometry.computeVertexNormals();
-
-          const material = new THREE.MeshStandardMaterial({
-            color: modelColor,
-            emissive: modelColor,
-            emissiveIntensity: 0.22,
-            metalness: 0.04,
-            roughness: 0.62,
-          });
-
-          const mesh = new THREE.Mesh(geometry, material);
-          mesh.rotation.x = -Math.PI / 2;
-          const normalizedScale = 8 / radius;
-          mesh.scale.setScalar(normalizedScale);
-
-          modelGroup.add(mesh);
-          fitObject(modelGroup);
-          setStatus("ready");
-        },
-        undefined,
-        () => {
-          if (!mounted) return;
-          setStatus("error");
-        },
-      );
-    }
-
+    // Render loop: halts during scroll or when hidden/offscreen
     let frameId = 0;
     const animate = () => {
       frameId = window.requestAnimationFrame(animate);
-      if (!isVisible || document.visibilityState === "hidden") {
+      if (!isVisible || isScrolling || document.visibilityState === "hidden") {
         return;
       }
-      if (!isScrolling) {
-        controls.update();
-      }
+      controls.update();
       renderer.render(scene, camera);
     };
     animate();
 
-    const onResize = () => {
-      const nextWidth = canvas.clientWidth || width;
-      const nextHeight = canvas.clientHeight || height;
-      camera.aspect = nextWidth / nextHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(nextWidth, nextHeight, false);
-    };
-    window.addEventListener("resize", onResize);
+    // ResizeObserver on canvas for responsive layout adjustments
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const cr = entry.contentRect;
+        const nextWidth = cr.width || width;
+        const nextHeight = cr.height || height;
+        if (nextWidth > 0 && nextHeight > 0) {
+          camera.aspect = nextWidth / nextHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(nextWidth, nextHeight, false);
+        }
+      }
+    });
+    resizeObserver.observe(canvas);
 
     return () => {
       mounted = false;
       observer.disconnect();
+      resizeObserver.disconnect();
       window.removeEventListener("scroll", handleWindowScroll);
-      if (scrollTimeout) window.clearTimeout(scrollTimeout);
-      window.removeEventListener("resize", onResize);
+      if (scrollTimeout !== null) window.clearTimeout(scrollTimeout);
       window.cancelAnimationFrame(frameId);
       controls.removeEventListener("start", handleStart);
       controls.removeEventListener("end", handleEnd);
       controls.dispose();
       renderer.dispose();
-      scene.traverse((obj: any) => {
+
+      // Clean up meshes in modelGroup
+      modelGroup.traverse((obj) => {
         if (obj instanceof THREE.Mesh) {
-          obj.geometry.dispose();
           if (Array.isArray(obj.material)) {
-            obj.material.forEach((m: any) => m.dispose());
+            obj.material.forEach((m) => m.dispose());
           } else {
             obj.material.dispose();
           }
         }
       });
+
+      rendererRef.current = null;
+      sceneRef.current = null;
+      cameraRef.current = null;
+      controlsRef.current = null;
+      modelGroupRef.current = null;
+      fillLightRef.current = null;
     };
-  }, [ext, modelColor, src]);
+  }, []);
+
+  // 2. Model Swap Effect: Only replaces geometry & material without tearing down WebGL context
+  useEffect(() => {
+    const isSupported = ext === "stl" || ext === "" || ext === "model3d";
+    if (!isSupported) {
+      setStatus("error");
+      return;
+    }
+
+    const modelGroup = modelGroupRef.current;
+    const camera = cameraRef.current;
+    const controls = controlsRef.current;
+    if (!modelGroup || !camera || !controls) {
+      return;
+    }
+
+    let active = true;
+
+    // Update fill light color for new slide palette
+    if (fillLightRef.current) {
+      fillLightRef.current.color.setHex(modelColor);
+    }
+
+    // Helper to display a loaded BufferGeometry
+    const applyGeometry = (geometry: THREE.BufferGeometry) => {
+      if (!active || !modelGroupRef.current) return;
+
+      // Clean previous meshes and their materials
+      while (modelGroup.children.length > 0) {
+        const child = modelGroup.children[0];
+        modelGroup.remove(child);
+        if (child instanceof THREE.Mesh) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach((m) => m.dispose());
+          } else {
+            child.material.dispose();
+          }
+        }
+      }
+
+      const radius = geometry.boundingSphere?.radius ?? 1;
+      const material = new THREE.MeshStandardMaterial({
+        color: modelColor,
+        emissive: modelColor,
+        emissiveIntensity: 0.22,
+        metalness: 0.04,
+        roughness: 0.62,
+      });
+
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.rotation.x = -Math.PI / 2;
+      const normalizedScale = 8 / (radius || 1);
+      mesh.scale.setScalar(normalizedScale);
+
+      modelGroup.add(mesh);
+      fitObject(modelGroup, camera, controls);
+      setStatus("ready");
+    };
+
+    // Check memory cache first
+    const cached = geometryCache.get(src);
+    if (cached) {
+      applyGeometry(cached);
+      return;
+    }
+
+    setStatus("loading");
+    const loader = new STLLoader();
+    loader.load(
+      src,
+      (geometry) => {
+        if (!active) {
+          geometry.dispose();
+          return;
+        }
+
+        geometry.computeBoundingBox();
+        geometry.computeBoundingSphere();
+        const radius = geometry.boundingSphere?.radius ?? 0;
+        if (!Number.isFinite(radius) || radius <= 0) {
+          setStatus("error");
+          geometry.dispose();
+          return;
+        }
+
+        geometry.center();
+        geometry.computeVertexNormals();
+
+        // Cache for subsequent slide cycles
+        geometryCache.set(src, geometry);
+        applyGeometry(geometry);
+      },
+      undefined,
+      () => {
+        if (!active) return;
+        setStatus("error");
+      },
+    );
+
+    return () => {
+      active = false;
+    };
+  }, [src, ext, modelColor]);
 
   return (
     <>
