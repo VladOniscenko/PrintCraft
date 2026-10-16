@@ -30,7 +30,7 @@ const materials = [
 ];
 
 export default function QuickQuoteFlow() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState<Draft | null>(() => {
@@ -126,7 +126,7 @@ export default function QuickQuoteFlow() {
   };
 
   const continueToOrder = () => {
-    navigate("/checkout");
+    navigate(localizePath("/checkout"));
   };
 
   const authenticate = async (event: React.FormEvent) => {
@@ -151,7 +151,7 @@ export default function QuickQuoteFlow() {
         });
       }
       setAuthOpen(false);
-      navigate("/checkout");
+      navigate(localizePath("/checkout"));
     } catch {
       setAuthError(
         authMode === "login"

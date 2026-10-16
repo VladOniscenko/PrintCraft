@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { businessInfo } from "../config/businessInfo";
 
 export default function FAQ() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const faqData = [
     { question: t("faq.q1"), answer: t("faq.a1") },
     { question: t("faq.q2"), answer: t("faq.a2") },
@@ -102,7 +102,7 @@ export default function FAQ() {
               <Mail size={16} />
               <span>{businessInfo.email}</span>
             </a>
-            <Link to="/checkout" className="site-btn-soft">
+            <Link to={localizePath("/checkout")} className="site-btn-soft">
               {t("hero.ctaQuote")}
             </Link>
           </div>

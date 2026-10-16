@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { businessInfo } from "../config/businessInfo";
 
 export default function Footer() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
 
   return (
     <footer className="site-footer mt-auto">
@@ -59,19 +59,19 @@ export default function Footer() {
 
       <div className="border-t border-[#dde9e4]">
         <div className="px-6 py-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[#637670]">
-          <Link to="/privacy" className="hover:text-[#0f766e]">
+          <Link to={localizePath("/privacy")} className="hover:text-[#0f766e]">
             {t("footer.privacy")}
           </Link>
-          <Link to="/terms" className="hover:text-[#0f766e]">
+          <Link to={localizePath("/terms")} className="hover:text-[#0f766e]">
             {t("footer.terms")}
           </Link>
-          <Link to="/refunds" className="hover:text-[#0f766e]">
+          <Link to={localizePath("/refunds")} className="hover:text-[#0f766e]">
             {t("footer.refunds")}
           </Link>
-          <Link to="/shipping-policy" className="hover:text-[#0f766e]">
+          <Link to={localizePath("/shipping-policy")} className="hover:text-[#0f766e]">
             {t("footer.shippingPolicy")}
           </Link>
-          <Link to="/faq" className="hover:text-[#0f766e]">
+          <Link to={localizePath("/faq")} className="hover:text-[#0f766e]">
             {t("footer.faq")}
           </Link>
         </div>

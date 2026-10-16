@@ -55,8 +55,28 @@ function removeCanonical() {
   }
 }
 
+function upsertHreflang(hreflang: string, href: string) {
+  let link = document.querySelector(
+    `link[rel='alternate'][hreflang="${hreflang}"]`,
+  ) as HTMLLinkElement | null;
+  if (!link) {
+    link = document.createElement("link");
+    link.setAttribute("rel", "alternate");
+    link.setAttribute("hreflang", hreflang);
+    document.head.appendChild(link);
+  }
+  link.href = href;
+}
+
+function removeHreflangs() {
+  const links = document.querySelectorAll(
+    "link[rel='alternate'][hreflang]",
+  );
+  links.forEach((link) => link.remove());
+}
+
 function upsertJsonLd(
-  pathname: string,
+  unlocalizedPath: string,
   canonicalUrl: string,
   language: "en" | "nl",
   pageTitle: string,
@@ -73,14 +93,14 @@ function upsertJsonLd(
   }
 
   let schemaGraph;
-  if (pathname === "/") {
+  if (unlocalizedPath === "/") {
     schemaGraph = buildHomepageJsonLd(
       canonicalUrl,
       pageTitle,
       pageDescription,
       language,
     );
-  } else if (pathname === "/faq") {
+  } else if (unlocalizedPath === "/faq") {
     schemaGraph = buildFaqJsonLd(
       canonicalUrl,
       pageTitle,
@@ -88,7 +108,9 @@ function upsertJsonLd(
       language,
     );
   } else if (
-    ["/privacy", "/terms", "/refunds", "/shipping-policy"].includes(pathname)
+    ["/privacy", "/terms", "/refunds", "/shipping-policy"].includes(
+      unlocalizedPath,
+    )
   ) {
     schemaGraph = buildStandardWebPageJsonLd(
       canonicalUrl,
@@ -109,12 +131,25 @@ function upsertJsonLd(
   document.head.appendChild(script);
 }
 
-export function normalizePathname(rawPath: string): string {
+export function parsePath(rawPath: string): {
+  urlLang: "en" | "nl" | null;
+  unlocalizedPath: string;
+} {
   const cleaned = rawPath.split("?")[0]?.split("#")[0]?.trim() || "/";
-  if (cleaned.length > 1 && cleaned.endsWith("/")) {
-    return cleaned.slice(0, -1).toLowerCase();
+  const segments = cleaned.split("/").filter(Boolean);
+
+  if (segments[0] === "en" || segments[0] === "nl") {
+    const urlLang = segments[0] as "en" | "nl";
+    const remainder = segments.slice(1).join("/").toLowerCase();
+    const unlocalizedPath = remainder ? `/${remainder}` : "/";
+    return { urlLang, unlocalizedPath };
   }
-  return cleaned.toLowerCase();
+
+  const normalized = segments.join("/").toLowerCase();
+  return {
+    urlLang: null,
+    unlocalizedPath: normalized ? `/${normalized}` : "/",
+  };
 }
 
 export default function SeoManager() {
@@ -122,11 +157,14 @@ export default function SeoManager() {
   const { t, language } = useI18n();
 
   useEffect(() => {
-    const isNl = language === "nl";
     const origin = getValidatedOrigin(businessInfo.website);
     const ogImage = `${origin}/uploads/hero/materials.svg`;
 
-    // 1. Static SEO definition for known public and internal routes
+    const { urlLang, unlocalizedPath } = parsePath(location.pathname);
+    const activeLang: "en" | "nl" = urlLang ?? language;
+    const isNl = activeLang === "nl";
+
+    // Static SEO dictionary indexed by unlocalized route
     const seoByRoute: Record<string, RouteSeo> = {
       "/": {
         title: isNl
@@ -192,14 +230,12 @@ export default function SeoManager() {
         keywords: "shipping policy, verzendbeleid, levertijd 3D printen Nederland",
         index: true,
       },
-      // Non-indexable transactional funnel
       "/checkout": {
         title: `${t("hero.ctaQuote") || (isNl ? "Offerte Aanvragen" : "Request a Quote")} | ${businessInfo.name}`,
         description: `${t("hero.ctaQuote") || "Quote"} ${businessInfo.name}`,
         keywords: "3D print quote",
         index: false,
       },
-      // Non-indexable auth routes
       "/login": {
         title: `${t("nav.logIn")} | ${businessInfo.name}`,
         description: `${t("nav.logIn")} ${businessInfo.name}`,
@@ -224,7 +260,6 @@ export default function SeoManager() {
         keywords: `${businessInfo.name} reset password`,
         index: false,
       },
-      // Authenticated user routes
       "/orders": {
         title: `${t("nav.myOrders")} | ${businessInfo.name}`,
         description: `${t("nav.myOrders")} ${businessInfo.name}`,
@@ -237,7 +272,6 @@ export default function SeoManager() {
         keywords: "profile",
         index: false,
       },
-      // Admin routes
       "/admin": {
         title: `${t("admin.nav.dashboard")} | ${businessInfo.name}`,
         description: `${t("admin.nav.dashboard")} ${businessInfo.name}`,
@@ -282,8 +316,6 @@ export default function SeoManager() {
       },
     };
 
-    const pathname = normalizePathname(location.pathname);
-
     const knownDynamicPatterns = [
       "/orders/:id",
       "/admin/orders/:id",
@@ -292,12 +324,12 @@ export default function SeoManager() {
     ];
 
     const isKnownDynamicRoute = knownDynamicPatterns.some((pattern) =>
-      Boolean(matchPath({ path: pattern, end: true }, pathname)),
+      Boolean(matchPath({ path: pattern, end: true }, unlocalizedPath)),
     );
 
     const isKnownExactRoute = Object.prototype.hasOwnProperty.call(
       seoByRoute,
-      pathname,
+      unlocalizedPath,
     );
 
     const isKnownRoute = isKnownExactRoute || isKnownDynamicRoute;
@@ -313,13 +345,13 @@ export default function SeoManager() {
       index: false,
     };
 
-    const isAdmin = pathname.startsWith("/admin");
-    const isOrderDetail = pathname.startsWith("/orders/");
+    const isAdmin = unlocalizedPath.startsWith("/admin");
+    const isOrderDetail = unlocalizedPath.startsWith("/orders/");
 
     const routeSeo: RouteSeo = !isKnownRoute
       ? notFoundSeo
       : isAdmin
-        ? (seoByRoute[pathname] || {
+        ? (seoByRoute[unlocalizedPath] || {
             title: `${t("breadcrumb.admin")} | ${businessInfo.name}`,
             description: `${t("breadcrumb.admin")} ${businessInfo.name}`,
             keywords: "admin",
@@ -327,13 +359,13 @@ export default function SeoManager() {
           })
         : isOrderDetail
           ? { ...seoByRoute["/orders"], index: false }
-          : seoByRoute[pathname] || notFoundSeo;
+          : seoByRoute[unlocalizedPath] || notFoundSeo;
 
-    // Set Document Language (always reflect active user language)
+    // Document language sync
     document.documentElement.lang = isNl ? "nl-NL" : "en";
     document.title = routeSeo.title;
 
-    // Robots meta directive
+    // Meta directives
     upsertMetaByName("description", routeSeo.description);
     upsertMetaByName("keywords", routeSeo.keywords);
     upsertMetaByName("author", businessInfo.name);
@@ -342,16 +374,25 @@ export default function SeoManager() {
       routeSeo.index ? "index, follow" : "noindex, nofollow",
     );
 
-    // Canonical handling: Only generate a canonical for verified, indexable routes.
-    // Prevent misleading canonical on 404s or private non-indexed pages.
-    const canonicalUrl = `${origin}${pathname === "/" ? "/" : pathname}`;
+    // Multilingual canonical and reciprocal hreflangs
+    const subRouteSuffix = unlocalizedPath === "/" ? "" : unlocalizedPath;
+    const canonicalUrl = `${origin}/${activeLang}${subRouteSuffix}`;
+
     if (routeSeo.index) {
       upsertCanonical(canonicalUrl);
+
+      // Reciprocal hreflangs
+      const nlAlternate = `${origin}/nl${subRouteSuffix}`;
+      const enAlternate = `${origin}/en${subRouteSuffix}`;
+      upsertHreflang("nl", nlAlternate);
+      upsertHreflang("en", enAlternate);
+      upsertHreflang("x-default", nlAlternate);
     } else {
       removeCanonical();
+      removeHreflangs();
     }
 
-    // Open Graph Metadata
+    // Open Graph
     upsertMetaByProperty("og:site_name", businessInfo.name);
     upsertMetaByProperty("og:title", routeSeo.title);
     upsertMetaByProperty("og:description", routeSeo.description);
@@ -360,7 +401,7 @@ export default function SeoManager() {
     upsertMetaByProperty("og:url", routeSeo.index ? canonicalUrl : origin);
     upsertMetaByProperty("og:image", ogImage);
 
-    // Twitter Card Metadata
+    // Twitter Card
     upsertMetaByName("twitter:card", "summary_large_image");
     upsertMetaByName("twitter:title", routeSeo.title);
     upsertMetaByName("twitter:description", routeSeo.description);
@@ -368,9 +409,9 @@ export default function SeoManager() {
 
     // Structured Data (JSON-LD)
     upsertJsonLd(
-      pathname,
+      unlocalizedPath,
       canonicalUrl,
-      language,
+      activeLang,
       routeSeo.title,
       routeSeo.description,
       routeSeo.index,

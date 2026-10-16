@@ -13,7 +13,7 @@ const heroModelLoaders = import.meta.glob("../assets/hero-models/*.stl", {
 }) as Record<string, () => Promise<unknown>>;
 
 export default function NotFound() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const [modelSrc, setModelSrc] = useState("");
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function NotFound() {
             </p>
 
             <div className="flex flex-wrap gap-3 pt-2">
-              <Link to="/" className="site-btn-primary gap-2">
+              <Link to={localizePath("/")} className="site-btn-primary gap-2">
                 <Home size={18} />
                 {t("notFound.backHome")}
               </Link>

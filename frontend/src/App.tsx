@@ -1,12 +1,13 @@
 import { Suspense, lazy, useEffect, useRef } from "react";
 import axios from "axios";
 import {
-  BrowserRouter,
   Navigate,
+  Outlet,
   Route,
   Routes,
   useLocation,
   useNavigate,
+  useParams,
 } from "react-router-dom";
 import SeoManager from "./components/SeoManager";
 import api from "./services/api";
@@ -76,13 +77,15 @@ const NotFound = lazy(() => import("./components/NotFound.tsx"));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
-  return token ? <>{children}</> : <Navigate to="/login" replace />;
+  const preferred = localStorage.getItem("language") === "en" ? "en" : "nl";
+  return token ? <>{children}</> : <Navigate to={`/${preferred}/login`} replace />;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
-  if (!token || !user) return <Navigate to="/login" replace />;
+  const preferred = localStorage.getItem("language") === "en" ? "en" : "nl";
+  if (!token || !user) return <Navigate to={`/${preferred}/login`} replace />;
 
   try {
     const parsed = JSON.parse(user);
@@ -90,7 +93,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   } catch {
     /* fall through */
   }
-  return <Navigate to="/" replace />;
+  return <Navigate to={`/${preferred}`} replace />;
 }
 
 function AuthSessionGuard() {
@@ -194,9 +197,36 @@ function ScrollToTop() {
   return null;
 }
 
+function RootLanguageRedirect() {
+  const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
+  const preferred = stored === "en" ? "en" : "nl";
+  return <Navigate to={`/${preferred}`} replace />;
+}
+
+function LegacyPathRedirect({ target }: { target: string }) {
+  const location = useLocation();
+  const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
+  const preferred = stored === "en" ? "en" : "nl";
+  const cleanTarget = target.startsWith("/") ? target : `/${target}`;
+  return (
+    <Navigate
+      to={`/${preferred}${cleanTarget === "/" ? "" : cleanTarget}${location.search}${location.hash}`}
+      replace
+    />
+  );
+}
+
+function LanguageRouteGuard() {
+  const { lang } = useParams<{ lang: string }>();
+  if (lang !== "en" && lang !== "nl") {
+    return <NotFound />;
+  }
+  return <Outlet />;
+}
+
 export default function App() {
   return (
-    <BrowserRouter>
+    <>
       <AuthSessionGuard />
       <VisitTracker />
       <ScrollToTop />
@@ -209,130 +239,165 @@ export default function App() {
         }
       >
         <Routes>
-          {/* Public Routes - Anyone can see these */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/refunds" element={<RefundPolicy />} />
-          <Route path="/shipping-policy" element={<ShippingPolicy />} />
-
-          {/* Private Routes - Only logged-in users can see these */}
-          <Route path="/quote" element={<Navigate to="/checkout" replace />} />
-          <Route path="/checkout" element={<Quote />} />
+          {/* Naked / Legacy Route Redirects (automatically redirect to active/preferred language) */}
+          <Route path="/" element={<RootLanguageRedirect />} />
+          <Route path="/faq" element={<LegacyPathRedirect target="/faq" />} />
+          <Route path="/checkout" element={<LegacyPathRedirect target="/checkout" />} />
+          <Route path="/quote" element={<LegacyPathRedirect target="/checkout" />} />
+          <Route path="/privacy" element={<LegacyPathRedirect target="/privacy" />} />
+          <Route path="/terms" element={<LegacyPathRedirect target="/terms" />} />
+          <Route path="/refunds" element={<LegacyPathRedirect target="/refunds" />} />
           <Route
-            path="/orders"
-            element={
-              <ProtectedRoute>
-                <Orders />
-              </ProtectedRoute>
-            }
+            path="/shipping-policy"
+            element={<LegacyPathRedirect target="/shipping-policy" />}
+          />
+          <Route path="/login" element={<LegacyPathRedirect target="/login" />} />
+          <Route path="/signup" element={<LegacyPathRedirect target="/signup" />} />
+          <Route
+            path="/forgot-password"
+            element={<LegacyPathRedirect target="/forgot-password" />}
           />
           <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
+            path="/reset-password"
+            element={<LegacyPathRedirect target="/reset-password" />}
           />
+          <Route path="/orders" element={<LegacyPathRedirect target="/orders" />} />
+          <Route path="/profile" element={<LegacyPathRedirect target="/profile" />} />
           <Route
             path="/orders/:id"
-            element={
-              <ProtectedRoute>
-                <OrderDetail />
-              </ProtectedRoute>
-            }
+            element={<LegacyPathRedirect target="/orders" />}
           />
+          <Route path="/admin" element={<LegacyPathRedirect target="/admin" />} />
 
-          <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/orders"
-            element={
-              <AdminRoute>
-                <AdminOrders />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/orders/:id"
-            element={
-              <AdminRoute>
-                <AdminOrderDetail />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/users/:id"
-            element={
-              <AdminRoute>
-                <AdminUserDetail />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/models"
-            element={
-              <AdminRoute>
-                <ModelFilesBrowser />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/models/view/:fileName"
-            element={
-              <AdminRoute>
-                <AdminUploadedModelViewerPage />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/payments"
-            element={
-              <AdminRoute>
-                <AdminPayments />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <AdminRoute>
-                <AdminUsers />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/filaments"
-            element={
-              <AdminRoute>
-                <AdminFilaments />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/hero-slides"
-            element={
-              <AdminRoute>
-                <AdminHeroSlides />
-              </AdminRoute>
-            }
-          />
+          {/* Localized Routes: /:lang/... */}
+          <Route path="/:lang" element={<LanguageRouteGuard />}>
+            <Route index element={<Home />} />
+            <Route path="faq" element={<FAQ />} />
+            <Route path="privacy" element={<PrivacyPolicy />} />
+            <Route path="terms" element={<TermsOfService />} />
+            <Route path="refunds" element={<RefundPolicy />} />
+            <Route path="shipping-policy" element={<ShippingPolicy />} />
+
+            <Route path="quote" element={<Navigate to="../checkout" replace />} />
+            <Route path="checkout" element={<Quote />} />
+
+            <Route path="login" element={<Login />} />
+            <Route path="signup" element={<Signup />} />
+            <Route path="forgot-password" element={<ForgotPassword />} />
+            <Route path="reset-password" element={<ResetPassword />} />
+
+            <Route
+              path="orders"
+              element={
+                <ProtectedRoute>
+                  <Orders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="orders/:id"
+              element={
+                <ProtectedRoute>
+                  <OrderDetail />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/orders"
+              element={
+                <AdminRoute>
+                  <AdminOrders />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/orders/:id"
+              element={
+                <AdminRoute>
+                  <AdminOrderDetail />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/users/:id"
+              element={
+                <AdminRoute>
+                  <AdminUserDetail />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/models"
+              element={
+                <AdminRoute>
+                  <ModelFilesBrowser />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/models/view/:fileName"
+              element={
+                <AdminRoute>
+                  <AdminUploadedModelViewerPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/payments"
+              element={
+                <AdminRoute>
+                  <AdminPayments />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/users"
+              element={
+                <AdminRoute>
+                  <AdminUsers />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/filaments"
+              element={
+                <AdminRoute>
+                  <AdminFilaments />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/hero-slides"
+              element={
+                <AdminRoute>
+                  <AdminHeroSlides />
+                </AdminRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+
+          {/* Catch-all for any other unmatched routes */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
-    </BrowserRouter>
+    </>
   );
 }

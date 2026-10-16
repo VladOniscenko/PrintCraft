@@ -26,7 +26,7 @@ const Navbar = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { t, language, setLanguage, languageOptions } = useI18n();
+  const { t, language, setLanguage, languageOptions, localizePath } = useI18n();
 
   // Check if user is logged in on mount and whenever the component updates or storage changes
   useEffect(() => {
@@ -57,26 +57,33 @@ const Navbar = () => {
     localStorage.removeItem("user");
     setIsLoggedIn(false);
     setUserRole(null);
-    navigate("/");
+    navigate(localizePath("/"));
   };
 
   const navLinks: Array<{ name: string; path: string }> = [
-    { name: t("nav.home"), path: "/" },
-    { name: t("nav.faq"), path: "/faq" },
-    { name: t("hero.ctaQuote"), path: "/checkout" },
+    { name: t("nav.home"), path: localizePath("/") },
+    { name: t("nav.faq"), path: localizePath("/faq") },
+    { name: t("hero.ctaQuote"), path: localizePath("/checkout") },
   ];
 
   // If logged in, add "My Orders" and admin dashboard (for admins) to the navigation
   const visibleLinks = isLoggedIn
     ? [
         ...navLinks,
-        { name: t("nav.myOrders"), path: "/orders" },
-        { name: t("nav.myProfile"), path: "/profile" },
+        { name: t("nav.myOrders"), path: localizePath("/orders") },
+        { name: t("nav.myProfile"), path: localizePath("/profile") },
         ...(userRole === "admin"
-          ? [{ name: t("nav.admin"), path: "/admin" }]
+          ? [{ name: t("nav.admin"), path: localizePath("/admin") }]
           : []),
       ]
     : navLinks;
+
+  const isLinkActive = (path: string) => {
+    if (path === localizePath("/")) {
+      return pathname === path || pathname === `${path}/`;
+    }
+    return pathname === path || pathname.startsWith(`${path}/`);
+  };
 
   return (
     <nav className="site-navbar px-5 py-3.5 flex items-center justify-between">
@@ -91,7 +98,7 @@ const Navbar = () => {
             onMouseEnter={() => prefetchRoute(link.path)}
             onFocus={() => prefetchRoute(link.path)}
             className={`rounded-lg px-3 py-2 transition-colors ${
-              pathname === link.path || pathname.startsWith(`${link.path}/`)
+              isLinkActive(link.path)
                 ? "bg-[#ecf6f2] text-[#0f766e]"
                 : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
             }`}
@@ -121,9 +128,9 @@ const Navbar = () => {
         {!isLoggedIn ? (
           <>
             <Link
-              to="/login"
-              onMouseEnter={() => prefetchRoute("/login")}
-              onFocus={() => prefetchRoute("/login")}
+              to={localizePath("/login")}
+              onMouseEnter={() => prefetchRoute(localizePath("/login"))}
+              onFocus={() => prefetchRoute(localizePath("/login"))}
               className="site-btn-soft"
             >
               {t("nav.logIn")}
@@ -158,7 +165,7 @@ const Navbar = () => {
               key={link.name}
               to={link.path}
               className={`font-medium py-2 px-2 rounded-lg ${
-                pathname === link.path || pathname.startsWith(`${link.path}/`)
+                isLinkActive(link.path)
                   ? "bg-[#ecf6f2] text-[#0f766e]"
                   : "text-[#3d534c]"
               }`}
@@ -187,7 +194,7 @@ const Navbar = () => {
 
           {!isLoggedIn ? (
             <Link
-              to="/login"
+              to={localizePath("/login")}
               onClick={() => setIsOpen(false)}
               className="site-btn-soft w-full"
             >

@@ -1,4 +1,11 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   languageOptions,
   translations,
@@ -10,17 +17,29 @@ type I18nContextType = {
   setLanguage: (language: SupportedLanguage) => void;
   t: (key: string, vars?: Record<string, string | number>) => string;
   languageOptions: typeof languageOptions;
+  localizePath: (path: string) => string;
 };
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 const STORAGE_KEY = "language";
 
-function getInitialLanguage(): SupportedLanguage {
+export function getInitialLanguage(): SupportedLanguage {
+  if (typeof window === "undefined") return "nl";
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  if (pathParts[0] === "en" || pathParts[0] === "nl") {
+    return pathParts[0];
+  }
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "nl" || stored === "en") return stored;
 
-  // Default to Dutch (NL) — primary language for the shop
+  if (
+    typeof navigator !== "undefined" &&
+    navigator.language &&
+    navigator.language.startsWith("en")
+  ) {
+    return "en";
+  }
   return "nl";
 }
 
@@ -42,30 +61,72 @@ function getNestedTranslation(
 }
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] =
-    useState<SupportedLanguage>(getInitialLanguage);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const setLanguage = (nextLanguage: SupportedLanguage) => {
-    setLanguageState(nextLanguage);
-    localStorage.setItem(STORAGE_KEY, nextLanguage);
-  };
+  // Extract language from URL path: /nl/... or /en/...
+  const pathParts = location.pathname.split("/").filter(Boolean);
+  const urlLang: SupportedLanguage | null =
+    pathParts[0] === "en" || pathParts[0] === "nl" ? pathParts[0] : null;
+
+  const stored =
+    typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+  const storedLang: SupportedLanguage = stored === "en" ? "en" : "nl";
+
+  // Active language prioritizes URL segment if valid, otherwise stored preference
+  const language: SupportedLanguage = urlLang ?? storedLang;
+
+  // Sync localStorage whenever a valid language appears in the URL
+  useEffect(() => {
+    if (urlLang) {
+      localStorage.setItem(STORAGE_KEY, urlLang);
+    }
+  }, [urlLang]);
+
+  const setLanguage = useCallback(
+    (nextLanguage: SupportedLanguage) => {
+      localStorage.setItem(STORAGE_KEY, nextLanguage);
+
+      const parts = location.pathname.split("/").filter(Boolean);
+      if (parts[0] === "en" || parts[0] === "nl") {
+        parts[0] = nextLanguage;
+      } else {
+        parts.unshift(nextLanguage);
+      }
+      const nextPath = "/" + parts.join("/");
+      navigate(nextPath + location.search + location.hash);
+    },
+    [location.pathname, location.search, location.hash, navigate],
+  );
+
+  const localizePath = useCallback(
+    (targetPath: string): string => {
+      const cleanTarget = targetPath.trim();
+      if (!cleanTarget || cleanTarget === "/") {
+        return `/${language}`;
+      }
+      const parts = cleanTarget.split("/").filter(Boolean);
+      if (parts[0] === "en" || parts[0] === "nl") {
+        parts[0] = language;
+        return "/" + parts.join("/");
+      }
+      return `/${language}/${parts.join("/")}`;
+    },
+    [language],
+  );
 
   const t = useCallback(
     (key: string, vars?: Record<string, string | number>): string => {
-      // 1. Try to find the key in the current language
       let value = getNestedTranslation(translations[language], key);
 
-      // 2. Fallback to English if it's missing in the current language
       if (!value) {
         value = getNestedTranslation(translations.en, key);
       }
 
-      // 3. SAFE HIGHLIGHT: Return a string that stands out
       if (!value) {
         return `🔴 [${key}]`;
       }
 
-      // 4. Interpolate variables if provided (e.g. {count})
       if (vars) {
         for (const [varKey, varVal] of Object.entries(vars)) {
           value = value.replaceAll(`{${varKey}}`, String(varVal));
@@ -78,8 +139,8 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ language, setLanguage, t, languageOptions }),
-    [language, t],
+    () => ({ language, setLanguage, t, languageOptions, localizePath }),
+    [language, setLanguage, t, localizePath],
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;

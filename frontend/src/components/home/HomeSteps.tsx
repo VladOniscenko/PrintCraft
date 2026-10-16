@@ -24,7 +24,7 @@ const steps = [
 ];
 
 export default function HomeSteps() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   return (
     <section className="space-y-7">
       <div>
@@ -52,7 +52,7 @@ export default function HomeSteps() {
       </div>
       <div className="flex justify-center pt-2">
         <Link
-          to="/checkout"
+          to={localizePath("/checkout")}
           className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-500 hover:to-teal-500 shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           <span>{t("hero.ctaQuote")}</span>

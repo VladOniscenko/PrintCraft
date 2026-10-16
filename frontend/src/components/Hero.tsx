@@ -108,7 +108,7 @@ const FALLBACK_SLIDES: HeroSlide[] = [
 const AUTOPLAY_INTERVAL_MS = 5000;
 
 export default function Hero() {
-  const { t, language } = useI18n();
+  const { t, language, localizePath } = useI18n();
   const [slides, setSlides] = useState<HeroSlide[]>(FALLBACK_SLIDES);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -297,14 +297,14 @@ export default function Hero() {
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <Link
-              to="/checkout"
+              to={localizePath("/checkout")}
               className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-emerald-500 to-teal-400 text-gray-950 hover:from-emerald-400 hover:to-teal-300 shadow-[0_8px_20px_rgba(16,185,129,0.35)] transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>{isNl ? "Vraag een Offerte Aan" : (t("hero.ctaQuote") || "Get Instant 3D Quote")}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              to="/faq"
+              to={localizePath("/faq")}
               className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-semibold text-sm bg-white/10 hover:bg-white/15 border border-white/20 text-white transition-all hover:scale-[1.02]"
             >
               <span>{isNl ? "Bekijk FAQ" : "View FAQ"}</span>

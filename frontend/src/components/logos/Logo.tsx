@@ -1,7 +1,7 @@
-// src/components/Logo.tsx
 import React from "react";
 import { Link } from "react-router-dom";
 import { businessInfo } from "../../config/businessInfo";
+import { useI18n } from "../../i18n/I18nContext";
 
 interface LogoProps {
   // Allows you to add custom classes to style the container (e.g., margins, alignment)
@@ -11,6 +11,8 @@ interface LogoProps {
 }
 
 const Logo: React.FC<LogoProps> = ({ className = "", isLink = true }) => {
+  const { localizePath } = useI18n();
+
   // 1. The core content of the logo (icon + text)
   const content = (
     <div className={`flex items-center gap-3 ${className}`}>
@@ -37,7 +39,7 @@ const Logo: React.FC<LogoProps> = ({ className = "", isLink = true }) => {
   // 2. If isLink is true, wrap the content in a Link to home ('/')
   if (isLink) {
     return (
-      <Link to="/" className="hover:opacity-80 transition-opacity block">
+      <Link to={localizePath("/")} className="hover:opacity-80 transition-opacity block">
         {content}
       </Link>
     );

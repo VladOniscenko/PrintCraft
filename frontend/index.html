@@ -2,6 +2,13 @@
 <html lang="nl-NL">
   <head>
     <meta charset="UTF-8" />
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-MLLN6P8F');</script>
+    <!-- End Google Tag Manager -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,6 +31,24 @@
     <meta property="og:site_name" content="__BUSINESS_NAME__" />
     <link rel="canonical" href="__BUSINESS_HOME_URL__" />
     <meta property="og:url" content="__BUSINESS_HOME_URL__" />
+    <link rel="alternate" hreflang="nl" href="__BUSINESS_ALTERNATE_NL__" />
+    <link rel="alternate" hreflang="en" href="__BUSINESS_ALTERNATE_EN__" />
+    <link rel="alternate" hreflang="x-default" href="__BUSINESS_ALTERNATE_DEFAULT__" />
+    <noscript>
+      <meta http-equiv="refresh" content="0;url=/nl" />
+    </noscript>
+    <script>
+      (function() {
+        try {
+          var p = window.location.pathname;
+          if (p === "/" || p === "") {
+            var lang = localStorage.getItem("language");
+            var target = (lang === "en" ? "/en" : "/nl") + window.location.search + window.location.hash;
+            window.location.replace(target);
+          }
+        } catch(e) {}
+      })();
+    </script>
     <meta name="theme-color" content="#133827" />
 
     <meta property="og:type" content="website" />
@@ -55,6 +80,10 @@ __BUSINESS_HOMEPAGE_JSONLD__
     </script>
   </head>
   <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MLLN6P8F"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <div id="root">__INITIAL_HTML__</div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
