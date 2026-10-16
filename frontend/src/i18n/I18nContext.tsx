@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import {
   languageOptions,
   translations,
@@ -8,7 +14,7 @@ import {
 type I18nContextType = {
   language: SupportedLanguage;
   setLanguage: (language: SupportedLanguage) => void;
-  t: (key: string) => string;
+  t: (key: string, vars?: Record<string, string | number>) => string;
   languageOptions: typeof languageOptions;
 };
 
@@ -50,22 +56,36 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY, nextLanguage);
   };
 
-  const t = (key: string): string => {
-    // 1. Try to find the key in the current language
-    const primaryValue = getNestedTranslation(translations[language], key);
-    if (primaryValue) return primaryValue;
+  const t = useCallback(
+    (key: string, vars?: Record<string, string | number>): string => {
+      // 1. Try to find the key in the current language
+      let value = getNestedTranslation(translations[language], key);
 
-    // 2. Fallback to English if it's missing in the current language
-    const fallbackValue = getNestedTranslation(translations.en, key);
-    if (fallbackValue) return fallbackValue;
+      // 2. Fallback to English if it's missing in the current language
+      if (!value) {
+        value = getNestedTranslation(translations.en, key);
+      }
 
-    // 3. SAFE HIGHLIGHT: Return a string that stands out
-    return `🔴 [${key}]`;
-  };
+      // 3. SAFE HIGHLIGHT: Return a string that stands out
+      if (!value) {
+        return `🔴 [${key}]`;
+      }
+
+      // 4. Interpolate variables if provided (e.g. {count})
+      if (vars) {
+        for (const [varKey, varVal] of Object.entries(vars)) {
+          value = value.replaceAll(`{${varKey}}`, String(varVal));
+        }
+      }
+
+      return value;
+    },
+    [language],
+  );
 
   const value = useMemo(
     () => ({ language, setLanguage, t, languageOptions }),
-    [language],
+    [language, t],
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
