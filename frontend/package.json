@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/prerender.mjs",
-    "prerender": "node scripts/prerender.mjs",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "lint:i18n": "eslint --config eslint.i18n.config.js src",
     "check:i18n:keys": "node scripts/check-i18n.cjs",

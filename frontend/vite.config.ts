@@ -70,10 +70,6 @@ ${publicIndexableRoutes
   },
 };
 
-
-
-
-
 export default defineConfig(({ mode }) => {
   const frontendEnv = loadEnv(mode, process.cwd(), "");
   const rootEnv = loadEnv(mode, path.resolve(process.cwd(), ".."), "");
@@ -135,8 +131,6 @@ export default defineConfig(({ mode }) => {
             __BUSINESS_ALTERNATE_DEFAULT__: `${origin}/nl`,
             __BUSINESS_OG_IMAGE__: `${origin}/uploads/hero/materials.svg`,
             __BUSINESS_HOMEPAGE_JSONLD__: homepageJsonLdString,
-            __INITIAL_HTML__:
-              mode === "production" ? "<!--INITIAL_HTML-->" : "",
           };
           for (const [token, value] of Object.entries(values)) {
             html = html.replaceAll(token, value);
