@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Clock3, ArrowRight, ExternalLink } from "lucide-react";
+import { Phone, MapPin, Clock3, ArrowRight, ExternalLink } from "lucide-react";
 import { useI18n } from "../i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { businessInfo } from "../config/businessInfo";
@@ -96,13 +96,11 @@ export default function Footer() {
           <p className="font-semibold text-[#1b2c26] mb-1">
             {t("footer.contact")}
           </p>
-          <a
-            href={`mailto:${businessInfo.email}`}
-            className="flex items-center gap-2 hover:text-[#0f766e]"
-          >
-            <Mail size={16} />
-            <span dangerouslySetInnerHTML={{ __html: `<!--email_off-->${businessInfo.email}<!--/email_off-->` }} />
-          </a>
+          <div
+            dangerouslySetInnerHTML={{
+              __html: `<!--email_off--><a href="mailto:${businessInfo.email}" class="flex items-center gap-2 hover:text-[#0f766e]"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><span>${businessInfo.email}</span></a><!--/email_off-->`,
+            }}
+          />
           {businessInfo.phone && (
             <a
               href={businessInfo.phoneHref}

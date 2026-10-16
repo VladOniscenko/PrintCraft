@@ -285,6 +285,7 @@ export default defineConfig(({ mode }) => {
     ],
     build: {
       sourcemap: true,
+      modulePreload: false,
       rollupOptions: {
         output: {
           manualChunks(id) {
