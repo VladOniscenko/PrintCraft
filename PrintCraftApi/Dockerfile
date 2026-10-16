@@ -11,7 +11,8 @@ RUN dotnet publish "PrintCraftApi.csproj" -c Release -o /app/publish /p:UseAppHo
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_URLS=http://+:5001
+ENV ASPNETCORE_HTTP_PORTS=5001
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 RUN apt-get update && \
@@ -20,5 +21,5 @@ RUN apt-get update && \
 
 COPY --from=build /app/publish .
 
-EXPOSE 8080
+EXPOSE 5001
 ENTRYPOINT ["dotnet", "PrintCraftApi.dll"]
