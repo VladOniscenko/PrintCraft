@@ -157,25 +157,15 @@ export default function Profile() {
   };
 
   const handleDeleteAddress = async (id: string) => {
-    if (
-      !window.confirm(
-        t("profile.deleteConfirm") ||
-          "Are you sure you want to delete this address?",
-      )
-    )
-      return;
+    if (!window.confirm(t("profile.deleteConfirm"))) return;
 
     try {
       await api.delete(`/me/addresses/${id}`);
       await fetchProfileData();
-      notifySuccess(t("profile.addressDeleted") || "Address deleted.");
+      notifySuccess(t("profile.addressDeleted"));
     } catch (error: any) {
       const backendMessage = error?.response?.data?.message;
-      notifyError(
-        backendMessage ||
-          t("profile.deleteError") ||
-          "Failed to delete address.",
-      );
+      notifyError(backendMessage || t("profile.deleteError"));
       console.error(error);
     }
   };
@@ -184,10 +174,10 @@ export default function Profile() {
     try {
       await api.put(`/me/addresses/${id}/default`);
       await fetchProfileData();
-      notifySuccess(t("profile.updateSuccess") || "Default address updated.");
+      notifySuccess(t("profile.defaultAddressSuccess"));
     } catch (error: any) {
       const backendMessage = error?.response?.data?.message;
-      notifyError(backendMessage || "Failed to update default address.");
+      notifyError(backendMessage || t("profile.updateDefaultError"));
       console.error(error);
     }
   };
@@ -299,7 +289,7 @@ export default function Profile() {
                       <MapPin size={20} className="text-emerald-600" />
                     </div>
                     <h2 className="text-lg font-bold text-gray-900">
-                      {t("profile.addressBook") || "Address Book"}
+                      {t("profile.addressBook")}
                     </h2>
                   </div>
                   {!isAddressFormOpen && (
@@ -308,7 +298,7 @@ export default function Profile() {
                       className="flex items-center gap-2 text-sm font-bold text-emerald-700 bg-emerald-50 px-4 py-2 rounded-lg hover:bg-emerald-100 transition-colors"
                     >
                       <Plus size={16} />{" "}
-                      {t("profile.addNewAddress") || "Add New"}
+                      {t("profile.addNewAddress")}
                     </button>
                   )}
                 </div>
@@ -320,13 +310,12 @@ export default function Profile() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label className="text-sm font-bold text-gray-700">
-                            {t("profile.addressLabel") ||
-                              "Label (e.g., Home, Work)"}
+                            {t("profile.addressLabel")}
                           </label>
                           <input
                             type="text"
                             name="label"
-                            placeholder="Home"
+                            placeholder={t("profile.labelPlaceholder")}
                             value={currentAddress.label}
                             onChange={handleAddressChange}
                             className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all outline-none"
@@ -424,7 +413,7 @@ export default function Profile() {
                           onClick={closeAddressForm}
                           className="flex-1 bg-gray-100 text-gray-700 px-6 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-all"
                         >
-                          {t("profile.cancel") || "Cancel"}
+                          {t("profile.cancel")}
                         </button>
                         <button
                           type="submit"
@@ -450,8 +439,7 @@ export default function Profile() {
                             className="mx-auto text-gray-200 mb-3"
                           />
                           <p className="text-gray-500">
-                            {t("profile.noAddresses") ||
-                              "No addresses saved yet."}
+                            {t("profile.noAddresses")}
                           </p>
                         </div>
                       ) : (
@@ -464,12 +452,12 @@ export default function Profile() {
                               <div>
                                 <div className="flex items-center gap-3 mb-1">
                                   <h4 className="font-bold text-gray-900">
-                                    {address.label || "Address"}
+                                    {address.label || t("profile.defaultAddressLabel")}
                                   </h4>
                                   {address.isDefault && (
                                     <span className="bg-emerald-100 text-emerald-800 text-[10px] uppercase font-black px-2 py-0.5 rounded-md flex items-center gap-1">
                                       <Star size={10} fill="currentColor" />{" "}
-                                      {t("profile.defaultBadge") || "Default"}
+                                      {t("profile.defaultBadge")}
                                     </span>
                                   )}
                                 </div>
@@ -510,7 +498,7 @@ export default function Profile() {
                                     }
                                     className="text-xs font-bold text-gray-400 hover:text-gray-900 underline underline-offset-2"
                                   >
-                                    {t("profile.makeDefault") || "Make Default"}
+                                    {t("profile.makeDefault")}
                                   </button>
                                 )}
                               </div>

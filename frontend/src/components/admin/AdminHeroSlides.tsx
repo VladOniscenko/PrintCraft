@@ -27,6 +27,7 @@ import api, {
 import type { HeroMediaType, HeroSlide } from "../../types";
 import { resolveAssetUrl } from "../../utils/assetUrl";
 import { useNotify } from "../../context/NotifyContext";
+import { useI18n } from "../../i18n/I18nContext";
 
 const HeroModelViewer = lazy(() => import("../HeroModelViewer"));
 
@@ -71,6 +72,7 @@ function Model3dPreviewModal({
   modelUrl: string | null;
   title?: string;
 }) {
+  const { t } = useI18n();
   if (!isOpen || !modelUrl) return null;
 
   return (
@@ -83,7 +85,7 @@ function Model3dPreviewModal({
             </div>
             <div>
               <h3 className="text-base font-bold text-gray-900">
-                {title || "3D Model Preview"}
+                {title || t("admin.heroSlides.preview3d")}
               </h3>
               <p className="text-xs text-gray-500 font-mono truncate max-w-md">
                 {modelUrl}
@@ -103,7 +105,7 @@ function Model3dPreviewModal({
             fallback={
               <div className="w-full h-full flex items-center justify-center text-white gap-2">
                 <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
-                <span className="text-sm">Loading 3D renderer...</span>
+                <span className="text-sm">{t("admin.heroSlides.loading3dRenderer")}</span>
               </div>
             }
           >
@@ -114,7 +116,7 @@ function Model3dPreviewModal({
           </Suspense>
           <div className="absolute bottom-3 left-3 right-3 text-center pointer-events-none">
             <span className="bg-black/50 text-white/90 text-xs px-3 py-1 rounded-full backdrop-blur-xs">
-              Interactive 3D: drag to rotate 360°, scroll to zoom
+              {t("admin.heroSlides.interactiveInstructions")}
             </span>
           </div>
         </div>
@@ -124,7 +126,7 @@ function Model3dPreviewModal({
             onClick={onClose}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-sm font-medium"
           >
-            Close Preview
+            {t("admin.heroSlides.closePreview")}
           </button>
         </div>
       </div>
@@ -149,6 +151,7 @@ function MediaSelectorModal({
   onPreview3d: (url: string, title?: string) => void;
 }) {
   const { notifyError, notifySuccess } = useNotify();
+  const { t } = useI18n();
   const [files, setFiles] = useState<UploadedFileItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -163,7 +166,7 @@ function MediaSelectorModal({
       setFiles(data);
     } catch (err) {
       console.error(err);
-      notifyError("Failed to load uploaded files list.");
+      notifyError(t("admin.heroSlides.failedLoadFiles"));
     } finally {
       setLoading(false);
     }
@@ -182,7 +185,9 @@ function MediaSelectorModal({
     setUploading(true);
     try {
       const res = await uploadHeroMedia(file);
-      notifySuccess(`Uploaded "${file.name}" successfully.`);
+      notifySuccess(
+        t("admin.heroSlides.uploadedFileSuccess", { fileName: file.name }),
+      );
       await fetchFiles();
       // Auto-select the newly uploaded file
       const inferredType = res.mediaType || detectMediaType(res.url);
@@ -220,10 +225,10 @@ function MediaSelectorModal({
         <div className="flex items-center justify-between pb-3 border-b shrink-0">
           <div>
             <h3 className="text-lg font-bold text-gray-900">
-              Select from Uploaded Files
+              {t("admin.heroSlides.selectFromUploads")}
             </h3>
             <p className="text-xs text-gray-500">
-              Choose an existing 3D model or image asset, or upload a new file.
+              {t("admin.heroSlides.selectFromUploadsDesc")}
             </p>
           </div>
           <button
@@ -256,7 +261,7 @@ function MediaSelectorModal({
               ) : (
                 <Upload size={14} />
               )}
-              <span>{uploading ? "Uploading File..." : "Upload New File"}</span>
+              <span>{uploading ? t("admin.heroSlides.uploadingFile") : t("admin.heroSlides.uploadNewFile")}</span>
             </button>
           </div>
 
@@ -272,7 +277,7 @@ function MediaSelectorModal({
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                All Files
+                {t("admin.heroSlides.allFiles")}
               </button>
               <button
                 type="button"
@@ -284,7 +289,7 @@ function MediaSelectorModal({
                 }`}
               >
                 <Box size={12} />
-                <span>3D Models</span>
+                <span>{t("admin.heroSlides.models3d")}</span>
               </button>
               <button
                 type="button"
@@ -296,7 +301,7 @@ function MediaSelectorModal({
                 }`}
               >
                 <ImageIcon size={12} />
-                <span>Images</span>
+                <span>{t("admin.heroSlides.images")}</span>
               </button>
             </div>
 
@@ -308,7 +313,7 @@ function MediaSelectorModal({
               />
               <input
                 type="text"
-                placeholder="Search files..."
+                placeholder={t("admin.heroSlides.searchFilesPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-44 sm:w-56 pl-8 pr-3 py-1.5 border rounded-xl text-xs focus:ring-2 focus:ring-emerald-500"
@@ -320,7 +325,7 @@ function MediaSelectorModal({
               type="button"
               onClick={fetchFiles}
               className="p-2 border rounded-xl hover:bg-gray-50 text-gray-600"
-              title="Refresh files"
+              title={t("admin.heroSlides.refreshFiles")}
             >
               <RefreshCcw size={14} />
             </button>
@@ -332,14 +337,14 @@ function MediaSelectorModal({
           {loading ? (
             <div className="h-64 flex flex-col items-center justify-center text-gray-500 gap-2">
               <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
-              <span className="text-sm">Loading uploaded files...</span>
+              <span className="text-sm">{t("admin.heroSlides.loadingUploads")}</span>
             </div>
           ) : filteredFiles.length === 0 ? (
             <div className="h-64 flex flex-col items-center justify-center text-gray-500 gap-3">
               <FolderOpen size={40} className="text-gray-300" />
-              <p className="text-sm font-medium">No matching files found.</p>
+              <p className="text-sm font-medium">{t("admin.heroSlides.noMatchingFiles")}</p>
               <p className="text-xs text-gray-400">
-                Upload a file with the button above or clear search filters.
+                {t("admin.heroSlides.noMatchingFilesHelp")}
               </p>
             </div>
           ) : (
@@ -389,7 +394,7 @@ function MediaSelectorModal({
                                 : "bg-emerald-600 text-white"
                             }`}
                           >
-                            {type === "model3d" ? "3D Model" : "Image"}
+                            {type === "model3d" ? t("admin.heroSlides.badge3d") : t("admin.heroSlides.badgeImage")}
                           </span>
                         </div>
 
@@ -426,7 +431,7 @@ function MediaSelectorModal({
                           className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-700 hover:text-blue-900"
                         >
                           <Eye size={12} />
-                          <span>Preview 3D</span>
+                          <span>{t("admin.heroSlides.preview3d")}</span>
                         </button>
                       ) : (
                         <span />
@@ -444,7 +449,7 @@ function MediaSelectorModal({
                             : "bg-emerald-600 hover:bg-emerald-700 text-white"
                         }`}
                       >
-                        {isSelected ? "Selected" : "Select File"}
+                        {isSelected ? t("admin.heroSlides.selected") : t("admin.heroSlides.selectFile")}
                       </button>
                     </div>
                   </div>
@@ -457,14 +462,14 @@ function MediaSelectorModal({
         {/* Footer */}
         <div className="flex items-center justify-between pt-2 border-t shrink-0">
           <div className="text-xs text-gray-500">
-            Total files: <span className="font-semibold">{filteredFiles.length}</span>
+            {t("admin.heroSlides.totalFiles")} <span className="font-semibold">{filteredFiles.length}</span>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="px-4 py-2 border rounded-xl text-xs font-medium hover:bg-gray-50"
           >
-            Cancel
+            {t("admin.heroSlides.cancel")}
           </button>
         </div>
       </div>
@@ -477,6 +482,7 @@ function MediaSelectorModal({
 // ---------------------------------------------------------------------------
 export default function AdminHeroSlides() {
   const { notifyError, notifySuccess } = useNotify();
+  const { t } = useI18n();
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -519,7 +525,7 @@ export default function AdminHeroSlides() {
       setSlides(data);
     } catch (err) {
       console.error(err);
-      notifyError("Failed to load hero slides.");
+      notifyError(t("admin.heroSlides.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -543,12 +549,12 @@ export default function AdminHeroSlides() {
     setSavingId(id);
     try {
       const res = await api.put(`/heroslides/${id}`, editFormData);
-      notifySuccess("Hero slide updated successfully.");
+      notifySuccess(t("admin.heroSlides.updateSuccess"));
       setSlides((prev) => prev.map((s) => (s.id === id ? res.data : s)));
       setEditingId(null);
     } catch (err) {
       console.error(err);
-      notifyError("Failed to update hero slide.");
+      notifyError(t("admin.heroSlides.updateFailed"));
     } finally {
       setSavingId(null);
     }
@@ -556,18 +562,18 @@ export default function AdminHeroSlides() {
 
   const handleDelete = async (id: string) => {
     if (
-      !window.confirm("Are you sure you want to delete this promotional slide?")
+      !window.confirm(t("admin.heroSlides.confirmDelete"))
     )
       return;
 
     setDeletingId(id);
     try {
       await api.delete(`/heroslides/${id}`);
-      notifySuccess("Hero slide deleted.");
+      notifySuccess(t("admin.heroSlides.deleteSuccess"));
       setSlides((prev) => prev.filter((s) => s.id !== id));
     } catch (err) {
       console.error(err);
-      notifyError("Failed to delete hero slide.");
+      notifyError(t("admin.heroSlides.deleteFailed"));
     } finally {
       setDeletingId(null);
     }
@@ -575,9 +581,7 @@ export default function AdminHeroSlides() {
 
   const handleSeedDefaults = async () => {
     if (
-      !window.confirm(
-        "This will ensure default promotional slides and 3D STL files (cable-holder, dino, materials) exist on the server. Proceed?",
-      )
+      !window.confirm(t("admin.heroSlides.confirmSeed"))
     ) {
       return;
     }
@@ -586,7 +590,7 @@ export default function AdminHeroSlides() {
     try {
       const updatedSlides = await seedDefaultHeroSlides();
       setSlides(updatedSlides);
-      notifySuccess("Default slides and 3D STL assets seeded successfully!");
+      notifySuccess(t("admin.heroSlides.seedSuccess"));
     } catch (err: any) {
       console.error(err);
       notifyError(
@@ -601,7 +605,7 @@ export default function AdminHeroSlides() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!createTitle.trim() || !createMediaUrl.trim()) {
-      notifyError("Title and Media URL are required.");
+      notifyError(t("admin.heroSlides.validationTitleMedia"));
       return;
     }
 
@@ -622,7 +626,7 @@ export default function AdminHeroSlides() {
       };
 
       const res = await api.post("/heroslides", payload);
-      notifySuccess("New hero slide created successfully.");
+      notifySuccess(t("admin.heroSlides.createSuccess"));
       setSlides((prev) =>
         [...prev, res.data].sort((a, b) => a.sortOrder - b.sortOrder),
       );
@@ -642,7 +646,7 @@ export default function AdminHeroSlides() {
       setCreateSortOrder(0);
     } catch (err) {
       console.error(err);
-      notifyError("Failed to create hero slide.");
+      notifyError(t("admin.heroSlides.createFailed"));
     }
   };
 
@@ -669,7 +673,9 @@ export default function AdminHeroSlides() {
         }));
       }
 
-      notifySuccess(`Uploaded "${file.name}" successfully!`);
+      notifySuccess(
+        t("admin.heroSlides.uploadedFileSuccess", { fileName: file.name }),
+      );
     } catch (err: any) {
       console.error(err);
       notifyError(err?.response?.data?.message || "Failed to upload file.");
@@ -694,7 +700,7 @@ export default function AdminHeroSlides() {
         mediaType,
       }));
     }
-    notifySuccess(`Selected "${fileName}"`);
+    notifySuccess(t("admin.heroSlides.selectedFile", { fileName }));
   };
 
   const openSelectorFor = (target: "create" | "edit") => {
@@ -706,8 +712,8 @@ export default function AdminHeroSlides() {
     <AdminLayout>
       <div className="max-w-7xl mx-auto px-4 py-8">
         <AdminBreadcrumb
-          title="Promotional Hero Slides"
-          items={[{ label: "Admin", to: "/admin" }, { label: "Hero Slides" }]}
+          title={t("admin.heroSlides.title")}
+          items={[{ label: t("breadcrumb.admin") || "Admin", to: "/admin" }, { label: t("admin.nav.heroSlides") || "Hero Slides" }]}
           rightSlot={
             <div className="flex items-center gap-3">
               <button
@@ -715,14 +721,14 @@ export default function AdminHeroSlides() {
                 disabled={isReseeding}
                 onClick={handleSeedDefaults}
                 className="inline-flex items-center gap-2 px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-medium rounded-xl text-sm transition-colors shadow-xs disabled:opacity-50"
-                title="Ensure default slides and 3D STL assets are seeded"
+                title={t("admin.heroSlides.seedTooltip")}
               >
                 {isReseeding ? (
                   <Loader2 size={16} className="animate-spin text-emerald-700" />
                 ) : (
                   <Sparkles size={16} className="text-emerald-700" />
                 )}
-                <span>Seed Default Slides</span>
+                <span>{t("admin.heroSlides.seedButton")}</span>
               </button>
 
               <button
@@ -730,7 +736,7 @@ export default function AdminHeroSlides() {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl text-sm transition-colors shadow-xs"
               >
                 <Plus size={16} />
-                <span>Add New Slide</span>
+                <span>{t("admin.heroSlides.addSlide")}</span>
               </button>
             </div>
           }
@@ -747,11 +753,10 @@ export default function AdminHeroSlides() {
             </div>
             <div>
               <p className="text-gray-900 font-bold text-base mb-1">
-                No hero slides found in database
+                {t("admin.heroSlides.noSlidesTitle")}
               </p>
               <p className="text-gray-500 text-sm max-w-md mx-auto mb-4">
-                You can seed the pre-configured default slides (with interactive
-                3D models) or create a fresh slide from scratch.
+                {t("admin.heroSlides.noSlidesDesc")}
               </p>
             </div>
 
@@ -767,7 +772,7 @@ export default function AdminHeroSlides() {
                 ) : (
                   <Sparkles size={16} />
                 )}
-                <span>Restore Default Slides & STL Files</span>
+                <span>{t("admin.heroSlides.restoreDefaults")}</span>
               </button>
 
               <button
@@ -775,7 +780,7 @@ export default function AdminHeroSlides() {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl text-sm"
               >
                 <Plus size={16} />
-                <span>Create Slide</span>
+                <span>{t("admin.heroSlides.createSlide")}</span>
               </button>
             </div>
           </div>
@@ -801,7 +806,7 @@ export default function AdminHeroSlides() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            Title (EN) *
+                            {t("admin.heroSlides.fieldTitleEn")}
                           </label>
                           <input
                             type="text"
@@ -818,7 +823,7 @@ export default function AdminHeroSlides() {
 
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            Price Text (EN)
+                            {t("admin.heroSlides.fieldPriceEn")}
                           </label>
                           <input
                             type="text"
@@ -837,11 +842,11 @@ export default function AdminHeroSlides() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            Title (NL - Nederlands)
+                            {t("admin.heroSlides.fieldTitleNl")}
                           </label>
                           <input
                             type="text"
-                            placeholder="Nederlandse titel..."
+                            placeholder={t("admin.heroSlides.nlTitlePlaceholder")}
                             value={editFormData.titleNl || ""}
                             onChange={(e) =>
                               setEditFormData({
@@ -855,11 +860,11 @@ export default function AdminHeroSlides() {
 
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            Price Text (NL)
+                            {t("admin.heroSlides.fieldPriceNl")}
                           </label>
                           <input
                             type="text"
-                            placeholder="bijv. Vanaf €9,95"
+                            placeholder={t("admin.heroSlides.pricePlaceholder")}
                             value={editFormData.priceTextNl || ""}
                             onChange={(e) =>
                               setEditFormData({
@@ -875,7 +880,7 @@ export default function AdminHeroSlides() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            Subtext / Description (EN)
+                            {t("admin.heroSlides.fieldSubtextEn")}
                           </label>
                           <textarea
                             rows={2}
@@ -892,11 +897,11 @@ export default function AdminHeroSlides() {
 
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            Subtext / Description (NL)
+                            {t("admin.heroSlides.fieldSubtextNl")}
                           </label>
                           <textarea
                             rows={2}
-                            placeholder="Nederlandse beschrijving..."
+                            placeholder={t("admin.heroSlides.nlDescPlaceholder")}
                             value={editFormData.subtextNl || ""}
                             onChange={(e) =>
                               setEditFormData({
@@ -913,7 +918,7 @@ export default function AdminHeroSlides() {
                       <div className="rounded-2xl border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <label className="block text-xs font-semibold text-gray-800">
-                            Media Asset / File *
+                            {t("admin.heroSlides.fieldMedia")}
                           </label>
 
                           <div className="flex items-center gap-2">
@@ -941,8 +946,8 @@ export default function AdminHeroSlides() {
                               )}
                               <span>
                                 {uploadingFor === "edit"
-                                  ? "Uploading..."
-                                  : "Upload File"}
+                                  ? t("admin.heroSlides.uploading")
+                                  : t("admin.heroSlides.uploadFile")}
                               </span>
                             </button>
 
@@ -952,7 +957,7 @@ export default function AdminHeroSlides() {
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-xl text-xs font-medium shadow-xs transition-colors"
                             >
                               <FolderOpen size={14} />
-                              <span>Choose from Uploads</span>
+                              <span>{t("admin.heroSlides.chooseFromUploads")}</span>
                             </button>
                           </div>
                         </div>
@@ -962,7 +967,7 @@ export default function AdminHeroSlides() {
                             <input
                               type="text"
                               value={editFormData.mediaUrl || ""}
-                              placeholder="/uploads/hero/model.stl or /uploads/image.png"
+                              placeholder={t("admin.heroSlides.mediaUrlPlaceholder")}
                               onChange={(e) => {
                                 const val = e.target.value;
                                 setEditFormData({
@@ -986,8 +991,8 @@ export default function AdminHeroSlides() {
                               }
                               className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 bg-white"
                             >
-                              <option value="model3d">3D Model (Three.js STL / 3MF)</option>
-                              <option value="image">Static Image / Banner</option>
+                              <option value="model3d">{t("admin.heroSlides.mediaType3d")}</option>
+                              <option value="image">{t("admin.heroSlides.mediaTypeImage")}</option>
                             </select>
                           </div>
                         </div>
@@ -1000,7 +1005,7 @@ export default function AdminHeroSlides() {
                                 <div className="w-10 h-10 rounded-lg overflow-hidden border bg-gray-50 flex items-center justify-center shrink-0">
                                   <img
                                     src={resolveAssetUrl(editFormData.mediaUrl)}
-                                    alt="Preview"
+                                    alt={t("admin.heroSlides.previewAlt")}
                                     loading="lazy"
                                     decoding="async"
                                     className="w-full h-full object-contain"
@@ -1040,7 +1045,7 @@ export default function AdminHeroSlides() {
                                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium"
                                 >
                                   <Eye size={12} />
-                                  <span>Preview 3D</span>
+                                  <span>{t("admin.heroSlides.preview3d")}</span>
                                 </button>
                               )}
                               <button
@@ -1052,7 +1057,7 @@ export default function AdminHeroSlides() {
                                   })
                                 }
                                 className="p-1 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50"
-                                title="Clear file"
+                                title={t("admin.heroSlides.clearFile")}
                               >
                                 <X size={14} />
                               </button>
@@ -1064,7 +1069,7 @@ export default function AdminHeroSlides() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            Instruction Tooltip (EN)
+                            {t("admin.heroSlides.fieldTooltipEn")}
                           </label>
                           <input
                             type="text"
@@ -1081,11 +1086,11 @@ export default function AdminHeroSlides() {
 
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            Instruction Tooltip (NL)
+                            {t("admin.heroSlides.fieldTooltipNl")}
                           </label>
                           <input
                             type="text"
-                            placeholder="Nederlandse instructie..."
+                            placeholder={t("admin.heroSlides.nlInstructionPlaceholder")}
                             value={editFormData.instructionTooltipNl || ""}
                             onChange={(e) =>
                               setEditFormData({
@@ -1112,12 +1117,12 @@ export default function AdminHeroSlides() {
                               }
                               className="rounded text-emerald-600 focus:ring-emerald-500"
                             />
-                            <span>Active in Public Slideshow</span>
+                            <span>{t("admin.heroSlides.fieldActive")}</span>
                           </label>
 
                           <div className="flex items-center gap-2">
                             <label className="text-xs font-semibold text-gray-700">
-                              Sort Order:
+                              {t("admin.heroSlides.sortOrderPrefix")}
                             </label>
                             <input
                               type="number"
@@ -1139,7 +1144,7 @@ export default function AdminHeroSlides() {
                             onClick={handleCancelEdit}
                             className="px-4 py-2 border rounded-xl text-sm hover:bg-gray-50"
                           >
-                            Cancel
+                            {t("admin.heroSlides.cancel")}
                           </button>
                           <button
                             type="button"
@@ -1152,7 +1157,7 @@ export default function AdminHeroSlides() {
                             ) : (
                               <Save className="w-4 h-4" />
                             )}
-                            <span>Save Changes</span>
+                            <span>{t("admin.heroSlides.saveChanges")}</span>
                           </button>
                         </div>
                       </div>
@@ -1169,7 +1174,7 @@ export default function AdminHeroSlides() {
                                 : "bg-gray-100 text-gray-600"
                             }`}
                           >
-                            {slide.isActive ? "Active" : "Inactive"}
+                            {slide.isActive ? t("admin.heroSlides.active") : t("admin.heroSlides.inactive")}
                           </span>
 
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
@@ -1182,7 +1187,7 @@ export default function AdminHeroSlides() {
                           </span>
 
                           <span className="text-xs text-gray-400">
-                            Sort Order: #{slide.sortOrder}
+                            {t("admin.heroSlides.sortOrderPrefix")} #{slide.sortOrder}
                           </span>
                         </div>
 
@@ -1190,7 +1195,7 @@ export default function AdminHeroSlides() {
                           <span>{slide.title}</span>
                           {slide.titleNl && (
                             <span className="text-xs font-normal text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                              NL: {slide.titleNl}
+                              {t("admin.heroSlides.nlPrefix")} {slide.titleNl}
                             </span>
                           )}
                         </h3>
@@ -1200,7 +1205,7 @@ export default function AdminHeroSlides() {
                         </p>
                         {slide.subtextNl && (
                           <p className="text-xs text-gray-500 italic max-w-2xl">
-                            NL: {slide.subtextNl}
+                            {t("admin.heroSlides.nlPrefix")} {slide.subtextNl}
                           </p>
                         )}
 
@@ -1208,14 +1213,14 @@ export default function AdminHeroSlides() {
                           {slide.priceText && (
                             <div>
                               <span className="font-semibold text-gray-700">
-                                Price:
+                                {t("admin.heroSlides.pricePrefix")}
                               </span>{" "}
                               {slide.priceText}
                             </div>
                           )}
                           <div>
                             <span className="font-semibold text-gray-700">
-                              Media URL:
+                              {t("admin.heroSlides.mediaUrlPrefix")}
                             </span>{" "}
                             <span className="font-mono text-gray-600">
                               {slide.mediaUrl}
@@ -1224,7 +1229,7 @@ export default function AdminHeroSlides() {
                           {slide.instructionTooltip && (
                             <div>
                               <span className="font-semibold text-gray-700">
-                                Tooltip:
+                                {t("admin.heroSlides.tooltipPrefix")}
                               </span>{" "}
                               {slide.instructionTooltip}
                             </div>
@@ -1260,7 +1265,7 @@ export default function AdminHeroSlides() {
                               }}
                               className="text-[9px] underline text-blue-800 hover:text-blue-900 font-bold"
                             >
-                              Preview 3D
+                              {t("admin.heroSlides.preview3d")}
                             </button>
                           </div>
                         )}
@@ -1270,7 +1275,7 @@ export default function AdminHeroSlides() {
                             type="button"
                             onClick={() => handleStartEdit(slide)}
                             className="p-2 border rounded-xl hover:bg-gray-50 text-gray-700 hover:text-emerald-700 transition-colors"
-                            title="Edit slide"
+                            title={t("admin.heroSlides.editSlide")}
                           >
                             <Edit2 size={16} />
                           </button>
@@ -1279,7 +1284,7 @@ export default function AdminHeroSlides() {
                             disabled={isDeleting}
                             onClick={() => handleDelete(slide.id)}
                             className="p-2 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 transition-colors"
-                            title="Delete slide"
+                            title={t("admin.heroSlides.deleteSlide")}
                           >
                             {isDeleting ? (
                               <Loader2 size={16} className="animate-spin" />
@@ -1303,7 +1308,7 @@ export default function AdminHeroSlides() {
             <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between pb-3 border-b">
                 <h3 className="text-lg font-bold text-gray-900">
-                  Add Promotional Hero Slide
+                  {t("admin.heroSlides.addSlideTitle")}
                 </h3>
                 <button
                   onClick={() => setShowCreateModal(false)}
@@ -1317,12 +1322,12 @@ export default function AdminHeroSlides() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Title (EN) *
+                      {t("admin.heroSlides.fieldTitleEn")}
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Rapid Prototyping & Custom Parts"
+                      placeholder={t("admin.heroSlides.enTitlePlaceholder")}
                       value={createTitle}
                       onChange={(e) => setCreateTitle(e.target.value)}
                       className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
@@ -1331,11 +1336,11 @@ export default function AdminHeroSlides() {
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Price Text (EN)
+                      {t("admin.heroSlides.fieldPriceEn")}
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Starting from €9.95"
+                      placeholder={t("admin.heroSlides.enPricePlaceholder")}
                       value={createPriceText}
                       onChange={(e) => setCreatePriceText(e.target.value)}
                       className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
@@ -1346,11 +1351,11 @@ export default function AdminHeroSlides() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Title (NL - Nederlands)
+                      {t("admin.heroSlides.fieldTitleNl")}
                     </label>
                     <input
                       type="text"
-                      placeholder="bijv. Snelle Prototyping & Maatwerk Onderdelen"
+                      placeholder={t("admin.heroSlides.nlTitlePlaceholder")}
                       value={createTitleNl}
                       onChange={(e) => setCreateTitleNl(e.target.value)}
                       className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
@@ -1359,11 +1364,11 @@ export default function AdminHeroSlides() {
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Price Text (NL)
+                      {t("admin.heroSlides.fieldPriceNl")}
                     </label>
                     <input
                       type="text"
-                      placeholder="bijv. Vanaf €9,95"
+                      placeholder={t("admin.heroSlides.pricePlaceholder")}
                       value={createPriceTextNl}
                       onChange={(e) => setCreatePriceTextNl(e.target.value)}
                       className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
@@ -1374,11 +1379,11 @@ export default function AdminHeroSlides() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Subtext / Description (EN)
+                      {t("admin.heroSlides.fieldSubtextEn")}
                     </label>
                     <textarea
                       rows={2}
-                      placeholder="High-precision FDM 3D printing for functional prototypes..."
+                      placeholder={t("admin.heroSlides.enDescPlaceholder")}
                       value={createSubtext}
                       onChange={(e) => setCreateSubtext(e.target.value)}
                       className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
@@ -1387,11 +1392,11 @@ export default function AdminHeroSlides() {
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Subtext / Description (NL)
+                      {t("admin.heroSlides.fieldSubtextNl")}
                     </label>
                     <textarea
                       rows={2}
-                      placeholder="Precisie FDM 3D-printen voor functionele prototypes..."
+                      placeholder={t("admin.heroSlides.nlDescPlaceholder")}
                       value={createSubtextNl}
                       onChange={(e) => setCreateSubtextNl(e.target.value)}
                       className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
@@ -1403,7 +1408,7 @@ export default function AdminHeroSlides() {
                 <div className="rounded-2xl border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <label className="block text-xs font-semibold text-gray-800">
-                      Media Asset / File *
+                      {t("admin.heroSlides.fieldMedia")}
                     </label>
 
                     <div className="flex items-center gap-2">
@@ -1431,8 +1436,8 @@ export default function AdminHeroSlides() {
                         )}
                         <span>
                           {uploadingFor === "create"
-                            ? "Uploading..."
-                            : "Upload File"}
+                            ? t("admin.heroSlides.uploading")
+                            : t("admin.heroSlides.uploadFile")}
                         </span>
                       </button>
 
@@ -1442,7 +1447,7 @@ export default function AdminHeroSlides() {
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-xl text-xs font-medium shadow-xs transition-colors"
                       >
                         <FolderOpen size={14} />
-                        <span>Choose from Uploads</span>
+                        <span>{t("admin.heroSlides.chooseFromUploads")}</span>
                       </button>
                     </div>
                   </div>
@@ -1471,8 +1476,8 @@ export default function AdminHeroSlides() {
                         }
                         className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 bg-white"
                       >
-                        <option value="model3d">3D Model (Three.js STL / 3MF)</option>
-                        <option value="image">Static Image / Banner</option>
+                        <option value="model3d">{t("admin.heroSlides.mediaType3d")}</option>
+                        <option value="image">{t("admin.heroSlides.mediaTypeImage")}</option>
                       </select>
                     </div>
                   </div>
@@ -1485,7 +1490,7 @@ export default function AdminHeroSlides() {
                           <div className="w-10 h-10 rounded-lg overflow-hidden border bg-gray-50 flex items-center justify-center shrink-0">
                             <img
                               src={resolveAssetUrl(createMediaUrl)}
-                              alt="Preview"
+                              alt={t("admin.heroSlides.previewAlt")}
                               loading="lazy"
                               decoding="async"
                               className="w-full h-full object-contain"
@@ -1521,14 +1526,14 @@ export default function AdminHeroSlides() {
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium"
                           >
                             <Eye size={12} />
-                            <span>Preview 3D</span>
+                            <span>{t("admin.heroSlides.preview3d")}</span>
                           </button>
                         )}
                         <button
                           type="button"
                           onClick={() => setCreateMediaUrl("")}
                           className="p-1 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50"
-                          title="Clear file"
+                          title={t("admin.heroSlides.clearFile")}
                         >
                           <X size={14} />
                         </button>
@@ -1540,11 +1545,11 @@ export default function AdminHeroSlides() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Instruction Tooltip (EN)
+                      {t("admin.heroSlides.fieldTooltipEn")}
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Drag to rotate 360°, scroll to zoom"
+                      placeholder={t("admin.heroSlides.enInstructionPlaceholder")}
                       value={createInstructionTooltip}
                       onChange={(e) =>
                         setCreateInstructionTooltip(e.target.value)
@@ -1555,7 +1560,7 @@ export default function AdminHeroSlides() {
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Sort Order
+                      {t("admin.heroSlides.fieldSortOrder")}
                     </label>
                     <input
                       type="number"
@@ -1570,11 +1575,11 @@ export default function AdminHeroSlides() {
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Instruction Tooltip (NL)
+                    {t("admin.heroSlides.fieldTooltipNl")}
                   </label>
                   <input
                     type="text"
-                    placeholder="bijv. Sleep om 360° te draaien, scroll om in te zoomen"
+                    placeholder={t("admin.heroSlides.nlInstructionPlaceholder")}
                     value={createInstructionTooltipNl}
                     onChange={(e) =>
                       setCreateInstructionTooltipNl(e.target.value)
@@ -1595,7 +1600,7 @@ export default function AdminHeroSlides() {
                     htmlFor="createActiveCheck"
                     className="text-sm text-gray-700 cursor-pointer"
                   >
-                    Active (visible in public slideshow)
+                    {t("admin.heroSlides.activeVisible")}
                   </label>
                 </div>
 
@@ -1605,14 +1610,14 @@ export default function AdminHeroSlides() {
                     onClick={() => setShowCreateModal(false)}
                     className="px-4 py-2 border rounded-xl text-sm hover:bg-gray-50"
                   >
-                    Cancel
+                    {t("admin.heroSlides.cancel")}
                   </button>
                   <button
                     type="submit"
                     className="inline-flex items-center gap-2 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-xs"
                   >
                     <Check size={16} />
-                    <span>Create Slide</span>
+                    <span>{t("admin.heroSlides.createSlide")}</span>
                   </button>
                 </div>
               </form>

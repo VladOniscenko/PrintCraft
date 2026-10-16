@@ -5,6 +5,7 @@ import AdminLayout from "./AdminLayout";
 import api from "../../services/api";
 import type { Order, OrderItem } from "../../types";
 import { useI18n } from "../../i18n/I18nContext";
+import type { TranslationKey } from "../../i18n/translations";
 import { useNotify } from "../../context/NotifyContext";
 import { resolveAssetUrl } from "../../utils/assetUrl";
 import ModelInspectorModal from "../ModelInspectorModal";
@@ -46,6 +47,11 @@ import {
   Download,
   FileText,
 } from "lucide-react";
+
+type TranslateFn = (
+  key: TranslationKey,
+  vars?: Record<string, string | number>,
+) => string;
 
 const ACTIVE_COLUMNS = [
   { id: "quote_requested", label: "Quote Requested" },
@@ -239,7 +245,7 @@ function OrderCardView({
   order: Order;
   onShowInfo?: (order: Order) => void;
   isOverlay?: boolean;
-  t: (key: string) => string;
+  t: TranslateFn;
 }) {
   const statusKey = getOrderStatusTranslationKey(order.status);
   const statusLabel = statusKey ? t(statusKey) : formatOrderStatusLabel(order.status);
@@ -291,7 +297,7 @@ function OrderCardView({
               e.stopPropagation();
               onShowInfo(order);
             }}
-            title={t("admin.orders.kanbanOrderInfoTitle") || "View order details"}
+            title={t("admin.orders.kanbanOrderInfoTitle")}
           >
             <Info size={14} />
           </button>
@@ -317,7 +323,7 @@ function SortableOrderCard({
 }: {
   order: Order;
   onShowInfo?: (order: Order) => void;
-  t: (key: string) => string;
+  t: TranslateFn;
 }) {
   const {
     attributes,
@@ -365,7 +371,7 @@ function QuickDropColumn({
   color: string;
   activeDragItem: Order | null;
   count: number;
-  t: (key: string) => string;
+  t: TranslateFn;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
@@ -432,7 +438,7 @@ function QuickDropColumn({
       <div className="flex items-center gap-1.5 mb-1">
         <Icon size={16} className={style.icon} />
         <span className={`font-bold text-xs ${style.text}`}>
-          {t(`orderStatus.${id}`) || label}
+          {t(`orderStatus.${id}` as TranslationKey) || label}
         </span>
         <span className="bg-white/80 border border-gray-200 text-gray-700 text-[10px] font-bold px-1.5 py-0.2 rounded-full">
           {count}
@@ -440,10 +446,10 @@ function QuickDropColumn({
       </div>
       <p className="text-[10px] text-gray-500 font-medium">
         {isOver
-          ? `✓ ${t("admin.orders.kanbanDropAction") || "Drop to set status"}`
+          ? `✓ ${t("admin.orders.kanbanDropAction")}`
           : activeDragItem
-          ? t("admin.orders.dropAction") || "Drop here to move"
-          : t("admin.orders.kanbanDropAction") || "Drop ticket to change status"}
+          ? t("admin.orders.dropAction")
+          : t("admin.orders.kanbanDropAction")}
       </p>
     </div>
   );
@@ -458,7 +464,7 @@ function Column({
   id: string;
   title: string;
   orders: Order[];
-  t: (key: string) => string;
+  t: TranslateFn;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
@@ -484,7 +490,7 @@ function Column({
           <div className="min-h-[120px]">
             {orders.length === 0 ? (
               <div className="h-24 border border-dashed border-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400 italic">
-                {t("admin.orders.kanbanEmptyColumn") || "No orders in this stage"}
+                {t("admin.orders.kanbanEmptyColumn")}
               </div>
             ) : (
               orders.map((order) => (
@@ -551,7 +557,7 @@ export default function AdminOrders() {
       setOrders(normalizedOrders);
     } catch (err) {
       console.error(err);
-      notifyError("Failed to load orders");
+      notifyError(t("admin.orders.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -638,46 +644,32 @@ export default function AdminOrders() {
     let trackingUrl = undefined;
 
     if (targetStatus === "on_hold") {
-      const reason = window.prompt(
-        t("admin.orders.promptHoldReason") ||
-          "Enter reason for placing order on hold:",
-      );
+      const reason = window.prompt(t("admin.orders.promptHoldReason"));
       if (reason === null) return;
       if (!reason.trim()) {
-        notifyError("Hold reason cannot be empty.");
+        notifyError(t("admin.orders.holdReasonRequired"));
         return;
       }
       holdReason = reason.trim();
     } else if (targetStatus === "shipped") {
-      if (
-        !window.confirm(
-          t("admin.orders.confirmQualityPassed") ||
-            "Has the quality check passed?",
-        )
-      ) {
+      if (!window.confirm(t("admin.orders.confirmQualityPassed"))) {
         return;
       }
-      const tracking = window.prompt(
-        t("admin.orders.promptTrackingNumber") ||
-          "Enter Tracking Number:",
-      );
+      const tracking = window.prompt(t("admin.orders.promptTrackingNumber"));
       if (tracking === null) return;
       if (!tracking.trim()) {
-        notifyError("Tracking number is required to mark as shipped.");
+        notifyError(t("admin.orders.trackingRequired"));
         return;
       }
       qualityCheckPassed = true;
       trackingNumber = tracking.trim();
 
-      const trackingUrlInput = window.prompt(
-        t("admin.orders.promptTrackingUrl") ||
-          "Enter Tracking URL for the customer (optional):",
-      );
+      const trackingUrlInput = window.prompt(t("admin.orders.promptTrackingUrl"));
       if (trackingUrlInput !== null && trackingUrlInput.trim()) {
         trackingUrl = trackingUrlInput.trim();
       }
     } else if (targetStatus === "cancelled") {
-      if (!window.confirm("Are you sure you want to cancel this order?")) {
+      if (!window.confirm(t("admin.orders.confirmCancel"))) {
         return;
       }
     }
@@ -796,10 +788,7 @@ export default function AdminOrders() {
             <div className="flex gap-4 mb-4">
               <input
                 type="text"
-                placeholder={
-                  t("admin.orders.searchPlaceholder") ||
-                  "Search by ID or Name..."
-                }
+                placeholder={t("admin.orders.searchPlaceholder")}
                 className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm flex-1 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -814,12 +803,12 @@ export default function AdminOrders() {
                 </option>
                 {ACTIVE_COLUMNS.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {t(`orderStatus.${c.id}`) || c.label}
+                    {formatOrderStatusLabel(c.id, t) || c.label}
                   </option>
                 ))}
                 {QUICK_DROP_STATUSES.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {t(`orderStatus.${c.id}`) || c.label}
+                    {formatOrderStatusLabel(c.id, t) || c.label}
                   </option>
                 ))}
               </select>
@@ -879,13 +868,9 @@ export default function AdminOrders() {
                               className={`text-[10px] px-2 py-0.5 rounded-full font-semibold truncate max-w-[150px] inline-block ${getOrderStatusPillClass(
                                 o.status,
                               )}`}
-                              title={
-                                t(`orderStatus.${o.status}`) ||
-                                formatOrderStatusLabel(o.status)
-                              }
+                              title={formatOrderStatusLabel(o.status, t)}
                             >
-                              {t(`orderStatus.${o.status}`) ||
-                                formatOrderStatusLabel(o.status)}
+                              {formatOrderStatusLabel(o.status, t)}
                             </span>
                           </td>
                           <td className="p-2">
@@ -913,7 +898,7 @@ export default function AdminOrders() {
               <Column
                 key={col.id}
                 id={col.id}
-                title={t(`orderStatus.${col.id}`) || col.label}
+                title={formatOrderStatusLabel(col.id, t) || col.label}
                 orders={getOrdersForStatus(col.id)}
                 t={t}
               />
@@ -948,7 +933,7 @@ export default function AdminOrders() {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-base sm:text-lg font-bold text-gray-900 truncate">
-                    {t("admin.orders.kanbanOrderInfoTitle") || "Order Items Preview"}
+                    {t("admin.orders.kanbanOrderInfoTitle")}
                   </h3>
                   <span className="font-mono text-emerald-700 font-black text-sm bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shrink-0">
                     #{infoDialogOrder.id.slice(0, 8)}
@@ -969,7 +954,7 @@ export default function AdminOrders() {
                   </span>
                   {dialogOrderTotal != null && dialogOrderTotal > 0 && (
                     <span className="font-mono text-emerald-800 font-black text-xs sm:text-sm bg-emerald-100 px-2.5 py-0.5 rounded-lg border border-emerald-300 shrink-0">
-                      Total: €{dialogOrderTotal.toFixed(2)}
+                      {t("admin.orders.totalLabel", { amount: dialogOrderTotal.toFixed(2) })}
                     </span>
                   )}
                 </div>
@@ -982,7 +967,7 @@ export default function AdminOrders() {
                       <span className="mx-1.5">•</span>
                       <span>
                         {infoDialogOrder.items.length}{" "}
-                        {infoDialogOrder.items.length === 1 ? "item" : "items"}
+                        {infoDialogOrder.items.length === 1 ? t("orderDetail.itemSingle") : t("orderDetail.itemPlural")}
                       </span>
                     </>
                   )}
@@ -993,7 +978,7 @@ export default function AdminOrders() {
                 type="button"
                 onClick={() => setInfoDialogOrder(null)}
                 className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors shrink-0"
-                aria-label="Close dialog"
+                aria-label={t("common.closeDialog")}
               >
                 <X size={18} />
               </button>
@@ -1018,9 +1003,9 @@ export default function AdminOrders() {
                           </span>
                           <h4
                             className="text-sm font-semibold text-gray-900 truncate"
-                            title={item.fileName || "Custom Item"}
+                            title={item.fileName || t("orderDetail.customItem")}
                           >
-                            {item.fileName || "Custom 3D Item"}
+                            {item.fileName || t("orderDetail.customItem")}
                           </h4>
                         </div>
 
@@ -1032,7 +1017,7 @@ export default function AdminOrders() {
                             {item.material || "PLA"}
                           </span>
                           <span className="px-2 py-0.5 rounded bg-white border border-gray-200 font-medium">
-                            {item.color || "Default"}
+                            {item.color || t("orderDetail.defaultColor")}
                           </span>
                           {item.size && (
                             <span className="px-2 py-0.5 rounded bg-white border border-gray-200 text-gray-500">
@@ -1042,24 +1027,24 @@ export default function AdminOrders() {
                           <span className="text-gray-400">•</span>
                           {pricing.isPendingQuote ? (
                             <span className="text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                              Pending Quote
+                              {t("orderDetail.pendingQuote")}
                             </span>
                           ) : (
                             <>
                               <span className="text-gray-700 font-medium">
-                                Unit: €{pricing.unitPrice.toFixed(2)}
+                                {t("admin.orders.unit", { amount: pricing.unitPrice.toFixed(2) })}
                               </span>
                               {pricing.plateCost > 0 && (
                                 <>
                                   <span className="text-gray-400">•</span>
                                   <span className="text-gray-500">
-                                    Plate: €{pricing.plateCost.toFixed(2)}
+                                    {t("admin.orders.plate", { amount: pricing.plateCost.toFixed(2) })}
                                   </span>
                                 </>
                               )}
                               <span className="text-gray-400">•</span>
                               <span className="text-emerald-700 font-bold">
-                                Total: €{pricing.itemTotal.toFixed(2)}
+                                {t("admin.orders.totalLabel", { amount: pricing.itemTotal.toFixed(2) })}
                               </span>
                             </>
                           )}
@@ -1095,7 +1080,7 @@ export default function AdminOrders() {
                                   <span>
                                     {modelFiles.length > 1
                                       ? `3D #${mIdx + 1}`
-                                      : t("admin.orders.preview3D") || "Preview 3D"}
+                                      : t("admin.orders.preview3D")}
                                   </span>
                                 </button>
                                 <a
@@ -1104,7 +1089,7 @@ export default function AdminOrders() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="p-1.5 text-gray-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg border border-transparent hover:border-emerald-200 transition-colors"
-                                  title={`Download ${m.fileName}`}
+                                  title={t("admin.orders.downloadTitle", { fileName: m.fileName })}
                                 >
                                   <Download size={14} />
                                 </a>
@@ -1114,7 +1099,7 @@ export default function AdminOrders() {
                         ) : (
                           <span className="text-xs text-gray-400 italic flex items-center gap-1">
                             <FileText size={13} />
-                            {t("admin.orders.no3dModel") || "No 3D model"}
+                            {t("admin.orders.no3dModel")}
                           </span>
                         )}
                       </div>
@@ -1123,7 +1108,7 @@ export default function AdminOrders() {
                 })
               ) : (
                 <div className="py-8 text-center text-sm text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                  {t("admin.orders.kanbanNoItems") || "No items in this order."}
+                  {t("admin.orders.kanbanNoItems")}
                 </div>
               )}
             </div>
@@ -1134,22 +1119,22 @@ export default function AdminOrders() {
                 <div className="flex flex-wrap items-center gap-2.5 text-slate-600">
                   {infoDialogOrder.deliveryPrice != null && infoDialogOrder.deliveryPrice > 0 && (
                     <span className="bg-white px-2 py-0.5 rounded border border-slate-200">
-                      Delivery: €{infoDialogOrder.deliveryPrice.toFixed(2)}
+                      {t("admin.orders.delivery", { amount: infoDialogOrder.deliveryPrice.toFixed(2) })}
                     </span>
                   )}
                   {infoDialogOrder.serviceFeePrice != null && infoDialogOrder.serviceFeePrice > 0 && (
                     <span className="bg-white px-2 py-0.5 rounded border border-slate-200">
-                      Service Fee: €{infoDialogOrder.serviceFeePrice.toFixed(2)}
+                      {t("admin.orders.serviceFee", { amount: infoDialogOrder.serviceFeePrice.toFixed(2) })}
                     </span>
                   )}
                   {infoDialogOrder.orderDiscountAmount != null && infoDialogOrder.orderDiscountAmount > 0 && (
                     <span className="bg-white px-2 py-0.5 rounded border border-emerald-200 text-emerald-700 font-semibold">
-                      Discount: -€{infoDialogOrder.orderDiscountAmount.toFixed(2)}
+                      {t("admin.orders.discount", { amount: infoDialogOrder.orderDiscountAmount.toFixed(2) })}
                     </span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 font-bold text-slate-900 ml-auto">
-                  <span>Order Total:</span>
+                  <span>{t("admin.orders.orderTotal")}</span>
                   <span className="text-sm font-mono text-emerald-700 font-black">
                     €{dialogOrderTotal.toFixed(2)}
                   </span>
@@ -1163,14 +1148,14 @@ export default function AdminOrders() {
                 to={`/admin/orders/${infoDialogOrder.id}`}
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-800 hover:underline"
               >
-                {t("admin.orders.openOrderDetails") || "Open Full Order Details"} →
+                {t("admin.orders.openOrderDetails")} →
               </Link>
               <button
                 type="button"
                 className="admin-btn admin-btn-secondary px-5 py-2 font-bold text-xs"
                 onClick={() => setInfoDialogOrder(null)}
               >
-                {t("admin.orders.kanbanClose") || "Close"}
+                {t("admin.orders.kanbanClose")}
               </button>
             </div>
           </div>

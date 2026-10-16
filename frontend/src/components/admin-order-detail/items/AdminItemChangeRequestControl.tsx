@@ -15,6 +15,7 @@ import {
 import type { OrderItemChangeRequestDto } from "../../../types/order";
 import api from "../../../services/api";
 import { useNotify } from "../../../context/NotifyContext";
+import { useI18n } from "../../../i18n/I18nContext";
 import { resolveAssetUrl } from "../../../utils/assetUrl";
 import RequestItemChangesModal from "./RequestItemChangesModal";
 
@@ -38,12 +39,15 @@ export default function AdminItemChangeRequestControl({
   onPreviewModel,
 }: AdminItemChangeRequestControlProps) {
   const { notifySuccess, notifyError } = useNotify();
+  const { t } = useI18n();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
   const [showResolveInput, setShowResolveInput] = useState(false);
-  const [resolutionNotes, setResolutionNotes] = useState("Revision verified and accepted.");
+  const [resolutionNotes, setResolutionNotes] = useState(
+    t("admin.orderDetail.changeRequests.defaultResolutionNotes"),
+  );
 
   const isPendingCustomer = activeChangeRequest?.status === "pending_customer";
   const isRevisionSubmitted = activeChangeRequest?.status === "revision_submitted";
@@ -58,7 +62,7 @@ export default function AdminItemChangeRequestControl({
           resolutionNotes: resolutionNotes.trim(),
         },
       );
-      notifySuccess("Revision accepted and marked as resolved!");
+      notifySuccess(t("admin.orderDetail.changeRequests.acceptedSuccess"));
       setShowResolveInput(false);
       await onRefresh();
     } catch (err: unknown) {
@@ -81,7 +85,7 @@ export default function AdminItemChangeRequestControl({
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-200 text-amber-900 border border-amber-300">
                 <Clock size={12} className="text-amber-700 animate-spin" />
-                Awaiting Customer Revision
+                {t("admin.orderDetail.changeRequests.awaitingRevision")}
               </span>
               <span className="text-xs font-semibold text-slate-700">
                 [{activeChangeRequest.reasonCategory.replace(/_/g, " ").toUpperCase()}]
@@ -93,7 +97,7 @@ export default function AdminItemChangeRequestControl({
               onClick={() => setIsModalOpen(true)}
               className="text-xs font-bold text-amber-800 hover:text-amber-950 underline cursor-pointer"
             >
-              Update / Re-request
+              {t("admin.orderDetail.changeRequests.updateRerequest")}
             </button>
           </div>
 
@@ -102,8 +106,8 @@ export default function AdminItemChangeRequestControl({
           </p>
 
           <div className="flex items-center justify-between text-[11px] text-slate-500">
-            <span>Requested: {new Date(activeChangeRequest.requestedAt).toLocaleString()}</span>
-            <span>By: {activeChangeRequest.requestedBy || "Admin"}</span>
+            <span>{t("admin.orderDetail.changeRequests.requested")} {new Date(activeChangeRequest.requestedAt).toLocaleString()}</span>
+            <span>{t("admin.orderDetail.changeRequests.by")} {activeChangeRequest.requestedBy || t("breadcrumb.admin")}</span>
           </div>
         </div>
       )}
@@ -114,7 +118,7 @@ export default function AdminItemChangeRequestControl({
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-600 text-white tracking-wide uppercase shadow-2xs">
               <CheckCircle2 size={13} />
-              New Revision Submitted by Customer
+              {t("admin.orderDetail.changeRequests.newRevisionSubmitted")}
             </span>
 
             <span className="text-xs text-emerald-800 font-semibold">
@@ -127,7 +131,7 @@ export default function AdminItemChangeRequestControl({
           {/* Customer Explanation */}
           {activeChangeRequest.customerNotes && (
             <div className="p-3 bg-white/90 border border-emerald-200 rounded-lg text-xs text-slate-800 space-y-1">
-              <span className="font-bold text-emerald-950 block">Customer Explanation:</span>
+              <span className="font-bold text-emerald-950 block">{t("admin.orderDetail.changeRequests.customerExplanation")}</span>
               <p className="italic whitespace-pre-wrap">"{activeChangeRequest.customerNotes}"</p>
             </div>
           )}
@@ -138,7 +142,7 @@ export default function AdminItemChangeRequestControl({
               <div className="flex items-center gap-2 min-w-0">
                 <FileCheck size={18} className="text-emerald-600 shrink-0" />
                 <span className="text-xs font-bold text-slate-900 truncate max-w-xs">
-                  {activeChangeRequest.submittedFileName || "Replacement 3D Model"}
+                  {activeChangeRequest.submittedFileName || t("admin.orderDetail.changeRequests.replacementModelFallback")}
                 </span>
               </div>
 
@@ -155,7 +159,7 @@ export default function AdminItemChangeRequestControl({
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200 transition-colors cursor-pointer"
                   >
                     <Eye size={13} />
-                    <span>Preview 3D</span>
+                    <span>{t("admin.orderDetail.changeRequests.preview3d")}</span>
                   </button>
                 )}
 
@@ -167,7 +171,7 @@ export default function AdminItemChangeRequestControl({
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
                 >
                   <Download size={13} />
-                  <span>Download</span>
+                  <span>{t("admin.orderDetail.changeRequests.download")}</span>
                 </a>
               </div>
             </div>
@@ -177,13 +181,13 @@ export default function AdminItemChangeRequestControl({
           {showResolveInput ? (
             <div className="p-3 bg-white rounded-xl border border-emerald-200 space-y-2">
               <label className="block text-xs font-bold text-slate-800">
-                Acceptance Note (Optional):
+                {t("admin.orderDetail.changeRequests.acceptanceNote")}
               </label>
               <input
                 type="text"
                 value={resolutionNotes}
                 onChange={(e) => setResolutionNotes(e.target.value)}
-                placeholder="e.g. Mesh validated, ready for production"
+                placeholder={t("admin.orderDetail.changeRequests.acceptancePlaceholder")}
                 className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <div className="flex items-center justify-end gap-2 pt-1">
@@ -193,7 +197,7 @@ export default function AdminItemChangeRequestControl({
                   disabled={isResolving}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"
                 >
-                  Cancel
+                  {t("admin.orderDetail.changeRequests.cancel")}
                 </button>
                 <button
                   type="button"
@@ -206,7 +210,7 @@ export default function AdminItemChangeRequestControl({
                   ) : (
                     <CheckCircle2 size={13} />
                   )}
-                  <span>Confirm Accept</span>
+                  <span>{t("admin.orderDetail.changeRequests.confirmAccept")}</span>
                 </button>
               </div>
             </div>
@@ -218,7 +222,7 @@ export default function AdminItemChangeRequestControl({
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-50 text-amber-800 text-xs font-bold transition-all cursor-pointer"
               >
                 <RotateCcw size={13} />
-                <span>Request Further Changes (Loop)</span>
+                <span>{t("admin.orderDetail.changeRequests.requestFurtherChanges")}</span>
               </button>
 
               <button
@@ -227,7 +231,7 @@ export default function AdminItemChangeRequestControl({
                 className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
               >
                 <CheckCircle2 size={14} />
-                <span>Accept Revision</span>
+                <span>{t("admin.orderDetail.changeRequests.acceptRevision")}</span>
               </button>
             </div>
           )}
@@ -243,7 +247,7 @@ export default function AdminItemChangeRequestControl({
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
             <Wrench size={13} className="text-amber-700" />
-            <span>Request Changes from Customer</span>
+            <span>{t("admin.orderDetail.changeRequests.requestChangesFromCustomer")}</span>
           </button>
 
           {changeRequests.length > 0 && (
@@ -254,7 +258,9 @@ export default function AdminItemChangeRequestControl({
             >
               <History size={12} />
               <span>
-                {showHistory ? "Hide History" : `Past Revisions (${changeRequests.length})`}
+                {showHistory
+                  ? t("admin.orderDetail.changeRequests.hideHistory")
+                  : t("admin.orderDetail.changeRequests.pastRevisions", { count: changeRequests.length })}
               </span>
               {showHistory ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
@@ -267,7 +273,7 @@ export default function AdminItemChangeRequestControl({
         <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200 space-y-2 text-xs">
           <div className="font-bold text-slate-700 flex items-center gap-1.5 mb-1">
             <History size={13} />
-            <span>Revision Audit Trail</span>
+            <span>{t("admin.orderDetail.changeRequests.auditTrail")}</span>
           </div>
 
           <div className="space-y-2 border-l-2 border-slate-200 pl-3">
@@ -277,7 +283,7 @@ export default function AdminItemChangeRequestControl({
                 <div key={cr.id || idx} className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-mono font-bold text-[10px] bg-slate-200 px-1.5 py-0.5 rounded text-slate-800">
-                      Round #{roundNum}
+                      {t("admin.orderDetail.changeRequests.round")}{roundNum}
                     </span>
                     <span className="font-bold text-[10px] uppercase tracking-wide text-slate-600">
                       {cr.status}
@@ -288,31 +294,34 @@ export default function AdminItemChangeRequestControl({
                   </div>
 
                   <p className="text-slate-700">
-                    <strong>Reason:</strong> [{cr.reasonCategory}] "{cr.adminNotes}"
+                    <strong>{t("admin.orderDetail.changeRequests.reason")}</strong> [{cr.reasonCategory}] "{cr.adminNotes}"
                   </p>
 
                   {cr.customerNotes && (
                     <p className="text-slate-600 italic">
-                      Customer response: "{cr.customerNotes}"
+                      {t("admin.orderDetail.changeRequests.customerResponse")} "{cr.customerNotes}"
                     </p>
                   )}
 
                   {cr.submittedFileUrl && (
                     <div className="flex items-center gap-2 text-[11px] text-teal-700">
-                      <span>File: {cr.submittedFileName || "Updated Model"}</span>
+                      <span>
+                        {t("admin.orderDetail.changeRequests.file")}{" "}
+                        {cr.submittedFileName || t("admin.orderDetail.changeRequests.updatedModelFallback")}
+                      </span>
                       <a
                         href={resolveAssetUrl(cr.submittedFileUrl)}
                         download
                         className="underline font-bold"
                       >
-                        Download
+                        {t("admin.orderDetail.changeRequests.download")}
                       </a>
                     </div>
                   )}
 
                   {cr.resolutionNotes && (
                     <p className="text-emerald-700 font-medium">
-                      ✓ Resolved: {cr.resolutionNotes}
+                      {t("admin.orderDetail.changeRequests.resolved")} {cr.resolutionNotes}
                     </p>
                   )}
                 </div>
@@ -328,7 +337,7 @@ export default function AdminItemChangeRequestControl({
         onClose={() => setIsModalOpen(false)}
         orderId={orderId}
         itemId={itemId}
-        itemFileName={itemFileName || "3D Model"}
+        itemFileName={itemFileName || t("admin.orderDetail.panels.readyToPrint.modelItemFallback")}
         onSuccess={onRefresh}
       />
     </div>

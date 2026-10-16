@@ -133,8 +133,8 @@ export default function ModelInspectorModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-            aria-label="Close dialog"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            aria-label={t("common.closeDialog")}
           >
             <X size={20} />
           </button>
@@ -151,7 +151,7 @@ export default function ModelInspectorModal({
                     size={32}
                   />
                   <span className="text-sm font-semibold">
-                    {t("orderDetail.loadingModel") || "Rendering 3D model..."}
+                    {t("orderDetail.loadingModel")}
                   </span>
                 </div>
               }
@@ -180,8 +180,7 @@ export default function ModelInspectorModal({
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 space-y-3">
               <Info size={36} className="text-slate-600 mx-auto" />
               <p className="text-sm text-slate-300 font-semibold">
-                {t("orderDetail.no3dPreview") ||
-                  "3D preview is not available for this file type."}
+                {t("orderDetail.no3dPreview")}
               </p>
             </div>
           )}
@@ -193,7 +192,7 @@ export default function ModelInspectorModal({
             {size && (
               <span>
                 <strong className="text-slate-200">
-                  {t("orderDetail.sizeLabel") || "Dimensions"}:
+                  {t("orderDetail.sizeLabel")}:
                 </strong>{" "}
                 <span className="font-mono text-slate-300">{size}</span>
               </span>
@@ -201,14 +200,14 @@ export default function ModelInspectorModal({
             {infillPercent != null && (
               <span>
                 <strong className="text-slate-200">
-                  {t("orderDetail.infillLabel") || "Infill"}:
+                  {t("orderDetail.infillLabel")}:
                 </strong>{" "}
                 <span className="text-slate-300">{infillPercent}%</span>
               </span>
             )}
             <span>
               <strong className="text-slate-200">
-                {t("orderDetail.qtyLabel") || "Quantity"}:
+                {t("orderDetail.qtyLabel")}:
               </strong>{" "}
               <span className="text-slate-300">x{count}</span>
             </span>
@@ -221,18 +220,18 @@ export default function ModelInspectorModal({
                 target="_blank"
                 rel="noreferrer"
                 download
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold transition-all border border-slate-700"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold transition-all border border-slate-700 cursor-pointer"
               >
                 <Download size={13} />
-                {t("modelViewer.download") || "Download File"}
+                {t("orderDetail.downloadModel")}
               </a>
             )}
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-sm"
+              className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-sm cursor-pointer"
             >
-              {t("orderDetail.closeModal") || "Close"}
+              {t("orderDetail.closeModal")}
             </button>
           </div>
         </div>

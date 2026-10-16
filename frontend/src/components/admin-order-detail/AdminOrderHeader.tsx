@@ -40,14 +40,17 @@ export default function AdminOrderHeader({
   isProcessing,
 }: AdminOrderHeaderProps) {
   const { notifySuccess, notifyError } = useNotify();
-  const { language } = useI18n();
+  const { language, t } = useI18n();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const normalizedStatus = normalizeOrderStatus(order.status);
-  const customerName = order.customer?.fullName || order.fullName || "Customer";
+  const customerName =
+    order.customer?.fullName ||
+    order.fullName ||
+    t("admin.orderDetail.header.customer");
   const createdDate = new Date(order.createdAt).toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
@@ -71,7 +74,7 @@ export default function AdminOrderHeader({
   const handleCopyId = () => {
     navigator.clipboard.writeText(order.id);
     setCopiedId(true);
-    notifySuccess("Order ID copied to clipboard");
+    notifySuccess(t("admin.orderDetail.header.copied"));
     setTimeout(() => setCopiedId(false), 2000);
   };
 
@@ -88,10 +91,10 @@ export default function AdminOrderHeader({
       link.download = `invoice-${order.id.slice(0, 8)}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
-      notifySuccess("Invoice downloaded successfully");
+      notifySuccess(t("admin.orderDetail.header.invoiceDownloaded"));
     } catch (err) {
       console.error(err);
-      notifyError("Failed to download invoice");
+      notifyError(t("admin.orderDetail.header.invoiceFailed"));
     } finally {
       setDownloadingInvoice(false);
       setDropdownOpen(false);
@@ -102,8 +105,8 @@ export default function AdminOrderHeader({
     setDropdownOpen(false);
     const isPaid = order.isPaid;
     const confirmMsg = isPaid
-      ? "Warning: This order has been paid. Cancelling it will flag it for refund review. Continue?"
-      : "Are you sure you want to cancel this order?";
+      ? t("admin.orderDetail.header.confirmCancelPaid")
+      : t("admin.orderDetail.header.confirmCancel");
 
     if (window.confirm(confirmMsg)) {
       await onStatusTransition("cancelled");
@@ -113,13 +116,11 @@ export default function AdminOrderHeader({
   const handleRefund = async () => {
     setDropdownOpen(false);
     if (!order.isPaid) {
-      notifyError("Cannot refund an order that has not been paid.");
+      notifyError(t("admin.orderDetail.header.cannotRefundUnpaid"));
       return;
     }
     if (
-      window.confirm(
-        "Initiate refund review for this order? This will cancel the order and mark it for payment refund.",
-      )
+      window.confirm(t("admin.orderDetail.header.confirmRefund"))
     ) {
       await onStatusTransition("cancelled");
     }
@@ -132,7 +133,7 @@ export default function AdminOrderHeader({
       const resumeStatus = order.isPaid ? "ready_to_print" : "quote_requested";
       await onStatusTransition(resumeStatus);
     } else {
-      const reason = window.prompt("Enter reason for placing order On Hold:");
+      const reason = window.prompt(t("admin.orderDetail.header.promptHoldReason"));
       if (reason && reason.trim()) {
         await onStatusTransition("on_hold", { holdReason: reason.trim() });
       }
@@ -148,7 +149,7 @@ export default function AdminOrderHeader({
             <Link
               to="/admin/orders"
               className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
-              title="Back to Orders"
+              title={t("admin.orderDetail.header.backToOrders")}
             >
               <ArrowLeft size={18} />
             </Link>
@@ -162,7 +163,7 @@ export default function AdminOrderHeader({
                   type="button"
                   onClick={handleCopyId}
                   className="text-slate-400 hover:text-slate-600 p-1 rounded transition-colors"
-                  title="Copy full Order ID"
+                  title={t("admin.orderDetail.header.copyOrderId")}
                 >
                   {copiedId ? (
                     <Check size={14} className="text-emerald-600" />
@@ -200,18 +201,18 @@ export default function AdminOrderHeader({
                 )}`}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5 opacity-80" />
-                {formatOrderStatusLabel(order.status)}
+                {formatOrderStatusLabel(order.status, t)}
               </span>
 
               {order.isPaid && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  Paid
+                  {t("admin.orderDetail.header.paid")}
                 </span>
               )}
 
               {order.flaggedForRefundReview && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200 animate-pulse">
-                  <AlertTriangle size={11} className="mr-1" /> Refund Review
+                  <AlertTriangle size={11} className="mr-1" /> {t("admin.orderDetail.header.refundReview")}
                 </span>
               )}
             </div>
@@ -225,7 +226,7 @@ export default function AdminOrderHeader({
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                 aria-expanded={dropdownOpen}
               >
-                <span>Actions</span>
+                <span>{t("admin.orderDetail.header.actions")}</span>
                 <ChevronDown size={14} className="text-slate-500" />
               </button>
 
@@ -240,8 +241,8 @@ export default function AdminOrderHeader({
                     <FileDown size={16} className="text-slate-500" />
                     <span>
                       {downloadingInvoice
-                        ? "Downloading..."
-                        : "Download PDF Invoice"}
+                        ? t("admin.orderDetail.header.downloading")
+                        : t("admin.orderDetail.header.downloadInvoice")}
                     </span>
                   </button>
 
@@ -257,12 +258,12 @@ export default function AdminOrderHeader({
                         {normalizedStatus === "on_hold" ? (
                           <>
                             <PlayCircle size={16} className="text-amber-600" />
-                            <span>Resume Order</span>
+                            <span>{t("admin.orderDetail.header.resumeOrder")}</span>
                           </>
                         ) : (
                           <>
                             <PauseCircle size={16} className="text-amber-600" />
-                            <span>Place On Hold</span>
+                            <span>{t("admin.orderDetail.header.placeOnHold")}</span>
                           </>
                         )}
                       </button>
@@ -275,7 +276,7 @@ export default function AdminOrderHeader({
                       className="w-full text-left px-3.5 py-2 text-sm text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 transition-colors"
                     >
                       <RotateCcw size={16} className="text-rose-500" />
-                      <span>Refund Order</span>
+                      <span>{t("admin.orderDetail.header.refundOrder")}</span>
                     </button>
                   )}
 
@@ -286,7 +287,7 @@ export default function AdminOrderHeader({
                       className="w-full text-left px-3.5 py-2 text-sm text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 transition-colors"
                     >
                       <XCircle size={16} className="text-rose-500" />
-                      <span>Cancel Order</span>
+                      <span>{t("admin.orderDetail.header.cancelOrder")}</span>
                     </button>
                   )}
                 </div>

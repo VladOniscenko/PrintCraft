@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 import SeoManager from "./components/SeoManager";
 import api from "./services/api";
+import { useI18n } from "./i18n/I18nContext.tsx";
 
 const recentVisitDispatches = new Map<string, number>();
 
@@ -225,6 +226,7 @@ function LanguageRouteGuard() {
 }
 
 export default function App() {
+  const { t } = useI18n();
   return (
     <>
       <AuthSessionGuard />
@@ -234,7 +236,7 @@ export default function App() {
       <Suspense
         fallback={
           <div className="min-h-[50vh] flex items-center justify-center text-[#2e423d]">
-            Loading...
+            {t("common.loading")}
           </div>
         }
       >

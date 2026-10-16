@@ -27,7 +27,7 @@ const materials = [
   { id: "PLA", label: "PLA", detail: "home.quickQuote.pla" },
   { id: "PETG", label: "PETG", detail: "home.quickQuote.petg" },
   { id: "TPU", label: "TPU", detail: "home.quickQuote.tpu" },
-];
+] as const;
 
 export default function QuickQuoteFlow() {
   const { t, localizePath } = useI18n();

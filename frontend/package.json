@@ -7,6 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "lint:i18n": "eslint --config eslint.i18n.config.js src",
+    "check:i18n:keys": "node scripts/check-i18n.cjs",
+    "check:i18n": "npm run check:i18n:keys && tsc -b && npm run lint:i18n",
+    "check": "npm run check:i18n",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -21,7 +21,7 @@ const steps = [
     text: "home.steps.printText",
     icon: PackageCheck,
   },
-];
+] as const;
 
 export default function HomeSteps() {
   const { t, localizePath } = useI18n();

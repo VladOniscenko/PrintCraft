@@ -1,3 +1,5 @@
+import type { TranslationKey } from "../i18n/translations";
+
 export type ShippingInfo = {
   fullName: string;
   phoneNumber: string;
@@ -26,7 +28,7 @@ export function normalizeShippingInfo(input: ShippingInfo): ShippingInfo {
 // t functie toegevoegd als parameter
 export function validateShippingInfo(
   input: ShippingInfo,
-  t: (key: string) => string,
+  t: (key: TranslationKey, vars?: Record<string, string | number>) => string,
 ): Record<string, string> {
   const errors: Record<string, string> = {};
   const normalized = normalizeShippingInfo(input);

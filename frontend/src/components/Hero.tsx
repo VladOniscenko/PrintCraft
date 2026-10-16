@@ -207,7 +207,7 @@ export default function Hero() {
 
   return (
     <section
-      aria-label="Promotional slideshow"
+      aria-label={t("hero.slideshowAria")}
       className="relative w-full rounded-[2.2rem] overflow-hidden bg-gradient-to-br from-[#061e16] via-[#0b3326] to-[#041611] border border-emerald-500/25 shadow-[0_28px_60px_-15px_rgba(4,22,17,0.7)] text-white transition-all"
     >
       {/* Background Accent Gradients & Glows */}
@@ -223,7 +223,7 @@ export default function Hero() {
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{isNl ? "Uitgelichte prints" : "Promotional Showcase"}</span>
+              <span>{t("hero.promotionalBadge")}</span>
             </span>
             <span className="text-xs font-mono text-emerald-200/60 tracking-wider">
               {String(currentIndex + 1).padStart(2, "0")} /{" "}
@@ -248,7 +248,7 @@ export default function Hero() {
               <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-[#06241b] border border-emerald-500/40 text-emerald-300 shadow-inner">
                 <Tag className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span className="text-xs uppercase font-bold tracking-wider text-emerald-400/90">
-                  {isNl ? "Prijs:" : "Price:"}
+                  {t("hero.priceLabel")}
                 </span>
                 <span className="text-base sm:text-lg font-extrabold text-white">
                   {slidePrice}
@@ -266,11 +266,11 @@ export default function Hero() {
                   onMouseLeave={() => setTooltipOpen(false)}
                   onFocus={() => setTooltipOpen(true)}
                   onBlur={() => setTooltipOpen(false)}
-                  aria-label={isNl ? "Instructies en printtips bekijken" : "View slide instructions and printing tips"}
+                  aria-label={t("hero.guideAria")}
                   className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-emerald-100 bg-white/5 border border-emerald-500/25 hover:border-emerald-400/60 hover:bg-white/10 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
                 >
                   <HelpCircle className="w-4 h-4 text-emerald-400" />
-                  <span>{isNl ? "Print- & modelgids" : "Printing & Model Guide"}</span>
+                  <span>{t("hero.guideButton")}</span>
                 </button>
 
                 {/* Floating Tooltip Card */}
@@ -281,7 +281,7 @@ export default function Hero() {
                   >
                     <div className="flex items-center gap-2 pb-2 mb-2 border-b border-emerald-500/20 font-semibold text-emerald-300">
                       <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>{isNl ? "Specificaties & Instructies" : "Specifications & Instructions"}</span>
+                      <span>{t("hero.specsTitle")}</span>
                     </div>
                     <p className="leading-relaxed text-emerald-100/90">
                       {slideTooltip}
@@ -300,14 +300,14 @@ export default function Hero() {
               to={localizePath("/checkout")}
               className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-emerald-500 to-teal-400 text-gray-950 hover:from-emerald-400 hover:to-teal-300 shadow-[0_8px_20px_rgba(16,185,129,0.35)] transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span>{isNl ? "Vraag een Offerte Aan" : (t("hero.ctaQuote") || "Get Instant 3D Quote")}</span>
+              <span>{t("hero.ctaQuote")}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to={localizePath("/faq")}
               className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-semibold text-sm bg-white/10 hover:bg-white/15 border border-white/20 text-white transition-all hover:scale-[1.02]"
             >
-              <span>{isNl ? "Bekijk FAQ" : "View FAQ"}</span>
+              <span>{t("hero.viewFaq")}</span>
             </Link>
           </div>
 
@@ -315,15 +315,15 @@ export default function Hero() {
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-emerald-500/15 max-w-lg">
             <div className="flex items-center gap-2 text-xs text-emerald-100/80">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>{isNl ? "2-5 werkdagen" : "2-5 working days"}</span>
+              <span>{t("hero.leadTimeBadge")}</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-emerald-100/80">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>{isNl ? "±0.1mm Precisie" : "±0.1mm Precision"}</span>
+              <span>{t("hero.precisionBadge")}</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-emerald-100/80">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>{isNl ? "Duurzaam PLA & PETG" : "Eco PLA & PETG"}</span>
+              <span>{t("hero.materialsBadge")}</span>
             </div>
           </div>
         </div>
@@ -345,12 +345,12 @@ export default function Hero() {
               {currentSlide.mediaType === "model3d" ? (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/85 border border-emerald-400/40 text-emerald-300 backdrop-blur-md shadow-lg">
                   <Box className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{isNl ? "Interactief 3D" : "3D Interactive"}</span>
+                  <span>{t("hero.interactive3d")}</span>
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-950/85 border border-teal-400/40 text-teal-300 backdrop-blur-md shadow-lg">
                   <ImageIcon className="w-3.5 h-3.5 text-teal-400" />
-                  <span>{isNl ? "Uitgelichte afbeelding" : "Promotional Image"}</span>
+                  <span>{t("hero.featuredImage")}</span>
                 </span>
               )}
             </div>
@@ -366,7 +366,7 @@ export default function Hero() {
                 fallback={
                   <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
                     <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
-                    <span>{isNl ? "3D weergave laden..." : "Loading 3D preview..."}</span>
+                    <span>{t("hero.loading3d")}</span>
                   </div>
                 }
               >
@@ -386,7 +386,7 @@ export default function Hero() {
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/60 text-emerald-200/90 border border-emerald-500/20 backdrop-blur-md shadow-sm">
                   <RotateCcw className="w-3 h-3 text-emerald-400" />
-                  <span>{isNl ? "Sleep om te draaien · Scroll om te zoomen" : "Drag to rotate · Scroll to zoom"}</span>
+                  <span>{t("hero.dragToRotate")}</span>
                 </span>
               </div>
             </div>
@@ -433,7 +433,7 @@ export default function Hero() {
           <button
             type="button"
             onClick={prevSlide}
-            aria-label={isNl ? "Vorige dia" : "Previous promotional slide"}
+            aria-label={t("hero.prevSlideAria")}
             className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/40 text-emerald-200 transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -441,7 +441,7 @@ export default function Hero() {
           <button
             type="button"
             onClick={nextSlide}
-            aria-label={isNl ? "Volgende dia" : "Next promotional slide"}
+            aria-label={t("hero.nextSlideAria")}
             className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/40 text-emerald-200 transition-colors cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
@@ -452,7 +452,7 @@ export default function Hero() {
         <div
           className="flex items-center justify-center gap-2.5 justify-self-center"
           role="tablist"
-          aria-label={isNl ? "Diavoorstelling paginering" : "Slideshow pagination"}
+          aria-label={t("hero.paginationAria")}
         >
           {slides.map((slide, idx) => {
             const isActive = idx === currentIndex;
@@ -464,7 +464,7 @@ export default function Hero() {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                aria-label={isNl ? `Ga naar dia ${idx + 1}: ${slideItemTitle}` : `Go to slide ${idx + 1}: ${slideItemTitle}`}
+                aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
                 onClick={() => goToSlide(idx)}
                 className={`transition-[width,background-color,opacity] duration-300 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
                   isActive
@@ -484,7 +484,7 @@ export default function Hero() {
             }`}
           />
           <span className="text-right">
-            {isPaused ? (isNl ? "Gepauzeerd" : "Paused") : (isNl ? "Automatisch 5s" : "Auto 5s")}
+            {isPaused ? t("hero.paused") : t("hero.auto")}
           </span>
         </div>
       </div>

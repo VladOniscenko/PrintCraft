@@ -11,6 +11,7 @@ import {
 import type { OrderDetailsDto, OrderFileAsset } from "../types";
 import { resolveAssetUrl } from "../../../utils/assetUrl";
 import ModelInspectorModal from "../../ModelInspectorModal";
+import { useI18n } from "../../../i18n/I18nContext";
 
 interface FilesAssetsCardProps {
   order: OrderDetailsDto;
@@ -18,6 +19,7 @@ interface FilesAssetsCardProps {
 }
 
 export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
+  const { t } = useI18n();
   const [inspectingFile, setInspectingFile] = useState<OrderFileAsset | null>(
     null,
   );
@@ -66,11 +68,11 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-slate-900">
-              Files & Assets
+              {t("admin.orderDetail.sidebar.filesTitle")}
             </h3>
             <p className="text-xs text-slate-500">
-              {files.length} uploaded {files.length === 1 ? "file" : "files"}{" "}
-              (.stl, .step, images)
+              {files.length} {t("admin.orderDetail.sidebar.uploaded")}{" "}
+              {t("admin.orderDetail.sidebar.fileTypesHint")}
             </p>
           </div>
         </div>
@@ -84,7 +86,7 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
         <div className="text-center py-6 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
           <Layers className="mx-auto text-slate-300 mb-1.5" size={28} />
           <p className="text-xs text-slate-500">
-            No uploaded files associated with this order
+            {t("admin.orderDetail.sidebar.noFiles")}
           </p>
         </div>
       ) : (
@@ -120,15 +122,15 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
                     <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                       {file.role === "source" || file.label?.includes("Source") || file.kind === "image" ? (
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-emerald-50 text-emerald-700 border-emerald-200">
-                          Source File
+                          {t("admin.orderDetail.sidebar.sourceFile")}
                         </span>
                       ) : file.role === "preview" || file.label?.includes("Preview") || file.fileName.toLowerCase().endsWith(".glb") ? (
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-purple-50 text-purple-700 border-purple-200">
-                          Web Preview (.glb)
+                          {t("admin.orderDetail.sidebar.webPreview")}
                         </span>
                       ) : file.role === "production" || file.label?.includes("Production") || [".3mf", ".stl", ".obj", ".step"].some(e => file.fileName.toLowerCase().endsWith(e)) ? (
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-blue-50 text-blue-700 border-blue-200">
-                          Production File ({file.extension ? file.extension.replace(".", "").toUpperCase() : "3MF/STL"})
+                          {t("admin.orderDetail.sidebar.productionFile")} ({file.extension ? file.extension.replace(".", "").toUpperCase() : "3MF/STL"})
                         </span>
                       ) : (
                         <span
@@ -152,14 +154,14 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
                         if (linkedItem?.activeChangeRequest?.status === "pending_customer") {
                           return (
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-amber-100 text-amber-800 border-amber-300">
-                              Change Requested
+                              {t("admin.orderDetail.sidebar.changeRequested")}
                             </span>
                           );
                         }
                         if (linkedItem?.activeChangeRequest?.status === "revision_submitted") {
                           return (
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-emerald-100 text-emerald-800 border-emerald-300">
-                              Revision Submitted
+                              {t("admin.orderDetail.sidebar.revisionSubmitted")}
                             </span>
                           );
                         }
@@ -176,7 +178,7 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
                       type="button"
                       onClick={() => setInspectingFile(file)}
                       className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                      title="Inspect 3D Model"
+                      title={t("admin.orderDetail.sidebar.inspectModel")}
                     >
                       <Eye size={14} />
                     </button>
@@ -188,7 +190,7 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-1.5 text-slate-500 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
-                    title="Download file"
+                    title={t("admin.orderDetail.sidebar.downloadFile")}
                   >
                     <Download size={14} />
                   </a>

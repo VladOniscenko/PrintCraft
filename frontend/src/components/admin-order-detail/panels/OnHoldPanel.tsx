@@ -1,11 +1,14 @@
 import { PauseCircle, PlayCircle, XCircle, AlertTriangle } from "lucide-react";
 import type { StatusPanelProps } from "../types";
+import { useI18n } from "../../../i18n/I18nContext";
 
 export default function OnHoldPanel({
   order,
   onStatusTransition,
   isProcessing,
 }: StatusPanelProps) {
+  const { t } = useI18n();
+
   const handleResume = async () => {
     // If order was paid, return to ReadyToPrint; otherwise QuoteRequested
     const resumeStatus = order.isPaid ? "ready_to_print" : "quote_requested";
@@ -13,7 +16,7 @@ export default function OnHoldPanel({
   };
 
   const handleCancel = async () => {
-    if (window.confirm("Are you sure you want to cancel this order?")) {
+    if (window.confirm(t("admin.orderDetail.panels.onHold.confirmCancel"))) {
       await onStatusTransition("cancelled");
     }
   };
@@ -29,14 +32,14 @@ export default function OnHoldPanel({
           <div>
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded text-xs font-semibold bg-orange-200 text-orange-900 uppercase tracking-wide">
-                Order Paused
+                {t("admin.orderDetail.panels.onHold.badge")}
               </span>
               <h2 className="text-base font-bold text-slate-900">
-                Order is On Hold
+                {t("admin.orderDetail.panels.onHold.title")}
               </h2>
             </div>
             <p className="text-xs text-slate-600 mt-1">
-              Production or quoting for this order has been temporarily paused.
+              {t("admin.orderDetail.panels.onHold.subtitle")}
             </p>
           </div>
         </div>
@@ -49,7 +52,7 @@ export default function OnHoldPanel({
             className="px-3.5 py-2 rounded-lg text-xs font-semibold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 transition-colors flex items-center gap-1.5"
           >
             <XCircle size={14} />
-            <span>Cancel Order</span>
+            <span>{t("admin.orderDetail.panels.onHold.cancelOrder")}</span>
           </button>
 
           <button
@@ -59,7 +62,7 @@ export default function OnHoldPanel({
             className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50"
           >
             <PlayCircle size={15} />
-            <span>{isProcessing ? "Resuming..." : "Resume Order"}</span>
+            <span>{isProcessing ? t("admin.orderDetail.panels.onHold.resuming") : t("admin.orderDetail.panels.onHold.resumeOrder")}</span>
           </button>
         </div>
       </div>
@@ -68,13 +71,13 @@ export default function OnHoldPanel({
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
         <h3 className="text-sm font-semibold text-slate-900 pb-2 border-b border-slate-100 flex items-center gap-2">
           <AlertTriangle size={16} className="text-orange-600" />
-          <span>Admin Reason for Hold</span>
+          <span>{t("admin.orderDetail.panels.onHold.reasonHeading")}</span>
         </h3>
 
         <div className="p-4 rounded-xl bg-orange-50/70 border border-orange-150 text-xs">
           <p className="text-slate-800 font-medium whitespace-pre-wrap leading-relaxed">
             {order.holdReason ||
-              "No specific reason provided by administrator."}
+              t("admin.orderDetail.panels.onHold.noReasonProvided")}
           </p>
         </div>
       </div>

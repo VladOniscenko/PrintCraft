@@ -188,7 +188,7 @@ export default function AdminUsers() {
                       to={`/admin/users/${user.id}`}
                       className="admin-btn admin-btn-secondary"
                     >
-                      View details
+                      {t("admin.users.viewDetails")}
                     </Link>
                     <button
                       onClick={() => startEdit(user)}

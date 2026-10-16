@@ -11,10 +11,12 @@ import {
 import type { StatusPanelProps } from "../types";
 import { formatCurrencyAmount } from "../../../utils/currency";
 import { normalizeOrderStatus } from "../../../utils/orderStatus";
+import { useI18n } from "../../../i18n/I18nContext";
 
 export default function ShippedCancelledPanel({
   order,
 }: StatusPanelProps) {
+  const { t } = useI18n();
   const normStatus = normalizeOrderStatus(order.status);
   const isShipped = normStatus === "shipped";
   const isCancelled = normStatus === "cancelled";
@@ -54,17 +56,17 @@ export default function ShippedCancelledPanel({
           <div>
             <h2 className="text-base font-bold text-slate-900">
               {isShipped
-                ? "Order Shipped & Fulfilled"
+                ? t("admin.orderDetail.panels.shippedCancelled.shippedTitle")
                 : isCancelled
-                ? "Order Cancelled"
-                : "Order Returned"}
+                ? t("admin.orderDetail.panels.shippedCancelled.cancelledTitle")
+                : t("admin.orderDetail.panels.shippedCancelled.returnedTitle")}
             </h2>
             <p className="text-xs text-slate-600 mt-0.5">
               {isShipped
-                ? "This order has been manufactured, quality inspected, and dispatched."
+                ? t("admin.orderDetail.panels.shippedCancelled.shippedSubtitle")
                 : isCancelled
-                ? "This order was cancelled. Review records and refund status below."
-                : "This order was marked as returned by customer."}
+                ? t("admin.orderDetail.panels.shippedCancelled.cancelledSubtitle")
+                : t("admin.orderDetail.panels.shippedCancelled.returnedSubtitle")}
             </p>
           </div>
         </div>
@@ -72,7 +74,7 @@ export default function ShippedCancelledPanel({
         {order.flaggedForRefundReview && (
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">
             <AlertTriangle size={14} />
-            <span>Refund Review Required</span>
+            <span>{t("admin.orderDetail.panels.shippedCancelled.refundReviewTitle")}</span>
           </span>
         )}
       </div>
@@ -81,26 +83,26 @@ export default function ShippedCancelledPanel({
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
         <h3 className="text-sm font-semibold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
           <CreditCard size={16} className="text-emerald-600" />
-          <span>Finalized Financial Summary</span>
+          <span>{t("admin.orderDetail.panels.shippedCancelled.summaryTitle")}</span>
         </h3>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60">
-            <span className="text-slate-500 block mb-0.5">Subtotal</span>
+            <span className="text-slate-500 block mb-0.5">{t("admin.orderDetail.panels.shippedCancelled.subtotal")}</span>
             <strong className="text-sm font-mono text-slate-900">
               {formatCurrencyAmount(order.subtotalAmount)}
             </strong>
           </div>
 
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60">
-            <span className="text-slate-500 block mb-0.5">Setup Fee</span>
+            <span className="text-slate-500 block mb-0.5">{t("admin.orderDetail.panels.shippedCancelled.setupFee")}</span>
             <strong className="text-sm font-mono text-slate-900">
               +{formatCurrencyAmount(order.serviceFeePrice)}
             </strong>
           </div>
 
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60">
-            <span className="text-slate-500 block mb-0.5">Delivery Fee</span>
+            <span className="text-slate-500 block mb-0.5">{t("admin.orderDetail.panels.shippedCancelled.deliveryFee")}</span>
             <strong className="text-sm font-mono text-slate-900">
               +{formatCurrencyAmount(order.deliveryPrice)}
             </strong>
@@ -108,7 +110,9 @@ export default function ShippedCancelledPanel({
 
           <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
             <span className="text-emerald-700 block mb-0.5 font-medium">
-              {order.isPaid ? "Total Paid" : "Total Finalized"}
+              {order.isPaid
+                ? t("admin.orderDetail.panels.shippedCancelled.totalPaid")
+                : t("admin.orderDetail.panels.shippedCancelled.totalFinalized")}
             </span>
             <strong className="text-base font-mono text-emerald-900">
               {formatCurrencyAmount(finalizedTotal)}
@@ -118,7 +122,7 @@ export default function ShippedCancelledPanel({
 
         {order.orderDiscountAmount > 0 && (
           <p className="text-xs text-emerald-700">
-            Order discount applied: -{formatCurrencyAmount(order.orderDiscountAmount)}
+            {t("admin.orderDetail.panels.shippedCancelled.orderDiscountApplied")}{formatCurrencyAmount(order.orderDiscountAmount)}
           </p>
         )}
       </div>
@@ -127,21 +131,21 @@ export default function ShippedCancelledPanel({
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
         <h3 className="text-sm font-semibold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
           <Printer size={16} className="text-teal-600" />
-          <span>Production Record</span>
+          <span>{t("admin.orderDetail.panels.shippedCancelled.productionRecord")}</span>
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70">
-            <span className="text-slate-400 block mb-1">Assigned Printer</span>
+            <span className="text-slate-400 block mb-1">{t("admin.orderDetail.panels.shippedCancelled.assignedPrinter")}</span>
             <strong className="text-sm text-slate-800">
-              {order.assignedPrinter || "Not assigned"}
+              {order.assignedPrinter || t("admin.orderDetail.panels.shippedCancelled.notAssigned")}
             </strong>
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70">
-            <span className="text-slate-400 block mb-1">Loaded Filament / Material</span>
+            <span className="text-slate-400 block mb-1">{t("admin.orderDetail.panels.shippedCancelled.loadedMaterial")}</span>
             <strong className="text-sm text-slate-800">
-              {order.assignedMaterial || "Not assigned"}
+              {order.assignedMaterial || t("admin.orderDetail.panels.shippedCancelled.notAssigned")}
             </strong>
           </div>
         </div>
@@ -152,13 +156,13 @@ export default function ShippedCancelledPanel({
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
           <h3 className="text-sm font-semibold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
             <Truck size={16} className="text-purple-600" />
-            <span>Fulfillment & Shipping Details</span>
+            <span>{t("admin.orderDetail.panels.shippedCancelled.fulfillmentDetails")}</span>
           </h3>
 
           <div className="p-4 rounded-xl bg-purple-50/50 border border-purple-150 flex flex-wrap items-center justify-between gap-4 text-xs">
             <div>
               <span className="text-purple-700 font-semibold block mb-1">
-                Tracking Number / Code
+                {t("admin.orderDetail.panels.shippedCancelled.trackingNumber")}
               </span>
               <strong className="text-sm font-mono text-slate-900">
                 {order.trackingCode || "N/A"}
@@ -172,7 +176,7 @@ export default function ShippedCancelledPanel({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-purple-700 bg-white border border-purple-200 hover:bg-purple-100 transition-colors"
               >
-                <span>Track Package</span>
+                <span>{t("admin.orderDetail.panels.shippedCancelled.trackPackage")}</span>
                 <ExternalLink size={13} />
               </a>
             )}

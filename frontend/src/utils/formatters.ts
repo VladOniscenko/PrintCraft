@@ -2,13 +2,15 @@
  * Formatting and translation helper utilities for checkout, quotes, and materials.
  */
 
+import type { TranslationKey } from "../i18n/translations";
+
 /**
  * Translates single or comma/slash-separated color strings (e.g. "Black, Green, White" -> "Zwart, Groen, Wit").
  * Supports material suffixes like "Black PLA" -> "Zwart PLA" or "White PETG" -> "Wit PETG".
  */
 export function translateColorText(
   colorText: string | undefined | null,
-  t: (key: string, vars?: Record<string, string | number>) => string,
+  t: (key: TranslationKey, vars?: Record<string, string | number>) => string,
 ): string {
   if (!colorText) return "";
 
@@ -39,12 +41,12 @@ export function translateColorText(
     const lower = colorName.toLowerCase();
     const camel = lower.replace(/[-_\s]+(.)?/g, (_, c) => (c ? c.toUpperCase() : ""));
 
-    let translated = t(`colors.${lower}`);
+    let translated = t(`colors.${lower}` as TranslationKey);
     if (translated && !translated.startsWith("🔴")) {
       return `${translated}${materialSuffix}`;
     }
 
-    translated = t(`colors.${camel}`);
+    translated = t(`colors.${camel}` as TranslationKey);
     if (translated && !translated.startsWith("🔴")) {
       return `${translated}${materialSuffix}`;
     }
@@ -53,7 +55,9 @@ export function translateColorText(
     if (materialSuffix) {
       const wholeLower = trimmed.toLowerCase();
       const wholeCamel = wholeLower.replace(/[-_\s]+(.)?/g, (_, c) => (c ? c.toUpperCase() : ""));
-      const wholeTrans = t(`colors.${wholeLower}`) || t(`colors.${wholeCamel}`);
+      const wholeTrans =
+        t(`colors.${wholeLower}` as TranslationKey) ||
+        t(`colors.${wholeCamel}` as TranslationKey);
       if (wholeTrans && !wholeTrans.startsWith("🔴")) {
         return wholeTrans;
       }
@@ -71,7 +75,7 @@ export function translateColorText(
  */
 export function formatPrintQuality(
   quality: string | undefined | null,
-  t: (key: string, vars?: Record<string, string | number>) => string,
+  t: (key: TranslationKey, vars?: Record<string, string | number>) => string,
 ): string {
   if (!quality) return "";
 

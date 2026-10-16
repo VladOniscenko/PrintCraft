@@ -55,7 +55,7 @@ export default function AdminOrderDetail() {
     try {
       if (targetStatus === "paid") {
         await api.put(`/admin/orders/${id}/paid`);
-        notifySuccess("Order marked as paid");
+        notifySuccess(t("admin.orderDetail.dashboard.markedPaid"));
       } else {
         await api.patch(`/admin/orders/${id}/status`, {
           targetStatus,
@@ -67,7 +67,11 @@ export default function AdminOrderDetail() {
           trackingNumber: payload?.trackingNumber,
           trackingUrl: payload?.trackingUrl,
         });
-        notifySuccess(`Order status transitioned to ${targetStatus}`);
+        notifySuccess(
+          t("admin.orderDetail.dashboard.transitionSuccess", {
+            status: targetStatus,
+          }),
+        );
       }
 
       await fetchOrder();
@@ -75,7 +79,7 @@ export default function AdminOrderDetail() {
       console.error("Transition failed:", err);
       const errMsg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message || "Status transition rejected by State Machine";
+          ?.message || t("admin.orderDetail.dashboard.transitionFailed");
       notifyError(errMsg);
     } finally {
       setIsProcessing(false);
@@ -88,7 +92,7 @@ export default function AdminOrderDetail() {
         <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
           <Loader2 className="animate-spin text-teal-600" size={36} />
           <p className="text-sm font-medium text-slate-500">
-            Loading unified order dashboard...
+            {t("admin.orderDetail.dashboard.loading")}
           </p>
         </div>
       </AdminLayout>
@@ -100,15 +104,17 @@ export default function AdminOrderDetail() {
       <AdminLayout wide>
         <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
           <AlertCircle className="text-amber-500" size={40} />
-          <h2 className="text-lg font-bold text-slate-800">Order Not Found</h2>
+          <h2 className="text-lg font-bold text-slate-800">
+            {t("admin.orderDetail.dashboard.notFound")}
+          </h2>
           <p className="text-sm text-slate-500">
-            The requested order ID does not exist or has been removed.
+            {t("admin.orderDetail.dashboard.notFoundDesc")}
           </p>
           <Link
             to="/admin/orders"
             className="mt-2 text-sm font-semibold text-teal-700 hover:underline"
           >
-            ← Return to Orders List
+            {t("admin.orderDetail.dashboard.returnToList")}
           </Link>
         </div>
       </AdminLayout>

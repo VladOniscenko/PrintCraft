@@ -1,6 +1,8 @@
 import type { Order } from "../../types";
+import type { TranslationKey } from "../../i18n/translations";
 
-export type TranslateFn = (key: string) => string;
+export type TranslateFn = (key: TranslationKey, vars?: Record<string, string | number>) => string;
+
 
 export interface PriceSummary {
   isPendingQuote: boolean;

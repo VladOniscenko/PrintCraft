@@ -6,6 +6,7 @@ import {
   Eye,
 } from "lucide-react";
 import type { StatusPanelProps } from "../types";
+import { useI18n } from "../../../i18n/I18nContext";
 import ModelInspectorModal from "../../ModelInspectorModal";
 
 export default function PrintingPanel({
@@ -13,12 +14,13 @@ export default function PrintingPanel({
   onStatusTransition,
   isProcessing,
 }: StatusPanelProps) {
+  const { t } = useI18n();
   const [previewItem, setPreviewItem] = useState<any | null>(null);
 
   const handleFinishPrinting = async () => {
     if (
       window.confirm(
-        "Confirm that the print job has completed successfully? This will move the order to 'Post-Processing'.",
+        t("admin.orderDetail.panels.printing.confirmCompletePrompt"),
       )
     ) {
       await onStatusTransition("post_processing");
@@ -33,14 +35,14 @@ export default function PrintingPanel({
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold bg-indigo-200 text-indigo-900 uppercase tracking-wide">
               <span className="w-2 h-2 rounded-full bg-indigo-600 animate-ping" />
-              Actively Printing
+              {t("admin.orderDetail.panels.printing.badge")}
             </span>
             <h2 className="text-base font-bold text-slate-900">
-              Print Job in Progress
+              {t("admin.orderDetail.panels.printing.title")}
             </h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
-            Order is currently running on the build plate. Once completed, clear the build surface and move to QC & post-processing.
+            {t("admin.orderDetail.panels.printing.subtitle")}
           </p>
         </div>
 
@@ -51,7 +53,7 @@ export default function PrintingPanel({
           className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-50"
         >
           <CheckCircle size={16} />
-          <span>{isProcessing ? "Updating..." : "Print Complete → Move to Post-Processing"}</span>
+          <span>{isProcessing ? t("admin.orderDetail.panels.printing.updating") : t("admin.orderDetail.panels.printing.printCompleteMoveToQC")}</span>
         </button>
       </div>
 
@@ -59,19 +61,19 @@ export default function PrintingPanel({
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
         <h3 className="text-sm font-semibold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
           <Printer size={16} className="text-indigo-600" />
-          <span>Active Hardware Assignment</span>
+          <span>{t("admin.orderDetail.panels.printing.hardwareHeading")}</span>
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span className="text-slate-400 block mb-1">Assigned Printer</span>
+            <span className="text-slate-400 block mb-1">{t("admin.orderDetail.panels.printing.assignedPrinter")}</span>
             <strong className="text-sm text-slate-900 font-semibold block">
               {order.assignedPrinter || "Prusa MK4 #1"}
             </strong>
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span className="text-slate-400 block mb-1">Loaded Filament / Material</span>
+            <span className="text-slate-400 block mb-1">{t("admin.orderDetail.panels.printing.loadedMaterial")}</span>
             <strong className="text-sm text-slate-900 font-semibold block">
               {order.assignedMaterial || "PLA Basic Black"}
             </strong>
@@ -83,7 +85,7 @@ export default function PrintingPanel({
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
         <h3 className="text-sm font-semibold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
           <Layers size={16} className="text-indigo-600" />
-          <span>Build Plate Line Items ({order.items?.length || 0})</span>
+          <span>{t("admin.orderDetail.panels.printing.itemsHeading", { count: order.items?.length || 0 })}</span>
         </h3>
 
         <div className="space-y-3">
@@ -99,7 +101,7 @@ export default function PrintingPanel({
                   </span>
                   <div>
                     <h4 className="font-bold text-slate-900">
-                      {item.fileName || "Model Item"}
+                      {item.fileName || t("admin.orderDetail.panels.printing.modelItemFallback")}
                     </h4>
                     <span className="text-[11px] text-slate-500">
                       {item.material} • {item.color}
@@ -109,7 +111,7 @@ export default function PrintingPanel({
 
                 <div className="flex items-center gap-2">
                   <span className="font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-800">
-                    Qty: {item.count}
+                    {t("admin.orderDetail.panels.printing.qty")} {item.count}
                   </span>
                   {(() => {
                     const glbFile =
@@ -154,7 +156,7 @@ export default function PrintingPanel({
                         className="p-1.5 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg border border-slate-200 flex items-center gap-1 transition-colors"
                       >
                         <Eye size={13} />
-                        <span>3D Preview</span>
+                        <span>{t("admin.orderDetail.panels.printing.preview3d")}</span>
                       </button>
                     );
                   })()}
@@ -163,19 +165,19 @@ export default function PrintingPanel({
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white p-2.5 rounded-lg border border-slate-200/60 text-slate-600">
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Est. Print Time</span>
+                  <span className="text-[10px] text-slate-400 block">{t("admin.orderDetail.panels.printing.estPrintTime")}</span>
                   <strong>{item.estimatedPrintTime || "N/A"}</strong>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Filament Weight</span>
+                  <span className="text-[10px] text-slate-400 block">{t("admin.orderDetail.panels.printing.filamentWeight")}</span>
                   <strong>{item.filamentUsedGrams ? `${item.filamentUsedGrams}g` : "N/A"}</strong>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Infill</span>
+                  <span className="text-[10px] text-slate-400 block">{t("admin.orderDetail.panels.printing.infill")}</span>
                   <strong>{item.infillPercent}%</strong>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Layer Height</span>
+                  <span className="text-[10px] text-slate-400 block">{t("admin.orderDetail.panels.printing.layerHeight")}</span>
                   <strong>{item.printQuality || "0.20mm"}</strong>
                 </div>
               </div>
@@ -188,7 +190,7 @@ export default function PrintingPanel({
         <ModelInspectorModal
           isOpen={true}
           onClose={() => setPreviewItem(null)}
-          fileName={previewItem.fileName || "Model"}
+          fileName={previewItem.fileName || t("orderDetail.model")}
           fileUrl={previewItem.fileUrl}
           material={previewItem.material}
           color={previewItem.color}

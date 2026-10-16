@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import type { StatusPanelProps } from "../types";
 import { useNotify } from "../../../context/NotifyContext";
+import { useI18n } from "../../../i18n/I18nContext";
 import api from "../../../services/api";
 
 const COURIER_OPTIONS = [
@@ -25,6 +26,7 @@ export default function PostProcessingPanel({
   isProcessing,
 }: StatusPanelProps) {
   const { notifyError, notifySuccess } = useNotify();
+  const { t } = useI18n();
 
   // Track & Trace inputs
   const [courier, setCourier] = useState<string>("PostNL");
@@ -62,7 +64,7 @@ export default function PostProcessingPanel({
         trackingCode: trackingNumber.trim(),
         trackingUrl: trackingUrl.trim() || null,
       });
-      notifySuccess("Tracking details saved as draft");
+      notifySuccess(t("admin.orderDetail.panels.postProcessing.draftSaved"));
       await onRefresh();
     } catch (err: unknown) {
       console.error(err);
@@ -80,12 +82,12 @@ export default function PostProcessingPanel({
     e.preventDefault();
 
     if (!qualityCheckPassed) {
-      notifyError("Quality check must be confirmed before marking order as shipped.");
+      notifyError(t("admin.orderDetail.panels.postProcessing.qcRequiredError"));
       return;
     }
 
     if (!trackingNumber.trim()) {
-      notifyError("A tracking number is required to mark the order as shipped.");
+      notifyError(t("admin.orderDetail.panels.postProcessing.trackingRequiredError"));
       return;
     }
 
@@ -104,14 +106,14 @@ export default function PostProcessingPanel({
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded text-xs font-semibold bg-purple-200 text-purple-900 uppercase tracking-wide">
-              QC & Fulfillment Gate
+              {t("admin.orderDetail.panels.postProcessing.gateBadge")}
             </span>
             <h2 className="text-base font-bold text-slate-900">
-              Post-Processing & Packaging
+              {t("admin.orderDetail.panels.postProcessing.title")}
             </h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
-            Perform dimensional and cosmetic quality inspection, package securely, and enter courier tracking information to dispatch.
+            {t("admin.orderDetail.panels.postProcessing.subtitle")}
           </p>
         </div>
       </div>
@@ -121,7 +123,7 @@ export default function PostProcessingPanel({
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
           <h3 className="text-sm font-semibold text-slate-900 pb-2 border-b border-slate-100 flex items-center gap-2">
             <ShieldCheck size={16} className="text-purple-600" />
-            <span>Quality Inspection Gate</span>
+            <span>{t("admin.orderDetail.panels.postProcessing.qcHeading")}</span>
           </h3>
 
           <div className="p-3.5 rounded-xl bg-purple-50/60 border border-purple-150 text-xs space-y-2">
@@ -134,10 +136,10 @@ export default function PostProcessingPanel({
               />
               <div>
                 <span className="font-bold text-slate-900 block">
-                  Quality check passed (Dimensions, surfaces, and support removal verified) *
+                  {t("admin.orderDetail.panels.postProcessing.qcCheckbox")}
                 </span>
                 <span className="text-slate-500 text-[11px] block mt-0.5">
-                  Required by state machine before transitioning order to Shipped.
+                  {t("admin.orderDetail.panels.postProcessing.qcRequiredNote")}
                 </span>
               </div>
             </label>
@@ -149,7 +151,7 @@ export default function PostProcessingPanel({
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
               <Truck size={16} className="text-purple-600" />
-              <span>Track & Trace Courier Information</span>
+              <span>{t("admin.orderDetail.panels.postProcessing.trackingHeading")}</span>
             </h3>
 
             {trackingNumber.trim() && (
@@ -159,7 +161,7 @@ export default function PostProcessingPanel({
                 disabled={isSavingTracking}
                 className="text-xs text-purple-700 hover:text-purple-900 underline disabled:opacity-50"
               >
-                {isSavingTracking ? "Saving..." : "Save Draft"}
+                {isSavingTracking ? t("admin.orderDetail.savingButton") : t("admin.orderDetail.panels.postProcessing.saveDraft")}
               </button>
             )}
           </div>
@@ -168,7 +170,7 @@ export default function PostProcessingPanel({
             {/* Courier Dropdown */}
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">
-                Courier / Shipping Carrier *
+                {t("admin.orderDetail.panels.postProcessing.carrierLabel")}
               </label>
               <select
                 value={courier}
@@ -186,13 +188,13 @@ export default function PostProcessingPanel({
             {/* Tracking Number Input */}
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">
-                Tracking Number (Barcode / Code) *
+                {t("admin.orderDetail.panels.postProcessing.trackingNumberLabel")}
               </label>
               <input
                 type="text"
                 value={trackingNumber}
                 onChange={(e) => handleTrackingNumberChange(e.target.value)}
-                placeholder="e.g. 3SABCD123456789"
+                placeholder={t("admin.orderDetail.panels.postProcessing.trackingNumberPlaceholder")}
                 required
                 className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-purple-500 font-mono"
               />
@@ -202,14 +204,14 @@ export default function PostProcessingPanel({
           {/* Optional Tracking URL */}
           <div>
             <label className="block text-xs font-medium text-slate-700 mb-1">
-              Tracking URL (Direct link for customer)
+              {t("admin.orderDetail.panels.postProcessing.trackingUrlLabel")}
             </label>
             <div className="flex items-center gap-2">
               <input
                 type="url"
                 value={trackingUrl}
                 onChange={(e) => setTrackingUrl(e.target.value)}
-                placeholder="https://..."
+                placeholder={t("admin.orderDetail.panels.postProcessing.trackingUrlPlaceholder")}
                 className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-purple-500 font-mono text-slate-700"
               />
               {trackingUrl && (
@@ -218,7 +220,7 @@ export default function PostProcessingPanel({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 text-slate-500 hover:text-purple-600 border border-slate-200 rounded-lg hover:bg-slate-50"
-                  title="Test Tracking Link"
+                  title={t("admin.orderDetail.panels.postProcessing.testTrackingLink")}
                 >
                   <ExternalLink size={14} />
                 </a>
@@ -235,7 +237,7 @@ export default function PostProcessingPanel({
             className="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             <CheckCircle size={16} />
-            <span>{isProcessing ? "Marking as Shipped..." : "Mark as Shipped"}</span>
+            <span>{isProcessing ? t("admin.orderDetail.panels.postProcessing.markingAsShipped") : t("admin.orderDetail.panels.postProcessing.markAsShipped")}</span>
           </button>
         </div>
       </form>

@@ -11,7 +11,7 @@ interface LogoProps {
 }
 
 const Logo: React.FC<LogoProps> = ({ className = "", isLink = true }) => {
-  const { localizePath } = useI18n();
+  const { localizePath, t } = useI18n();
 
   // 1. The core content of the logo (icon + text)
   const content = (
@@ -30,7 +30,7 @@ const Logo: React.FC<LogoProps> = ({ className = "", isLink = true }) => {
           {businessInfo.name}
         </h1>
         <p className="text-xs text-gray-500 font-medium mt-0.5">
-          Powered by Oni
+          {t("common.poweredBy", { name: "Oni" })}
         </p>
       </div>
     </div>

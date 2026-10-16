@@ -18,6 +18,7 @@ import {
 import api from "../../services/api";
 import { useNotify } from "../../context/NotifyContext";
 import { useI18n } from "../../i18n/I18nContext";
+import type { TranslationKey } from "../../i18n/translations";
 import type { OrderItemChangeRequestDto } from "../../types/order";
 import { resolveAssetUrl } from "../../utils/assetUrl";
 import ModelInspectorModal from "../ModelInspectorModal";
@@ -73,10 +74,9 @@ export default function CustomerItemChangeRequestBanner({
   const isPendingCustomer = changeRequest?.status === "pending_customer";
   const isRevisionSubmitted = changeRequest?.status === "revision_submitted";
 
-
   const getReasonLabel = (reason?: string) => {
-    if (!reason) return t("orderDetail.changeRequest.reasons.other") || "Changes Required";
-    const mapped = t(`orderDetail.changeRequest.reasons.${reason}`);
+    if (!reason) return t("orderDetail.changeRequest.reasons.other");
+    const mapped = t(`orderDetail.changeRequest.reasons.${reason}` as TranslationKey);
     return mapped || reason.replace(/_/g, " ").toUpperCase();
   };
 
@@ -89,12 +89,12 @@ export default function CustomerItemChangeRequestBanner({
     const allowed = [".stl", ".obj", ".3mf", ".step", ".stp", ".glb", ".gltf"];
 
     if (!allowed.includes(ext)) {
-      setFileError("Only 3D model files (.stl, .obj, .3mf, .step, .stp, .glb) are accepted.");
+      setFileError(t("orderDetail.changeRequest.only3dFilesAccepted"));
       return;
     }
 
     if (file.size > 50 * 1024 * 1024) {
-      setFileError("File is too large. Maximum size is 50 MB.");
+      setFileError(t("orderDetail.changeRequest.fileTooLarge"));
       return;
     }
 
@@ -110,13 +110,13 @@ export default function CustomerItemChangeRequestBanner({
           name: file.name,
           size: file.size,
         });
-        notifySuccess("File uploaded successfully");
+        notifySuccess(t("orderDetail.changeRequest.uploadSuccess"));
       }
     } catch (err: unknown) {
       console.error("Upload failed", err);
       const errMsg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message || "Failed to upload file";
+          ?.message || t("orderDetail.changeRequest.uploadFailed");
       setFileError(errMsg);
       notifyError(errMsg);
     } finally {
@@ -129,7 +129,7 @@ export default function CustomerItemChangeRequestBanner({
     if (!changeRequest) return;
 
     if (changeRequest.requiresNewFile && !uploadedFile) {
-      setFileError("Please upload a replacement 3D model file to complete this revision.");
+      setFileError(t("orderDetail.changeRequest.uploadFileRequired"));
       return;
     }
 
@@ -146,7 +146,7 @@ export default function CustomerItemChangeRequestBanner({
         },
       );
 
-      notifySuccess("Revision submitted to PrintCraft engineering team!");
+      notifySuccess(t("orderDetail.changeRequest.submitSuccess"));
       setCustomerNotes("");
       setUploadedFile(null);
       if (onRefresh) {
@@ -156,7 +156,7 @@ export default function CustomerItemChangeRequestBanner({
       console.error("Failed to submit revision", err);
       const errMsg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message || "Failed to submit revision";
+          ?.message || t("orderDetail.changeRequest.submitFailed");
       notifyError(errMsg);
     } finally {
       setIsSubmitting(false);
@@ -176,7 +176,7 @@ export default function CustomerItemChangeRequestBanner({
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-500 text-white tracking-wide uppercase">
-                    {t("orderDetail.changeRequest.badgeActionRequired") || "Action Required"}
+                    {t("orderDetail.changeRequest.badgeActionRequired")}
                   </span>
                   <span className="text-xs font-bold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-md">
                     {getReasonLabel(changeRequest.reasonCategory)}
@@ -184,9 +184,10 @@ export default function CustomerItemChangeRequestBanner({
                 </div>
                 <h4 className="text-sm sm:text-base font-extrabold text-slate-900 mt-1">
                   {itemFileName
-                    ? `Changes requested for "${itemFileName}"`
-                    : t("orderDetail.changeRequest.requestedByTeam") ||
-                      "Changes requested by PrintCraft engineering"}
+                    ? t("orderDetail.changeRequest.changesRequestedFor", {
+                        fileName: itemFileName,
+                      })
+                    : t("orderDetail.changeRequest.requestedByTeam")}
                 </h4>
                 <p className="text-xs text-slate-600 mt-0.5">
                   {changeRequest.requestedAt
@@ -199,8 +200,8 @@ export default function CustomerItemChangeRequestBanner({
             <button
               type="button"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-slate-500 hover:text-slate-800 p-1.5 rounded-lg hover:bg-amber-100/60 transition-colors"
-              aria-label="Toggle change request details"
+              className="text-slate-500 hover:text-slate-800 p-1.5 rounded-lg hover:bg-amber-100/60 transition-colors cursor-pointer"
+              aria-label={t("orderDetail.changeRequest.toggleDetails")}
             >
               {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </button>
@@ -210,7 +211,7 @@ export default function CustomerItemChangeRequestBanner({
           <div className="bg-white/90 rounded-xl p-3.5 border border-amber-200/90 shadow-2xs space-y-1.5">
             <div className="flex items-center gap-1.5 text-xs font-bold text-amber-950 uppercase tracking-wide">
               <MessageSquareQuote size={15} className="text-amber-600" />
-              <span>{t("orderDetail.changeRequest.notesLabel") || "Engineer Instructions"}:</span>
+              <span>{t("orderDetail.changeRequest.notesLabel")}:</span>
             </div>
             <p className="text-xs sm:text-sm text-slate-800 font-medium whitespace-pre-wrap leading-relaxed pl-1">
               "{changeRequest.adminNotes}"
@@ -218,10 +219,7 @@ export default function CustomerItemChangeRequestBanner({
             {changeRequest.requiresNewFile && (
               <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-800 bg-amber-100/70 px-2.5 py-1 rounded-lg mt-2 inline-flex">
                 <Info size={13} className="shrink-0 text-amber-700" />
-                <span>
-                  {t("orderDetail.changeRequest.requiresFileNotice") ||
-                    "A replacement 3D model file (.stl, .obj, .3mf) is required."}
-                </span>
+                <span>{t("orderDetail.changeRequest.requiresFileNotice")}</span>
               </div>
             )}
           </div>
@@ -233,8 +231,7 @@ export default function CustomerItemChangeRequestBanner({
               {changeRequest.requiresNewFile && (
                 <div className="space-y-2">
                   <label className="block text-xs font-bold text-slate-800">
-                    {t("orderDetail.changeRequest.uploadLabel") ||
-                      "Upload Replacement 3D Model (.stl, .obj, .3mf, .step)"}
+                    {t("orderDetail.changeRequest.uploadLabel")}
                     <span className="text-red-500 ml-0.5">*</span>
                   </label>
 
@@ -248,7 +245,8 @@ export default function CustomerItemChangeRequestBanner({
                           </p>
                           {uploadedFile.size && (
                             <p className="text-[11px] text-slate-500">
-                              {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready
+                              {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB •{" "}
+                              {t("orderDetail.changeRequest.ready")}
                             </p>
                           )}
                         </div>
@@ -263,16 +261,16 @@ export default function CustomerItemChangeRequestBanner({
                             })
                           }
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition-colors cursor-pointer"
-                          title="Preview 3D model before submitting"
+                          title={t("orderDetail.changeRequest.previewBeforeSubmit")}
                         >
                           <Eye size={13} />
-                          <span>Preview 3D</span>
+                          <span>{t("orderDetail.changeRequest.preview3d")}</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setUploadedFile(null)}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                          title="Remove uploaded file"
+                          title={t("orderDetail.changeRequest.removeFile")}
                         >
                           <X size={16} />
                         </button>
@@ -293,18 +291,16 @@ export default function CustomerItemChangeRequestBanner({
                       {isUploading ? (
                         <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-700">
                           <Loader2 size={18} className="animate-spin text-amber-600" />
-                          <span>
-                            {t("orderDetail.changeRequest.uploading") || "Uploading model..."}
-                          </span>
+                          <span>{t("orderDetail.changeRequest.uploading")}</span>
                         </div>
                       ) : (
                         <>
                           <Upload size={24} className="mx-auto text-amber-600" />
                           <div className="text-xs font-bold text-slate-800">
-                            Click to select your corrected 3D model
+                            {t("orderDetail.changeRequest.clickToSelect")}
                           </div>
                           <p className="text-[11px] text-slate-500">
-                            Supports STL, OBJ, 3MF, STEP up to 50 MB
+                            {t("orderDetail.changeRequest.fileSupportHint")}
                           </p>
                         </>
                       )}
@@ -326,17 +322,14 @@ export default function CustomerItemChangeRequestBanner({
                   htmlFor={`notes-${itemId}`}
                   className="block text-xs font-bold text-slate-800"
                 >
-                  {t("orderDetail.changeRequest.customerNotesLabel") || "Your Notes / Explanation"}
+                  {t("orderDetail.changeRequest.customerNotesLabel")}
                 </label>
                 <textarea
                   id={`notes-${itemId}`}
                   rows={2}
                   value={customerNotes}
                   onChange={(e) => setCustomerNotes(e.target.value)}
-                  placeholder={
-                    t("orderDetail.changeRequest.notesPlaceholder") ||
-                    "Describe what you updated (e.g. fixed holes in mesh, thickened walls)..."
-                  }
+                  placeholder={t("orderDetail.changeRequest.notesPlaceholder")}
                   className="w-full text-xs sm:text-sm p-3 rounded-xl border border-amber-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 font-normal transition-all"
                 />
               </div>
@@ -345,18 +338,22 @@ export default function CustomerItemChangeRequestBanner({
               <div className="flex items-center justify-end gap-3 pt-1">
                 <button
                   type="submit"
-                  disabled={isSubmitting || isUploading || (changeRequest.requiresNewFile && !uploadedFile)}
+                  disabled={
+                    isSubmitting ||
+                    isUploading ||
+                    (changeRequest.requiresNewFile && !uploadedFile)
+                  }
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-xs sm:text-sm font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      <span>{t("orderDetail.changeRequest.submitting") || "Submitting..."}</span>
+                      <span>{t("orderDetail.changeRequest.submitting")}</span>
                     </>
                   ) : (
                     <>
                       <CheckCircle2 size={16} />
-                      <span>{t("orderDetail.changeRequest.submitBtn") || "Submit Revision"}</span>
+                      <span>{t("orderDetail.changeRequest.submitBtn")}</span>
                     </>
                   )}
                 </button>
@@ -376,7 +373,7 @@ export default function CustomerItemChangeRequestBanner({
             <div className="space-y-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-sky-600 text-white tracking-wide uppercase">
-                  {t("orderDetail.changeRequest.badgeRevisionSubmitted") || "Revision Under Review"}
+                  {t("orderDetail.changeRequest.badgeRevisionSubmitted")}
                 </span>
                 <span className="text-xs text-sky-800 font-medium">
                   {changeRequest.submittedAt
@@ -385,12 +382,10 @@ export default function CustomerItemChangeRequestBanner({
                 </span>
               </div>
               <h4 className="text-sm font-extrabold text-slate-900">
-                {t("orderDetail.changeRequest.submittedBannerTitle") ||
-                  "Revision Submitted to PrintCraft"}
+                {t("orderDetail.changeRequest.submittedBannerTitle")}
               </h4>
               <p className="text-xs text-slate-600 leading-relaxed">
-                {t("orderDetail.changeRequest.submittedBannerDesc") ||
-                  "Your updated 3D model and notes have been received and are pending engineer review."}
+                {t("orderDetail.changeRequest.submittedBannerDesc")}
               </p>
 
               {changeRequest.customerNotes && (
@@ -404,7 +399,8 @@ export default function CustomerItemChangeRequestBanner({
                   <div className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-900 bg-white/90 border border-sky-200 px-3 py-1.5 rounded-lg">
                     <FileCheck size={14} className="text-emerald-600 shrink-0" />
                     <span className="truncate max-w-[200px] sm:max-w-xs">
-                      {changeRequest.submittedFileName || "Updated Model"}
+                      {changeRequest.submittedFileName ||
+                        t("orderDetail.changeRequest.revisedModelFallback")}
                     </span>
                   </div>
 
@@ -413,24 +409,29 @@ export default function CustomerItemChangeRequestBanner({
                     onClick={() =>
                       setInspectingModel({
                         url: changeRequest.submittedFileUrl!,
-                        name: changeRequest.submittedFileName || "Revised Model",
+                        name:
+                          changeRequest.submittedFileName ||
+                          t("orderDetail.changeRequest.revisedModelFallback"),
                       })
                     }
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-2xs transition-colors cursor-pointer"
                   >
                     <Eye size={13} />
-                    <span>Preview 3D</span>
+                    <span>{t("orderDetail.changeRequest.preview3d")}</span>
                   </button>
 
                   <a
                     href={resolveAssetUrl(changeRequest.submittedFileUrl)}
-                    download={changeRequest.submittedFileName || "revised-model"}
+                    download={
+                      changeRequest.submittedFileName ||
+                      t("orderDetail.changeRequest.revisedModelFallback")
+                    }
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold transition-colors cursor-pointer"
                   >
                     <Download size={13} />
-                    <span>Download</span>
+                    <span>{t("orderDetail.changeRequest.download")}</span>
                   </a>
                 </div>
               )}
@@ -445,13 +446,13 @@ export default function CustomerItemChangeRequestBanner({
           <button
             type="button"
             onClick={() => setShowHistory(!showHistory)}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100/90 hover:bg-slate-200/80 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100/90 hover:bg-slate-200/80 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
           >
             <History size={14} className="text-slate-500" />
             <span>
               {showHistory
-                ? t("orderDetail.changeRequest.hideHistoryBtn") || "Hide Revision History"
-                : `${t("orderDetail.changeRequest.viewHistoryBtn") || "Revision History"} (${history.length})`}
+                ? t("orderDetail.changeRequest.hideHistoryBtn")
+                : `${t("orderDetail.changeRequest.viewHistoryBtn")} (${history.length})`}
             </span>
             {showHistory ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
@@ -470,7 +471,7 @@ export default function CustomerItemChangeRequestBanner({
                   >
                     <div className="flex items-center justify-between gap-2 flex-wrap">
                       <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">
-                        Round #{roundNum}
+                        {t("orderDetail.changeRequest.round")}{roundNum}
                       </span>
                       <span
                         className={`font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wide ${
@@ -483,13 +484,20 @@ export default function CustomerItemChangeRequestBanner({
                                 : "bg-amber-100 text-amber-800"
                         }`}
                       >
-                        {req.status.replace(/_/g, " ")}
+                        {isItemResolved
+                          ? t("orderDetail.changeRequest.badgeResolved")
+                          : isItemSuperseded
+                            ? t("orderDetail.changeRequest.badgeSuperseded")
+                            : req.status === "revision_submitted"
+                              ? t("orderDetail.changeRequest.badgeRevisionSubmitted")
+                              : t("orderDetail.changeRequest.badgeActionRequired")}
                       </span>
                     </div>
 
                     <div className="space-y-1 text-slate-700">
                       <p>
-                        <strong>Engineer Request:</strong> [{getReasonLabel(req.reasonCategory)}] "{req.adminNotes}"
+                        <strong>{t("orderDetail.changeRequest.engineerRequest")}</strong>{" "}
+                        [{getReasonLabel(req.reasonCategory)}] "{req.adminNotes}"
                       </p>
                       <p className="text-[11px] text-slate-400">
                         {new Date(req.requestedAt).toLocaleString()}
@@ -499,12 +507,13 @@ export default function CustomerItemChangeRequestBanner({
                     {req.customerNotes && (
                       <div className="p-2 bg-slate-50 rounded border border-slate-100 space-y-0.5">
                         <p className="text-slate-700">
-                          <strong>Customer Note:</strong> "{req.customerNotes}"
+                          <strong>{t("orderDetail.changeRequest.customerNote")}</strong> "{req.customerNotes}"
                         </p>
                         {req.submittedFileName && (
                           <div className="flex flex-wrap items-center gap-2 pt-0.5">
                             <span className="text-slate-600 text-[11px] font-medium">
-                              File: <strong>{req.submittedFileName}</strong>
+                              {t("orderDetail.changeRequest.file")}{" "}
+                              <strong>{req.submittedFileName}</strong>
                             </span>
                             {req.submittedFileUrl && (
                               <div className="flex items-center gap-1.5">
@@ -513,22 +522,27 @@ export default function CustomerItemChangeRequestBanner({
                                   onClick={() =>
                                     setInspectingModel({
                                       url: req.submittedFileUrl!,
-                                      name: req.submittedFileName || "Revised Model",
+                                      name:
+                                        req.submittedFileName ||
+                                        t("orderDetail.changeRequest.revisedModelFallback"),
                                     })
                                   }
                                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 text-[11px] font-bold transition-colors cursor-pointer"
-                                  title="Preview this revised model"
+                                  title={t("orderDetail.changeRequest.previewRevised")}
                                 >
                                   <Eye size={11} />
-                                  <span>Preview 3D</span>
+                                  <span>{t("orderDetail.changeRequest.preview3d")}</span>
                                 </button>
                                 <a
                                   href={resolveAssetUrl(req.submittedFileUrl)}
-                                  download={req.submittedFileName || "revised-model"}
+                                  download={
+                                    req.submittedFileName ||
+                                    t("orderDetail.changeRequest.revisedModelFallback")
+                                  }
                                   target="_blank"
                                   rel="noreferrer"
                                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 text-[11px] font-semibold transition-colors cursor-pointer"
-                                  title="Download revised file"
+                                  title={t("orderDetail.changeRequest.downloadRevised")}
                                 >
                                   <Download size={11} />
                                 </a>
@@ -547,7 +561,7 @@ export default function CustomerItemChangeRequestBanner({
                     {req.resolutionNotes && (
                       <div className="p-2 bg-emerald-50 rounded border border-emerald-100 text-emerald-900 space-y-0.5">
                         <p>
-                          <strong>Resolution:</strong> {req.resolutionNotes}
+                          <strong>{t("orderDetail.changeRequest.resolution")}</strong> {req.resolutionNotes}
                         </p>
                         {req.resolvedAt && (
                           <p className="text-[10px] text-emerald-700">

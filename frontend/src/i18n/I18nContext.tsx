@@ -10,15 +10,17 @@ import {
   languageOptions,
   translations,
   type SupportedLanguage,
+  type TranslationKey,
 } from "./translations";
 
 type I18nContextType = {
   language: SupportedLanguage;
   setLanguage: (language: SupportedLanguage) => void;
-  t: (key: string, vars?: Record<string, string | number>) => string;
+  t: (key: TranslationKey, vars?: Record<string, string | number>) => string;
   languageOptions: typeof languageOptions;
   localizePath: (path: string) => string;
 };
+
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
@@ -44,17 +46,21 @@ export function getInitialLanguage(): SupportedLanguage {
 }
 
 function getNestedTranslation(
-  obj: Record<string, any>,
+  obj: Record<string, unknown>,
   path: string,
 ): string | undefined {
   const keys = path.split(".");
-  let current = obj;
+  let current: unknown = obj;
 
   for (const key of keys) {
-    if (current === undefined || current === null) {
+    if (
+      current === undefined ||
+      current === null ||
+      typeof current !== "object"
+    ) {
       return undefined;
     }
-    current = current[key];
+    current = (current as Record<string, unknown>)[key];
   }
 
   return typeof current === "string" ? current : undefined;
@@ -116,7 +122,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   );
 
   const t = useCallback(
-    (key: string, vars?: Record<string, string | number>): string => {
+    (key: TranslationKey, vars?: Record<string, string | number>): string => {
       let value = getNestedTranslation(translations[language], key);
 
       if (!value) {

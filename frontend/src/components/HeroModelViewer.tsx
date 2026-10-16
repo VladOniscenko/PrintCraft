@@ -61,8 +61,7 @@ export default function HeroModelViewer({
   onInteractionStart,
   onInteractionEnd,
 }: HeroModelViewerProps) {
-  const { language } = useI18n();
-  const isNl = language === "nl";
+  const { t } = useI18n();
   const ext = useMemo(() => getExt(src), [src]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const modelColor = useMemo(() => pickRandomColor(), [src]);
@@ -395,14 +394,12 @@ export default function HeroModelViewer({
       />
       {status === "loading" ? (
         <p className="absolute z-40 left-1/2 -translate-x-1/2 bottom-8 text-xs text-white/75 text-center px-4">
-          {isNl ? "3D-model laden..." : "Loading 3D model..."}
+          {t("hero.loadingModel")}
         </p>
       ) : null}
       {status === "error" ? (
         <p className="absolute z-40 left-1/2 -translate-x-1/2 bottom-8 text-xs text-white/75 text-center px-4">
-          {isNl
-            ? "Dit 3D-bestand kon niet worden geladen. Probeer een ander bestand."
-            : "This STL could not be previewed. Try another STL file."}
+          {t("hero.modelLoadError")}
         </p>
       ) : null}
     </>

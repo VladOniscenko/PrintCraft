@@ -28,17 +28,17 @@ export default function ResetPassword() {
     setError("");
 
     if (!token) {
-      setError("Reset token is missing.");
+      setError(t("reset.tokenMissing"));
       return;
     }
 
     if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters.");
+      setError(t("reset.passwordTooShort"));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t("reset.passwordsMismatch"));
       return;
     }
 
@@ -51,7 +51,7 @@ export default function ResetPassword() {
       setDone(true);
     } catch (err: any) {
       console.error(err);
-      setError(err?.response?.data?.message || "Could not reset password.");
+      setError(err?.response?.data?.message || t("reset.resetFailed"));
     } finally {
       setLoading(false);
     }

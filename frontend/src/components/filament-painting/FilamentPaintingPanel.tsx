@@ -1064,7 +1064,7 @@ export default function FilamentPaintingPanel({
                       <div className="w-full h-full min-h-[380px] bg-slate-900 border border-slate-800 rounded-xl flex flex-col items-center justify-center text-slate-400 gap-2">
                         <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
                         <span className="text-xs font-semibold">
-                          Loading 3D preview...
+                          {t("quote.loading3dPreview")}
                         </span>
                       </div>
                     }
@@ -1101,7 +1101,7 @@ export default function FilamentPaintingPanel({
                 {imagePreviewUrl && (
                   <img
                     src={imagePreviewUrl}
-                    alt="Source thumbnail"
+                    alt={t("quote.sourceThumbnail")}
                     loading="lazy"
                     decoding="async"
                     className="w-10 h-10 rounded-lg object-cover border border-gray-200 shrink-0 bg-slate-900"

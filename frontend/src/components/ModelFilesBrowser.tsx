@@ -37,9 +37,7 @@ export default function ModelFilesBrowser() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleCleanup = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to clean up unused files? Files connected only to cancelled, completed, or returned orders (and orphan uploads) will be deleted. Active order files and hero slide media are strictly preserved."
-    );
+    const confirmed = window.confirm(t("modelFiles.confirmCleanup"));
     if (!confirmed) return;
 
     setCleaningUp(true);
@@ -51,12 +49,16 @@ export default function ModelFilesBrowser() {
       const { deletedCount, freedBytes } = res.data;
       setSuccessMessage(
         deletedCount > 0
-          ? `Cleanup completed: deleted ${deletedCount} files (${formatBytes(freedBytes)} freed).`
-          : "No eligible files found to clean up."
+          ? t("modelFiles.cleanupSuccess", {
+              count: deletedCount,
+              freed: formatBytes(freedBytes),
+            })
+          : t("modelFiles.noEligibleFiles")
       );
       await fetchFiles();
     } catch (err: any) {
-      const message = err?.response?.data?.message || "Failed to clean up files.";
+      const message =
+        err?.response?.data?.message || t("modelFiles.cleanupFailed");
       setError(message);
     } finally {
       setCleaningUp(false);
@@ -143,10 +145,10 @@ export default function ModelFilesBrowser() {
                 disabled={cleaningUp || loading}
                 className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50/70 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100/70 transition-colors disabled:opacity-50"
                 type="button"
-                title="Safely clean up files from cancelled, completed, and returned orders"
+                title={t("modelFiles.cleanupTooltip")}
               >
                 {cleaningUp ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-                <span>{cleaningUp ? "Cleaning..." : "Cleanup"}</span>
+                <span>{cleaningUp ? t("modelFiles.cleaning") : t("modelFiles.cleanup")}</span>
               </button>
 
               <button

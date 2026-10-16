@@ -9,6 +9,7 @@ import {
 import type { StatusPanelProps } from "../types";
 import api from "../../../services/api";
 import { useNotify } from "../../../context/NotifyContext";
+import { useI18n } from "../../../i18n/I18nContext";
 import ModelInspectorModal from "../../ModelInspectorModal";
 import AdminItemChangeRequestControl from "../items/AdminItemChangeRequestControl";
 
@@ -43,6 +44,7 @@ export default function ReadyToPrintPanel({
   isProcessing,
 }: StatusPanelProps) {
   const { notifySuccess, notifyError } = useNotify();
+  const { t } = useI18n();
 
   // Production assignments
   const [assignedPrinter, setAssignedPrinter] = useState<string>(
@@ -67,7 +69,7 @@ export default function ReadyToPrintPanel({
         assignedMaterial,
         gCodeFinalized,
       });
-      notifySuccess("Production assignment saved");
+      notifySuccess(t("admin.orderDetail.panels.readyToPrint.productionAssignmentSaved"));
       await onRefresh();
     } catch (err: unknown) {
       console.error(err);
@@ -83,17 +85,17 @@ export default function ReadyToPrintPanel({
   // Primary CTA: Start printing
   const handleStartPrint = async () => {
     if (!assignedPrinter.trim()) {
-      notifyError("Please select a printer before starting print job.");
+      notifyError(t("admin.orderDetail.panels.readyToPrint.selectPrinterError"));
       return;
     }
 
     if (!assignedMaterial.trim()) {
-      notifyError("Please select a material before starting print job.");
+      notifyError(t("admin.orderDetail.panels.readyToPrint.selectMaterialError"));
       return;
     }
 
     if (!gCodeFinalized) {
-      if (!window.confirm("G-code is not marked as finalized. Proceed to start printing anyway?")) {
+      if (!window.confirm(t("admin.orderDetail.panels.readyToPrint.gcodeWarning"))) {
         return;
       }
     }
@@ -112,14 +114,14 @@ export default function ReadyToPrintPanel({
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded text-xs font-semibold bg-teal-200 text-teal-900 uppercase tracking-wide">
-              Production Gate
+              {t("admin.orderDetail.panels.readyToPrint.gateBadge")}
             </span>
             <h2 className="text-base font-bold text-slate-900">
-              Ready to Print (Payment Confirmed)
+              {t("admin.orderDetail.panels.readyToPrint.title")}
             </h2>
           </div>
           <p className="text-xs text-slate-600 mt-1">
-            Payment has been confirmed. Assign the physical 3D printer and spool, review sliced G-code, and begin the print job.
+            {t("admin.orderDetail.panels.readyToPrint.subtitle")}
           </p>
         </div>
 
@@ -130,7 +132,7 @@ export default function ReadyToPrintPanel({
           className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-50"
         >
           <Play size={16} />
-          <span>{isProcessing ? "Starting Job..." : "Start Print Job"}</span>
+          <span>{isProcessing ? t("admin.orderDetail.panels.readyToPrint.startingJob") : t("admin.orderDetail.panels.readyToPrint.startPrintJob")}</span>
         </button>
       </div>
 
@@ -139,7 +141,7 @@ export default function ReadyToPrintPanel({
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
             <Printer size={16} className="text-teal-600" />
-            <span>Hardware & Material Assignment</span>
+            <span>{t("admin.orderDetail.panels.readyToPrint.assignmentHeading")}</span>
           </h3>
           <button
             type="button"
@@ -148,7 +150,7 @@ export default function ReadyToPrintPanel({
             className="text-xs font-medium text-teal-700 hover:text-teal-900 flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-teal-200 hover:bg-teal-50 transition-colors disabled:opacity-50"
           >
             <Save size={13} />
-            <span>{isSavingAssignment ? "Saving..." : "Save Assignment"}</span>
+            <span>{isSavingAssignment ? t("admin.orderDetail.savingButton") : t("admin.orderDetail.panels.readyToPrint.saveAssignment")}</span>
           </button>
         </div>
 
@@ -156,7 +158,7 @@ export default function ReadyToPrintPanel({
           {/* Physical Printer Dropdown */}
           <div>
             <label className="block text-xs font-medium text-slate-700 mb-1">
-              Physical Printer *
+              {t("admin.orderDetail.panels.readyToPrint.printerLabel")}
             </label>
             <select
               value={assignedPrinter}
@@ -174,7 +176,7 @@ export default function ReadyToPrintPanel({
           {/* Physical Material Dropdown */}
           <div>
             <label className="block text-xs font-medium text-slate-700 mb-1">
-              Physical Loaded Material / Filament *
+              {t("admin.orderDetail.panels.readyToPrint.materialLabel")}
             </label>
             <select
               value={assignedMaterial}
@@ -200,7 +202,7 @@ export default function ReadyToPrintPanel({
               className="w-4 h-4 rounded text-teal-600 border-slate-300 focus:ring-teal-500"
             />
             <span className="font-medium">
-              G-code has been sliced, previewed, and loaded on printer.
+              {t("admin.orderDetail.panels.readyToPrint.gcodeCheckbox")}
             </span>
           </label>
         </div>
@@ -211,10 +213,10 @@ export default function ReadyToPrintPanel({
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
             <Layers size={16} className="text-teal-600" />
-            <span>Manufacturing Specifications ({order.items?.length || 0} items)</span>
+            <span>{t("admin.orderDetail.panels.readyToPrint.specsHeading", { count: order.items?.length || 0 })}</span>
           </h3>
           <span className="text-xs text-slate-500">
-            Pricing hidden for print operator
+            {t("admin.orderDetail.panels.readyToPrint.pricingHidden")}
           </span>
         </div>
 
@@ -231,7 +233,7 @@ export default function ReadyToPrintPanel({
                   </span>
                   <div>
                     <h4 className="text-xs font-bold text-slate-900">
-                      {item.fileName || "Model Item"}
+                      {item.fileName || t("admin.orderDetail.panels.readyToPrint.modelItemFallback")}
                     </h4>
                     <span className="text-[11px] text-teal-700 font-medium">
                       {item.material} • {item.color}
@@ -241,7 +243,7 @@ export default function ReadyToPrintPanel({
 
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-800">
-                    Quantity: {item.count}
+                    {t("admin.orderDetail.panels.readyToPrint.quantity")} {item.count}
                   </span>
                   {(() => {
                     const glbFile =
@@ -286,7 +288,7 @@ export default function ReadyToPrintPanel({
                         className="p-1.5 text-xs text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg border border-slate-200 flex items-center gap-1 transition-colors"
                       >
                         <Eye size={13} />
-                        <span>3D Preview</span>
+                        <span>{t("admin.orderDetail.panels.readyToPrint.preview3d")}</span>
                       </button>
                     );
                   })()}
@@ -296,20 +298,20 @@ export default function ReadyToPrintPanel({
               {/* Slicing specifications */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-white p-2.5 rounded-lg border border-slate-200/70 text-slate-600">
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Dimensions</span>
-                  <strong>{item.size || "Standard"}</strong>
+                  <span className="text-[10px] text-slate-400 block">{t("admin.orderDetail.panels.readyToPrint.dimensions")}</span>
+                  <strong>{item.size || t("common.standard")}</strong>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Infill</span>
+                  <span className="text-[10px] text-slate-400 block">{t("admin.orderDetail.panels.readyToPrint.infill")}</span>
                   <strong>{item.infillPercent}%</strong>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Layer Height</span>
+                  <span className="text-[10px] text-slate-400 block">{t("admin.orderDetail.panels.readyToPrint.layerHeight")}</span>
                   <strong>{item.printQuality || "0.20mm"}</strong>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Supports</span>
-                  <strong>{item.supportsNeeded ? "Required" : "None"}</strong>
+                  <span className="text-[10px] text-slate-400 block">{t("admin.orderDetail.panels.readyToPrint.supports")}</span>
+                  <strong>{item.supportsNeeded ? t("admin.orderDetail.panels.readyToPrint.supportsRequired") : t("admin.orderDetail.panels.readyToPrint.supportsNone")}</strong>
                 </div>
               </div>
 
@@ -339,7 +341,7 @@ export default function ReadyToPrintPanel({
         <ModelInspectorModal
           isOpen={true}
           onClose={() => setPreviewItem(null)}
-          fileName={previewItem.fileName || "Model"}
+          fileName={previewItem.fileName || t("orderDetail.model")}
           fileUrl={previewItem.fileUrl}
           material={previewItem.material}
           color={previewItem.color}

@@ -1625,7 +1625,7 @@ export default function Quote() {
         setGuestSubmittedOrderId(null);
       }
 
-      let replacedOriginalModelUrls: string[] = [];
+      const replacedOriginalModelUrls: string[] = [];
 
       const itemsForPayload = await Promise.all(
         items.map(async (item) => {
@@ -2036,7 +2036,7 @@ export default function Quote() {
                       fallback={
                         <div className="w-full h-80 rounded-2xl bg-white border border-gray-200 flex flex-col items-center justify-center text-gray-500 gap-2 p-8">
                           <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
-                          <span className="text-xs font-semibold">Loading painting studio...</span>
+                          <span className="text-xs font-semibold">{t("quote.loadingPaintingStudio")}</span>
                         </div>
                       }
                     >
@@ -2434,7 +2434,7 @@ export default function Quote() {
                                 fallback={
                                   <div className="w-full h-72 sm:h-80 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-slate-400 gap-2">
                                     <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
-                                    <span className="text-xs font-semibold">Loading 3D viewer...</span>
+                                    <span className="text-xs font-semibold">{t("quote.loading3dViewer")}</span>
                                   </div>
                                 }
                               >
@@ -2767,7 +2767,7 @@ export default function Quote() {
                                       </label>
                                       {hasBaseDimensions && (
                                         <span className="text-xs font-semibold text-gray-600">
-                                          Max: {maxScale.toFixed(2)}x
+                                          {t("quote.dimensionMax")} {maxScale.toFixed(2)}x
                                         </span>
                                       )}
                                     </div>
@@ -2904,7 +2904,7 @@ export default function Quote() {
                                       min="1"
                                       max="256"
                                       step="1"
-                                      placeholder="X mm"
+                                      placeholder={t("quote.dimensionXPlaceholder")}
                                       value={item.dimensionX}
                                       onKeyDown={(e) => {
                                         if (e.key === "Enter") {
@@ -2931,7 +2931,7 @@ export default function Quote() {
                                       min="1"
                                       max="256"
                                       step="1"
-                                      placeholder="Y mm"
+                                      placeholder={t("quote.dimensionYPlaceholder")}
                                       value={item.dimensionY}
                                       onKeyDown={(e) => {
                                         if (e.key === "Enter") {
@@ -2958,7 +2958,7 @@ export default function Quote() {
                                       min="1"
                                       max="256"
                                       step="1"
-                                      placeholder="Z mm"
+                                      placeholder={t("quote.dimensionZPlaceholder")}
                                       value={item.dimensionZ}
                                       onKeyDown={(e) => {
                                         if (e.key === "Enter") {
@@ -3207,7 +3207,7 @@ export default function Quote() {
                               {item.imageUrl ? (
                                 <img
                                   src={resolveAssetUrl(item.imageUrl)}
-                                  alt={item.fileName || "Thumbnail"}
+                                  alt={item.fileName || t("quote.sourceThumbnail")}
                                   loading="lazy"
                                   decoding="async"
                                   className="w-14 h-14 rounded-xl object-cover border border-gray-200 bg-gray-50 shrink-0 shadow-2xs"
@@ -3615,7 +3615,7 @@ export default function Quote() {
                               if (authError) setAuthError("");
                             }}
                             className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
-                            placeholder={t("quote.placeholderName") || "Jane Doe"}
+                            placeholder={t("quote.placeholderName")}
                           />
                         </div>
 
@@ -3806,7 +3806,7 @@ export default function Quote() {
                         <User size={15} className="text-emerald-700 shrink-0" />
                         <span>
                           {t("quote.signedInAs")}:{" "}
-                          <strong>{currentUser?.name || guestName || "Customer"}</strong>{" "}
+                          <strong>{currentUser?.name || guestName || t("quote.customerFallback")}</strong>{" "}
                           ({currentUser?.email || guestEmail})
                         </span>
                       </div>
@@ -3824,7 +3824,7 @@ export default function Quote() {
                   {isLoggedIn && savedAddresses.length > 0 && (
                     <div className="mb-8">
                       <label className="text-sm font-bold text-gray-700 block mb-3">
-                        {t("profile.addressBook") || "Saved Addresses"}
+                        {t("profile.addressBook")}
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {savedAddresses.map((addr) => (
@@ -3847,7 +3847,7 @@ export default function Quote() {
                                 }
                               />
                               <span className="font-bold text-gray-900 text-sm">
-                                {addr.label || "Address"}
+                                {addr.label || t("quote.addressFallback")}
                               </span>
                             </div>
                             <p className="text-sm text-gray-600 truncate">

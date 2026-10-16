@@ -5,6 +5,7 @@ import AdminBreadcrumb from "./AdminBreadcrumb";
 import AdminLayout from "./AdminLayout";
 import api from "../../services/api";
 import { useI18n } from "../../i18n/I18nContext";
+import type { TranslationKey } from "../../i18n/translations";
 import { useNotify } from "../../context/NotifyContext";
 
 type AdminPaymentRecord = {
@@ -192,7 +193,7 @@ export default function AdminPayments() {
         >
           {STATUS_OPTIONS.map((option) => (
             <option key={option} value={option}>
-              {t(`admin.payments.status.${option}`)}
+              {t(`admin.payments.status.${option}` as TranslationKey)}
             </option>
           ))}
         </select>

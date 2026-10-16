@@ -1,3 +1,5 @@
+import type { TranslationKey } from "../i18n/translations";
+
 export const ADMIN_ORDER_STATUS_OPTIONS = [
   { value: "quote_requested", label: "Quote Requested" },
   { value: "awaiting_payment", label: "Awaiting Payment" },
@@ -40,9 +42,22 @@ export function normalizePaymentFlow(flow?: string | null): string {
     : "bank_transfer";
 }
 
-export function formatOrderStatusLabel(status?: string | null): string {
+export function formatOrderStatusLabel(
+  status?: string | null,
+  t?: (key: TranslationKey, vars?: Record<string, string | number>) => string,
+): string {
   const normalized = normalizeOrderStatus(status);
-  if (!normalized) return "Unknown";
+  if (!normalized) return t ? t("orderStatus.unknown") : "Unknown";
+
+  if (t) {
+    const statusKey = getOrderStatusTranslationKey(normalized);
+    if (statusKey) {
+      const translated = t(statusKey);
+      if (translated && !translated.startsWith("🔴")) {
+        return translated;
+      }
+    }
+  }
 
   const known = STATUS_LABEL_BY_VALUE.get(normalized);
   if (known) return known;
@@ -108,9 +123,9 @@ export function getOrderStatusBadgeClass(status: string): string {
   }
 }
 
-export function getOrderStatusTranslationKey(status: string): string | null {
+export function getOrderStatusTranslationKey(status: string): TranslationKey | null {
   const normalized = normalizeOrderStatus(status);
-  return normalized ? `orderStatus.${normalized}` : null;
+  return normalized ? (`orderStatus.${normalized}` as TranslationKey) : null;
 }
 
 export function getOrderStatusTimelineStep(status: string): number {

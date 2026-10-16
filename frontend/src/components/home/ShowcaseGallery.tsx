@@ -26,7 +26,7 @@ const pieces = [
     icon: Layers3,
     tone: "from-stone-900 to-rose-700",
   },
-];
+] as const;
 
 export default function ShowcaseGallery() {
   const { t } = useI18n();

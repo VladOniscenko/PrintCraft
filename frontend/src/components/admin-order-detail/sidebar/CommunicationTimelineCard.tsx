@@ -12,6 +12,7 @@ import {
 import type { OrderDetailsDto, OrderTimelineEvent } from "../types";
 import api from "../../../services/api";
 import { useNotify } from "../../../context/NotifyContext";
+import { useI18n } from "../../../i18n/I18nContext";
 
 interface CommunicationTimelineCardProps {
   order: OrderDetailsDto;
@@ -23,6 +24,7 @@ export default function CommunicationTimelineCard({
   onRefresh,
 }: CommunicationTimelineCardProps) {
   const { notifySuccess, notifyError } = useNotify();
+  const { t } = useI18n();
 
   // Tab for active note composer: "internal" | "customer"
   const [activeNoteTab, setActiveNoteTab] = useState<"internal" | "customer">(
@@ -56,8 +58,8 @@ export default function CommunicationTimelineCard({
       });
       notifySuccess(
         activeNoteTab === "internal"
-          ? "Internal admin note added"
-          : "Customer note added",
+          ? t("admin.orderDetail.sidebar.internalNoteAdded")
+          : t("admin.orderDetail.sidebar.customerNoteAdded"),
       );
       setNoteContent("");
       await onRefresh();
@@ -73,12 +75,12 @@ export default function CommunicationTimelineCard({
   };
 
   const handleDeleteNote = async (noteId: string) => {
-    if (!window.confirm("Are you sure you want to delete this note?")) return;
+    if (!window.confirm(t("admin.orderDetail.sidebar.confirmDeleteNote"))) return;
 
     setDeletingNoteId(noteId);
     try {
       await api.delete(`/admin/orders/${order.id}/notes/${noteId}`);
-      notifySuccess("Note deleted successfully");
+      notifySuccess(t("admin.orderDetail.sidebar.noteDeleted"));
       await onRefresh();
     } catch (err: unknown) {
       console.error(err);
@@ -137,10 +139,10 @@ export default function CommunicationTimelineCard({
           </div>
           <div>
             <h3 className="text-sm font-semibold text-slate-900">
-              Communication History
+              {t("admin.orderDetail.sidebar.communicationHistoryTitle")}
             </h3>
             <p className="text-xs text-slate-500">
-              Unified timeline & note log
+              {t("admin.orderDetail.sidebar.communicationHistorySubtitle")}
             </p>
           </div>
         </div>
@@ -156,7 +158,7 @@ export default function CommunicationTimelineCard({
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            All
+            {t("admin.orderDetail.sidebar.tabAll")}
           </button>
           <button
             type="button"
@@ -167,7 +169,7 @@ export default function CommunicationTimelineCard({
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            Notes
+            {t("admin.orderDetail.sidebar.tabNotes")}
           </button>
           <button
             type="button"
@@ -178,7 +180,7 @@ export default function CommunicationTimelineCard({
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            Emails
+            {t("admin.orderDetail.sidebar.tabEmails")}
           </button>
           <button
             type="button"
@@ -189,7 +191,7 @@ export default function CommunicationTimelineCard({
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            Status
+            {t("admin.orderDetail.sidebar.tabStatus")}
           </button>
         </div>
       </div>
@@ -208,7 +210,7 @@ export default function CommunicationTimelineCard({
               }`}
             >
               <Lock size={12} className="text-amber-700" />
-              <span>Internal Admin Note</span>
+              <span>{t("admin.orderDetail.sidebar.internalAdminNote")}</span>
             </button>
             <button
               type="button"
@@ -220,14 +222,14 @@ export default function CommunicationTimelineCard({
               }`}
             >
               <User size={12} className="text-teal-700" />
-              <span>Customer Note</span>
+              <span>{t("admin.orderDetail.sidebar.customerNote")}</span>
             </button>
           </div>
 
           <span className="text-[10px] text-slate-400">
             {activeNoteTab === "internal"
-              ? "Only visible to admins"
-              : "Visible to customer"}
+              ? t("admin.orderDetail.sidebar.visibleOnlyAdmins")
+              : t("admin.orderDetail.sidebar.visibleToCustomer")}
           </span>
         </div>
 
@@ -238,8 +240,8 @@ export default function CommunicationTimelineCard({
             rows={2}
             placeholder={
               activeNoteTab === "internal"
-                ? "Add an internal note for your team (e.g., slicing notes, printer calibration)..."
-                : "Add a message or note visible to the customer..."
+                ? t("admin.orderDetail.sidebar.internalNotePlaceholder")
+                : t("admin.orderDetail.sidebar.customerNotePlaceholder")
             }
             className="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-teal-500 resize-none"
           />
@@ -255,7 +257,7 @@ export default function CommunicationTimelineCard({
               }`}
             >
               <Send size={11} />
-              <span>{submittingNote ? "Adding..." : "Post Note"}</span>
+              <span>{submittingNote ? t("admin.orderDetail.sidebar.addingNote") : t("admin.orderDetail.sidebar.postNote")}</span>
             </button>
           </div>
         </form>
@@ -265,7 +267,7 @@ export default function CommunicationTimelineCard({
       <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
         {filteredTimeline.length === 0 ? (
           <div className="text-center py-6 text-slate-400 text-xs italic">
-            No events found for this filter.
+            {t("admin.orderDetail.sidebar.noEventsForFilter")}
           </div>
         ) : (
           filteredTimeline.map((event) => {
@@ -309,7 +311,10 @@ export default function CommunicationTimelineCard({
 
                   <div className="flex items-center justify-between gap-2 mt-1.5 text-[10px] text-slate-400">
                     <span className="truncate">
-                      By: <strong className="font-medium text-slate-600">{event.author || "System"}</strong>
+                      {t("admin.orderDetail.sidebar.by")}{" "}
+                      <strong className="font-medium text-slate-600">
+                        {event.author || t("admin.orderDetail.sidebar.system")}
+                      </strong>
                     </span>
 
                     {isNote && noteId && (
@@ -318,7 +323,7 @@ export default function CommunicationTimelineCard({
                         onClick={() => handleDeleteNote(noteId)}
                         disabled={deletingNoteId === noteId}
                         className="text-slate-400 hover:text-rose-600 p-0.5 rounded transition-colors"
-                        title="Delete Note"
+                        title={t("admin.orderDetail.sidebar.deleteNote")}
                       >
                         <Trash2 size={12} />
                       </button>

@@ -12,6 +12,7 @@ import {
 import type { OrderDetailsDto } from "../types";
 import api from "../../../services/api";
 import { useNotify } from "../../../context/NotifyContext";
+import { useI18n } from "../../../i18n/I18nContext";
 
 interface CustomerShippingCardProps {
   order: OrderDetailsDto;
@@ -23,6 +24,7 @@ export default function CustomerShippingCard({
   onRefresh,
 }: CustomerShippingCardProps) {
   const { notifySuccess, notifyError } = useNotify();
+  const { t } = useI18n();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
@@ -72,7 +74,7 @@ export default function CustomerShippingCard({
         postalCode,
         phoneNumber,
       });
-      notifySuccess("Customer details updated successfully");
+      notifySuccess(t("admin.orderDetail.sidebar.customerUpdated"));
       setIsEditing(false);
       await onRefresh();
     } catch (err: unknown) {
@@ -105,9 +107,9 @@ export default function CustomerShippingCard({
           </div>
           <div>
             <h3 className="text-sm font-semibold text-slate-900">
-              Customer & Shipping
+              {t("admin.orderDetail.sidebar.customerShippingTitle")}
             </h3>
-            <p className="text-xs text-slate-500">Contact & delivery address</p>
+            <p className="text-xs text-slate-500">{t("admin.orderDetail.sidebar.customerShippingSubtitle")}</p>
           </div>
         </div>
 
@@ -118,7 +120,7 @@ export default function CustomerShippingCard({
             className="text-xs font-medium text-slate-600 hover:text-teal-700 flex items-center gap-1 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <Edit2 size={13} />
-            <span>Edit</span>
+            <span>{t("admin.orderDetail.sidebar.edit")}</span>
           </button>
         )}
       </div>
@@ -127,7 +129,7 @@ export default function CustomerShippingCard({
         <form onSubmit={handleSave} className="space-y-3">
           <div>
             <label className="block text-xs font-medium text-slate-600 mb-1">
-              Full Name
+              {t("admin.orderDetail.sidebar.fullName")}
             </label>
             <input
               type="text"
@@ -140,7 +142,7 @@ export default function CustomerShippingCard({
 
           <div>
             <label className="block text-xs font-medium text-slate-600 mb-1">
-              Address Line 1
+              {t("admin.orderDetail.sidebar.addressLine1")}
             </label>
             <input
               type="text"
@@ -153,7 +155,7 @@ export default function CustomerShippingCard({
 
           <div>
             <label className="block text-xs font-medium text-slate-600 mb-1">
-              Address Line 2 (optional)
+              {t("admin.orderDetail.sidebar.addressLine2")}
             </label>
             <input
               type="text"
@@ -166,7 +168,7 @@ export default function CustomerShippingCard({
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">
-                Postal Code
+                {t("admin.orderDetail.sidebar.postalCode")}
               </label>
               <input
                 type="text"
@@ -178,7 +180,7 @@ export default function CustomerShippingCard({
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">
-                City
+                {t("admin.orderDetail.sidebar.city")}
               </label>
               <input
                 type="text"
@@ -192,7 +194,7 @@ export default function CustomerShippingCard({
 
           <div>
             <label className="block text-xs font-medium text-slate-600 mb-1">
-              Phone Number
+              {t("admin.orderDetail.sidebar.phoneNumber")}
             </label>
             <input
               type="text"
@@ -211,7 +213,7 @@ export default function CustomerShippingCard({
               className="px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1"
             >
               <X size={12} />
-              <span>Cancel</span>
+              <span>{t("admin.orderDetail.sidebar.cancel")}</span>
             </button>
             <button
               type="submit"
@@ -219,7 +221,7 @@ export default function CustomerShippingCard({
               className="px-3 py-1 text-xs font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors flex items-center gap-1 disabled:opacity-50"
             >
               <Check size={12} />
-              <span>{isSaving ? "Saving..." : "Save"}</span>
+              <span>{isSaving ? t("admin.orderDetail.savingButton") : t("admin.orderDetail.sidebar.saveChanges")}</span>
             </button>
           </div>
         </form>
@@ -234,7 +236,7 @@ export default function CustomerShippingCard({
               </p>
               {customer.userId && (
                 <span className="text-[10px] text-slate-400 font-mono">
-                  Registered User
+                  {t("admin.orderDetail.sidebar.registeredUser")}
                 </span>
               )}
             </div>
@@ -270,7 +272,7 @@ export default function CustomerShippingCard({
                   {customerEmail}
                 </a>
               ) : (
-                <span className="text-slate-400 italic">No email resolved</span>
+                <span className="text-slate-400 italic">{t("admin.orderDetail.sidebar.noEmail")}</span>
               )}
             </div>
             {customerEmail && (
@@ -278,7 +280,7 @@ export default function CustomerShippingCard({
                 type="button"
                 onClick={() => handleCopy(customerEmail, "email")}
                 className="text-slate-400 hover:text-slate-600 p-1 rounded"
-                title="Copy Email"
+                title={t("admin.orderDetail.sidebar.copyEmail")}
               >
                 {copiedEmail ? (
                   <Check size={12} className="text-emerald-600" />
@@ -301,7 +303,7 @@ export default function CustomerShippingCard({
                   {customer.phoneNumber || order.phoneNumber}
                 </a>
               ) : (
-                <span className="text-slate-400 italic">No phone number</span>
+                <span className="text-slate-400 italic">{t("admin.orderDetail.sidebar.noPhone")}</span>
               )}
             </div>
             {(customer.phoneNumber || order.phoneNumber) && (
@@ -314,7 +316,7 @@ export default function CustomerShippingCard({
                   )
                 }
                 className="text-slate-400 hover:text-slate-600 p-1 rounded"
-                title="Copy Phone"
+                title={t("admin.orderDetail.sidebar.copyPhone")}
               >
                 {copiedPhone ? (
                   <Check size={12} className="text-emerald-600" />

@@ -45,8 +45,8 @@ export default function OrderDetail() {
   const handleCancelOrder = async () => {
     const isPaid = order ? normalizeOrderStatus(order.status) === "ready_to_print" : false;
     const confirmMessage = isPaid
-      ? "Are you sure you want to cancel this order? It will be flagged for refund review."
-      : "Are you sure you want to cancel this order?";
+      ? t("orderDetail.header.confirmCancelPaid")
+      : t("orderDetail.header.confirmCancel");
     const confirmCancel = window.confirm(confirmMessage);
 
     if (!confirmCancel) return;
@@ -54,10 +54,10 @@ export default function OrderDetail() {
     setIsCancelling(true);
     try {
       await api.put(`/orders/${id}/cancel`);
-      notifySuccess("Order cancelled successfully");
+      notifySuccess(t("orderDetail.cancelSuccess"));
       navigate("/orders");
     } catch (err: any) {
-      notifyError(err?.response?.data?.message || "Failed to cancel order");
+      notifyError(err?.response?.data?.message || t("orderDetail.cancelFailed"));
       console.error(err);
     } finally {
       setIsCancelling(false);
@@ -98,7 +98,7 @@ export default function OrderDetail() {
       notifySuccess(t("orderDetail.manualPaymentNotificationSent"));
     } catch (err: any) {
       notifyError(
-        err?.response?.data?.message || "Unable to send payment notification.",
+        err?.response?.data?.message || t("orderDetail.paymentNotificationFailed"),
       );
     }
   };
@@ -152,7 +152,9 @@ export default function OrderDetail() {
       const parsed = JSON.parse(atob(token.split(".")[1]));
       isAdmin = parsed.role === "admin";
     }
-  } catch (e) {}
+  } catch {
+    /* ignore invalid token */
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f9fa]">
@@ -178,7 +180,7 @@ export default function OrderDetail() {
                 href={`/admin/orders/${id}`}
                 className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 border border-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-sm"
               >
-                Open order in admin panel
+                {t("orderDetail.openInAdmin")}
               </a>
             )}
 
@@ -186,14 +188,14 @@ export default function OrderDetail() {
               <button
                 onClick={handleCancelOrder}
                 disabled={isCancelling}
-                className="flex items-center gap-2 px-6 py-2.5 bg-white border border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-all shadow-sm disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-2.5 bg-white border border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {isCancelling ? (
                   <Loader2 className="animate-spin" size={18} />
                 ) : (
                   <XCircle size={18} />
                 )}
-                Cancel Order
+                {t("orderDetail.cancelOrder")}
               </button>
             )}
 

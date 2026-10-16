@@ -198,12 +198,13 @@ export default function OrderItemsCard({
             </h2>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
               {order.items.length}{" "}
-              {order.items.length === 1 ? "model" : "models"}
+              {order.items.length === 1
+                ? t("orderDetail.model")
+                : t("orderDetail.models")}
             </span>
           </div>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            {t("models.subtitle") ||
-              "Explore specifications and interactive 3D geometry for this project."}
+            {t("orderDetail.modelsSubtitle")}
           </p>
         </div>
 
@@ -258,19 +259,19 @@ export default function OrderItemsCard({
                     {item.activeChangeRequest?.status === "pending_customer" && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-500 text-white tracking-wide uppercase shadow-2xs animate-pulse">
                         <AlertCircle size={12} />
-                        Action Required
+                        {t("orderDetail.changeRequest.actionRequired")}
                       </span>
                     )}
                     {item.activeChangeRequest?.status === "revision_submitted" && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800 border border-sky-300">
-                        Revision Under Review
+                        {t("orderDetail.changeRequest.revisionUnderReview")}
                       </span>
                     )}
                     {previewFile &&
                       (previewFile.url === item.activeChangeRequest?.submittedFileUrl ||
                         item.changeRequests?.some((cr) => cr.submittedFileUrl === previewFile.url)) && (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                          Revised 3D Model
+                          {t("orderDetail.changeRequest.revised3dModel")}
                         </span>
                       )}
                   </div>
@@ -302,7 +303,7 @@ export default function OrderItemsCard({
                             style={{ backgroundColor: colorHex }}
                             title={item.color}
                           />
-                          <span>{item.color || "Default"}</span>
+                          <span>{item.color || t("orderDetail.defaultColor")}</span>
                         </span>
                       </div>
 
@@ -367,7 +368,7 @@ export default function OrderItemsCard({
                       />
                       <div className="min-w-0">
                         <span className="font-bold mr-1.5">
-                          {t("orderDetail.instructionsLabel") || "Instructions"}:
+                          {t("orderDetail.instructionsLabel")}:
                         </span>
                         <span className="italic">"{item.notes}"</span>
                       </div>
@@ -407,7 +408,7 @@ export default function OrderItemsCard({
                             size={24}
                           />
                           <span className="text-xs font-medium">
-                            {t("orderDetail.loadingModel") || "Loading 3D..."}
+                            {t("orderDetail.loadingModel")}
                           </span>
                         </div>
                       }
@@ -443,7 +444,7 @@ export default function OrderItemsCard({
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-[11px] font-bold border border-emerald-500/30 transition-colors cursor-pointer"
                         >
                           <Eye size={12} />
-                          <span>{t("orderDetail.viewImage") || "View"}</span>
+                          <span>{t("orderDetail.viewImage")}</span>
                         </button>
                       </div>
                       <div className="w-full h-56 bg-slate-900 flex items-center justify-center p-3">
@@ -460,8 +461,7 @@ export default function OrderItemsCard({
                     <div className="w-full rounded-2xl border border-slate-800 bg-slate-950 shadow-md p-6 text-center text-slate-400 space-y-2">
                       <FileText size={32} className="mx-auto text-slate-600" />
                       <p className="text-xs font-medium">
-                        {t("orderDetail.no3dPreview") ||
-                          "3D preview not supported for this file"}
+                        {t("orderDetail.no3dPreview")}
                       </p>
                     </div>
                   )}

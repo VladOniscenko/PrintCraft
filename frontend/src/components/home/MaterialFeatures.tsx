@@ -23,7 +23,7 @@ const materials = [
     icon: Ban,
     color: "bg-amber-50 text-amber-800 border-amber-200",
   },
-];
+] as const;
 
 export default function MaterialFeatures() {
   const { t } = useI18n();

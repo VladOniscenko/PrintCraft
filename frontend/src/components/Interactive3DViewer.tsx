@@ -493,7 +493,6 @@ export default function Interactive3DViewer({
           originalModelRef.current = null;
         }
 
-        let computedBox: any;
         let baseObject: any;
 
         if (geometry) {
@@ -551,7 +550,7 @@ export default function Interactive3DViewer({
         originalModelRef.current = baseObject;
         
         // Compute base box
-        computedBox = new Box3().setFromObject(baseObject);
+        const computedBox = new Box3().setFromObject(baseObject);
 
         // Calculate original bounding box dimensions in mm
         const sizeVec = new Vector3();
@@ -859,8 +858,12 @@ export default function Interactive3DViewer({
                     {scaledX} × {scaledY} × {scaledZ} mm
                     {scaleFactor !== 1.0 && (
                       <span className="ml-1.5 text-xs font-normal text-slate-400">
-                        (Base: {baseDimensions.x} × {baseDimensions.y} ×{" "}
-                        {baseDimensions.z} mm @ {scaleFactor.toFixed(2)}x)
+                        {t("viewer3d.baseDimensionsScale", {
+                          x: baseDimensions.x,
+                          y: baseDimensions.y,
+                          z: baseDimensions.z,
+                          scale: scaleFactor.toFixed(2),
+                        })}
                       </span>
                     )}
                   </p>
