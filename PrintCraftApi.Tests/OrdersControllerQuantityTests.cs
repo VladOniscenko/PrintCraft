@@ -83,6 +83,67 @@ public class OrdersControllerQuantityTests
         Assert.Equal(validCount, savedOrder.Items[0].Count);
     }
 
+    [Fact]
+    public async Task CreateQuote_WhenFilamentPaintingItemContainsPreviewGlbAndProductionStl_Succeeds()
+    {
+        await using var db = CreateDbContext();
+        var controller = CreateController(db);
+
+        var request = new QuoteRequest(
+            Items: new List<QuoteItemRequest>
+            {
+                new QuoteItemRequest(
+                    FileUrl: "/uploads/temp_slot_123.stl",
+                    ImageUrl: "/uploads/temp_slot_123.png",
+                    FileName: "artwork_painting",
+                    Notes: "Hueforge Filament Painting 3 colors",
+                    Size: "150 x 148 x 2.20 mm",
+                    Material: "PLA",
+                    Color: "PLA Black, PLA Navy Blue, PLA Orange",
+                    Count: 1,
+                    Files: new List<QuoteItemFileRequest>
+                    {
+                        new("/uploads/temp_slot_123.png", "artwork.png", "image"),
+                        new("/uploads/temp_slot_123.glb?v=1733262921", "artwork_preview.glb", "model"),
+                        new("/uploads/temp_slot_123.stl?v=1733262921", "artwork_production.stl", "model")
+                    },
+                    ScaleFactor: 1.0,
+                    InfillPercent: 100,
+                    PrintQuality: "Medium Quality (Filament Painting)",
+                    SupportsNeeded: false
+                )
+            },
+            GuestName: "Hueforge Artist",
+            GuestEmail: "artist@example.com",
+            GuestPhone: "+31612345678",
+            ShippingFullName: "Hueforge Artist",
+            ShippingPhoneNumber: "+31612345678",
+            ShippingAddressLine1: "Prinsengracht 200",
+            ShippingCity: "Amsterdam",
+            ShippingPostalCode: "1016AA",
+            AgreementAccepted: true,
+            AgreementVersion: "2026-09-23"
+        );
+
+        var result = await controller.CreateQuote(request);
+        if (result is BadRequestObjectResult badRequest)
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(badRequest.Value);
+            throw new Exception("BadRequest: " + json);
+        }
+
+        Assert.IsType<CreatedAtActionResult>(result);
+
+        var savedOrder = await db.Orders.Include(o => o.Items).ThenInclude(i => i.Attachments).FirstOrDefaultAsync();
+        Assert.NotNull(savedOrder);
+        Assert.Single(savedOrder.Items);
+
+        var item = savedOrder.Items[0];
+        // Ensure production STL is selected for slicing / printing
+        Assert.Contains(".stl", item.FileUrl);
+        Assert.Equal(3, item.Attachments.Count);
+    }
+
     private static PrintCraftDb CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<PrintCraftDb>()

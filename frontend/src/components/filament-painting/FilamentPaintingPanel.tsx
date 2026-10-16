@@ -381,6 +381,7 @@ export default function FilamentPaintingPanel({
     useState<FilamentPaintingGenerationResult | null>(null);
   const [isInitialLoading, setIsInitialLoading] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [generationKey, setGenerationKey] = useState(0);
 
   // Prevent reactive debounce on initial mount before image is selected
   const hasInitializedRef = useRef(false);
@@ -444,6 +445,7 @@ export default function FilamentPaintingPanel({
       const res = await api.post("/3d-generate-painting", formData);
       if (seq === activeRequestSeqRef.current) {
         setLiveResult(res.data);
+        setGenerationKey((k) => k + 1);
       }
     },
     [targetWidthMm, targetHeightMm],
@@ -1068,7 +1070,7 @@ export default function FilamentPaintingPanel({
                     }
                   >
                     <Interactive3DViewer
-                      key={liveResult.modelGlbUrl}
+                      key={`${liveResult.modelGlbUrl}_${generationKey}`}
                       fileUrl={liveResult.modelGlbUrl}
                       fileName={liveResult.modelGlbUrl}
                       className="w-full h-full min-h-[380px]"

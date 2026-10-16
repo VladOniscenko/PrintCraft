@@ -253,7 +253,7 @@ public class OrdersController : ControllerBase
             {
                 if (string.IsNullOrWhiteSpace(file.Url)) continue;
 
-                var url = file.Url.Trim();
+                var url = file.Url.Trim().Split('?', '#')[0];
                 urls.Add(url);
 
                 if (IsModelFileKindOrExtension(file.Kind, url))
@@ -262,7 +262,7 @@ public class OrdersController : ControllerBase
 
             if (!string.IsNullOrWhiteSpace(item.FileUrl))
             {
-                var fileUrl = item.FileUrl.Trim();
+                var fileUrl = item.FileUrl.Trim().Split('?', '#')[0];
                 urls.Add(fileUrl);
 
                 // Legacy fileUrl is expected to be the model attachment.
@@ -271,15 +271,18 @@ public class OrdersController : ControllerBase
             }
 
             if (!string.IsNullOrWhiteSpace(item.ImageUrl))
-                urls.Add(item.ImageUrl.Trim());
+            {
+                var imageUrl = item.ImageUrl.Trim().Split('?', '#')[0];
+                urls.Add(imageUrl);
+            }
 
             if (urls.Count > 3)
             {
                 return BadRequest(new { message = "Each item can contain at most 3 files." });
             }
 
-            var previewModels = modelUrls.Count(u => u.EndsWith(".glb", StringComparison.OrdinalIgnoreCase) || u.EndsWith(".gltf", StringComparison.OrdinalIgnoreCase));
-            var productionModels = modelUrls.Count(u => !u.EndsWith(".glb", StringComparison.OrdinalIgnoreCase) && !u.EndsWith(".gltf", StringComparison.OrdinalIgnoreCase));
+            var previewModels = modelUrls.Count(IsPreviewGlbModelUrl);
+            var productionModels = modelUrls.Count(u => !IsPreviewGlbModelUrl(u));
 
             if (productionModels > 1 || previewModels > 1)
             {
@@ -341,25 +344,25 @@ public class OrdersController : ControllerBase
                 var files = (item.Files ?? new List<QuoteItemFileRequest>())
                     .Where(f => !string.IsNullOrWhiteSpace(f.Url))
                     .Select(f => new QuoteItemFileRequest(
-                        f.Url.Trim(),
+                        f.Url.Trim().Split('?', '#')[0],
                         string.IsNullOrWhiteSpace(f.Name) ? string.Empty : f.Name.Trim(),
                         string.IsNullOrWhiteSpace(f.Kind) ? "other" : f.Kind.Trim().ToLowerInvariant()))
                     .ToList();
 
                 var printableModelFile = files.FirstOrDefault(f => string.Equals(f.Kind, "model", StringComparison.OrdinalIgnoreCase)
-                    && !f.Url.EndsWith(".glb", StringComparison.OrdinalIgnoreCase)
-                    && !f.Url.EndsWith(".gltf", StringComparison.OrdinalIgnoreCase));
+                    && !IsPreviewGlbModelUrl(f.Url));
                 var firstModelFile = printableModelFile
                     ?? files.FirstOrDefault(f => string.Equals(f.Kind, "model", StringComparison.OrdinalIgnoreCase));
                 var firstImageFile = files.FirstOrDefault(f => string.Equals(f.Kind, "image", StringComparison.OrdinalIgnoreCase));
                 var fallbackFile = files.FirstOrDefault();
 
-                var fileUrl = firstModelFile?.Url
-                    ?? (string.IsNullOrWhiteSpace(item.FileUrl) ? null : item.FileUrl.Trim())
+                var fileUrl = printableModelFile?.Url
+                    ?? firstModelFile?.Url
+                    ?? (string.IsNullOrWhiteSpace(item.FileUrl) ? null : item.FileUrl.Trim().Split('?', '#')[0])
                     ?? fallbackFile?.Url;
 
                 var imageUrl = firstImageFile?.Url
-                    ?? (string.IsNullOrWhiteSpace(item.ImageUrl) ? null : item.ImageUrl.Trim());
+                    ?? (string.IsNullOrWhiteSpace(item.ImageUrl) ? null : item.ImageUrl.Trim().Split('?', '#')[0]);
 
                 var fileName = firstModelFile?.Name
                     ?? (string.IsNullOrWhiteSpace(item.FileName) ? null : item.FileName.Trim())
@@ -495,6 +498,13 @@ public class OrdersController : ControllerBase
         {
             return false;
         }
+    }
+
+    private static bool IsPreviewGlbModelUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        var clean = url.Split('?', '#')[0];
+        return clean.EndsWith(".glb", StringComparison.OrdinalIgnoreCase) || clean.EndsWith(".gltf", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsModelFileKindOrExtension(string? kind, string? url)

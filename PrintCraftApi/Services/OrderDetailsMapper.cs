@@ -195,8 +195,10 @@ public static class OrderDetailsMapper
             if (seenUrls.Add(url))
             {
                 var fName = string.IsNullOrWhiteSpace(item.fileName) ? "model" : item.fileName.Trim();
-                var ext = Path.GetExtension(fName)?.ToLowerInvariant() ?? Path.GetExtension(url)?.ToLowerInvariant() ?? "";
-                var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" or ".glb" or ".gltf" || url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) || url.EndsWith(".glb", StringComparison.OrdinalIgnoreCase);
+                var cleanUrl = url.Split('?', '#')[0];
+                var ext = Path.GetExtension(fName)?.ToLowerInvariant() ?? Path.GetExtension(cleanUrl)?.ToLowerInvariant() ?? "";
+                if (string.IsNullOrWhiteSpace(ext)) ext = Path.GetExtension(cleanUrl)?.ToLowerInvariant() ?? "";
+                var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" or ".glb" or ".gltf";
                 var kind = is3D ? "model" : "other";
                 var (role, label) = ClassifyFileRole(fName, url, kind, ext);
 
@@ -331,8 +333,10 @@ public static class OrderDetailsMapper
                 if (seenUrls.Add(url))
                 {
                     var fName = string.IsNullOrWhiteSpace(item.fileName) ? "Model File" : item.fileName.Trim();
-                    var ext = Path.GetExtension(fName)?.ToLowerInvariant() ?? Path.GetExtension(url)?.ToLowerInvariant() ?? "";
-                    var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" or ".glb" or ".gltf" || url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) || url.EndsWith(".glb", StringComparison.OrdinalIgnoreCase);
+                    var cleanUrl = url.Split('?', '#')[0];
+                    var ext = Path.GetExtension(fName)?.ToLowerInvariant() ?? Path.GetExtension(cleanUrl)?.ToLowerInvariant() ?? "";
+                    if (string.IsNullOrWhiteSpace(ext)) ext = Path.GetExtension(cleanUrl)?.ToLowerInvariant() ?? "";
+                    var is3D = ext is ".stl" or ".step" or ".stp" or ".obj" or ".3mf" or ".glb" or ".gltf";
                     var kind = is3D ? "model" : "other";
                     var (role, label) = ClassifyFileRole(fName, url, kind, ext);
 

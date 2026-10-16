@@ -1289,7 +1289,7 @@ export default function Quote() {
     const newItem: OrderItem = {
       uploadType: "filament-painting",
       fileName: `${baseName}_painting`,
-      fileUrl: liveResult.modelGlbUrl || productionFileUrl || "",
+      fileUrl: productionFileUrl || liveResult.modelGlbUrl || "",
       imageUrl: liveResult.previewImageUrl || "",
       material: defaultMat,
       color: paletteSummary,

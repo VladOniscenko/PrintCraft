@@ -38,26 +38,17 @@ public class PricingBackgroundWorker : BackgroundService
                 if (orderItem != null)
                 {
                     var fileUrl = orderItem.FileUrl;
-                    if (string.IsNullOrWhiteSpace(fileUrl) && orderItem.Attachments?.Count > 0)
+                    if ((string.IsNullOrWhiteSpace(fileUrl) || !IsPrintable3DModelUrl(fileUrl)) && orderItem.Attachments?.Count > 0)
                     {
-                        var modelAttachment = orderItem.Attachments.FirstOrDefault(a => 
-                            a.Url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
-                            a.Url.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
-                            a.Url.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
-                            a.Url.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
-                            a.Url.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
-                            a.Url.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
-                        fileUrl = modelAttachment?.Url;
+                        var modelAttachment = orderItem.Attachments.FirstOrDefault(a => IsPrintable3DModelUrl(a.Url));
+                        if (modelAttachment != null)
+                        {
+                            fileUrl = modelAttachment.Url;
+                        }
                     }
 
                     // Only automatically price items that have a valid 3D model or production archive
-                    var is3DModelFile = !string.IsNullOrWhiteSpace(fileUrl) && (
-                        fileUrl.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
-                        fileUrl.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
-                        fileUrl.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
-                        fileUrl.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
-                        fileUrl.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
-                        fileUrl.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+                    var is3DModelFile = IsPrintable3DModelUrl(fileUrl);
 
                     if (!is3DModelFile)
                     {
@@ -111,6 +102,18 @@ public class PricingBackgroundWorker : BackgroundService
         }
 
         _logger.LogInformation("Pricing Background Worker is stopping.");
+    }
+
+    private static bool IsPrintable3DModelUrl(string? rawUrl)
+    {
+        if (string.IsNullOrWhiteSpace(rawUrl)) return false;
+        var clean = rawUrl.Split('?', '#')[0];
+        return clean.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
+               clean.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
+               clean.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
+               clean.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
+               clean.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
+               clean.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string? ExtractFileNameFromUrl(string? rawUrl)

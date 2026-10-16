@@ -340,10 +340,9 @@ public class FilamentPaintingController : ControllerBase
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.glb{metaSuffix}"), metaJson);
         }
 
-        var v = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        var modelGlbUrl = $"/uploads/{fileBaseName}.glb?v={v}";
-        var modelStlUrl = $"/uploads/{fileBaseName}.stl?v={v}";
-        var previewImageUrl = $"{imageRelativeUrl}?v={v}";
+        var modelGlbUrl = $"/uploads/{fileBaseName}.glb";
+        var modelStlUrl = $"/uploads/{fileBaseName}.stl";
+        var previewImageUrl = imageRelativeUrl;
         var modelZipUrl = string.Empty;
 
         // Calculate physical volume & filament weight based on bounding box and relief (100% solid infill)

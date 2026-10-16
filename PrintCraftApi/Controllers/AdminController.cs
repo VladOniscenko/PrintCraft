@@ -160,25 +160,16 @@ public class AdminController : ControllerBase
         if (item == null) return NotFound(new { message = "Item not found" });
 
         var fileUrl = item.FileUrl;
-        if (string.IsNullOrWhiteSpace(fileUrl) && item.Attachments != null && item.Attachments.Count > 0)
+        if ((string.IsNullOrWhiteSpace(fileUrl) || !IsPrintable3DModelUrl(fileUrl)) && item.Attachments != null && item.Attachments.Count > 0)
         {
-            var modelAttachment = item.Attachments.FirstOrDefault(a => 
-                a.Url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
-                a.Url.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
-                a.Url.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
-                a.Url.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
-                a.Url.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
-                a.Url.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
-            fileUrl = modelAttachment?.Url;
+            var modelAttachment = item.Attachments.FirstOrDefault(a => IsPrintable3DModelUrl(a.Url));
+            if (modelAttachment != null)
+            {
+                fileUrl = modelAttachment.Url;
+            }
         }
 
-        var is3DModel = !string.IsNullOrWhiteSpace(fileUrl) && (
-            fileUrl.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
-            fileUrl.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
-            fileUrl.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
-            fileUrl.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
-            fileUrl.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
-            fileUrl.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+        var is3DModel = IsPrintable3DModelUrl(fileUrl);
 
         if (!is3DModel)
         {
@@ -239,25 +230,16 @@ public class AdminController : ControllerBase
         foreach (var item in order.Items)
         {
             var fileUrl = item.FileUrl;
-            if (string.IsNullOrWhiteSpace(fileUrl) && item.Attachments != null && item.Attachments.Count > 0)
+            if ((string.IsNullOrWhiteSpace(fileUrl) || !IsPrintable3DModelUrl(fileUrl)) && item.Attachments != null && item.Attachments.Count > 0)
             {
-                var modelAttachment = item.Attachments.FirstOrDefault(a => 
-                    a.Url.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
-                    a.Url.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
-                    a.Url.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
-                    a.Url.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
-                    a.Url.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
-                    a.Url.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
-                fileUrl = modelAttachment?.Url;
+                var modelAttachment = item.Attachments.FirstOrDefault(a => IsPrintable3DModelUrl(a.Url));
+                if (modelAttachment != null)
+                {
+                    fileUrl = modelAttachment.Url;
+                }
             }
 
-            var is3DModel = !string.IsNullOrWhiteSpace(fileUrl) && (
-                fileUrl.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
-                fileUrl.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
-                fileUrl.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
-                fileUrl.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
-                fileUrl.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
-                fileUrl.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+            var is3DModel = IsPrintable3DModelUrl(fileUrl);
 
             if (!is3DModel) continue;
 
@@ -1660,6 +1642,18 @@ public class AdminController : ControllerBase
 
     private static string BuildPaymentReference(Guid orderId)
         => $"PC-{orderId.ToString("N")[..8]}-{Guid.NewGuid().ToString("N")[..12]}";
+
+    private static bool IsPrintable3DModelUrl(string? rawUrl)
+    {
+        if (string.IsNullOrWhiteSpace(rawUrl)) return false;
+        var clean = rawUrl.Split('?', '#')[0];
+        return clean.EndsWith(".stl", StringComparison.OrdinalIgnoreCase) ||
+               clean.EndsWith(".obj", StringComparison.OrdinalIgnoreCase) ||
+               clean.EndsWith(".3mf", StringComparison.OrdinalIgnoreCase) ||
+               clean.EndsWith(".step", StringComparison.OrdinalIgnoreCase) ||
+               clean.EndsWith(".stp", StringComparison.OrdinalIgnoreCase) ||
+               clean.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+    }
 
     private static string? ExtractFileNameFromAssetUrl(string? rawUrl)
     {

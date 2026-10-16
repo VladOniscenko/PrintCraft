@@ -388,7 +388,7 @@ export default function Interactive3DViewer({
           buffer = await file.arrayBuffer();
         } else if (fileUrl) {
           const resolved = resolveAssetUrl(fileUrl);
-          const res = await fetch(resolved);
+          const res = await fetch(resolved, { cache: "no-store" });
           if (!res.ok) throw new Error(`Could not load model: ${res.statusText}`);
           buffer = await res.arrayBuffer();
         } else {
