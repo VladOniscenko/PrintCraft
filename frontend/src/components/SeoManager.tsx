@@ -500,8 +500,11 @@ export default function SeoManager() {
     );
 
     // Multilingual canonical and reciprocal hreflangs
+    const isRootUrl = unlocalizedPath === "/" && !urlLang;
     const subRouteSuffix = unlocalizedPath === "/" ? "" : unlocalizedPath;
-    const canonicalUrl = `${origin}/${activeLang}${subRouteSuffix}`;
+    const canonicalUrl = isRootUrl
+      ? `${origin}/`
+      : `${origin}/${activeLang}${subRouteSuffix}`;
 
     if (routeSeo.index) {
       upsertCanonical(canonicalUrl);
@@ -512,7 +515,9 @@ export default function SeoManager() {
       }
       upsertHreflang(
         "x-default",
-        `${origin}/${defaultLanguage}${subRouteSuffix}`,
+        isRootUrl
+          ? `${origin}/`
+          : `${origin}/${defaultLanguage}${subRouteSuffix}`,
       );
     } else {
       removeCanonical();

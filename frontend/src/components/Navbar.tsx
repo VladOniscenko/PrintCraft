@@ -224,7 +224,7 @@ const Navbar = () => {
               : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
           }`}
         >
-          {t("hero.ctaQuote")}
+          {t("nav.instantQuote")}
         </Link>
       </div>
 
@@ -349,7 +349,7 @@ const Navbar = () => {
             }`}
             onClick={() => setIsOpen(false)}
           >
-            {t("hero.ctaQuote")}
+            {t("nav.instantQuote")}
           </Link>
 
           {isLoggedIn && (

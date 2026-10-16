@@ -26,9 +26,9 @@ const Logo: React.FC<LogoProps> = ({ className = "", isLink = true }) => {
 
       {/* Brand Text */}
       <div>
-        <h1 className="text-xl font-bold leading-none tracking-tight text-gray-900">
+        <span className="text-xl font-bold leading-none tracking-tight text-gray-900 block">
           {businessInfo.name}
-        </h1>
+        </span>
         <p className="text-xs text-gray-500 font-medium mt-0.5">
           {t("common.poweredBy", { name: "Oni" })}
         </p>

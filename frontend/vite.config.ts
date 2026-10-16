@@ -269,7 +269,7 @@ export default defineConfig(({ mode }) => {
           }
 
           // 4. Render root / (default language + returning user redirect)
-          const rootRes = renderPage(`/${defaultLanguage}`);
+          const rootRes = renderPage("/");
           const rootHtml = formatHtml(baseTemplate, rootRes, true);
           await fs.promises.writeFile(templatePath, rootHtml, "utf-8");
           console.log("  ✓ Pre-rendered: / -> dist/index.html");

@@ -104,8 +104,11 @@ export function renderPage(url: string): RenderResult {
     </MemoryRouter>,
   );
 
+  const isRootUrl = unlocalizedPath === "/" && !urlLang;
   const subRouteSuffix = unlocalizedPath === "/" ? "" : unlocalizedPath;
-  const canonicalUrl = `${origin}/${activeLang}${subRouteSuffix}`;
+  const canonicalUrl = isRootUrl
+    ? `${origin}/`
+    : `${origin}/${activeLang}${subRouteSuffix}`;
   const ogImage = `${origin}/uploads/hero/materials.svg`;
 
   let jsonLdGraph: SchemaGraph | null = null;
@@ -163,7 +166,7 @@ export function renderPage(url: string): RenderResult {
       (sLang) =>
         `<link rel="alternate" hreflang="${sLang}" href="${origin}/${sLang}${subRouteSuffix}" />`,
     ),
-    `<link rel="alternate" hreflang="x-default" href="${origin}/${defaultLanguage}${subRouteSuffix}" />`,
+    `<link rel="alternate" hreflang="x-default" href="${isRootUrl ? `${origin}/` : `${origin}/${defaultLanguage}${subRouteSuffix}`}" />`,
     `<meta property="og:site_name" content="${businessInfo.name.replace(/"/g, "&quot;")}" />`,
     `<meta property="og:title" content="${routeSeo.title.replace(/"/g, "&quot;")}" />`,
     `<meta property="og:description" content="${routeSeo.description.replace(/"/g, "&quot;")}" />`,

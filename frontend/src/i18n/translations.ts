@@ -66,6 +66,7 @@ export const translations = {
       allSolutions: "All Solutions",
       materials: "Materials",
       faq: "FAQ",
+      instantQuote: "Instant Quote",
       myOrders: "My Orders",
       myProfile: "My Profile",
       models: "3D Models",
@@ -81,6 +82,14 @@ export const translations = {
       tagline:
         "Professional 3D printing services for prototypes, parts, and custom projects across the Netherlands.",
       solutions: "Solutions",
+      standardsTitle: "Standards & Logistics",
+      postnl: "PostNL Business Delivery",
+      consortium3mf: "3MF Consortium Standards",
+      thingiverse: "Thingiverse Platform",
+      makerworld: "MakerWorld Models",
+      socialTitle: "Connect & Share",
+      shareLinkedIn: "LinkedIn",
+      shareWhatsApp: "WhatsApp",
       citiesTitle: "3D Print Service by City",
       cityServiceLink: "3D Printing {city}",
       contact: "Contact",
@@ -92,7 +101,7 @@ export const translations = {
       terms: "Terms of Service",
       refunds: "Refund Policy",
       shippingPolicy: "Shipping Policy",
-      faq: "FAQ",
+      faq: "Knowledge Base & FAQ",
       copyright: `© 2026 ${businessInfo.name}. All rights reserved.`,
     },
     home: {
@@ -103,6 +112,7 @@ export const translations = {
         subtitle:
           "From functional prototypes and replacement parts to custom electronics enclosures and factory tooling. Built to precise specifications.",
         viewSolution: "View solution",
+        viewSpecific: "Explore {name}",
         learnMore: "Learn more",
       },
       quickQuote: {
@@ -202,6 +212,41 @@ export const translations = {
         bridgeSubtitle:
           "See available materials and recent prints to set expectations before you request your quote.",
       },
+      process: {
+        eyebrow: "Production Workflow",
+        title: "From CAD Model to Industrial Production",
+        subtitle:
+          "Our precision additive manufacturing process ensures repeatable accuracy and commercial-grade durability.",
+        step1Title: "1. 3D CAD & Geometry Validation",
+        step1Desc:
+          "Upload STEP, STL, or 3MF assemblies. We evaluate wall thicknesses, bridging geometry, and fit tolerances up to ±0.1mm before manufacturing.",
+        step2Title: "2. Technical Material Selection",
+        step2Desc:
+          "Select high-strength PETG for heat and UV resistance, flexible TPU for airtight gaskets and dampening, or precision PLA for dimensionally accurate prototypes.",
+        step3Title: "3. Calibrated FDM Farm Production",
+        step3Desc:
+          "Our synchronized print farm handles single-part rapid prototyping and short-run production batches from 10 to 500+ units with seamless consistency.",
+        step4Title: "4. Quality Inspection & Tracked Dispatch",
+        step4Desc:
+          "Each finished print is deburred, checked against digital CAD specs, packed securely, and dispatched with PostNL track-and-trace across the Netherlands within 2-5 business days.",
+        guaranteeTitle: "Industrial Additive Quality & Tolerances",
+        guaranteeText:
+          "We manufacture functional plastic prototypes, assembly tools, and small-batch production runs in strict accordance with additive manufacturing guidelines. Every single printed component is professionally deburred, inspected against digital 3D CAD models, and verified with digital calipers to guarantee a precise fit in machines, enclosures, and assembly fixtures. Whether you require a single urgent engineering replacement or hundreds of identical production units, our Dutch print farm guarantees dependable mechanical performance and rapid delivery.",
+      },
+      faq: {
+        eyebrow: "Commercial & B2B FAQ",
+        title: "Frequently Asked Questions About Our 3D Print Service",
+        subtitle:
+          "Clear answers on commercial invoicing, non-disclosure agreements, tolerances, and batch production.",
+        q1: "Can Dutch and European companies order on invoice with formal VAT?",
+        a1: "Yes. We support corporate invoicing for businesses, engineering offices, and manufacturing firms across the Netherlands and EU. Orders include a full commercial VAT breakdown with standard B2B payment terms.",
+        q2: "Do you offer Non-Disclosure Agreements (NDAs) for confidential files?",
+        a2: "Absolutely. All uploaded CAD, STEP, and 3D files are treated with strict confidentiality under GDPR regulations. We regularly sign NDAs with engineering teams and R&D departments before production.",
+        q3: "What dimensional tolerances can you achieve with engineering FDM?",
+        a3: "Our calibrated industrial FDM printers achieve dimensional accuracy within ±0.1mm, ensuring tight press-fits, alignment for assembly jigs, threaded inserts, and mating snap-fits.",
+        q4: "What are your standard turnaround and delivery times in the Netherlands?",
+        a4: "Most custom prototypes and small production batches are completed and dispatched within 2 to 5 business days via PostNL tracked shipping directly to your workshop or office.",
+      },
     },
     hero: {
       titleLine1: "Custom 3D Prints,",
@@ -220,7 +265,7 @@ export const translations = {
       guideButton: "Printing & Model Guide",
       guideAria: "View slide instructions and printing tips",
       specsTitle: "Specifications & Instructions",
-      viewFaq: "View FAQ",
+      viewFaq: "Read FAQ",
       leadTimeBadge: "2-5 working days",
       precisionBadge: "±0.1mm Precision",
       materialsBadge: "Eco PLA & PETG",
@@ -2120,14 +2165,14 @@ export const translations = {
       default: {
         title: `B2B 3D Printing Service Netherlands | Rapid Prototyping & Parts | ${businessInfo.name}`,
         description:
-          "Professional B2B 3D printing and rapid prototyping service in the Netherlands. Upload STEP, CAD or STL files for instant quotes on engineering parts, jigs & fixtures, and short-run batch production (10-500+ units). Invoice billing & NDAs available.",
+          "B2B 3D printing & rapid prototyping service in the Netherlands. Upload CAD/STEP files for functional prototypes, jigs & fixtures, and batch series.",
         keywords:
           "B2B 3D printing service Netherlands, rapid prototyping services, zakelijk 3D printen, functional plastic prototypes, STEP CAD file manufacturing, engineering-grade FDM prints, 3D printed jigs and fixtures, short-run plastic batch production, invoice billing for businesses, 3D printen op factuur, order 3D prints online Netherlands",
       },
       home: {
         title: `B2B 3D Printing Service Netherlands | Rapid Prototyping & Parts | ${businessInfo.name}`,
         description:
-          "Professional B2B 3D printing and rapid prototyping service in the Netherlands. Upload STEP, CAD or STL files for instant quotes on engineering parts, jigs & fixtures, and short-run batch production (10-500+ units). Invoice billing & NDAs available.",
+          "B2B 3D printing & rapid prototyping service in the Netherlands. Upload CAD/STEP files for functional prototypes, jigs & fixtures, and batch series.",
         keywords:
           "B2B 3D printing service Netherlands, rapid prototyping services, zakelijk 3D printen, functional plastic prototypes, STEP CAD file manufacturing, engineering-grade FDM prints, 3D printed jigs and fixtures, short-run plastic batch production, invoice billing for businesses, 3D printen op factuur, order 3D prints online Netherlands",
       },
@@ -2470,6 +2515,7 @@ export const translations = {
       allSolutions: "Alle Oplossingen",
       materials: "Materialen",
       faq: "FAQ",
+      instantQuote: "Direct Offerte",
       myOrders: "Mijn Orders",
       myProfile: "Mijn Profiel",
       models: "3D Modellen",
@@ -2485,6 +2531,14 @@ export const translations = {
       tagline:
         "Professionele 3D-printservice voor prototypes, onderdelen en maatwerkprojecten in heel Nederland.",
       solutions: "Oplossingen",
+      standardsTitle: "Standaarden & Logistiek",
+      postnl: "PostNL Zakelijke Bezorging",
+      consortium3mf: "3MF Consortium Standaard",
+      thingiverse: "Thingiverse Platform",
+      makerworld: "MakerWorld Modellen",
+      socialTitle: "Volg & Deel",
+      shareLinkedIn: "LinkedIn",
+      shareWhatsApp: "WhatsApp",
       citiesTitle: "3D Print Service per Stad",
       cityServiceLink: "3D Printen {city}",
       contact: "Contact",
@@ -2496,7 +2550,7 @@ export const translations = {
       terms: "Algemene Voorwaarden",
       refunds: "Retour- en Terugbetaalbeleid",
       shippingPolicy: "Verzendbeleid",
-      faq: "FAQ",
+      faq: "Veelgestelde Vragen (FAQ)",
       copyright: `© 2026 ${businessInfo.name}. Alle rechten voorbehouden.`,
     },
     home: {
@@ -2507,6 +2561,7 @@ export const translations = {
         subtitle:
           "Van functionele prototypes en reserveonderdelen tot op maat gemaakte behuizingen en industriële mallen. Vervaardigd volgens strenge specificaties.",
         viewSolution: "Bekijk oplossing",
+        viewSpecific: "Ontdek {name}",
         learnMore: "Lees meer",
       },
       quickQuote: {
@@ -2607,6 +2662,41 @@ export const translations = {
         bridgeSubtitle:
           "Bekijk beschikbare materialen en recente prints om de verwachtingen goed te zetten voordat je je offerte aanvraagt.",
       },
+      process: {
+        eyebrow: "Productieproces",
+        title: "Van CAD-Model tot Industrieel Eindproduct",
+        subtitle:
+          "Ons additieve productieproces garandeert herhaalnauwkeurigheid en industriële mechanische belastbaarheid.",
+        step1Title: "1. CAD/STEP Inspectie & DFM-Check",
+        step1Desc:
+          "Upload STEP-, STL- of 3MF-bestanden. We analyseren wanddiktes, overhangende geometrieën en passingen tot ±0.1mm vóór de start van productie.",
+        step2Title: "2. Materiaalkeuze & Printconfiguratie",
+        step2Desc:
+          "Kies hitte- en UV-bestendig PETG voor mechanische delen, flexibel TPU voor trillingsdempers en pakkingen, of maatvast PLA voor vormstudies.",
+        step3Title: "3. Gekalibreerde FDM Farm Productie",
+        step3Desc:
+          "Onze synchrone print farm verzorgt zowel enkelstuks functionele prototypes als kleine series van 10 tot 500+ stuks met consistente kwaliteit.",
+        step4Title: "4. Kwaliteitscontrole & PostNL Verzending",
+        step4Desc:
+          "Ieder geprint onderdeel wordt ontbraamd, gecontroleerd aan de hand van het CAD-model en binnen 2-5 werkdagen met PostNL track & trace verzonden.",
+        guaranteeTitle: "Gegarandeerde Industriële Kwaliteit & Maatvastheid",
+        guaranteeText:
+          "Wij produceren functionele kunststof prototypes, montagetools en kleine series met uiterste precisie op basis van strikte additieve productierichtlijnen. Ieder afzonderlijk geprint onderdeel wordt na het 3D-printen ontbraamd, gecontroleerd aan de hand van het 3D CAD-model en nagemeten met digitale schuifmaten om naadloze montage in machines, behuizingen en kalibers te verzekeren. Of het nu gaat om een enkele spoedlevering of honderden identieke montagecomponenten, onze print farm in Nederland staat garant voor betrouwbare mechanische sterkte en snelle levering.",
+      },
+      faq: {
+        eyebrow: "Zakelijke FAQ",
+        title: "Veelgestelde Vragen over Onze 3D-Printservice",
+        subtitle:
+          "Heldere antwoorden over zakelijk bestellen op factuur, geheimhouding (NDA), toleranties en kleinseries.",
+        q1: "Kunnen bedrijven op factuur bestellen met officiële BTW-factuur?",
+        a1: "Ja. We leveren zakelijk 3D-printen op factuur voor bedrijven, ingenieursbureaus en machinebouwers. Iedere bestelling ontvangt een officiële BTW-factuur met zakelijke betalingscondities.",
+        q2: "Bieden jullie geheimhoudingsovereenkomsten (NDA) voor vertrouwelijke ontwerpen?",
+        a2: "Zeker. Alle geüploade 3D- en CAD-bestanden worden strikt vertrouwelijk behandeld onder de AVG. Voor gevoelige R&D-trajecten ondertekenen we graag vooraf een wederzijdse geheimhoudingsovereenkomst.",
+        q3: "Welke toleranties en nauwkeurigheid kunnen jullie garanderen?",
+        a3: "Onze gekalibreerde FDM-printers halen toleranties tot ±0.1mm. Dit zorgt voor betrouwbare perspassingen, nauwkeurige montagemallen, messing schroefdraadinzetstukken en klikverbindingen.",
+        q4: "Wat is de gemiddelde levertijd voor prototypes en kleinseries?",
+        a4: "De meeste prototypes en kleinseries worden binnen 2 tot 5 werkdagen geproduceerd en verzonden via PostNL pakketbezorging met track & trace naar jouw bedrijf of werkplaats.",
+      },
     },
     hero: {
       titleLine1: "Maatwerk 3D Prints,",
@@ -2625,7 +2715,7 @@ export const translations = {
       guideButton: "Print- & modelgids",
       guideAria: "Instructies en printtips bekijken",
       specsTitle: "Specificaties & Instructies",
-      viewFaq: "Bekijk FAQ",
+      viewFaq: "Veelgestelde Vragen",
       leadTimeBadge: "2-5 werkdagen",
       precisionBadge: "±0.1mm Precisie",
       materialsBadge: "Duurzaam PLA & PETG",
@@ -4554,14 +4644,14 @@ export const translations = {
       default: {
         title: `Zakelijk 3D Printen & Rapid Prototyping Nederland | ${businessInfo.name}`,
         description:
-          "Professionele B2B 3D print service in Nederland voor ingenieurs, machinebouwers en productontwikkelaars. Upload STEP-, CAD- of STL-bestanden voor rapid prototyping, mallen & kalibers (jigs & fixtures) en kleinserie productie (10–500 stuks). Bestellen op factuur & geheimhouding (NDA).",
+          "B2B 3D print service in Nederland voor ingenieurs & machinebouwers. Upload CAD/STEP voor rapid prototyping, jigs & fixtures en kleinserie productie.",
         keywords:
           "rapid prototyping Nederland, zakelijk 3D printen, functioneel kunststof prototype, CAD STEP model laten printen, 3D printen voor ingenieurs, nulserie pre-productie, mallen en kalibers 3D printen, jigs & fixtures, machineonderdelen nabouwen, kleinserie 3D printen Nederland, serieproductie kunststof onderdelen, 3D printen op factuur, BTW-factuur voor bedrijven, geheimhouding NDA",
       },
       home: {
         title: `Zakelijk 3D Printen & Rapid Prototyping Nederland | ${businessInfo.name}`,
         description:
-          "Professionele B2B 3D print service in Nederland voor ingenieurs, machinebouwers en productontwikkelaars. Upload STEP-, CAD- of STL-bestanden voor rapid prototyping, mallen & kalibers (jigs & fixtures) en kleinserie productie (10–500 stuks). Bestellen op factuur & geheimhouding (NDA).",
+          "B2B 3D print service in Nederland voor ingenieurs & machinebouwers. Upload CAD/STEP voor rapid prototyping, jigs & fixtures en kleinserie productie.",
         keywords:
           "rapid prototyping Nederland, zakelijk 3D printen, functioneel kunststof prototype, CAD STEP model laten printen, 3D printen voor ingenieurs, nulserie pre-productie, mallen en kalibers 3D printen, jigs & fixtures, machineonderdelen nabouwen, kleinserie 3D printen Nederland, serieproductie kunststof onderdelen, 3D printen op factuur, BTW-factuur voor bedrijven, geheimhouding NDA",
       },

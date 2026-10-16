@@ -75,8 +75,15 @@ export default function SolutionsGrid() {
                 <Link
                   to={localizePath(`/oplossingen/${app.slug}`)}
                   className="w-full site-btn-soft py-2.5 rounded-xl font-bold text-xs inline-flex items-center justify-center gap-2 group-hover:bg-emerald-700 group-hover:text-white transition-all shadow-sm"
+                  aria-label={t("home.solutions.viewSpecific", {
+                    name: getApplicationName(app, language),
+                  })}
                 >
-                  <span>{t("home.solutions.viewSolution")}</span>
+                  <span>
+                    {t("home.solutions.viewSpecific", {
+                      name: getApplicationName(app, language),
+                    })}
+                  </span>
                   <ArrowRight size={14} />
                 </Link>
               </div>

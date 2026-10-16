@@ -3,6 +3,7 @@ import Hero from "./Hero";
 import SolutionsGrid from "./home/SolutionsGrid";
 import ShowcaseGallery from "./home/ShowcaseGallery";
 import MaterialFeatures from "./home/MaterialFeatures";
+import HomeWorkflow from "./home/HomeWorkflow";
 import Footer from "./Footer";
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
         <SolutionsGrid />
         <ShowcaseGallery />
         <MaterialFeatures />
+        <HomeWorkflow />
       </main>
       <Footer />
     </div>
