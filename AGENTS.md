@@ -36,6 +36,12 @@ This repository strictly enforces localization and type-safe internationalizatio
    - **User-Facing Copy (MUST localize)**: Buttons, titles, headers, badge labels, form placeholders, error/success toasts, validation messages, confirm prompts, modal body text, accessible labels (`aria-label`, `alt`).
    - **Technical Strings (Do NOT localize)**: API routes (`/api/orders`), HTTP methods (`POST`), CSS classes, object property keys, database fields, enum values, unit abbreviations (`mm`, `cm`, `g`, `kg`, `px`), file extensions (`.stl`, `.3mf`, `.obj`), and machine-readable identifiers.
 
+6. **Never Use Binary/Ternary Language Conditionals or Suffixes (Must Be Scalable)**
+   - Never write binary language ternaries (e.g., `isNl ? ... : ...`, `language === "nl" ? ... : ...`, `lang === "en" ? ... : ...`) for user-facing copy, schema strings, or entity attributes.
+   - Never use language-suffixed object properties (e.g., `nameEn`). All localized entities must be typed as dictionaries keyed by `SupportedLanguage` (e.g., `names: Record<SupportedLanguage, string>`) and retrieved via typed helpers (e.g., `getCityName(city, lang)`).
+   - Never hardcode language checks in route guards or redirects (`lang === "en" || lang === "nl"`). Always use `isSupportedLanguage(lang)` and `resolveLanguage(lang)`.
+   - Use global typed maps (`htmlLangMap`, `ogLocaleMap`) for platform identifiers and loop over `supportedLanguages` when generating alternate hreflangs and sitemaps so that adding a new language (e.g., `de`, `fr`, `es`) requires zero code branching.
+
 ---
 
 ## 2. Validation & Verification Workflow

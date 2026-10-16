@@ -1,14 +1,24 @@
 import { useEffect } from "react";
 import { matchPath, useLocation } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext";
-import { translations } from "../i18n/translations";
+import {
+  translations,
+  supportedLanguages,
+  defaultLanguage,
+  isSupportedLanguage,
+  htmlLangMap,
+  ogLocaleMap,
+  type SupportedLanguage,
+} from "../i18n/translations";
 import { businessInfo } from "../config/businessInfo";
 import {
+  buildCityJsonLd,
   buildFaqJsonLd,
   buildHomepageJsonLd,
   buildStandardWebPageJsonLd,
   getValidatedOrigin,
 } from "../utils/seoStructuredData";
+import { getDutchCityBySlug, getCityName } from "../config/dutchCities";
 
 export type RouteSeo = {
   title: string;
@@ -79,7 +89,7 @@ function removeHreflangs() {
 function upsertJsonLd(
   unlocalizedPath: string,
   canonicalUrl: string,
-  language: "en" | "nl",
+  language: SupportedLanguage,
   pageTitle: string,
   pageDescription: string,
   isIndexable: boolean,
@@ -94,7 +104,23 @@ function upsertJsonLd(
   }
 
   let schemaGraph;
-  if (unlocalizedPath === "/") {
+  const cityMatch = matchPath(
+    { path: "/3d-print-service/:city", end: true },
+    unlocalizedPath,
+  );
+
+  if (cityMatch?.params.city) {
+    const city = getDutchCityBySlug(cityMatch.params.city);
+    if (city) {
+      schemaGraph = buildCityJsonLd(
+        canonicalUrl,
+        city,
+        language,
+        pageTitle,
+        pageDescription,
+      );
+    }
+  } else if (unlocalizedPath === "/") {
     schemaGraph = buildHomepageJsonLd(
       canonicalUrl,
       pageTitle,
@@ -133,14 +159,14 @@ function upsertJsonLd(
 }
 
 export function parsePath(rawPath: string): {
-  urlLang: "en" | "nl" | null;
+  urlLang: SupportedLanguage | null;
   unlocalizedPath: string;
 } {
   const cleaned = rawPath.split("?")[0]?.split("#")[0]?.trim() || "/";
   const segments = cleaned.split("/").filter(Boolean);
 
-  if (segments[0] === "en" || segments[0] === "nl") {
-    const urlLang = segments[0] as "en" | "nl";
+  if (isSupportedLanguage(segments[0])) {
+    const urlLang = segments[0];
     const remainder = segments.slice(1).join("/").toLowerCase();
     const unlocalizedPath = remainder ? `/${remainder}` : "/";
     return { urlLang, unlocalizedPath };
@@ -155,9 +181,29 @@ export function parsePath(rawPath: string): {
 
 export function getRouteSeo(
   unlocalizedPath: string,
-  lang: "en" | "nl",
+  lang: SupportedLanguage,
 ): RouteSeo {
-  const seoData = translations[lang]?.seo || translations.en.seo;
+  const cityMatch = matchPath(
+    { path: "/3d-print-service/:city", end: true },
+    unlocalizedPath,
+  );
+  if (cityMatch?.params.city) {
+    const city = getDutchCityBySlug(cityMatch.params.city);
+    if (city) {
+      const cityName = getCityName(city, lang);
+      const tCity = translations[lang]?.cityPage || translations[defaultLanguage].cityPage;
+      return {
+        title: tCity.metaTitle
+          .replaceAll("{city}", cityName)
+          .replaceAll("{company}", businessInfo.name),
+        description: tCity.metaDescription.replaceAll("{city}", cityName),
+        keywords: tCity.metaKeywords.replaceAll("{city}", cityName),
+        index: true,
+      };
+    }
+  }
+
+  const seoData = translations[lang]?.seo || translations[defaultLanguage].seo;
   const routeMap: Record<string, RouteSeo> = {
     "/": {
       title: seoData.home.title,
@@ -216,8 +262,7 @@ export default function SeoManager() {
     const ogImage = `${origin}/uploads/hero/materials.svg`;
 
     const { urlLang, unlocalizedPath } = parsePath(location.pathname);
-    const activeLang: "en" | "nl" = urlLang ?? language;
-    const isNl = activeLang === "nl";
+    const activeLang: SupportedLanguage = urlLang ?? language;
 
     // Dynamic SEO dictionary indexed by unlocalized route from translations
     const seoByRoute: Record<string, RouteSeo> = {
@@ -344,6 +389,7 @@ export default function SeoManager() {
     };
 
     const knownDynamicPatterns = [
+      "/3d-print-service/:city",
       "/orders/:id",
       "/admin/orders/:id",
       "/admin/models/view/:fileName",
@@ -371,21 +417,44 @@ export default function SeoManager() {
     const isAdmin = unlocalizedPath.startsWith("/admin");
     const isOrderDetail = unlocalizedPath.startsWith("/orders/");
 
+    let citySeo: RouteSeo | null = null;
+    const cityMatch = matchPath(
+      { path: "/3d-print-service/:city", end: true },
+      unlocalizedPath,
+    );
+    if (cityMatch?.params.city) {
+      const city = getDutchCityBySlug(cityMatch.params.city);
+      if (city) {
+        const cityName = getCityName(city, activeLang);
+        citySeo = {
+          title: t("cityPage.metaTitle", {
+            city: cityName,
+            company: businessInfo.name,
+          }),
+          description: t("cityPage.metaDescription", { city: cityName }),
+          keywords: t("cityPage.metaKeywords", { city: cityName }),
+          index: true,
+        };
+      }
+    }
+
     const routeSeo: RouteSeo = !isKnownRoute
       ? notFoundSeo
-      : isAdmin
-        ? (seoByRoute[unlocalizedPath] || {
-            title: `${t("breadcrumb.admin")} | ${businessInfo.name}`,
-            description: `${t("breadcrumb.admin")} ${businessInfo.name}`,
-            keywords: "admin",
-            index: false,
-          })
-        : isOrderDetail
-          ? { ...seoByRoute["/orders"], index: false }
-          : seoByRoute[unlocalizedPath] || notFoundSeo;
+      : cityMatch
+        ? (citySeo || notFoundSeo)
+        : isAdmin
+          ? (seoByRoute[unlocalizedPath] || {
+              title: `${t("breadcrumb.admin")} | ${businessInfo.name}`,
+              description: `${t("breadcrumb.admin")} ${businessInfo.name}`,
+              keywords: "admin",
+              index: false,
+            })
+          : isOrderDetail
+            ? { ...seoByRoute["/orders"], index: false }
+            : seoByRoute[unlocalizedPath] || notFoundSeo;
 
     // Document language sync
-    document.documentElement.lang = isNl ? "nl-NL" : "en";
+    document.documentElement.lang = htmlLangMap[activeLang] || activeLang;
     document.title = routeSeo.title;
 
     // Meta directives
@@ -405,11 +474,13 @@ export default function SeoManager() {
       upsertCanonical(canonicalUrl);
 
       // Reciprocal hreflangs
-      const nlAlternate = `${origin}/nl${subRouteSuffix}`;
-      const enAlternate = `${origin}/en${subRouteSuffix}`;
-      upsertHreflang("nl", nlAlternate);
-      upsertHreflang("en", enAlternate);
-      upsertHreflang("x-default", nlAlternate);
+      for (const sLang of supportedLanguages) {
+        upsertHreflang(sLang, `${origin}/${sLang}${subRouteSuffix}`);
+      }
+      upsertHreflang(
+        "x-default",
+        `${origin}/${defaultLanguage}${subRouteSuffix}`,
+      );
     } else {
       removeCanonical();
       removeHreflangs();
@@ -420,7 +491,10 @@ export default function SeoManager() {
     upsertMetaByProperty("og:title", routeSeo.title);
     upsertMetaByProperty("og:description", routeSeo.description);
     upsertMetaByProperty("og:type", "website");
-    upsertMetaByProperty("og:locale", isNl ? "nl_NL" : "en_US");
+    upsertMetaByProperty(
+      "og:locale",
+      ogLocaleMap[activeLang] || "en_US",
+    );
     upsertMetaByProperty("og:url", routeSeo.index ? canonicalUrl : origin);
     upsertMetaByProperty("og:image", ogImage);
 

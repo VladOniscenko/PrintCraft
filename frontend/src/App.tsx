@@ -12,6 +12,7 @@ import {
 import SeoManager from "./components/SeoManager";
 import api from "./services/api";
 import { useI18n } from "./i18n/I18nContext.tsx";
+import { isSupportedLanguage, resolveLanguage } from "./i18n/translations";
 
 const recentVisitDispatches = new Map<string, number>();
 
@@ -74,18 +75,19 @@ const ModelFilesBrowser = lazy(
 const AdminUploadedModelViewerPage = lazy(
   () => import("./components/admin/AdminUploadedModelViewerPage.tsx"),
 );
+const CityLandingPage = lazy(() => import("./components/CityLandingPage.tsx"));
 const NotFound = lazy(() => import("./components/NotFound.tsx"));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
-  const preferred = localStorage.getItem("language") === "en" ? "en" : "nl";
+  const preferred = resolveLanguage(localStorage.getItem("language"));
   return token ? <>{children}</> : <Navigate to={`/${preferred}/login`} replace />;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
-  const preferred = localStorage.getItem("language") === "en" ? "en" : "nl";
+  const preferred = resolveLanguage(localStorage.getItem("language"));
   if (!token || !user) return <Navigate to={`/${preferred}/login`} replace />;
 
   try {
@@ -200,14 +202,14 @@ function ScrollToTop() {
 
 function RootLanguageRedirect() {
   const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
-  const preferred = stored === "en" ? "en" : "nl";
+  const preferred = resolveLanguage(stored);
   return <Navigate to={`/${preferred}`} replace />;
 }
 
 function LegacyPathRedirect({ target }: { target: string }) {
   const location = useLocation();
   const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
-  const preferred = stored === "en" ? "en" : "nl";
+  const preferred = resolveLanguage(stored);
   const cleanTarget = target.startsWith("/") ? target : `/${target}`;
   return (
     <Navigate
@@ -217,9 +219,22 @@ function LegacyPathRedirect({ target }: { target: string }) {
   );
 }
 
+function LegacyCityRedirect() {
+  const { city } = useParams<{ city: string }>();
+  const location = useLocation();
+  const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
+  const preferred = resolveLanguage(stored);
+  return (
+    <Navigate
+      to={`/${preferred}/3d-print-service/${city || ""}${location.search}${location.hash}`}
+      replace
+    />
+  );
+}
+
 function LanguageRouteGuard() {
   const { lang } = useParams<{ lang: string }>();
-  if (lang !== "en" && lang !== "nl") {
+  if (!isSupportedLanguage(lang)) {
     return <NotFound />;
   }
   return <Outlet />;
@@ -246,6 +261,10 @@ export default function App() {
           <Route path="/faq" element={<LegacyPathRedirect target="/faq" />} />
           <Route path="/checkout" element={<LegacyPathRedirect target="/checkout" />} />
           <Route path="/quote" element={<LegacyPathRedirect target="/checkout" />} />
+          <Route
+            path="/3d-print-service/:city"
+            element={<LegacyCityRedirect />}
+          />
           <Route path="/privacy" element={<LegacyPathRedirect target="/privacy" />} />
           <Route path="/terms" element={<LegacyPathRedirect target="/terms" />} />
           <Route path="/refunds" element={<LegacyPathRedirect target="/refunds" />} />
@@ -275,6 +294,7 @@ export default function App() {
           <Route path="/:lang" element={<LanguageRouteGuard />}>
             <Route index element={<Home />} />
             <Route path="faq" element={<FAQ />} />
+            <Route path="3d-print-service/:city" element={<CityLandingPage />} />
             <Route path="privacy" element={<PrivacyPolicy />} />
             <Route path="terms" element={<TermsOfService />} />
             <Route path="refunds" element={<RefundPolicy />} />

@@ -1,6 +1,29 @@
 import { businessInfo } from "../config/businessInfo";
 
-export type SupportedLanguage = "nl" | "en";
+export const supportedLanguages = ["nl", "en"] as const;
+export type SupportedLanguage = (typeof supportedLanguages)[number];
+export const defaultLanguage: SupportedLanguage = "nl";
+
+export function isSupportedLanguage(lang: unknown): lang is SupportedLanguage {
+  return typeof lang === "string" && (supportedLanguages as readonly string[]).includes(lang);
+}
+
+export function resolveLanguage(lang: unknown): SupportedLanguage {
+  if (isSupportedLanguage(lang)) {
+    return lang;
+  }
+  return defaultLanguage;
+}
+
+export const htmlLangMap: Record<SupportedLanguage, string> = {
+  nl: "nl-NL",
+  en: "en",
+};
+
+export const ogLocaleMap: Record<SupportedLanguage, string> = {
+  nl: "nl_NL",
+  en: "en_US",
+};
 
 export const languageOptions: Array<{
   code: SupportedLanguage;
@@ -105,26 +128,29 @@ export const translations = {
         title: "What we can make for you",
         subtitle:
           "From a first idea to a part that performs every day. You bring the direction, we make it tangible.",
-        partTitle: "Functional parts",
-        partTag: "Precise",
-        prototypeTitle: "Product prototypes",
-        prototypeTag: "Fast testing",
-        caseTitle: "Strong enclosures",
-        caseTag: "Durable",
-        detailTitle: "Detailed work",
-        detailTag: "Clean finish",
+        partTitle: "Replacement parts & repairs",
+        partTag: "High precision",
+        prototypeTitle: "Rapid prototyping & engineering",
+        prototypeTag: "Fast iterations",
+        caseTitle: "Electronics enclosures & mounts",
+        caseTag: "PETG & TPU",
+        detailTitle: "HueForge 3D relief art & models",
+        detailTag: "Full color",
       },
       materials: {
         eyebrow: "Materials",
         title: "Choose your strength",
         subtitle:
           "Not sure yet? Describe your use case and we will help you choose.",
-        plaTitle: "Everyday use",
-        plaText: "For prototypes, organizers and parts with a clean finish.",
-        petgTitle: "Extra strong",
-        petgText: "For functional parts that face heat, moisture and load.",
-        tpuTitle: "Flexible",
-        tpuText: "For grips, protectors and parts that need to move.",
+        plaTitle: "Everyday & Prototyping",
+        plaText:
+          "High-precision FDM printing with ±0.1mm tolerance for rapid prototyping, organizers, and dimensionally accurate models.",
+        petgTitle: "Extra Strong & Heat-Resistant",
+        petgText:
+          "PETG 3D printing service for high-strength functional parts, heat-resistant enclosures, and UV-resistant outdoor prints.",
+        tpuTitle: "Flexible Rubber",
+        tpuText:
+          "Flexible TPU 3D printing service for rubber-like parts, shock absorbers, protective casings, and custom gaskets.",
       },
       modelFinder: {
         badge: "Model Starter",
@@ -1738,6 +1764,26 @@ export const translations = {
       a5: "Standard printed plastics are usually not recommended for direct food contact. We can advise safer finishing options when needed.",
       q6: "What if my print arrives damaged?",
       a6: "If your item arrives damaged or with major issues, send a photo within 3 days and we will reprint and reship it.",
+      q7: "Can I upload and print STEP, CAD, or Fusion 360 files?",
+      a7: "Yes, absolutely! Along with STL, OBJ, and 3MF files, we accept STEP, STP, and CAD exports from software like Autodesk Fusion 360 or SolidWorks. We slice your CAD models directly to preserve exact dimensional accuracy (up to ±0.1mm tolerance).",
+      q8: "How much does 3D printing a replacement part cost?",
+      a8: "Reproducing broken plastic parts or discontinued replacement components (for household appliances, coffee machines, car clips, or tools) typically starts from €9.95. Request an instant quote by uploading your file or photo for exact pricing based on material and weight.",
+      q9: "Can you print custom electronics enclosures, PCB cases, and mounts?",
+      a9: "Yes! We specialize in custom electronics enclosures, PCB cases, sensor mounts, and mounting brackets in heat-resistant PETG or robust PLA. Designs can feature cable cutouts, snap-fit lids, and threaded heat-set inserts for secure assembly.",
+      q10: "What is the difference between PETG and flexible TPU 3D printing?",
+      a10: "PETG provides high tensile strength, heat resistance up to ~75°C, and UV resistance for durable outdoor applications and structural parts. TPU is an elastic, rubber-like filament ideal for shock absorbers, flexible gaskets, airtight seals, and protective bumpers.",
+      q11: "Do you offer small-batch 3D printing and rapid prototyping for businesses?",
+      a11: "Yes! We provide short-run FDM manufacturing and small-batch production from 1 to 500+ units across the Netherlands. Perfect for functional prototyping, pre-production validation, and custom plastic production without the high upfront cost of injection molds.",
+      q12: "Can I order a 3D print directly from Thingiverse, Printables, or MakerWorld?",
+      a12: "Absolutely! Found a great design on MakerWorld, Printables, or Thingiverse? Just download the .STL or .3MF file and upload it to our quote tool. We verify slicer printability and craft your item in your chosen material and color.",
+      q13: "Can businesses order on invoice with a VAT breakdown?",
+      a13: "Yes, we support corporate invoice billing for companies, engineering firms, and machine builders across the Netherlands and EU. Every B2B order comes with a formal VAT invoice (including company registration and tax numbers) and commercial payment terms upon approval. Contact us or add your company details during quote checkout.",
+      q14: "Do you offer non-disclosure agreements (NDAs) for confidential CAD designs and prototypes?",
+      a14: "Absolutely. We treat all uploaded 3D files, STEP assemblies, and engineering designs as strictly confidential in compliance with GDPR. For sensitive R&D projects, patent applications, or pre-production development, we are happy to review and sign an NDA (Non-Disclosure Agreement) prior to manufacturing.",
+      q15: "Can you manufacture custom jigs, fixtures, and replacement machine components?",
+      a15: "Yes! We manufacture custom assembly jigs, drill templates, inspection fixtures, and durable PETG or TPU tool holders. For discontinued machine components and industrial replacement parts, our engineering-grade FDM printing delivers impact resistance and precise tolerances (±0.1mm).",
+      q16: "Do you offer volume pricing for short-run batch production (10–500+ parts)?",
+      a16: "Yes! Our print farm specializes in short-run plastic batch production from 10 to 500+ units with tiered volume discounts. This serves as a fast, cost-effective bridge manufacturing alternative to injection molding (zero tooling or mold costs) for pilot runs, initial product launches, and on-demand spare parts.",
     },
     orderStatus: {
       quote_requested: "Quote Requested",
@@ -2059,37 +2105,39 @@ export const translations = {
     },
     seo: {
       default: {
-        title: `3D Printing Service Netherlands | ${businessInfo.name} - Fast & Custom`,
+        title: `B2B 3D Printing Service Netherlands | Rapid Prototyping & Parts | ${businessInfo.name}`,
         description:
-          "Professional 3D printing service in the Netherlands. Upload your 3D model (STL/3MF), choose PLA, PETG or TPU, and get an instant quote. Fast 2-5 business days delivery.",
+          "Professional B2B 3D printing and rapid prototyping service in the Netherlands. Upload STEP, CAD or STL files for instant quotes on engineering parts, jigs & fixtures, and short-run batch production (10-500+ units). Invoice billing & NDAs available.",
         keywords:
-          "3D printing service Netherlands, 3D print Rotterdam, custom 3D printing, FDM 3D prints, STL printing quote, rapid prototyping",
+          "B2B 3D printing service Netherlands, rapid prototyping services, zakelijk 3D printen, functional plastic prototypes, STEP CAD file manufacturing, engineering-grade FDM prints, 3D printed jigs and fixtures, short-run plastic batch production, invoice billing for businesses, 3D printen op factuur, order 3D prints online Netherlands",
       },
       home: {
-        title: `3D Printing Service Netherlands | ${businessInfo.name} - Fast & Custom`,
+        title: `B2B 3D Printing Service Netherlands | Rapid Prototyping & Parts | ${businessInfo.name}`,
         description:
-          "Professional 3D printing service in the Netherlands. Upload your 3D model (STL/3MF), choose PLA, PETG or TPU, and get an instant quote. Fast 2-5 business days delivery.",
+          "Professional B2B 3D printing and rapid prototyping service in the Netherlands. Upload STEP, CAD or STL files for instant quotes on engineering parts, jigs & fixtures, and short-run batch production (10-500+ units). Invoice billing & NDAs available.",
         keywords:
-          "3D printing service Netherlands, 3D print Rotterdam, custom 3D printing, FDM 3D prints, STL printing quote, rapid prototyping",
+          "B2B 3D printing service Netherlands, rapid prototyping services, zakelijk 3D printen, functional plastic prototypes, STEP CAD file manufacturing, engineering-grade FDM prints, 3D printed jigs and fixtures, short-run plastic batch production, invoice billing for businesses, 3D printen op factuur, order 3D prints online Netherlands",
       },
       gallery: {
-        title: `3D Print Model Gallery | ${businessInfo.name} Netherlands`,
+        title: `3D Print Model Gallery & Community Prints | ${businessInfo.name} Netherlands`,
         description:
-          "Browse popular 3D print models and start your order from anywhere in the Netherlands.",
-        keywords: "3D model printing, 3D print gallery, 3D print Netherlands",
+          "Browse 3D printable designs or send models from Thingiverse, Printables, and MakerWorld. Order custom 3D prints delivered across the Netherlands.",
+        keywords:
+          "3D model printing, 3D print gallery, Thingiverse model laten printen, Printables 3D print, MakerWorld order, custom 3D printing Netherlands, order 3D prints online Netherlands",
       },
       materials: {
-        title: `3D Print Materials (PLA, PETG) | ${businessInfo.name} NL`,
+        title: `Engineering 3D Print Materials: PETG, Flexible TPU & PLA | ${businessInfo.name} NL`,
         description:
-          "Choose the right 3D print material and color for your project. Live filament overview.",
-        keywords: "PLA printing, PETG printing, 3D filament Netherlands",
+          "Engineering-grade filaments for prototypes, machine components, jigs & fixtures: heat/UV-resistant PETG, flexible TPU rubber for gaskets, and precision PLA with ±0.1mm tolerance.",
+        keywords:
+          "engineering 3D printing materials, PETG machine components, durable jigs and fixtures, flexible TPU gaskets, industrial tooling replacement, precision FDM tooling Netherlands, B2B 3D printing filaments",
       },
       faq: {
-        title: `3D Printing FAQ | ${businessInfo.name} Frequently Asked Questions`,
+        title: `3D Printing FAQ: B2B Invoicing, NDAs, STEP Files & Batch Orders | ${businessInfo.name}`,
         description:
-          "Questions about 3D printing, materials (PLA/PETG/TPU), turnaround times (2-5 days), file formats (STL/3MF), or pricing? Find all answers here.",
+          "Answers to commercial and engineering 3D printing questions: B2B ordering on invoice, signing NDAs, STEP/CAD slicing, jigs & fixtures, and batch volume pricing (10-500+ parts).",
         keywords:
-          "3D print FAQ Netherlands, 3D printing questions, lead times, 3D printing cost, accepted file types STL 3MF",
+          "B2B 3D printing FAQ, invoice billing for businesses, NDA confidential 3D printing, STEP CAD file manufacturing, jigs and fixtures 3D printing, low volume batch production Netherlands",
       },
       privacy: {
         title: `Privacy Policy | ${businessInfo.name}`,
@@ -2117,6 +2165,83 @@ export const translations = {
         description: `The requested page could not be found. Return to ${businessInfo.name} for 3D printing services.`,
         keywords: "404, not found",
       },
+      schema: {
+        siteDescription:
+          "Professional B2B 3D printing and rapid prototyping service in the Netherlands for engineering firms, machine builders and product developers.",
+        catalogName: "B2B & Commercial 3D Printing Services",
+        fdmServiceName: "Custom Engineering FDM 3D Printing (PLA, PETG, TPU)",
+        fdmServiceDesc:
+          "High-precision FDM printing for functional prototypes, electronic enclosures and mechanical components with ±0.1mm tolerance.",
+        hueforgeServiceName: "HueForge Filament Painting (3D Relief Art)",
+        hueforgeServiceDesc:
+          "Multi-color relief 3D art printing from 2D images using optical layer blending.",
+        replacementServiceName:
+          "Replacement Parts & Industrial Machine Components",
+        replacementServiceDesc:
+          "Reverse engineering and reproduction of discontinued or broken plastic machine parts, tools, and custom brackets.",
+        prototypingServiceName:
+          "Rapid Prototyping & Engineering Validation",
+        prototypingServiceDesc:
+          "Fast turnaround functional prototypes, STEP/CAD assembly validation, and pre-production testing.",
+        toolingServiceName:
+          "3D Printed Jigs, Fixtures & Tooling",
+        toolingServiceDesc:
+          "Custom manufacturing of assembly jigs, drill fixtures, inspection gauges, and durable machine components.",
+        batchServiceName:
+          "Short-Run Plastic Batch Production (10–500+ units)",
+        batchServiceDesc:
+          "Bridge manufacturing and low-volume production alternative to injection molding with commercial B2B invoicing.",
+        cityServiceTemplate: "B2B 3D Printing Service in {city}",
+      },
+    },
+    cityPage: {
+      badge: "Local 3D Printing Service",
+      heroTitle: "3D Print Service {city}",
+      heroSubtitle:
+        "Professional FDM 3D printing for prototypes, parts and custom designs delivered directly to your doorstep in {city}. Fast turnaround within 2-5 business days via PostNL tracking.",
+      quoteCta: "Request Instant Quote",
+      viewFaq: "Local FAQ",
+      deliveryBadge: "Fast delivery in {city} (2-5 business days)",
+      precisionBadge: "±0.1mm Industrial Precision",
+      materialsBadge: "Eco PLA, PETG & Flexible TPU",
+      capabilitiesEyebrow: "Our Services in {city}",
+      capabilitiesTitle: "High-Quality 3D Printing for {city} Makers & Companies",
+      capabilitiesDesc:
+        "Whether you need one-off engineering prototypes, replacement machine parts, assembly jigs and fixtures, architectural models, or small-batch production (10–500+ units) in {city}, we provide high-precision FDM manufacturing with instant quotes and B2B invoice billing.",
+      cardPrototypesTitle: "Rapid Prototyping",
+      cardPrototypesDesc:
+        "Validate functional prototypes, CAD/STEP assemblies, and pre-production iterations rapidly before mass production with ±0.1mm precision.",
+      cardPartsTitle: "Functional Replacement Parts",
+      cardPartsDesc:
+        "Durable machine components, tooling mounts, jigs & fixtures, and replacement parts in heat-resistant PETG or flexible TPU.",
+      cardArtTitle: "HueForge 3D Art & Reliefs",
+      cardArtDesc:
+        "Turn images into tactile, full-color 3D reliefs using high-resolution optical layer blending.",
+      materialsTitle: "Materials Available for Delivery in {city}",
+      materialsDesc:
+        "Choose from our premium filament catalog with live stock availability.",
+      faqEyebrow: "Frequently Asked Questions",
+      faqTitle: "3D Printing in {city} FAQ",
+      q1: "How fast will my 3D print be delivered to {city}?",
+      a1: "Orders for customers in {city} are typically printed and dispatched within 2 to 5 business days using reliable PostNL track-and-trace shipping.",
+      q2: "Can I order single prototypes or small batches in {city}?",
+      a2: "Yes! There are no minimum order quantities. We print everything from single custom prototypes to batches of hundreds of functional parts.",
+      q3: "Which 3D file formats can I upload for orders in {city}?",
+      a3: "We support standard .STL, .OBJ, and .3MF files directly in our online quote configurator. If you have a STEP or CAD file, you can easily export it to STL before uploading.",
+      q4: "Do you offer technical materials like PETG and TPU in {city}?",
+      a4: "Yes, we stock PLA for everyday models, PETG for heat and UV resistance, and flexible TPU for gaskets, grips, and impact protection.",
+      ctaBannerTitle: "Have a 3D File Ready for {city}?",
+      ctaBannerDesc:
+        "Upload your model now to inspect dimensions, select materials, and receive an instant quote.",
+      ctaBannerButton: "Configure & Order Now",
+      otherCitiesTitle: "Explore 3D Printing in Other Dutch Cities",
+      otherCitiesSubtitle:
+        "Fast delivery and professional service across the entire Netherlands.",
+      metaTitle: "3D Print Service {city} | {company} - Fast & Custom",
+      metaDescription:
+        "Professional 3D printing and rapid prototyping service in {city}. Upload STEP/STL/3MF files for instant quotes on functional prototypes, machine parts, and batch series. Fast 2-5 days delivery to {city} via PostNL.",
+      metaKeywords:
+        "3D print service {city}, zakelijk 3D printen {city}, rapid prototyping {city}, 3D printing service {city}, STEP bestand printen {city}, machineonderdelen nabouwen {city}, kleinserie 3D printen {city}, jigs fixtures {city}, instant 3D print quote {city}",
     },
     shipping: {
       error: {
@@ -2395,28 +2520,29 @@ export const translations = {
         title: "Wat we voor je kunnen maken",
         subtitle:
           "Van een eerste idee tot een onderdeel dat elke dag moet presteren. Jij levert de richting, wij maken het tastbaar.",
-        partTitle: "Functionele onderdelen",
-        partTag: "Nauwkeurig",
-        prototypeTitle: "Product prototypes",
-        prototypeTag: "Snel getest",
-        caseTitle: "Sterke behuizingen",
-        caseTag: "Sterk",
-        detailTitle: "Detailwerk",
-        detailTag: "Strak afgewerkt",
+        partTitle: "Vervangende onderdelen & repair",
+        partTag: "Hoge precisie",
+        prototypeTitle: "Rapid prototyping & engineering",
+        prototypeTag: "Snelle iteraties",
+        caseTitle: "Elektronica behuizingen & mounts",
+        caseTag: "PETG & TPU",
+        detailTitle: "HueForge 3D reliëf kunst & maquettes",
+        detailTag: "Meerkleurig",
       },
       materials: {
         eyebrow: "Materialen",
         title: "Kies je kracht",
         subtitle:
           "Nog niet zeker? Beschrijf je toepassing in je aanvraag. We helpen je met de juiste keuze.",
-        plaTitle: "Dagelijks gebruik",
+        plaTitle: "Dagelijks & Prototyping",
         plaText:
-          "Voor prototypes, organizers en onderdelen met een nette uitstraling.",
-        petgTitle: "Super sterk",
+          "Hoge resolutie FDM printen met ±0.1mm industriële tolerantie voor prototypes, organizers en maatvaste kunststof modellen.",
+        petgTitle: "Super Sterk & Hittebestendig",
         petgText:
-          "Voor functionele onderdelen die tegen warmte, vocht en belasting kunnen.",
-        tpuTitle: "Flexibel",
-        tpuText: "Voor grips, beschermers en onderdelen die moeten meebewegen.",
+          "PETG 3D print service voor sterke kunststof onderdelen, hittebestendige behuizingen en weerbestendige outdoor prints (UV-bestendig).",
+        tpuTitle: "Flexibel Rubber",
+        tpuText:
+          "Flexibel TPU 3D printen voor rubberachtige onderdelen, schokdempers, afdichtingen en flexibele pakkingen.",
       },
       modelFinder: {
         badge: "Model Startpunt",
@@ -4060,6 +4186,26 @@ export const translations = {
       a5: "Standaard printmaterialen zijn meestal niet bedoeld voor direct voedselcontact. We adviseren graag over veiligere afwerking.",
       q6: "Wat als mijn print beschadigd aankomt?",
       a6: "Als je item beschadigd aankomt of grote printfouten heeft, stuur binnen 3 dagen een foto en we regelen een herprint.",
+      q7: "Kan ik een STEP-, CAD- of Fusion 360-bestand laten printen?",
+      a7: "Ja zeker! Naast STL-, OBJ- en 3MF-bestanden kun je ook STEP-, STP- en CAD-modellen (zoals uit Autodesk Fusion 360 of SolidWorks) insturen. Wij zetten jouw technische CAD-bestand vakkundig om naar een hoogwaardig slice-profiel met optimale toleranties (tot ±0.1mm).",
+      q8: "Wat kost een vervangend onderdeel 3D-printen voor apparaten of auto's?",
+      a8: "Een kapot plastic onderdeel namaken of reserveonderdeel 3D-printen (voor bijvoorbeeld koffiemachines, huishoudelijke apparaten, oldtimers of gereedschap) start vaak al vanaf €9,95. Vraag direct een vrijblijvende online 3D print offerte aan door foto's of een model te uploaden voor een directe prijs per gram.",
+      q9: "Kunnen jullie een elektronica behuizing of bevestigingsbeugel op maat printen?",
+      a9: "Ja, wij produceren maatwerk elektronica behuizingen, PCB casings, sensor mounts en DIN-rail beugels in hittebestendig PETG of robuust PLA. We houden rekening met ventilatieopeningen, snap-fit sluitingen en schroefdraadinzetstukken (brass inserts).",
+      q10: "Wat is het verschil tussen PETG en flexibel TPU printen?",
+      a10: "PETG is slagvast, hittebestendig tot ~75°C en UV-bestendig voor weerbestendige outdoor prints en sterke mechanische onderdelen. TPU is elastisch en rubberachtig, ideaal voor schokdempers, flexibele pakkingen, afdichtingen, trillingsdempers en beschermende hoezen.",
+      q11: "Bieden jullie kleinserie 3D-printen en rapid prototyping aan voor bedrijven?",
+      a11: "Ja, met onze print farm verzorgen we kleinserie producties van 1 tot 500+ stuks in Nederland. Ideaal voor product prototype testen, pre-productie runs, marketing samples en kleine oplages plastic onderdelen zonder dure spuitgietmatrijzen.",
+      q12: "Kan ik een model van Thingiverse, Printables of MakerWorld laten printen?",
+      a12: "Absoluut! Heb je een mooi ontwerp gevonden op MakerWorld, Printables of Thingiverse? Download simpelweg het .STL of .3MF bestand en upload het op onze offertepagina. Wij checken de printbaarheid en produceren het in jouw favoriete kleur en materiaal.",
+      q13: "Kunnen bedrijven op factuur bestellen met gespecificeerde BTW?",
+      a13: "Ja, wij leveren zakelijk 3D-printen op factuur voor bedrijven, ingenieursbureaus en machinebouwers in Nederland en de EU. Iedere zakelijke bestelling wordt geleverd met een officiële BTW-factuur (inclusief KvK- en BTW-nummer) en betalingstermijn in overleg. Neem contact met ons op of vermeld je bedrijfsgegevens bij je offerteaanvraag.",
+      q14: "Bieden jullie geheimhouding (NDA) voor vertrouwelijke CAD-modellen en prototypes?",
+      a14: "Absoluut. Wij behandelen alle geüploade 3D-bestanden, STEP-assemblies en producttekeningen strikt vertrouwelijk onder de AVG/GDPR. Voor gevoelige R&D-trajecten, octrooiaanvragen of pre-productie ontwerpen ondertekenen we graag vooraf een geheimhoudingsovereenkomst (NDA/Non-Disclosure Agreement).",
+      q15: "Kunnen jullie industriële mallen, kalibers (jigs & fixtures) en machineonderdelen printen?",
+      a15: "Zeker. We produceren maatwerk montagemallen, boorsjablonen, meet- en inspectiekalibers (jigs & fixtures) en sterke PETG/TPU gereedschapshouders. Ook voor het nabouwen van niet meer leverbare machineonderdelen en industriële componenten leveren we slijtvaste FDM prints met nauwkeurige toleranties (±0.1mm).",
+      q16: "Bieden jullie staffelkortingen voor serieproductie of kleinseries (10–500 stuks)?",
+      a16: "Ja, met onze print farm verzorgen we kleinserie serieproductie van kunststof onderdelen van 10 tot 500+ stuks tegen aantrekkelijke staffelkortingen. Dit is het ideale snelle en kostenbesparende alternatief voor duur spuitgieten (geen matrijskosten) voor nulseries, pilot runs en on-demand spare parts.",
     },
     orderStatus: {
       quote_requested: "Offerte aangevraagd",
@@ -4380,37 +4526,39 @@ export const translations = {
     },
     seo: {
       default: {
-        title: `3D Print Service Nederland | ${businessInfo.name} - Snel & Op Maat`,
+        title: `Zakelijk 3D Printen & Rapid Prototyping Nederland | ${businessInfo.name}`,
         description:
-          "Professionele 3D print service in Nederland. Upload je 3D-bestand (STL/3MF), kies PLA, PETG of TPU en ontvang direct een offerte. Snelle levering binnen 2-5 werkdagen.",
+          "Professionele B2B 3D print service in Nederland voor ingenieurs, machinebouwers en productontwikkelaars. Upload STEP-, CAD- of STL-bestanden voor rapid prototyping, mallen & kalibers (jigs & fixtures) en kleinserie productie (10–500 stuks). Bestellen op factuur & geheimhouding (NDA).",
         keywords:
-          "3D print service Nederland, 3D printen Rotterdam, online 3D print service, maatwerk 3D print, FDM printen, PLA PETG TPU, prototype printen",
+          "rapid prototyping Nederland, zakelijk 3D printen, functioneel kunststof prototype, CAD STEP model laten printen, 3D printen voor ingenieurs, nulserie pre-productie, mallen en kalibers 3D printen, jigs & fixtures, machineonderdelen nabouwen, kleinserie 3D printen Nederland, serieproductie kunststof onderdelen, 3D printen op factuur, BTW-factuur voor bedrijven, geheimhouding NDA",
       },
       home: {
-        title: `3D Print Service Nederland | ${businessInfo.name} - Snel & Op Maat`,
+        title: `Zakelijk 3D Printen & Rapid Prototyping Nederland | ${businessInfo.name}`,
         description:
-          "Professionele 3D print service in Nederland. Upload je 3D-bestand (STL/3MF), kies PLA, PETG of TPU en ontvang direct een offerte. Snelle levering binnen 2-5 werkdagen.",
+          "Professionele B2B 3D print service in Nederland voor ingenieurs, machinebouwers en productontwikkelaars. Upload STEP-, CAD- of STL-bestanden voor rapid prototyping, mallen & kalibers (jigs & fixtures) en kleinserie productie (10–500 stuks). Bestellen op factuur & geheimhouding (NDA).",
         keywords:
-          "3D print service Nederland, 3D printen Rotterdam, online 3D print service, maatwerk 3D print, FDM printen, PLA PETG TPU, prototype printen",
+          "rapid prototyping Nederland, zakelijk 3D printen, functioneel kunststof prototype, CAD STEP model laten printen, 3D printen voor ingenieurs, nulserie pre-productie, mallen en kalibers 3D printen, jigs & fixtures, machineonderdelen nabouwen, kleinserie 3D printen Nederland, serieproductie kunststof onderdelen, 3D printen op factuur, BTW-factuur voor bedrijven, geheimhouding NDA",
       },
       gallery: {
-        title: `3D Print Modellen Galerij | ${businessInfo.name} Nederland`,
+        title: `3D Print Modellen Galerij & Inspiratie | ${businessInfo.name} Nederland`,
         description:
-          "Bekijk populaire 3D print modellen en start je bestelling vanuit heel Nederland.",
-        keywords: "3D modellen printen, 3D print galerij, 3D print Nederland",
+          "Bekijk populaire 3D print modellen of bestel direct ontwerpen van Thingiverse, Printables en MakerWorld. Maatwerk 3D prints snel geleverd in heel Nederland.",
+        keywords:
+          "3D modellen printen, 3D print galerij, Thingiverse model laten printen, Printables model laten printen, MakerWorld bestand bestellen, 3D print bestellen online, 3D model laten printen",
       },
       materials: {
-        title: `3D Print Materialen (PLA, PETG) | ${businessInfo.name} NL`,
+        title: `Technische 3D Print Materialen: PETG, Flexibel TPU & PLA | ${businessInfo.name} NL`,
         description:
-          "Kies het juiste 3D print materiaal en kleur voor jouw project. Live overzicht van filamenten.",
-        keywords: "PLA printen, PETG printen, 3D filament Nederland",
+          "Industriële filamenten voor prototypes, machineonderdelen, mallen en gereedschapshouders: hitte- en UV-bestendig PETG, flexibel TPU rubber voor pakkingen en maatvast PLA met ±0.1mm industriële tolerantie.",
+        keywords:
+          "technische 3D print materialen, sterke PETG gereedschapshouders, machineonderdelen nabouwen, mallen en kalibers 3D printen, flexibel TPU pakkingen, industriële 3D prints Nederland, maatvaste kunststof onderdelen",
       },
       faq: {
-        title: `Veelgestelde Vragen 3D Printen | ${businessInfo.name} FAQ`,
+        title: `Veelgestelde Vragen 3D Printen: Zakelijk, Factuur, NDA & Kleinseries | ${businessInfo.name}`,
         description:
-          "Vragen over 3D-printen, materialen (PLA/PETG/TPU), levertijden (2-5 werkdagen), bestandstypen (STL/3MF) of prijzen? Bekijk hier alle antwoorden.",
+          "Antwoorden op vragen over zakelijk 3D-printen in Nederland: bestellen op factuur met BTW, geheimhouding (NDA), STEP/CAD-assemblies, mallen & kalibers en kleinserie staffelkorting (10–500 stuks).",
         keywords:
-          "3D print FAQ Nederland, vragen 3D printen, levertijd 3D print, kosten 3D printen, bestandstypen STL 3MF",
+          "zakelijk 3D printen FAQ, 3D printen op factuur, BTW-factuur voor bedrijven, geheimhouding NDA ondersteuning, CAD STEP model laten printen, kleinserie 3D printen staffelkorting, jigs en fixtures",
       },
       privacy: {
         title: `Privacybeleid | ${businessInfo.name}`,
@@ -4438,6 +4586,83 @@ export const translations = {
         description: `De opgevraagde pagina kon niet worden gevonden. Keer terug naar ${businessInfo.name} voor 3D-printdiensten.`,
         keywords: "404, not found",
       },
+      schema: {
+        siteDescription:
+          "Professionele B2B 3D print service in Nederland voor ingenieursbureaus, machinebouwers en productontwikkelaars.",
+        catalogName: "Zakelijke & Industriële 3D Print Diensten",
+        fdmServiceName: "Maatwerk Engineering FDM 3D-Printen (PLA, PETG, TPU)",
+        fdmServiceDesc:
+          "Precisie 3D-printen van functionele prototypes, behuizingen en machineonderdelen met ±0.1mm industriële tolerantie.",
+        hueforgeServiceName: "HueForge Filament Painting (3D Kunst & Reliëf)",
+        hueforgeServiceDesc:
+          "Meerkleurige 3D-reliëf schilderijen van 2D afbeeldingen met optische laagmenging.",
+        replacementServiceName:
+          "Machineonderdelen & Industriële Componenten Nabouwen",
+        replacementServiceDesc:
+          "Reverse engineering en productie van niet meer leverbare of kapotte kunststof machineonderdelen, mallen en beugels.",
+        prototypingServiceName:
+          "Rapid Prototyping & Engineering Validatie",
+        prototypingServiceDesc:
+          "Snelle functionele prototypes, STEP/CAD-assemblies en nulserie pre-productie met snelle levertijd.",
+        toolingServiceName:
+          "Mallen, Kalibers & Gereedschapshouders 3D-Printen (Jigs & Fixtures)",
+        toolingServiceDesc:
+          "Productie van montagemallen, inspectiekalibers, boorsjablonen en slijtvaste machineonderdelen voor industrie en machinebouw.",
+        batchServiceName:
+          "Kleinserie Serieproductie Kunststof Onderdelen (10–500 stuks)",
+        batchServiceDesc:
+          "Spuitgieten alternatief voor kleine oplages, nulserie pre-productie, zakelijk bestellen op factuur met BTW en geheimhouding (NDA).",
+        cityServiceTemplate: "Zakelijke 3D Print Service in {city}",
+      },
+    },
+    cityPage: {
+      badge: "Lokale 3D-Printservice",
+      heroTitle: "3D Print Service {city}",
+      heroSubtitle:
+        "Professionele FDM 3D-printservice voor prototypes, onderdelen en maatwerkprojecten geleverd aan jouw deur in {city}. Snelle levering binnen 2-5 werkdagen met PostNL track & trace.",
+      quoteCta: "Vraag Direct Offerte Aan",
+      viewFaq: "Lokale FAQ",
+      deliveryBadge: "Snelle levering in {city} (2-5 werkdagen)",
+      precisionBadge: "±0.1mm Industriële Precisie",
+      materialsBadge: "Duurzaam PLA, PETG & Flexibel TPU",
+      capabilitiesEyebrow: "Onze Diensten in {city}",
+      capabilitiesTitle: "Kwalitatief 3D-Printen voor Bedrijven & Makers in {city}",
+      capabilitiesDesc:
+        "Of je nu eenmalige functionele prototypes zoekt, machineonderdelen, montagemallen en kalibers (jigs & fixtures), of een kleinserie serieproductie (10–500 stuks) in {city}: wij leveren industriële FDM-precisie met directe online offertes en zakelijke facturatie.",
+      cardPrototypesTitle: "Rapid Prototyping",
+      cardPrototypesDesc:
+        "Valideer functionele kunststof prototypes, CAD/STEP-assemblies en nulseries razendsnel vóór massaproductie met ±0.1mm industriële precisie.",
+      cardPartsTitle: "Functional Replacement Parts",
+      cardPartsDesc:
+        "Slijtvaste machineonderdelen, industriële gereedschapshouders, mallen en vervangende onderdelen in technisch PETG of flexibel TPU.",
+      cardArtTitle: "HueForge 3D Kunst & Reliëf",
+      cardArtDesc:
+        "Verander 2D afbeeldingen in tactiele, meerkleurige 3D-reliëf schilderijen met optische laagmenging.",
+      materialsTitle: "Beschikbare Materialen voor Levering in {city}",
+      materialsDesc:
+        "Kies uit onze selectie hoogwaardige filamenten met actuele voorraadstatus.",
+      faqEyebrow: "Veelgestelde Vragen",
+      faqTitle: "FAQ 3D Printen in {city}",
+      q1: "Hoe snel wordt mijn 3D-print bezorgd in {city}?",
+      a1: "Bestellingen voor klanten in {city} worden doorgaans binnen 2 tot 5 werkdagen geprint en verzonden met betrouwbare PostNL pakketbezorging.",
+      q2: "Kan ik losse prototypes of kleine series bestellen in {city}?",
+      a2: "Zeker! Er geldt geen minimale afname. We printen van één enkel uniek prototype tot series van honderden functionele onderdelen.",
+      q3: "Welke 3D-bestanden kan ik uploaden voor levering in {city}?",
+      a3: "We ondersteunen standaard .STL, .OBJ en .3MF bestanden in onze online offerte calculator. Heb je een STEP- of CAD-bestand, dan exporteer je dit eenvoudig naar STL.",
+      q4: "Leveren jullie ook sterke technische materialen zoals PETG en TPU in {city}?",
+      a4: "Ja, we printen in PLA voor dagelijks gebruik, PETG voor hitte- en weerbestendigheid, en flexibel TPU voor grips en afdichtingen.",
+      ctaBannerTitle: "Heb je al een 3D-bestand klaar voor {city}?",
+      ctaBannerDesc:
+        "Upload je model direct om afmetingen te inspecteren, materiaal te kiezen en direct een offerte te ontvangen.",
+      ctaBannerButton: "Configureer & Bestel Nu",
+      otherCitiesTitle: "Bekijk 3D-Printen in Andere Steden",
+      otherCitiesSubtitle:
+        "Snelle levering en professionele service in heel Nederland.",
+      metaTitle: "3D Print Service {city} | {company} - Snel & Op Maat",
+      metaDescription:
+        "Professionele 3D print service en rapid prototyping in {city}. Upload STEP/STL/3MF voor een directe offerte op functionele prototypes, machineonderdelen en kleinseries. Snelle levering in {city} binnen 2-5 werkdagen.",
+      metaKeywords:
+        "3D print service {city}, zakelijk 3D printen {city}, rapid prototyping Nederland {city}, 3D print laten maken {city}, STEP model laten printen {city}, machineonderdelen nabouwen {city}, kleinserie 3D printen {city}, mallen kalibers 3D printen {city}, 3D printen op factuur {city}",
     },
     shipping: {
       error: {

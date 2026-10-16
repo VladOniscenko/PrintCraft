@@ -4,11 +4,16 @@ import tailwindcss from "@tailwindcss/vite";
 import fs from "node:fs";
 import path from "node:path";
 import { businessInfo } from "./src/config/businessInfo";
-import { translations } from "./src/i18n/translations";
+import {
+  translations,
+  supportedLanguages,
+  defaultLanguage,
+} from "./src/i18n/translations";
 import {
   buildHomepageJsonLd,
   getValidatedOrigin,
 } from "./src/utils/seoStructuredData";
+import { dutchCities } from "./src/config/dutchCities";
 
 const origin = getValidatedOrigin(businessInfo.website);
 const today = new Date().toISOString().split("T")[0];
@@ -20,6 +25,11 @@ const publicIndexableRoutes = [
   { subPath: "/terms", priority: "0.5", changefreq: "yearly" },
   { subPath: "/refunds", priority: "0.5", changefreq: "yearly" },
   { subPath: "/shipping-policy", priority: "0.5", changefreq: "monthly" },
+  ...dutchCities.map((city) => ({
+    subPath: `/3d-print-service/${city.slug}`,
+    priority: "0.8",
+    changefreq: "monthly",
+  })),
 ];
 
 const crawlerFiles = {
@@ -46,25 +56,24 @@ Sitemap: ${origin}/sitemap.xml
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${publicIndexableRoutes
+  .map((r) =>
+    supportedLanguages
+      .map(
+        (lang) => `  <url>
+    <loc>${origin}/${lang}${r.subPath}</loc>
+${supportedLanguages
   .map(
-    (r) => `  <url>
-    <loc>${origin}/nl${r.subPath}</loc>
-    <xhtml:link rel="alternate" hreflang="nl" href="${origin}/nl${r.subPath}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${origin}/en${r.subPath}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${origin}/nl${r.subPath}" />
+    (sLang) =>
+      `    <xhtml:link rel="alternate" hreflang="${sLang}" href="${origin}/${sLang}${r.subPath}" />`,
+  )
+  .join("\n")}
+    <xhtml:link rel="alternate" hreflang="x-default" href="${origin}/${defaultLanguage}${r.subPath}" />
     <lastmod>${today}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
-    <priority>${r.priority}</priority>
-  </url>
-  <url>
-    <loc>${origin}/en${r.subPath}</loc>
-    <xhtml:link rel="alternate" hreflang="nl" href="${origin}/nl${r.subPath}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${origin}/en${r.subPath}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${origin}/nl${r.subPath}" />
-    <lastmod>${today}</lastmod>
-    <changefreq>${r.changefreq}</changefreq>
-    <priority>${(Number(r.priority) * 0.9).toFixed(1)}</priority>
+    <priority>${lang === defaultLanguage ? r.priority : (Number(r.priority) * 0.9).toFixed(1)}</priority>
   </url>`,
+      )
+      .join("\n"),
   )
   .join("\n")}
 </urlset>
@@ -96,7 +105,6 @@ export default defineConfig(({ mode }) => {
               target: devApiOrigin,
               changeOrigin: true,
               secure: false,
-              s,
             },
             "/uploads": {
               target: devApiOrigin,
@@ -194,7 +202,7 @@ export default defineConfig(({ mode }) => {
           const ssrEntryPath = path.resolve(distDir, ".ssr/entry-server.js");
           const { renderPage } = await import(`file://${ssrEntryPath}`);
 
-          const languages = ["nl", "en"] as const;
+          const languages = supportedLanguages;
 
           const formatHtml = (
             template: string,
@@ -252,8 +260,8 @@ export default defineConfig(({ mode }) => {
             }
           }
 
-          // 4. Render root / (default Dutch + returning user redirect)
-          const rootRes = renderPage("/nl");
+          // 4. Render root / (default language + returning user redirect)
+          const rootRes = renderPage(`/${defaultLanguage}`);
           const rootHtml = formatHtml(baseTemplate, rootRes, true);
           await fs.promises.writeFile(templatePath, rootHtml, "utf-8");
           console.log("  ✓ Pre-rendered: / -> dist/index.html");

@@ -16,6 +16,16 @@ export default function FAQ() {
     { question: t("faq.q4"), answer: t("faq.a4") },
     { question: t("faq.q5"), answer: t("faq.a5") },
     { question: t("faq.q6"), answer: t("faq.a6") },
+    { question: t("faq.q7"), answer: t("faq.a7") },
+    { question: t("faq.q8"), answer: t("faq.a8") },
+    { question: t("faq.q9"), answer: t("faq.a9") },
+    { question: t("faq.q10"), answer: t("faq.a10") },
+    { question: t("faq.q11"), answer: t("faq.a11") },
+    { question: t("faq.q12"), answer: t("faq.a12") },
+    { question: t("faq.q13"), answer: t("faq.a13") },
+    { question: t("faq.q14"), answer: t("faq.a14") },
+    { question: t("faq.q15"), answer: t("faq.a15") },
+    { question: t("faq.q16"), answer: t("faq.a16") },
   ];
 
   // Keeps track of which question is currently open

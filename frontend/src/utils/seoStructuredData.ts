@@ -1,9 +1,35 @@
 import { businessInfo } from "../config/businessInfo";
-import { translations, type SupportedLanguage } from "../i18n/translations";
+import {
+  translations,
+  htmlLangMap,
+  defaultLanguage,
+  type SupportedLanguage,
+} from "../i18n/translations";
+import { dutchCities, getCityName, type DutchCity } from "../config/dutchCities";
+import {
+  getApplicationName,
+  type SeoApplication,
+} from "../config/seoApplications";
 
 export interface SchemaGraph {
   "@context": "https://schema.org";
   "@graph": Record<string, unknown>[];
+}
+
+export function buildBreadcrumbsJsonLd(
+  canonicalUrl: string,
+  items: Array<{ name: string; url: string }>,
+): Record<string, unknown> {
+  return {
+    "@type": "BreadcrumbList",
+    "@id": `${canonicalUrl}#breadcrumbs`,
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
 }
 
 export function getValidatedOrigin(website: string): string {
@@ -18,11 +44,16 @@ export function buildHomepageJsonLd(
   canonicalUrl: string,
   pageTitle: string,
   pageDescription: string,
-  language: "en" | "nl",
+  language: SupportedLanguage,
 ): SchemaGraph {
   const origin = getValidatedOrigin(businessInfo.website);
-  const inLang = language === "nl" ? "nl-NL" : "en";
+  const inLang = htmlLangMap[language] || language;
   const ogImage = `${origin}/uploads/hero/materials.svg`;
+  const tSource = translations[language] || translations[defaultLanguage];
+  const schemaT = tSource.seo.schema;
+  const localizedCountry =
+    businessInfo.address.countryName[language] ||
+    businessInfo.address.countryName.nl;
 
   const graph: Record<string, unknown>[] = [
     {
@@ -30,10 +61,7 @@ export function buildHomepageJsonLd(
       "@id": `${origin}/#website`,
       url: origin,
       name: businessInfo.name,
-      description:
-        language === "nl"
-          ? "Professionele 3D print service in Nederland voor prototypes, onderdelen en maatwerk prints."
-          : "Professional 3D printing service in the Netherlands for prototypes, replacement parts and custom prints.",
+      description: schemaT.siteDescription,
       inLanguage: inLang,
       publisher: {
         "@id": `${origin}/#business`,
@@ -51,10 +79,23 @@ export function buildHomepageJsonLd(
         addressLocality: businessInfo.address.locality,
         addressCountry: businessInfo.address.countryCode,
       },
-      areaServed: {
-        "@type": "Country",
-        name: language === "nl" ? "Nederland" : "Netherlands",
-      },
+      areaServed: [
+        {
+          "@type": "Country",
+          name: localizedCountry,
+        },
+        ...dutchCities.map((c) => ({
+          "@type": "City",
+          name: getCityName(c, language),
+          ...(c.geo && {
+            geo: {
+              "@type": "GeoCoordinates",
+              latitude: c.geo.lat,
+              longitude: c.geo.lng,
+            },
+          }),
+        })),
+      ],
       openingHoursSpecification: [
         {
           "@type": "OpeningHoursSpecification",
@@ -66,37 +107,54 @@ export function buildHomepageJsonLd(
       priceRange: "€€",
       hasOfferCatalog: {
         "@type": "OfferCatalog",
-        name:
-          language === "nl"
-            ? "3D Print Diensten"
-            : "3D Printing Services",
+        name: schemaT.catalogName,
         itemListElement: [
           {
             "@type": "Offer",
             itemOffered: {
               "@type": "Service",
-              name:
-                language === "nl"
-                  ? "Maatwerk FDM 3D-Printen (PLA, PETG, TPU)"
-                  : "Custom FDM 3D Printing (PLA, PETG, TPU)",
-              description:
-                language === "nl"
-                  ? "Precisie 3D-printen van prototypes, behuizingen en functionele onderdelen met snelle levertijd."
-                  : "Precision 3D printing of functional prototypes, enclosures and replacement parts with fast turnaround.",
+              name: schemaT.fdmServiceName,
+              description: schemaT.fdmServiceDesc,
             },
           },
           {
             "@type": "Offer",
             itemOffered: {
               "@type": "Service",
-              name:
-                language === "nl"
-                  ? "HueForge Filament Painting (3D Kunst & Reliëf)"
-                  : "HueForge Filament Painting (3D Relief Art)",
-              description:
-                language === "nl"
-                  ? "Meerkleurige 3D-reliëf schilderijen van 2D afbeeldingen met optische laagmenging."
-                  : "Multi-color relief 3D art printing from 2D images using optical layer blending.",
+              name: schemaT.hueforgeServiceName,
+              description: schemaT.hueforgeServiceDesc,
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: schemaT.replacementServiceName,
+              description: schemaT.replacementServiceDesc,
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: schemaT.prototypingServiceName,
+              description: schemaT.prototypingServiceDesc,
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: schemaT.toolingServiceName,
+              description: schemaT.toolingServiceDesc,
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: schemaT.batchServiceName,
+              description: schemaT.batchServiceDesc,
             },
           },
         ],
@@ -128,12 +186,11 @@ export function buildFaqJsonLd(
   canonicalUrl: string,
   pageTitle: string,
   pageDescription: string,
-  language: "en" | "nl",
+  language: SupportedLanguage,
 ): SchemaGraph {
-  const origin = getValidatedOrigin(businessInfo.website);
-  const inLang = language === "nl" ? "nl-NL" : "en";
-
-  const faqSource = (translations[language as SupportedLanguage] || translations.en).faq;
+  const inLang = htmlLangMap[language] || language;
+  const tSource = translations[language] || translations[defaultLanguage];
+  const faqSource = tSource.faq;
   const faqItems: Array<{ q: string; a: string }> = [];
   for (let i = 1; i <= 20; i++) {
     const qKey = `q${i}` as keyof typeof faqSource;
@@ -144,6 +201,8 @@ export function buildFaqJsonLd(
       faqItems.push({ q: question, a: answer });
     }
   }
+
+  const origin = getValidatedOrigin(businessInfo.website);
 
   return {
     "@context": "https://schema.org",
@@ -182,10 +241,10 @@ export function buildStandardWebPageJsonLd(
   canonicalUrl: string,
   pageTitle: string,
   pageDescription: string,
-  language: "en" | "nl",
+  language: SupportedLanguage,
 ): SchemaGraph {
   const origin = getValidatedOrigin(businessInfo.website);
-  const inLang = language === "nl" ? "nl-NL" : "en";
+  const inLang = htmlLangMap[language] || language;
 
   return {
     "@context": "https://schema.org",
@@ -205,3 +264,131 @@ export function buildStandardWebPageJsonLd(
   };
 }
 
+export function buildCityJsonLd(
+  canonicalUrl: string,
+  city: DutchCity,
+  language: SupportedLanguage,
+  pageTitle: string,
+  pageDescription: string,
+): SchemaGraph {
+  const origin = getValidatedOrigin(businessInfo.website);
+  const inLang = htmlLangMap[language] || language;
+  const ogImage = `${origin}/uploads/hero/materials.svg`;
+  const cityName = getCityName(city, language);
+  const tSource = translations[language] || translations[defaultLanguage];
+  const cityPageT = tSource.cityPage;
+  const schemaT = tSource.seo.schema;
+
+  const faqItems = [
+    {
+      q: cityPageT.q1.replaceAll("{city}", cityName),
+      a: cityPageT.a1.replaceAll("{city}", cityName),
+    },
+    {
+      q: cityPageT.q2.replaceAll("{city}", cityName),
+      a: cityPageT.a2.replaceAll("{city}", cityName),
+    },
+    {
+      q: cityPageT.q3.replaceAll("{city}", cityName),
+      a: cityPageT.a3.replaceAll("{city}", cityName),
+    },
+    {
+      q: cityPageT.q4.replaceAll("{city}", cityName),
+      a: cityPageT.a4.replaceAll("{city}", cityName),
+    },
+  ];
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "LocalBusiness",
+        "@id": `${origin}/#business`,
+        name: businessInfo.name,
+        url: origin,
+        email: businessInfo.email,
+        image: ogImage,
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: businessInfo.address.locality,
+          addressCountry: businessInfo.address.countryCode,
+        },
+        areaServed: {
+          "@type": "City",
+          name: cityName,
+          containedInPlace: {
+            "@type": "AdministrativeArea",
+            name: city.province,
+          },
+        },
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          name: schemaT.catalogName,
+          itemListElement: [
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: schemaT.cityServiceTemplate.replaceAll("{city}", cityName),
+                description: pageDescription,
+              },
+            },
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: `${schemaT.prototypingServiceName} - ${cityName}`,
+                description: schemaT.prototypingServiceDesc,
+              },
+            },
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: `${schemaT.toolingServiceName} - ${cityName}`,
+                description: schemaT.toolingServiceDesc,
+              },
+            },
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: `${schemaT.batchServiceName} - ${cityName}`,
+                description: schemaT.batchServiceDesc,
+              },
+            },
+          ],
+        },
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${canonicalUrl}#webpage`,
+        url: canonicalUrl,
+        name: pageTitle,
+        description: pageDescription,
+        inLanguage: inLang,
+        isPartOf: {
+          "@id": `${origin}/#website`,
+        },
+        about: {
+          "@id": `${origin}/#business`,
+        },
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${canonicalUrl}#faq`,
+        isPartOf: {
+          "@id": `${canonicalUrl}#webpage`,
+        },
+        mainEntity: faqItems.map((item) => ({
+          "@type": "Question",
+          name: item.q,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.a,
+          },
+        })),
+      },
+    ],
+  };
+}

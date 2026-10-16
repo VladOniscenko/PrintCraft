@@ -9,6 +9,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   languageOptions,
   translations,
+  isSupportedLanguage,
+  resolveLanguage,
+  defaultLanguage,
   type SupportedLanguage,
   type TranslationKey,
 } from "./translations";
@@ -27,13 +30,13 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined);
 const STORAGE_KEY = "language";
 
 export function getInitialLanguage(): SupportedLanguage {
-  if (typeof window === "undefined") return "nl";
+  if (typeof window === "undefined") return defaultLanguage;
   const pathParts = window.location.pathname.split("/").filter(Boolean);
-  if (pathParts[0] === "en" || pathParts[0] === "nl") {
+  if (isSupportedLanguage(pathParts[0])) {
     return pathParts[0];
   }
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "nl" || stored === "en") return stored;
+  if (isSupportedLanguage(stored)) return stored;
 
   if (
     typeof navigator !== "undefined" &&
@@ -42,7 +45,7 @@ export function getInitialLanguage(): SupportedLanguage {
   ) {
     return "en";
   }
-  return "nl";
+  return defaultLanguage;
 }
 
 function getNestedTranslation(
@@ -72,12 +75,13 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
   // Extract language from URL path: /nl/... or /en/...
   const pathParts = location.pathname.split("/").filter(Boolean);
-  const urlLang: SupportedLanguage | null =
-    pathParts[0] === "en" || pathParts[0] === "nl" ? pathParts[0] : null;
+  const urlLang: SupportedLanguage | null = isSupportedLanguage(pathParts[0])
+    ? pathParts[0]
+    : null;
 
   const stored =
     typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
-  const storedLang: SupportedLanguage = stored === "en" ? "en" : "nl";
+  const storedLang: SupportedLanguage = resolveLanguage(stored);
 
   // Active language prioritizes URL segment if valid, otherwise stored preference
   const language: SupportedLanguage = urlLang ?? storedLang;
@@ -94,7 +98,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(STORAGE_KEY, nextLanguage);
 
       const parts = location.pathname.split("/").filter(Boolean);
-      if (parts[0] === "en" || parts[0] === "nl") {
+      if (isSupportedLanguage(parts[0])) {
         parts[0] = nextLanguage;
       } else {
         parts.unshift(nextLanguage);
@@ -112,7 +116,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
         return `/${language}`;
       }
       const parts = cleanTarget.split("/").filter(Boolean);
-      if (parts[0] === "en" || parts[0] === "nl") {
+      if (isSupportedLanguage(parts[0])) {
         parts[0] = language;
         return "/" + parts.join("/");
       }
