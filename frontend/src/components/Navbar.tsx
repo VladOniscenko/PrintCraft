@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
-import { Menu, X, LogOut } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./logos/Logo";
 import { useI18n } from "../i18n/I18nContext";
+import { seoApplications, getApplicationName } from "../config/seoApplications";
 
 const prefetchMap: Record<string, () => Promise<unknown>> = {
   "/orders": () => import("./user/Orders"),
@@ -52,6 +53,31 @@ const Navbar = () => {
     return () => window.removeEventListener("storage", updateAuth);
   }, [pathname]);
 
+  const [solutionsOpen, setSolutionsOpen] = useState(false);
+  const [mobileSolutionsOpen, setMobileSolutionsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on route change
+  useEffect(() => {
+    setSolutionsOpen(false);
+    setMobileSolutionsOpen(false);
+    setIsOpen(false);
+  }, [pathname]);
+
+  // Click outside to close desktop dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setSolutionsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -59,24 +85,6 @@ const Navbar = () => {
     setUserRole(null);
     navigate(localizePath("/"));
   };
-
-  const navLinks: Array<{ name: string; path: string }> = [
-    { name: t("nav.home"), path: localizePath("/") },
-    { name: t("nav.faq"), path: localizePath("/faq") },
-    { name: t("hero.ctaQuote"), path: localizePath("/checkout") },
-  ];
-
-  // If logged in, add "My Orders" and admin dashboard (for admins) to the navigation
-  const visibleLinks = isLoggedIn
-    ? [
-        ...navLinks,
-        { name: t("nav.myOrders"), path: localizePath("/orders") },
-        { name: t("nav.myProfile"), path: localizePath("/profile") },
-        ...(userRole === "admin"
-          ? [{ name: t("nav.admin"), path: localizePath("/admin") }]
-          : []),
-      ]
-    : navLinks;
 
   const isLinkActive = (path: string) => {
     if (path === localizePath("/")) {
@@ -91,21 +99,133 @@ const Navbar = () => {
 
       {/* Desktop Links */}
       <div className="hidden lg:flex items-center gap-2 text-sm font-medium text-gray-600">
-        {visibleLinks.map((link) => (
-          <Link
-            key={link.name}
-            to={link.path}
-            onMouseEnter={() => prefetchRoute(link.path)}
-            onFocus={() => prefetchRoute(link.path)}
-            className={`rounded-lg px-3 py-2 transition-colors ${
-              isLinkActive(link.path)
+        <Link
+          to={localizePath("/")}
+          onMouseEnter={() => prefetchRoute(localizePath("/"))}
+          onFocus={() => prefetchRoute(localizePath("/"))}
+          className={`rounded-lg px-3 py-2 transition-colors ${
+            isLinkActive(localizePath("/"))
+              ? "bg-[#ecf6f2] text-[#0f766e]"
+              : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
+          }`}
+        >
+          {t("nav.home")}
+        </Link>
+
+        {/* Solutions Dropdown */}
+        <div
+          ref={dropdownRef}
+          className="relative"
+          onMouseEnter={() => setSolutionsOpen(true)}
+          onMouseLeave={() => setSolutionsOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={() => setSolutionsOpen(!solutionsOpen)}
+            className={`rounded-lg px-3 py-2 transition-colors inline-flex items-center gap-1 ${
+              pathname.includes("/oplossingen/")
                 ? "bg-[#ecf6f2] text-[#0f766e]"
                 : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
             }`}
           >
-            {link.name}
-          </Link>
-        ))}
+            <span>{t("nav.solutions")}</span>
+            <ChevronDown
+              size={14}
+              className={`transition-transform duration-200 ${solutionsOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {solutionsOpen && (
+            <div className="absolute top-full left-0 pt-2 w-72 z-50">
+              <div className="bg-white rounded-2xl shadow-xl border border-[#d8e6df] p-2 space-y-1">
+                {seoApplications.map((app) => (
+                  <Link
+                    key={app.slug}
+                    to={localizePath(`/oplossingen/${app.slug}`)}
+                    onClick={() => setSolutionsOpen(false)}
+                    className="block p-2.5 rounded-xl hover:bg-[#f3faf7] transition-all group"
+                  >
+                    <p className="text-xs font-bold text-[#142621] group-hover:text-emerald-700 transition-colors">
+                      {getApplicationName(app, language)}
+                    </p>
+                    <p className="text-[11px] text-[#637973] mt-0.5 line-clamp-1">
+                      {app.badge[language] || app.badge.nl}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Link
+          to={localizePath("/faq")}
+          onMouseEnter={() => prefetchRoute(localizePath("/faq"))}
+          onFocus={() => prefetchRoute(localizePath("/faq"))}
+          className={`rounded-lg px-3 py-2 transition-colors ${
+            isLinkActive(localizePath("/faq"))
+              ? "bg-[#ecf6f2] text-[#0f766e]"
+              : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
+          }`}
+        >
+          {t("nav.faq")}
+        </Link>
+
+        {isLoggedIn && (
+          <>
+            <Link
+              to={localizePath("/orders")}
+              onMouseEnter={() => prefetchRoute(localizePath("/orders"))}
+              onFocus={() => prefetchRoute(localizePath("/orders"))}
+              className={`rounded-lg px-3 py-2 transition-colors ${
+                isLinkActive(localizePath("/orders"))
+                  ? "bg-[#ecf6f2] text-[#0f766e]"
+                  : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
+              }`}
+            >
+              {t("nav.myOrders")}
+            </Link>
+            <Link
+              to={localizePath("/profile")}
+              onMouseEnter={() => prefetchRoute(localizePath("/profile"))}
+              onFocus={() => prefetchRoute(localizePath("/profile"))}
+              className={`rounded-lg px-3 py-2 transition-colors ${
+                isLinkActive(localizePath("/profile"))
+                  ? "bg-[#ecf6f2] text-[#0f766e]"
+                  : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
+              }`}
+            >
+              {t("nav.myProfile")}
+            </Link>
+            {userRole === "admin" && (
+              <Link
+                to={localizePath("/admin")}
+                onMouseEnter={() => prefetchRoute(localizePath("/admin"))}
+                onFocus={() => prefetchRoute(localizePath("/admin"))}
+                className={`rounded-lg px-3 py-2 transition-colors ${
+                  isLinkActive(localizePath("/admin"))
+                    ? "bg-[#ecf6f2] text-[#0f766e]"
+                    : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
+                }`}
+              >
+                {t("nav.admin")}
+              </Link>
+            )}
+          </>
+        )}
+
+        <Link
+          to={localizePath("/checkout")}
+          onMouseEnter={() => prefetchRoute(localizePath("/checkout"))}
+          onFocus={() => prefetchRoute(localizePath("/checkout"))}
+          className={`rounded-lg px-3 py-2 transition-colors ${
+            isLinkActive(localizePath("/checkout"))
+              ? "bg-[#ecf6f2] text-[#0f766e]"
+              : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
+          }`}
+        >
+          {t("hero.ctaQuote")}
+        </Link>
       </div>
 
       <div className="hidden lg:flex items-center gap-4">
@@ -160,20 +280,117 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="lg:hidden bg-white/95 border-t border-[#d8e6df] p-4 flex flex-col gap-4 absolute top-full left-0 w-full z-40 shadow-lg backdrop-blur-md rounded-b-2xl">
-          {visibleLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.path}
-              className={`font-medium py-2 px-2 rounded-lg ${
-                isLinkActive(link.path)
+          <Link
+            to={localizePath("/")}
+            className={`font-medium py-2 px-2 rounded-lg ${
+              isLinkActive(localizePath("/"))
+                ? "bg-[#ecf6f2] text-[#0f766e]"
+                : "text-[#3d534c]"
+            }`}
+            onClick={() => setIsOpen(false)}
+          >
+            {t("nav.home")}
+          </Link>
+
+          {/* Mobile Solutions Accordion */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setMobileSolutionsOpen(!mobileSolutionsOpen)}
+              className={`w-full flex items-center justify-between font-medium py-2 px-2 rounded-lg ${
+                pathname.includes("/oplossingen/")
                   ? "bg-[#ecf6f2] text-[#0f766e]"
                   : "text-[#3d534c]"
               }`}
-              onClick={() => setIsOpen(false)}
             >
-              {link.name}
-            </Link>
-          ))}
+              <span>{t("nav.solutions")}</span>
+              <ChevronDown
+                size={16}
+                className={`transition-transform duration-200 ${mobileSolutionsOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {mobileSolutionsOpen && (
+              <div className="pl-3 pr-1 py-1 space-y-1">
+                {seoApplications.map((app) => (
+                  <Link
+                    key={app.slug}
+                    to={localizePath(`/oplossingen/${app.slug}`)}
+                    className="block py-1.5 px-2.5 rounded-lg text-sm text-[#445b54] hover:bg-[#ecf6f2] hover:text-[#0f766e]"
+                    onClick={() => {
+                      setIsOpen(false);
+                      setMobileSolutionsOpen(false);
+                    }}
+                  >
+                    {getApplicationName(app, language)}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Link
+            to={localizePath("/faq")}
+            className={`font-medium py-2 px-2 rounded-lg ${
+              isLinkActive(localizePath("/faq"))
+                ? "bg-[#ecf6f2] text-[#0f766e]"
+                : "text-[#3d534c]"
+            }`}
+            onClick={() => setIsOpen(false)}
+          >
+            {t("nav.faq")}
+          </Link>
+
+          <Link
+            to={localizePath("/checkout")}
+            className={`font-medium py-2 px-2 rounded-lg ${
+              isLinkActive(localizePath("/checkout"))
+                ? "bg-[#ecf6f2] text-[#0f766e]"
+                : "text-[#3d534c]"
+            }`}
+            onClick={() => setIsOpen(false)}
+          >
+            {t("hero.ctaQuote")}
+          </Link>
+
+          {isLoggedIn && (
+            <>
+              <Link
+                to={localizePath("/orders")}
+                className={`font-medium py-2 px-2 rounded-lg ${
+                  isLinkActive(localizePath("/orders"))
+                    ? "bg-[#ecf6f2] text-[#0f766e]"
+                    : "text-[#3d534c]"
+                }`}
+                onClick={() => setIsOpen(false)}
+              >
+                {t("nav.myOrders")}
+              </Link>
+              <Link
+                to={localizePath("/profile")}
+                className={`font-medium py-2 px-2 rounded-lg ${
+                  isLinkActive(localizePath("/profile"))
+                    ? "bg-[#ecf6f2] text-[#0f766e]"
+                    : "text-[#3d534c]"
+                }`}
+                onClick={() => setIsOpen(false)}
+              >
+                {t("nav.myProfile")}
+              </Link>
+              {userRole === "admin" && (
+                <Link
+                  to={localizePath("/admin")}
+                  className={`font-medium py-2 px-2 rounded-lg ${
+                    isLinkActive(localizePath("/admin"))
+                      ? "bg-[#ecf6f2] text-[#0f766e]"
+                      : "text-[#3d534c]"
+                  }`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {t("nav.admin")}
+                </Link>
+              )}
+            </>
+          )}
           <hr className="border-[#deebe6]" />
 
           <div className="flex items-center gap-2">

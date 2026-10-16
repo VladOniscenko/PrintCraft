@@ -1,21 +1,43 @@
-import { Mail, Phone, MapPin, Clock3 } from "lucide-react";
+import { Mail, Phone, MapPin, Clock3, ArrowRight } from "lucide-react";
 import { useI18n } from "../i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { businessInfo } from "../config/businessInfo";
+import { seoApplications, getApplicationName } from "../config/seoApplications";
+import { dutchCities, getCityName } from "../config/dutchCities";
 
 export default function Footer() {
-  const { t, localizePath } = useI18n();
+  const { t, language, localizePath } = useI18n();
+  const featuredCities = dutchCities.slice(0, 10);
 
   return (
     <footer className="site-footer mt-auto">
-      <div className="px-6 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div>
-          <h4 className="text-sm font-black tracking-wide text-[#18251f] uppercase mb-3">
+      <div className="px-6 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-2 space-y-3">
+          <h4 className="text-sm font-black tracking-wide text-[#18251f] uppercase">
             {t("footer.companyName")}
           </h4>
-          <p className="text-sm text-[#5f6f69] leading-relaxed">
+          <p className="text-sm text-[#5f6f69] leading-relaxed max-w-sm">
             {t("footer.tagline")}
           </p>
+        </div>
+
+        <div className="text-sm text-[#445853] space-y-2">
+          <p className="font-semibold text-[#1b2c26] mb-2">
+            {t("footer.solutions")}
+          </p>
+          <ul className="space-y-2">
+            {seoApplications.map((app) => (
+              <li key={app.slug}>
+                <Link
+                  to={localizePath(`/oplossingen/${app.slug}`)}
+                  className="hover:text-[#0f766e] transition-colors inline-flex items-center gap-1.5"
+                >
+                  <ArrowRight size={12} className="text-emerald-600 shrink-0" />
+                  <span>{getApplicationName(app, language)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="text-sm text-[#445853] space-y-2">
@@ -26,34 +48,59 @@ export default function Footer() {
             href={`mailto:${businessInfo.email}`}
             className="flex items-center gap-2 hover:text-[#0f766e]"
           >
-            <Mail size={16} /> {businessInfo.email}
+            <Mail size={16} />
+            <span>{businessInfo.email}</span>
           </a>
           {businessInfo.phone && (
             <a
               href={businessInfo.phoneHref}
               className="flex items-center gap-2 hover:text-[#0f766e]"
             >
-              <Phone size={16} /> {businessInfo.phone}
+              <Phone size={16} />
+              <span>{businessInfo.phone}</span>
             </a>
           )}
         </div>
 
-        <div className="text-sm text-[#445853] space-y-2">
-          <p className="font-semibold text-[#1b2c26] mb-1">
-            {t("footer.location")}
-          </p>
-          <p className="flex items-center gap-2">
-            <MapPin size={16} /> {t("footer.locationValue")}
-          </p>
+        <div className="text-sm text-[#445853] space-y-3">
+          <div>
+            <p className="font-semibold text-[#1b2c26] mb-1">
+              {t("footer.location")}
+            </p>
+            <p className="flex items-center gap-2">
+              <MapPin size={16} />
+              <span>{t("footer.locationValue")}</span>
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-[#1b2c26] mb-1">
+              {t("footer.hours")}
+            </p>
+            <p className="flex items-center gap-2">
+              <Clock3 size={16} />
+              <span>{t("footer.hoursValue")}</span>
+            </p>
+          </div>
         </div>
+      </div>
 
-        <div className="text-sm text-[#445853] space-y-2">
-          <p className="font-semibold text-[#1b2c26] mb-1">
-            {t("footer.hours")}
-          </p>
-          <p className="flex items-center gap-2">
-            <Clock3 size={16} /> {t("footer.hoursValue")}
-          </p>
+      {/* Top Cities Section */}
+      <div className="border-t border-[#dde9e4] px-6 py-6 bg-[#f7faf8]">
+        <p className="text-xs font-bold uppercase tracking-wider text-[#1b2c26] mb-3">
+          {t("footer.citiesTitle")}
+        </p>
+        <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#526861]">
+          {featuredCities.map((city) => (
+            <Link
+              key={city.slug}
+              to={localizePath(`/3d-print-service/${city.slug}`)}
+              className="hover:text-[#0f766e] transition-colors"
+            >
+              {t("footer.cityServiceLink", {
+                city: getCityName(city, language),
+              })}
+            </Link>
+          ))}
         </div>
       </div>
 
@@ -68,7 +115,10 @@ export default function Footer() {
           <Link to={localizePath("/refunds")} className="hover:text-[#0f766e]">
             {t("footer.refunds")}
           </Link>
-          <Link to={localizePath("/shipping-policy")} className="hover:text-[#0f766e]">
+          <Link
+            to={localizePath("/shipping-policy")}
+            className="hover:text-[#0f766e]"
+          >
             {t("footer.shippingPolicy")}
           </Link>
           <Link to={localizePath("/faq")} className="hover:text-[#0f766e]">

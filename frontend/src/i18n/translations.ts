@@ -62,6 +62,8 @@ export const translations = {
     },
     nav: {
       home: "Home",
+      solutions: "Solutions",
+      allSolutions: "All Solutions",
       materials: "Materials",
       faq: "FAQ",
       myOrders: "My Orders",
@@ -78,6 +80,9 @@ export const translations = {
       companyName: businessInfo.name,
       tagline:
         "Professional 3D printing services for prototypes, parts, and custom projects across the Netherlands.",
+      solutions: "Solutions",
+      citiesTitle: "3D Print Service by City",
+      cityServiceLink: "3D Printing {city}",
       contact: "Contact",
       location: "Location",
       locationValue: `${businessInfo.address.locality}, ${businessInfo.address.countryName.en}`,
@@ -92,6 +97,14 @@ export const translations = {
     },
     home: {
       footer: `© 2026 ${businessInfo.name}. All rights reserved.`,
+      solutions: {
+        eyebrow: "Tailored 3D Printing",
+        title: "Commercial & Engineering Solutions",
+        subtitle:
+          "From functional prototypes and replacement parts to custom electronics enclosures and factory tooling. Built to precise specifications.",
+        viewSolution: "View solution",
+        learnMore: "Learn more",
+      },
       quickQuote: {
         fileMode: "I have a file",
         ideaMode: "I have an idea",
@@ -2453,6 +2466,8 @@ export const translations = {
     },
     nav: {
       home: "Home",
+      solutions: "Oplossingen",
+      allSolutions: "Alle Oplossingen",
       materials: "Materialen",
       faq: "FAQ",
       myOrders: "Mijn Orders",
@@ -2469,6 +2484,9 @@ export const translations = {
       companyName: businessInfo.name,
       tagline:
         "Professionele 3D-printservice voor prototypes, onderdelen en maatwerkprojecten in heel Nederland.",
+      solutions: "Oplossingen",
+      citiesTitle: "3D Print Service per Stad",
+      cityServiceLink: "3D Printen {city}",
       contact: "Contact",
       location: "Locatie",
       locationValue: `${businessInfo.address.locality}, ${businessInfo.address.countryName.nl}`,
@@ -2483,6 +2501,14 @@ export const translations = {
     },
     home: {
       footer: `© 2026 ${businessInfo.name}. Alle rechten voorbehouden.`,
+      solutions: {
+        eyebrow: "Maatwerk 3D Printen",
+        title: "Zakelijke & Industriële Oplossingen",
+        subtitle:
+          "Van functionele prototypes en reserveonderdelen tot op maat gemaakte behuizingen en industriële mallen. Vervaardigd volgens strenge specificaties.",
+        viewSolution: "Bekijk oplossing",
+        learnMore: "Lees meer",
+      },
       quickQuote: {
         fileMode: "Ik heb een bestand",
         ideaMode: "Ik heb een idee",
