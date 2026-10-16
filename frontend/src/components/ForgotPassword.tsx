@@ -13,7 +13,7 @@ import api from "../services/api";
 import { useI18n } from "../i18n/I18nContext";
 
 export default function ForgotPassword() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -98,7 +98,7 @@ export default function ForgotPassword() {
           <p className="mt-6 text-sm text-[#5f726c]">
             {t("forgot.rememberPassword")}{" "}
             <Link
-              to="/login"
+              to={localizePath("/login")}
               className="font-semibold text-[#0f766e] hover:underline"
             >
               {t("forgot.signIn")}

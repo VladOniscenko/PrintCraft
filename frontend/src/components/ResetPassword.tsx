@@ -13,7 +13,7 @@ import api from "../services/api";
 import { useI18n } from "../i18n/I18nContext";
 
 export default function ResetPassword() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const [searchParams] = useSearchParams();
   const token = useMemo(() => searchParams.get("token") || "", [searchParams]);
 
@@ -78,7 +78,7 @@ export default function ResetPassword() {
               <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-sm flex items-center gap-2">
                 <CheckCircle2 size={18} /> {t("reset.successMessage")}
               </div>
-              <Link to="/login" className="site-btn-primary inline-flex">
+              <Link to={localizePath("/login")} className="site-btn-primary inline-flex">
                 {t("reset.goToLogin")}
               </Link>
             </div>

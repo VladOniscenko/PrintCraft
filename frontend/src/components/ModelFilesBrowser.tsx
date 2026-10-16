@@ -27,7 +27,7 @@ function formatBytes(bytes: number): string {
 }
 
 export default function ModelFilesBrowser() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -252,7 +252,7 @@ export default function ModelFilesBrowser() {
                         <div className="inline-flex flex-wrap items-center justify-end gap-2">
                           {file.orderId ? (
                             <Link
-                              to={`/admin/orders/${file.orderId}`}
+                              to={localizePath(`/admin/orders/${file.orderId}`)}
                               className="inline-flex items-center rounded-lg border border-[#d8e6df] px-3 py-1.5 font-semibold text-[#21453d] hover:bg-[#f2f9f6]"
                             >
                               {t("models.order")}
@@ -261,7 +261,7 @@ export default function ModelFilesBrowser() {
 
                           {file.fileName ? (
                             <Link
-                              to={`/admin/models/view/${encodeURIComponent(file.fileName)}`}
+                              to={localizePath(`/admin/models/view/${encodeURIComponent(file.fileName)}`)}
                               className="inline-flex items-center rounded-lg border border-[#cfd9ff] px-3 py-1.5 font-semibold text-[#3048a0] hover:bg-[#eef1ff]"
                             >
                               {file.extension === ".png" ||

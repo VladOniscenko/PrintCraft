@@ -48,7 +48,7 @@ type UserDetail = {
 };
 
 export default function AdminUserDetail() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const { id } = useParams<{ id: string }>();
   const { notifyError } = useNotify();
   const [data, setData] = useState<UserDetail | null>(null);
@@ -116,7 +116,7 @@ export default function AdminUserDetail() {
                 return (
                   <Link
                     key={order.id}
-                    to={`/admin/orders/${order.id}`}
+                    to={localizePath(`/admin/orders/${order.id}`)}
                     className="block rounded-xl border border-gray-200 p-4 hover:border-emerald-400"
                   >
                     <div className="flex flex-wrap justify-between gap-2">

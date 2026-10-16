@@ -19,7 +19,7 @@ function isImageExtension(ext: string): boolean {
 }
 
 export default function AdminUploadedModelViewerPage() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const { fileName } = useParams<{ fileName: string }>();
 
   const decodedFileName = useMemo(() => {
@@ -55,7 +55,7 @@ export default function AdminUploadedModelViewerPage() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         <div className="mb-6 flex items-center justify-between gap-3">
           <Link
-            to="/admin/models"
+            to={localizePath("/admin/models")}
             className="inline-flex items-center gap-2 rounded-xl border border-[#d8e6df] bg-white px-4 py-2 text-sm font-semibold text-[#27443c] hover:bg-[#f3faf7]"
           >
             <ArrowLeft size={16} /> {t("models.backToFiles")}

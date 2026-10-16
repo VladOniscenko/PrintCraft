@@ -51,7 +51,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function AdminPayments() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const { notifyError, notifySuccess } = useNotify();
   const [payments, setPayments] = useState<AdminPaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -252,7 +252,7 @@ export default function AdminPayments() {
                   <td>{new Date(payment.createdAt).toLocaleString()}</td>
                   <td>
                     <Link
-                      to={`/admin/orders/${payment.orderId}`}
+                      to={localizePath(`/admin/orders/${payment.orderId}`)}
                       className="font-semibold text-[#0f766e] hover:underline"
                     >
                       {payment.orderId.slice(0, 8)}

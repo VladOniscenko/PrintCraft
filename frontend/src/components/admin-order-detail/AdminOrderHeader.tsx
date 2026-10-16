@@ -40,7 +40,7 @@ export default function AdminOrderHeader({
   isProcessing,
 }: AdminOrderHeaderProps) {
   const { notifySuccess, notifyError } = useNotify();
-  const { language, t } = useI18n();
+  const { language, t, localizePath } = useI18n();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);
@@ -147,7 +147,7 @@ export default function AdminOrderHeader({
           {/* Left: Back Link & Core Order Meta */}
           <div className="flex items-center gap-3 min-w-0">
             <Link
-              to="/admin/orders"
+              to={localizePath("/admin/orders")}
               className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
               title={t("admin.orderDetail.header.backToOrders")}
             >

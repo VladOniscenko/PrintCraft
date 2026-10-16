@@ -1,4 +1,5 @@
 import axios from "axios";
+import { resolveLanguage } from "../i18n/translations";
 
 const VISITOR_ID_STORAGE_KEY = "pc_visitor_id";
 
@@ -52,11 +53,17 @@ api.interceptors.response.use(
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
-        if (window.location.pathname !== "/login") {
+        const stored =
+          typeof window !== "undefined"
+            ? localStorage.getItem("language")
+            : null;
+        const preferred = resolveLanguage(stored);
+
+        if (!window.location.pathname.endsWith("/login")) {
           const next = encodeURIComponent(
             `${window.location.pathname}${window.location.search}${window.location.hash}`,
           );
-          window.location.assign(`/login?expired=1&next=${next}`);
+          window.location.assign(`/${preferred}/login?expired=1&next=${next}`);
         }
       }
     }

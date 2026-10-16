@@ -247,6 +247,7 @@ function OrderCardView({
   isOverlay?: boolean;
   t: TranslateFn;
 }) {
+  const { localizePath } = useI18n();
   const statusKey = getOrderStatusTranslationKey(order.status);
   const statusLabel = statusKey ? t(statusKey) : formatOrderStatusLabel(order.status);
   const total = getOrderTotal(order);
@@ -261,7 +262,7 @@ function OrderCardView({
     >
       <div className="flex justify-between items-center gap-1.5 min-w-0">
         <Link
-          to={`/admin/orders/${order.id}`}
+          to={localizePath(`/admin/orders/${order.id}`)}
           className="font-black text-emerald-700 hover:text-emerald-900 hover:underline text-xs shrink-0"
           onPointerDown={(e) => e.stopPropagation()}
         >
@@ -514,7 +515,7 @@ function Column({
 }
 
 export default function AdminOrders() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const { notifySuccess, notifyError } = useNotify();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -856,7 +857,7 @@ export default function AdminOrders() {
                         >
                           <td className="p-2 font-mono text-xs">
                             <Link
-                              to={`/admin/orders/${o.id}`}
+                              to={localizePath(`/admin/orders/${o.id}`)}
                               className="text-emerald-700 font-bold hover:underline"
                             >
                               #{o.id.slice(0, 8)}
@@ -1145,7 +1146,7 @@ export default function AdminOrders() {
             {/* Footer */}
             <div className="mt-4 pt-3.5 border-t border-gray-100 flex items-center justify-between gap-3">
               <Link
-                to={`/admin/orders/${infoDialogOrder.id}`}
+                to={localizePath(`/admin/orders/${infoDialogOrder.id}`)}
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-800 hover:underline"
               >
                 {t("admin.orders.openOrderDetails")} →

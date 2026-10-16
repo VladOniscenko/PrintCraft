@@ -24,7 +24,7 @@ import {
 } from "../../utils/orderStatus";
 
 export default function Orders() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -115,7 +115,7 @@ export default function Orders() {
               {t("orders.noneDesc")}
             </p>
             <Link
-              to="/checkout"
+              to={localizePath("/checkout")}
               className="inline-block bg-[#133827] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#1c4d37] transition-all shadow-lg shadow-emerald-900/10"
             >
               {t("orders.start")}
@@ -133,7 +133,7 @@ export default function Orders() {
               {t("orders.noneDesc")}
             </p>
             <Link
-              to="/checkout"
+              to={localizePath("/checkout")}
               className="inline-block bg-[#133827] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#1c4d37] transition-all shadow-lg shadow-emerald-900/10"
             >
               {t("orders.start")}
@@ -205,7 +205,7 @@ export default function Orders() {
 
                     {/* View Button */}
                     <Link
-                      to={`/orders/${order.id}`}
+                      to={localizePath(`/orders/${order.id}`)}
                       className="flex items-center justify-center gap-2 bg-gray-50 text-gray-900 px-6 py-3 rounded-xl font-bold text-sm group-hover:bg-emerald-600 group-hover:text-white transition-all"
                     >
                       {t("orders.manage")} <ChevronRight size={18} />

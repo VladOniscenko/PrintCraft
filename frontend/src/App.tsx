@@ -83,14 +83,16 @@ const NotFound = lazy(() => import("./components/NotFound.tsx"));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
-  const preferred = resolveLanguage(localStorage.getItem("language"));
+  const { lang } = useParams<{ lang?: string }>();
+  const preferred = resolveLanguage(lang || localStorage.getItem("language"));
   return token ? <>{children}</> : <Navigate to={`/${preferred}/login`} replace />;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
-  const preferred = resolveLanguage(localStorage.getItem("language"));
+  const { lang } = useParams<{ lang?: string }>();
+  const preferred = resolveLanguage(lang || localStorage.getItem("language"));
   if (!token || !user) return <Navigate to={`/${preferred}/login`} replace />;
 
   try {
@@ -128,7 +130,9 @@ function AuthSessionGuard() {
           if (status === 401 || status === 404) {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
-            navigate("/login", { replace: true, state: { from: locationRef.current } });
+            const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
+            const preferred = resolveLanguage(stored);
+            navigate(`/${preferred}/login`, { replace: true, state: { from: locationRef.current } });
           }
         }
       }
@@ -221,11 +225,12 @@ function RootLanguageRedirect() {
   return <Navigate to={`/${preferred}`} replace />;
 }
 
-function LegacyPathRedirect({ target }: { target: string }) {
+function LegacyPathRedirect({ target }: { target?: string } = {}) {
   const location = useLocation();
   const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
   const preferred = resolveLanguage(stored);
-  const cleanTarget = target.startsWith("/") ? target : `/${target}`;
+  const targetPath = target ?? location.pathname;
+  const cleanTarget = targetPath.startsWith("/") ? targetPath : `/${targetPath}`;
   return (
     <Navigate
       to={`/${preferred}${cleanTarget === "/" ? "" : cleanTarget}${location.search}${location.hash}`}
@@ -318,9 +323,10 @@ export default function App() {
           <Route path="/profile" element={<LegacyPathRedirect target="/profile" />} />
           <Route
             path="/orders/:id"
-            element={<LegacyPathRedirect target="/orders" />}
+            element={<LegacyPathRedirect />}
           />
           <Route path="/admin" element={<LegacyPathRedirect target="/admin" />} />
+          <Route path="/admin/*" element={<LegacyPathRedirect />} />
 
           {/* Localized Routes: /:lang/... */}
           <Route path="/:lang" element={<LanguageRouteGuard />}>

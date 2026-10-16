@@ -274,7 +274,7 @@ interface SavedAddress {
 }
 
 export default function Quote() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const { notifyError, notifySuccess } = useNotify();
   const navigate = useNavigate();
 
@@ -1798,7 +1798,7 @@ export default function Quote() {
 
       if (isLoggedIn) {
         const orderId = res?.data?.order?.id || res?.data?.id;
-        navigate(orderId ? `/orders/${orderId}` : "/orders");
+        navigate(orderId ? localizePath(`/orders/${orderId}`) : localizePath("/orders"));
         return;
       }
 
@@ -4247,7 +4247,7 @@ export default function Quote() {
                       <span>
                         {t("orderDetail.agreementText")}{" "}
                         <Link
-                          to="/terms"
+                          to={localizePath("/terms")}
                           target="_blank"
                           className="font-bold underline text-emerald-800 hover:text-emerald-950"
                         >
@@ -4259,7 +4259,7 @@ export default function Quote() {
                     <p className="text-xs leading-relaxed text-[#5e7069] text-center">
                       {t("quote.pricingDisclaimer")}{" "}
                       <Link
-                        to="/terms"
+                        to={localizePath("/terms")}
                         className="font-semibold text-emerald-700 hover:underline"
                       >
                         {t("footer.terms")}

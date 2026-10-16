@@ -13,7 +13,7 @@ import api from "../services/api"; // Import your axios service
 import { useI18n } from "../i18n/I18nContext";
 
 export default function Login() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,15 +38,23 @@ export default function Login() {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      // 3. Redirect to destination, checkout if draft exists, or orders
+      // 3. Redirect to destination, checkout if draft exists, or orders/admin
       const fromPath = (location.state as any)?.from?.pathname;
-      const target =
-        fromPath && fromPath !== "/login" && fromPath !== "/quote"
-          ? fromPath
-          : localStorage.getItem("printcraft-home-quote")
-            ? "/checkout"
-            : "/orders";
-      navigate(target, { replace: true });
+      const isAdmin = response.data?.user?.role === "admin";
+      const isAuthPath =
+        typeof fromPath === "string" &&
+        (fromPath.endsWith("/login") ||
+          fromPath.endsWith("/signup") ||
+          fromPath.endsWith("/quote"));
+
+      const defaultTarget = isAdmin
+        ? "/admin"
+        : localStorage.getItem("printcraft-home-quote")
+          ? "/checkout"
+          : "/orders";
+
+      const target = fromPath && !isAuthPath ? fromPath : defaultTarget;
+      navigate(localizePath(target), { replace: true });
     } catch (err: any) {
       console.error("Login error", err);
       setError(t("login.error.invalid"));
@@ -141,7 +149,7 @@ export default function Login() {
                 </label>
               </div>
               <Link
-                to="/forgot-password"
+                to={localizePath("/forgot-password")}
                 className="text-sm font-medium text-emerald-700 hover:text-emerald-600"
               >
                 {t("login.forgot")}
@@ -166,7 +174,7 @@ export default function Login() {
           <p className="mt-8 text-center text-sm text-gray-600">
             {t("login.noAccount")}{" "}
             <Link
-              to="/signup"
+              to={localizePath("/signup")}
               className="font-semibold text-emerald-700 hover:text-emerald-600 transition-colors"
             >
               {t("login.signUpFree")}

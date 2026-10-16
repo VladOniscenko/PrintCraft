@@ -8,7 +8,7 @@ import { useI18n } from "../../i18n/I18nContext";
 import { useNotify } from "../../context/NotifyContext";
 
 export default function AdminUsers() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const { notifyError, notifySuccess } = useNotify();
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
@@ -185,7 +185,7 @@ export default function AdminUsers() {
                 <td>
                   <div className="flex flex-wrap gap-2">
                     <Link
-                      to={`/admin/users/${user.id}`}
+                      to={localizePath(`/admin/users/${user.id}`)}
                       className="admin-btn admin-btn-secondary"
                     >
                       {t("admin.users.viewDetails")}

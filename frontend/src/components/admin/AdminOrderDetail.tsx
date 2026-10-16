@@ -18,7 +18,7 @@ import { getStatusPanel } from "../admin-order-detail/panels/panelStrategy";
 export default function AdminOrderDetail() {
   const { id } = useParams<{ id: string }>();
   const { notifyError, notifySuccess } = useNotify();
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
 
   const [order, setOrder] = useState<OrderDetailsDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -111,7 +111,7 @@ export default function AdminOrderDetail() {
             {t("admin.orderDetail.dashboard.notFoundDesc")}
           </p>
           <Link
-            to="/admin/orders"
+            to={localizePath("/admin/orders")}
             className="mt-2 text-sm font-semibold text-teal-700 hover:underline"
           >
             {t("admin.orderDetail.dashboard.returnToList")}

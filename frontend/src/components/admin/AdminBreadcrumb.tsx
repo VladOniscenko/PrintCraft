@@ -29,11 +29,12 @@ export default function AdminBreadcrumb({
   rightSlot,
 }: AdminBreadcrumbProps) {
   const { pathname } = useLocation();
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
 
   const isActive = (to: string) => {
-    if (to === "/admin") return pathname === "/admin";
-    return pathname === to || pathname.startsWith(`${to}/`);
+    const localized = localizePath(to);
+    if (to === "/admin") return pathname === localized;
+    return pathname === localized || pathname.startsWith(`${localized}/`);
   };
 
   return (
@@ -52,7 +53,7 @@ export default function AdminBreadcrumb({
                   >
                     {item.to && !isLast ? (
                       <Link
-                        to={item.to}
+                        to={localizePath(item.to)}
                         className="hover:text-teal-800 hover:underline"
                       >
                         {item.label}
@@ -86,7 +87,7 @@ export default function AdminBreadcrumb({
             return (
               <li key={link.to}>
                 <Link
-                  to={link.to}
+                  to={localizePath(link.to)}
                   className={`inline-flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${
                     active
                       ? "bg-teal-700 text-white shadow"

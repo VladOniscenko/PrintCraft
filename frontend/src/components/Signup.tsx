@@ -15,7 +15,7 @@ import api from "../services/api"; // Your axios instance
 import { useI18n } from "../i18n/I18nContext";
 
 export default function Signup() {
-  const { t } = useI18n();
+  const { t, localizePath } = useI18n();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,7 +43,7 @@ export default function Signup() {
 
       // 3. Wait 2 seconds then go to login
       setTimeout(() => {
-        navigate("/login");
+        navigate(localizePath("/login"));
       }, 2000);
     } catch (err: any) {
       console.error("Signup error", err);
@@ -176,7 +176,7 @@ export default function Signup() {
           <p className="mt-8 text-center text-sm text-gray-600">
             {t("signup.haveAccount")}{" "}
             <Link
-              to="/login"
+              to={localizePath("/login")}
               className="font-semibold text-emerald-700 hover:text-emerald-600 transition-colors"
             >
               {t("signup.signIn")}
