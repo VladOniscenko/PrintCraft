@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, useRef } from "react";
 import axios from "axios";
 import {
   BrowserRouter,
@@ -96,6 +96,8 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 function AuthSessionGuard() {
   const navigate = useNavigate();
   const location = useLocation();
+  const locationRef = useRef(location);
+  locationRef.current = location;
 
   useEffect(() => {
     let cancelled = false;
@@ -117,7 +119,7 @@ function AuthSessionGuard() {
           if (status === 401 || status === 404) {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
-            navigate("/login", { replace: true, state: { from: location } });
+            navigate("/login", { replace: true, state: { from: locationRef.current } });
           }
         }
       }
@@ -125,10 +127,20 @@ function AuthSessionGuard() {
 
     void validateSession();
 
+    const handleFocus = () => {
+      const lastCheck = Number(sessionStorage.getItem("last_auth_check") || "0");
+      if (Date.now() - lastCheck > 5 * 60 * 1000) {
+        sessionStorage.setItem("last_auth_check", String(Date.now()));
+        void validateSession();
+      }
+    };
+    window.addEventListener("focus", handleFocus);
+
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", handleFocus);
     };
-  }, [location, navigate]);
+  }, [navigate]);
 
   return null;
 }

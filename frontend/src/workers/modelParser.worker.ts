@@ -1,15 +1,23 @@
 import { Box3, Vector3 } from "three";
 
 self.onmessage = async (
-  e: MessageEvent<{ id: string; buffer: ArrayBuffer; fileName: string }>,
+  e: MessageEvent<{
+    id: string;
+    buffer: ArrayBuffer;
+    fileName: string;
+    includeGeometry?: boolean;
+  }>,
 ) => {
-  const { id, buffer, fileName } = e.data;
+  const { id, buffer, fileName, includeGeometry } = e.data;
   try {
     const clean = fileName.split("?")[0].trim().toLowerCase();
     const lastDot = clean.lastIndexOf(".");
     const ext = lastDot >= 0 ? clean.slice(lastDot) : "";
 
     let dims: { x: number; y: number; z: number } | null = null;
+    let positionsBuffer: ArrayBuffer | undefined;
+    let normalsBuffer: ArrayBuffer | undefined;
+    const transferables: Transferable[] = [];
 
     if (ext === ".stl") {
       const { STLLoader } = await import(
@@ -27,6 +35,36 @@ self.onmessage = async (
           y: Math.round(Math.abs(size.y) * 10) / 10,
           z: Math.round(Math.abs(size.z) * 10) / 10,
         };
+      }
+
+      if (includeGeometry) {
+        if (!geometry.attributes.normal) {
+          geometry.computeVertexNormals();
+        }
+        const posAttr = geometry.attributes.position;
+        const normAttr = geometry.attributes.normal;
+        if (posAttr?.array) {
+          const posCopy =
+            posAttr.array instanceof Float32Array
+              ? (posAttr.array.buffer.slice(
+                  posAttr.array.byteOffset,
+                  posAttr.array.byteOffset + posAttr.array.byteLength,
+                ) as ArrayBuffer)
+              : new Float32Array(posAttr.array).buffer;
+          positionsBuffer = posCopy;
+          transferables.push(posCopy);
+        }
+        if (normAttr?.array) {
+          const normCopy =
+            normAttr.array instanceof Float32Array
+              ? (normAttr.array.buffer.slice(
+                  normAttr.array.byteOffset,
+                  normAttr.array.byteOffset + normAttr.array.byteLength,
+                ) as ArrayBuffer)
+              : new Float32Array(normAttr.array).buffer;
+          normalsBuffer = normCopy;
+          transferables.push(normCopy);
+        }
       }
       geometry.dispose();
     } else if (ext === ".3mf") {
@@ -84,7 +122,16 @@ self.onmessage = async (
       dims = null;
     }
 
-    self.postMessage({ id, success: true, dims });
+    (self.postMessage as (message: any, transfer: Transferable[]) => void)(
+      {
+        id,
+        success: true,
+        dims,
+        positions: positionsBuffer,
+        normals: normalsBuffer,
+      },
+      transferables,
+    );
   } catch (err: unknown) {
     self.postMessage({
       id,

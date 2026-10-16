@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { useI18n } from "../i18n/I18nContext";
+import { resolveAssetUrl } from "../utils/assetUrl";
+import { parseModelGeometryWithWorker } from "../utils/modelDimensions";
 
 type HeroModelViewerProps = {
   src: string;
@@ -166,17 +168,37 @@ export default function HeroModelViewer({
     scene.add(modelGroup);
     modelGroupRef.current = modelGroup;
 
-    // Render loop: halts during scroll or when hidden/offscreen
+    // Inactivity timeout: auto-pause rotation after 15s of idle time to save battery
+    let idleTimeout: number | null = null;
+    const resetIdleTimer = () => {
+      controls.autoRotate = true;
+      if (idleTimeout !== null) window.clearTimeout(idleTimeout);
+      idleTimeout = window.setTimeout(() => {
+        controls.autoRotate = false;
+      }, 15000);
+    };
+    resetIdleTimer();
+
+    canvas.addEventListener("pointerdown", resetIdleTimer, { passive: true });
+    canvas.addEventListener("pointermove", resetIdleTimer, { passive: true });
+
+    // Render loop: throttled to ~30fps, halts during scroll or when hidden/offscreen
     let frameId = 0;
-    const animate = () => {
+    let lastRenderTime = 0;
+    const animate = (now: number) => {
       frameId = window.requestAnimationFrame(animate);
       if (!isVisible || isScrolling || document.visibilityState === "hidden") {
         return;
       }
+      // Cap at ~30fps to reduce CPU/GPU draw passes by 50%
+      if (now - lastRenderTime < 33) {
+        return;
+      }
+      lastRenderTime = now;
       controls.update();
       renderer.render(scene, camera);
     };
-    animate();
+    frameId = window.requestAnimationFrame(animate);
 
     // ResizeObserver on canvas for responsive layout adjustments
     const resizeObserver = new ResizeObserver((entries) => {
@@ -198,6 +220,9 @@ export default function HeroModelViewer({
       resizeObserver.disconnect();
       window.removeEventListener("scroll", handleWindowScroll);
       if (scrollTimeout !== null) window.clearTimeout(scrollTimeout);
+      if (idleTimeout !== null) window.clearTimeout(idleTimeout);
+      canvas.removeEventListener("pointerdown", resetIdleTimer);
+      canvas.removeEventListener("pointermove", resetIdleTimer);
       window.cancelAnimationFrame(frameId);
       controls.removeEventListener("start", handleStart);
       controls.removeEventListener("end", handleEnd);
@@ -295,43 +320,61 @@ export default function HeroModelViewer({
     setStatus("loading");
     void (async () => {
       try {
-        const { STLLoader } = await import(
-          "three/examples/jsm/loaders/STLLoader.js"
-        );
+        const resolved = resolveAssetUrl(src);
+        const res = await fetch(resolved);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const buffer = await res.arrayBuffer();
         if (!active) return;
-        const loader = new STLLoader();
-        loader.load(
-          src,
-          (geometry: any) => {
-            if (!active) {
-              geometry.dispose();
-              return;
-            }
 
-            geometry.computeBoundingBox();
-            geometry.computeBoundingSphere();
-            const radius = geometry.boundingSphere?.radius ?? 0;
-            if (!Number.isFinite(radius) || radius <= 0) {
-              setStatus("error");
-              geometry.dispose();
-              return;
-            }
-
-            geometry.center();
+        let geometry: any = null;
+        const workerResult = await parseModelGeometryWithWorker(buffer, src);
+        if (workerResult?.positions) {
+          geometry = new THREE.BufferGeometry();
+          geometry.setAttribute(
+            "position",
+            new THREE.BufferAttribute(new Float32Array(workerResult.positions), 3),
+          );
+          if (workerResult.normals) {
+            geometry.setAttribute(
+              "normal",
+              new THREE.BufferAttribute(new Float32Array(workerResult.normals), 3),
+            );
+          } else {
             geometry.computeVertexNormals();
+          }
+        } else {
+          const { STLLoader } = await import(
+            "three/examples/jsm/loaders/STLLoader.js"
+          );
+          const loader = new STLLoader();
+          geometry = loader.parse(buffer);
+        }
 
-            // Cache for subsequent slide cycles
-            geometryCache.set(src, geometry);
-            applyGeometry(geometry);
-          },
-          undefined,
-          () => {
-            if (!active) return;
-            setStatus("error");
-          },
-        );
-      } catch {
+        if (!active) {
+          geometry.dispose();
+          return;
+        }
+
+        geometry.computeBoundingBox();
+        geometry.computeBoundingSphere();
+        const radius = geometry.boundingSphere?.radius ?? 0;
+        if (!Number.isFinite(radius) || radius <= 0) {
+          setStatus("error");
+          geometry.dispose();
+          return;
+        }
+
+        geometry.center();
+        if (!geometry.attributes.normal) {
+          geometry.computeVertexNormals();
+        }
+
+        // Cache for subsequent slide cycles
+        geometryCache.set(src, geometry);
+        applyGeometry(geometry);
+      } catch (err) {
         if (!active) return;
+        console.warn(`Failed to load hero 3D model ${src}:`, err);
         setStatus("error");
       }
     })();

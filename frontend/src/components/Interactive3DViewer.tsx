@@ -55,6 +55,7 @@ import { resolveAssetUrl } from "../utils/assetUrl";
 import {
   MAX_DIMENSION_MM,
   roundMillimeters,
+  parseModelGeometryWithWorker,
 } from "../utils/modelDimensions";
 import type { Filament } from "../types";
 import { useI18n } from "../i18n/I18nContext";
@@ -203,15 +204,20 @@ export default function Interactive3DViewer({
     );
     observer.observe(container);
 
+    const isMobile =
+      typeof window !== "undefined" &&
+      (window.innerWidth < 768 || "ontouchstart" in window);
+
     const renderer = new WebGLRenderer({
       canvas,
-      antialias: true,
+      antialias: !isMobile,
       alpha: true,
-      powerPreference: "high-performance",
+      powerPreference: "default",
     });
+    renderer.debug.checkShaderErrors = false;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(width, height, false);
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = !isMobile;
     renderer.shadowMap.type = PCFSoftShadowMap;
     renderer.outputColorSpace = SRGBColorSpace;
 
@@ -236,9 +242,11 @@ export default function Interactive3DViewer({
 
     const dirLight1 = new DirectionalLight(0xffffff, 1.2);
     dirLight1.position.set(60, 120, 80);
-    dirLight1.castShadow = true;
-    dirLight1.shadow.mapSize.width = 1024;
-    dirLight1.shadow.mapSize.height = 1024;
+    if (!isMobile) {
+      dirLight1.castShadow = true;
+      dirLight1.shadow.mapSize.width = 512;
+      dirLight1.shadow.mapSize.height = 512;
+    }
     scene.add(dirLight1);
 
     const dirLight2 = new DirectionalLight(0x90b0e0, 0.5);
@@ -440,11 +448,33 @@ export default function Interactive3DViewer({
           const text = new TextDecoder().decode(buffer);
           group = loader.parse(text);
         } else {
-          const { STLLoader } = await import(
-            "three/examples/jsm/loaders/STLLoader.js"
+          const workerResult = await parseModelGeometryWithWorker(
+            buffer,
+            fileName || file?.name || "model.stl",
           );
-          const loader = new STLLoader();
-          geometry = loader.parse(buffer);
+
+          if (workerResult?.positions) {
+            const { BufferGeometry, BufferAttribute } = await import("three");
+            geometry = new BufferGeometry();
+            geometry.setAttribute(
+              "position",
+              new BufferAttribute(new Float32Array(workerResult.positions), 3),
+            );
+            if (workerResult.normals) {
+              geometry.setAttribute(
+                "normal",
+                new BufferAttribute(new Float32Array(workerResult.normals), 3),
+              );
+            } else {
+              geometry.computeVertexNormals();
+            }
+          } else {
+            const { STLLoader } = await import(
+              "three/examples/jsm/loaders/STLLoader.js"
+            );
+            const loader = new STLLoader();
+            geometry = loader.parse(buffer);
+          }
         }
 
         if (canceled) return;

@@ -120,10 +120,17 @@ export async function detectModelDimensionsDirect(
 }
 
 let workerInstance: Worker | null = null;
+
+export type WorkerParseResult = {
+  dims: { x: number; y: number; z: number } | null;
+  positions?: ArrayBuffer;
+  normals?: ArrayBuffer;
+};
+
 const pendingWorkerRequests = new Map<
   string,
   {
-    resolve: (dims: { x: number; y: number; z: number } | null) => void;
+    resolve: (result: WorkerParseResult | null) => void;
   }
 >();
 
@@ -140,12 +147,22 @@ function getWorker(): Worker | null {
           id: string;
           success: boolean;
           dims?: { x: number; y: number; z: number } | null;
+          positions?: ArrayBuffer;
+          normals?: ArrayBuffer;
         }>,
       ) => {
         const req = pendingWorkerRequests.get(e.data.id);
         if (req) {
           pendingWorkerRequests.delete(e.data.id);
-          req.resolve(e.data.success ? e.data.dims || null : null);
+          req.resolve(
+            e.data.success
+              ? {
+                  dims: e.data.dims || null,
+                  positions: e.data.positions,
+                  normals: e.data.normals,
+                }
+              : null,
+          );
         }
       };
       workerInstance.onerror = (err) => {
@@ -160,6 +177,41 @@ function getWorker(): Worker | null {
   return workerInstance;
 }
 
+export async function parseModelGeometryWithWorker(
+  buffer: ArrayBuffer,
+  fileName: string,
+): Promise<WorkerParseResult | null> {
+  const ext = getFileExtension(fileName);
+  if (!MODEL_EXTENSIONS.has(ext)) return null;
+
+  const worker = getWorker();
+  if (worker) {
+    try {
+      return await new Promise<WorkerParseResult | null>((resolve) => {
+        const id =
+          Math.random().toString(36).slice(2) + Date.now().toString(36);
+        pendingWorkerRequests.set(id, { resolve });
+
+        const copy = buffer.slice(0);
+        worker.postMessage(
+          { id, buffer: copy, fileName, includeGeometry: true },
+          [copy],
+        );
+
+        setTimeout(() => {
+          if (pendingWorkerRequests.has(id)) {
+            pendingWorkerRequests.delete(id);
+            resolve(null);
+          }
+        }, 10000);
+      });
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function detectModelDimensionsFromBuffer(
   buffer: ArrayBuffer,
   fileName: string,
@@ -170,7 +222,7 @@ export async function detectModelDimensionsFromBuffer(
   const worker = getWorker();
   if (worker) {
     try {
-      return await new Promise<{ x: number; y: number; z: number } | null>(
+      const res = await new Promise<WorkerParseResult | null>(
         (resolve) => {
           const id =
             Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -178,17 +230,23 @@ export async function detectModelDimensionsFromBuffer(
 
           // Send a copy via transferable buffer so the caller's buffer isn't detached
           const copy = buffer.slice(0);
-          worker.postMessage({ id, buffer: copy, fileName }, [copy]);
+          worker.postMessage(
+            { id, buffer: copy, fileName, includeGeometry: false },
+            [copy],
+          );
 
           // Safety timeout of 10s before fallback
           setTimeout(() => {
             if (pendingWorkerRequests.has(id)) {
               pendingWorkerRequests.delete(id);
-              detectModelDimensionsDirect(buffer, fileName).then(resolve);
+              detectModelDimensionsDirect(buffer, fileName).then((dims) =>
+                resolve(dims ? { dims } : null),
+              );
             }
           }, 10000);
         },
       );
+      return res?.dims || null;
     } catch {
       return detectModelDimensionsDirect(buffer, fileName);
     }

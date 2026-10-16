@@ -386,6 +386,7 @@ export default function FilamentPaintingPanel({
   const hasInitializedRef = useRef(false);
   const activeRequestSeqRef = useRef(0);
   const convertedPngRef = useRef<File | null>(null);
+  const lastGeneratedConfigKeyRef = useRef<string>("");
 
   // Session / Visitor Slot ID for file reuse (overwrites draft during edits)
   const slotIdRef = useRef<string>(
@@ -398,7 +399,18 @@ export default function FilamentPaintingPanel({
       file: File,
       paletteToUse: FilamentPaintingPaletteItem[],
       qualityToUse: HueForgeQualityPreset,
+      widthOverride?: number,
+      heightOverride?: number,
     ) => {
+      const finalWidth = widthOverride ?? targetWidthMm;
+      const finalHeight = heightOverride ?? targetHeightMm;
+      const configKey = `${file.name}_${file.size}_${file.lastModified}_${finalWidth}_${finalHeight}_${qualityToUse}_${paletteToUse.map((p) => `${p.filamentId || p.name}:${p.colorHex}`).join(",")}`;
+
+      if (lastGeneratedConfigKeyRef.current === configKey) {
+        return;
+      }
+      lastGeneratedConfigKeyRef.current = configKey;
+
       const seq = ++activeRequestSeqRef.current;
       
       let pngFile = convertedPngRef.current;
@@ -423,8 +435,8 @@ export default function FilamentPaintingPanel({
 
       const config: FilamentPaintingConfig = {
         quality: qualityToUse,
-        targetWidthMm,
-        targetHeightMm,
+        targetWidthMm: finalWidth,
+        targetHeightMm: finalHeight,
         palette: safePalette,
         slotId: slotIdRef.current,
       };
@@ -448,6 +460,7 @@ export default function FilamentPaintingPanel({
 
       setSelectedFile(file);
       convertedPngRef.current = null;
+      lastGeneratedConfigKeyRef.current = "";
       slotIdRef.current = `slot_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
       const url = URL.createObjectURL(file);
       setImagePreviewUrl(url);
@@ -477,7 +490,7 @@ export default function FilamentPaintingPanel({
         }
 
         try {
-          await requestGeneration(file, initialPalette, qualityPreset);
+          await requestGeneration(file, initialPalette, qualityPreset, 150, computedHeight);
           hasInitializedRef.current = true;
         } catch (err) {
           console.error("Instant 3D preview generation failed:", err);
@@ -1017,8 +1030,7 @@ export default function FilamentPaintingPanel({
                     }
                   >
                     <Interactive3DViewer
-                      key={`${liveResult.modelGlbUrl}-${customPalette.length}-${activeRequestSeqRef.current}`}
-                      fileUrl={`${liveResult.modelGlbUrl}?seq=${activeRequestSeqRef.current}`}
+                      fileUrl={liveResult.modelGlbUrl}
                       fileName={liveResult.modelGlbUrl}
                       className="w-full h-full min-h-[380px]"
                       compact={false}
