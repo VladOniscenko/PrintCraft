@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /orders
+Disallow: /profile
+Disallow: /checkout/success
+Disallow: /reset-password
+Disallow: /*/admin
+Disallow: /*/orders
+Disallow: /*/profile
+Disallow: /*/checkout/success
+Disallow: /*/reset-password
+Disallow: /api/
+
+Sitemap: https://printmy3d.work/sitemap.xml
+

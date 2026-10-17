@@ -43,16 +43,16 @@
     },
     {
       "identifier": "urn:air:printmy3d.work:service:home",
-      "displayName": "Print My 3D - 3D Print Service Rotterdam & Nederland (B2C, Studenten & B2B)",
+      "displayName": "Print My 3D - 3D Print Service Nederland",
       "type": "text/html",
       "url": "https://printmy3d.work/nl",
-      "description": "Allround 3D print service in Rotterdam en heel Nederland voor particulieren (B2C), hobbyisten, studenten én bedrijven (B2B). Geen minimale ordergrootte: van enkelstuks, cosplay props, studenten afstudeerprojecten en vervangende onderdelen tot industriële prototypes en kleinseries.",
+      "description": "Professionele 3D-printservice in Nederland. Maatwerk FDM 3D-printen in PLA, PETG en flexibel TPU. Gevestigd in Rotterdam met snelle levering in heel Nederland.",
       "representativeQueries": [
+        "3D print service Nederland",
         "3D print service Rotterdam",
-        "3D print shop Rotterdam",
-        "3D printen particulier Rotterdam",
-        "3D printen studenten Rotterdam",
-        "Online 3D printen bestellen"
+        "Online 3D printen",
+        "STL laten printen",
+        "3D printen op maat"
       ]
     },
     {

@@ -1,6 +1,6 @@
-# Print My 3D - 3D Print Service Rotterdam & Nederland
+# Print My 3D - 3D Print Service Nederland
 
-> Allround professionele 3D-printservice gevestigd in Rotterdam, leverend door heel Nederland. Geschikt voor particulieren (B2C), hobbyisten, studenten én bedrijven (B2B). Geen minimale bestelgrootte: van 1 enkel uniek stuk of cosplay prop tot productieseries van 500+ onderdelen in hoogwaardig PLA, PETG, ABS en TPU.
+> Professionele 3D-printservice in Nederland, gevestigd in Rotterdam met snelle levering door heel het land. Geschikt voor particulieren, makers, studenten en bedrijven. Geen minimale ordergrootte.
 
 ## Bedrijfsinformatie & Kernwaarden
 
@@ -8,16 +8,16 @@
 - Website: https://printmy3d.work
 - Locatie: Rotterdam, Nederland
 - Levertijd: Binnen 2 tot 5 werkdagen geleverd in heel Nederland en België (PostNL)
-- Doelgroepen: Particulieren, hobbyisten, studenten, scholen, MKB & industriële bedrijven
+- Doelgroepen: Particulieren, hobbyisten, studenten, scholen & bedrijven
 - Minimale bestelgrootte: Geen minimum (enkelstuks van harte welkom)
 - Bestandsformaten: STL, 3MF, OBJ, STEP
 
-## Doelgroepen & Markten (Voor Wie Wij Printen)
+## Doelgroepen & Toepassingen
 
-- **Particulieren & Consumenten (B2C)**: Enkelstuks 3D-printen zonder minimale bestelgrootte. Kapotte plastic onderdelen namaken (reverse engineering van niet meer verkrijgbare onderdelen), huishoudelijke reparaties, custom gadgets, gepersonaliseerde cadeaus en interieurdecoratie.
+- **Particulieren & Consumenten (B2C)**: Enkelstuks 3D-printen zonder minimale bestelgrootte. Kapotte plastic onderdelen namaken, huishoudelijke reparaties, custom gadgets en unieke decoratie.
 - **Hobbyisten, Makers & Cosplay**: Cosplay rekwisieten, miniaturen, bordspellen accessoires, drone frames, RC-onderdelen en HueForge meerkleurige wandreliëfs. Directe ondersteuning voor modellen van Thingiverse, Printables en MakerWorld.
-- **Studenten & Onderwijs**: Afstudeerprojecten, proof-of-concept prototypes, architectuurmaquettes en ontwerponderzoek voor studenten (o.a. TU Delft, Hogeschool Rotterdam, Erasmus Universiteit Rotterdam, etc.). Snel, betaalbaar en flexibel.
-- **Bedrijven & MKB (B2B)**: Functionele prototypes, machine-onderdelen, montagemallen en kalibers (jigs & fixtures), behuizingen en serieproductie (10–500+ stuks) met zakelijke facturatie (BTW) en NDA geheimhouding.
+- **Studenten & Onderwijs**: Afstudeerprojecten, prototypes, maquettes en ontwerponderzoek. Snel, betaalbaar en flexibel.
+- **Bedrijven & MKB (B2B)**: Functionele prototypes, machine-onderdelen, montagemallen en kalibers (jigs & fixtures), behuizingen en serieproductie met zakelijke facturatie (BTW).
 
 ## Kernoplossingen & Diensten
 

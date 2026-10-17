@@ -29,24 +29,7 @@ const aiCatalogJson = JSON.stringify(aiCatalog, null, 2);
 const llmsTxt = generateLlmsTxt(origin);
 const llmsFullTxt = generateLlmsFullTxt(origin);
 
-function syncPublicAiFiles(publicDir: string) {
-  const wellKnownDir = path.join(publicDir, ".well-known");
-  if (!fs.existsSync(wellKnownDir)) {
-    fs.mkdirSync(wellKnownDir, { recursive: true });
-  }
-  fs.writeFileSync(path.join(publicDir, "ai-catalog.json"), aiCatalogJson, "utf-8");
-  fs.writeFileSync(path.join(publicDir, "ard.json"), aiCatalogJson, "utf-8");
-  fs.writeFileSync(path.join(wellKnownDir, "ai-catalog.json"), aiCatalogJson, "utf-8");
-  fs.writeFileSync(path.join(wellKnownDir, "ard.json"), aiCatalogJson, "utf-8");
-  fs.writeFileSync(path.join(publicDir, "llms.txt"), llmsTxt, "utf-8");
-  fs.writeFileSync(path.join(publicDir, "llms-full.txt"), llmsFullTxt, "utf-8");
-}
 
-try {
-  syncPublicAiFiles(path.resolve(process.cwd(), "public"));
-} catch {
-  // Graceful fallback for read-only environments
-}
 
 const publicIndexableRoutes = [
   { subPath: "", priority: "1.0", changefreq: "weekly" },
@@ -141,6 +124,23 @@ ${supportedLanguages
     source: llmsFullTxt,
   },
 };
+
+function syncPublicCrawlerFiles(publicDir: string) {
+  for (const [url, file] of Object.entries(crawlerFiles)) {
+    const targetPath = path.join(publicDir, url.replace(/^\//, ""));
+    const dir = path.dirname(targetPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(targetPath, file.source, "utf-8");
+  }
+}
+
+try {
+  syncPublicCrawlerFiles(path.resolve(process.cwd(), "public"));
+} catch {
+  // Graceful fallback for read-only environments
+}
 
 export default defineConfig(({ mode }) => {
   const frontendEnv = loadEnv(mode, process.cwd(), "");

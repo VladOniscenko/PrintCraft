@@ -300,13 +300,13 @@ export const seoApplications: SeoApplication[] = [
     benefits: {
       nl: [
         "Ondersteunt directe upload van STEP-, 3MF- en STL-bestanden",
-        "Geheimhouding gegarandeerd met optionele NDA",
+        "Vertrouwelijke behandeling van alle geüploade 3D-bestanden",
         "Geen minimale afname: van 1 stuk tot 500+ pre-productie eenheden",
         "Officiële BTW-factuur voor bedrijven en instellingen",
       ],
       en: [
         "Direct upload support for STEP, 3MF, and STL models",
-        "Strict confidentiality with NDA support for proprietary IP",
+        "Strict confidentiality for all uploaded designs and IP",
         "No minimum order quantity: test 1 part or launch a 500-unit pilot batch",
         "Official commercial VAT invoice with corporate payment terms",
       ],
@@ -333,8 +333,8 @@ export const seoApplications: SeoApplication[] = [
           a: "Ja, ons platform accepteert STEP-, STP-, STL- en 3MF-bestanden. We controleren wanddiktes en passingen direct in onze software.",
         },
         {
-          q: "Kunnen jullie een geheimhoudingsovereenkomst (NDA) tekenen?",
-          a: "Zeker. We tekenen regelmatig NDA's met R&D-afdelingen en startups voordat we vertrouwelijke bestanden in productie nemen.",
+          q: "Worden mijn geüploade 3D-bestanden vertrouwelijk behandeld?",
+          a: "Ja, alle bestanden en ontwerpen worden strikt vertrouwelijk behandeld en uitsluitend gebruikt voor de productie van jouw order.",
         },
       ],
       en: [
@@ -343,8 +343,8 @@ export const seoApplications: SeoApplication[] = [
           a: "Yes! Our platform supports STEP, STP, STL, and 3MF files. We analyze wall thickness, overhangs, and fits directly.",
         },
         {
-          q: "Can you sign a Non-Disclosure Agreement (NDA) for prototypes?",
-          a: "Yes, we routinely sign mutual or one-way NDAs with R&D departments and hardware startups prior to file transfer.",
+          q: "Are my uploaded 3D files kept confidential?",
+          a: "Yes, all models and project designs are treated with strict confidentiality and used solely to fulfill your order.",
         },
       ],
     },

@@ -211,73 +211,73 @@ export const translations = {
           "See available materials and recent prints to set expectations before you request your quote.",
       },
       process: {
-        eyebrow: "Production Workflow",
-        title: "From CAD Model to Industrial Production",
+        eyebrow: "Workflow",
+        title: "How It Works",
         subtitle:
-          "Our precision additive manufacturing process ensures repeatable accuracy and commercial-grade durability.",
-        step1Title: "1. 3D CAD & Geometry Validation",
+          "Simple and transparent, from 3D model to physical product.",
+        step1Title: "1. Upload Model",
         step1Desc:
-          "Upload STEP, STL, or 3MF assemblies. We evaluate wall thicknesses, bridging geometry, and fit tolerances up to ±0.1mm before manufacturing.",
-        step2Title: "2. Technical Material Selection",
+          "Upload your STL, 3MF, or CAD file and pick your preferred material and color.",
+        step2Title: "2. Instant Pricing",
         step2Desc:
-          "Select high-strength PETG for heat and UV resistance, flexible TPU for airtight gaskets and dampening, or precision PLA for dimensionally accurate prototypes.",
-        step3Title: "3. Calibrated FDM Farm Production",
+          "Get clear, immediate pricing based on dimensions, material choice, and infill settings.",
+        step3Title: "3. Precision Printing",
         step3Desc:
-          "Our synchronized print farm handles single-part rapid prototyping and short-run production batches from 10 to 500+ units with seamless consistency.",
-        step4Title: "4. Quality Inspection & Tracked Dispatch",
+          "We print your parts with care on calibrated printers for a clean, accurate result.",
+        step4Title: "4. Fast Delivery",
         step4Desc:
-          "Each finished print is deburred, checked against digital CAD specs, packed securely, and dispatched with PostNL track-and-trace across the Netherlands within 2-5 business days.",
-        guaranteeTitle: "Industrial Additive Quality & Tolerances",
+          "Carefully packaged and delivered within 2 to 5 business days via PostNL with tracking.",
+        guaranteeTitle: "Reliable Quality & Careful Finish",
         guaranteeText:
-          "We manufacture functional plastic prototypes, assembly tools, and small-batch production runs in strict accordance with additive manufacturing guidelines. Every single printed component is professionally deburred, inspected against digital 3D CAD models, and verified with digital calipers to guarantee a precise fit in machines, enclosures, and assembly fixtures. Whether you require a single urgent engineering replacement or hundreds of identical production units, our Dutch print farm guarantees dependable mechanical performance and rapid delivery.",
+          "Every print is inspected for surface quality and fit before dispatch, ready for use right out of the box.",
       },
       audiences: {
-        eyebrow: "For Everyone",
-        title: "3D Printing for Consumers, Students, Hobbyists & Businesses",
+        eyebrow: "Applications",
+        title: "3D Printing for Every Need",
         subtitle:
-          "No minimum order quantity: from a single custom piece or cosplay prop to professional prototypes and B2B batch production.",
+          "From single replacement parts and creative builds to prototypes and small batches.",
         b2cTitle: "Consumers & Home",
         b2cTag: "From 1 piece",
         b2cDesc:
-          "Broken household replacement parts, custom gadgets, home decor, or personalized gifts. No minimum order quantity: 1 piece is always welcome!",
+          "Broken household replacement parts, custom gadgets, home fixes, or personalized gifts with no minimum order.",
         hobbyTitle: "Hobbyists, Makers & Cosplay",
-        hobbyTag: "Cosplay & Gaming",
+        hobbyTag: "Creative",
         hobbyDesc:
-          "Cosplay props, tabletop miniatures, board game accessories, drone frames, RC parts, and HueForge relief art. Upload directly from Thingiverse or Printables.",
-        studentsTitle: "Students & Academia",
-        studentsTag: "Student-Friendly",
+          "Cosplay props, tabletop miniatures, board game accessories, RC parts, and HueForge relief art. Direct printing from STL files.",
+        studentsTitle: "Students & Education",
+        studentsTag: "Education",
         studentsDesc:
-          "Thesis projects, architectural scale models, mechanical prototypes, and research testing. Fast, accessible, and flexible for students (TU Delft, Rotterdam University of Applied Sciences, Erasmus).",
-        b2bTitle: "Businesses, SMEs & Industry",
-        b2bTag: "B2B & Batch Series",
+          "Scale models, thesis prints, and prototypes for academic projects with fast turnaround.",
+        b2bTitle: "Businesses & SMEs",
+        b2bTag: "Commercial",
         b2bDesc:
-          "Functional prototypes, machine components, jigs & fixtures, and serial production (10–500+ parts) with corporate VAT invoicing and optional NDA confidentiality.",
+          "Functional prototypes, custom enclosures, fixtures, and small production runs with itemized VAT invoicing.",
       },
       faq: {
         eyebrow: "Frequently Asked Questions",
-        title: "3D Printing for Consumers, Students & Businesses",
+        title: "Frequently Asked Questions",
         subtitle:
-          "Clear answers on single-piece orders, student projects, material choice, and corporate invoicing.",
-        q1: "Can consumers, students, or hobbyists order a single piece without a minimum order?",
-        a1: "Yes, absolutely! We have no minimum order quantity. Whether you need a single replacement dishwasher wheel, a cosplay helmet, a student thesis model, or tabletop miniatures, everyone can easily order online.",
-        q2: "Can students and educational institutions get support for models and prototypes?",
-        a2: "Yes! Many students from universities like TU Delft, Rotterdam University of Applied Sciences, and Erasmus order their thesis prototypes, architectural scale models, and design iterations with us for fast, affordable delivery.",
-        q3: "Can businesses and companies order with VAT invoices and NDAs?",
-        a3: "Yes. Corporate clients can order with official VAT invoices and B2B payment terms. We routinely sign Non-Disclosure Agreements (NDAs) for proprietary engineering designs and confidential IP.",
-        q4: "What are your standard turnaround and delivery times in Rotterdam and the Netherlands?",
-        a4: "Most orders are printed and dispatched within 2 to 5 business days using tracked PostNL delivery directly to your home address, university, or company across the entire Netherlands.",
+          "Clear answers regarding single orders, student projects, materials, and invoicing.",
+        q1: "Can I order a single piece without a minimum order quantity?",
+        a1: "Yes, absolutely! We have no minimum order size. Single-item prints are always welcome.",
+        q2: "Can students and educational institutions order models?",
+        a2: "Yes! We regularly help students and educators print scale models, prototypes, and graduation projects with fast turnaround.",
+        q3: "Can businesses order with an official VAT invoice?",
+        a3: "Yes, business customers receive a clear, itemized VAT invoice for easy accounting.",
+        q4: "What is the typical turnaround and delivery time?",
+        a4: "Most orders are printed and dispatched within 2 to 5 business days using tracked PostNL delivery across the Netherlands.",
       },
     },
     hero: {
-      mainHeading: "3D Print Service Rotterdam & Nederland",
-      subHeading: "Voor Particulieren, Hobbyisten, Studenten én Bedrijven",
+      mainHeading: "3D Printing Service Netherlands",
+      subHeading: "For Consumers, Makers, Students & Businesses",
       introText:
-        "The all-round 3D printing service in Rotterdam serving the entire Netherlands. No minimum order quantity: from a single custom print, cosplay prop, student graduation model, or replacement part to engineering prototypes and B2B batch production. Upload your STL/3MF/STEP file and calculate your instant price online with fast 2-5 business day delivery.",
-      badgeNoMinimum: "From 1 piece · No minimum",
-      badgeB2c: "Consumers & B2C",
-      badgeHobby: "Hobbyists & Cosplay",
-      badgeStudents: "Students & Academia",
-      badgeB2b: "Businesses & B2B",
+        "High-precision FDM 3D printing service in the Netherlands, based in Rotterdam with nationwide delivery. Upload your file for an instant price quote.",
+      badgeNoMinimum: "No minimum order",
+      badgeB2c: "Consumers",
+      badgeHobby: "Makers & Cosplay",
+      badgeStudents: "Students",
+      badgeB2b: "Businesses",
       titleLine1: "Custom 3D Prints,",
       titleLine2: "Made to Order",
       description:
@@ -2192,39 +2192,39 @@ export const translations = {
     },
     seo: {
       default: {
-        title: `3D Printing Service Rotterdam & Netherlands | B2C, Students & B2B | ${businessInfo.name}`,
+        title: `3D Printing Service Netherlands | ${businessInfo.name}`,
         description:
-          "3D printing service in Rotterdam and across the Netherlands for consumers, hobbyists, students, and businesses. No minimum order: from single prints and cosplay to prototypes and batch production. Order online directly!",
+          "Professional 3D printing service in the Netherlands. Upload your 3D files for an instant custom quote. Based in Rotterdam with fast tracked delivery nationwide.",
         keywords:
-          "3d print service rotterdam, 3d printing rotterdam, 3d print shop rotterdam, consumer 3d printing, student 3d printing rotterdam, hobbyist 3d printing, cosplay 3d print, order stl print, rapid prototyping netherlands, b2b 3d printing, custom 3d prints no minimum, affordable 3d printing netherlands, fdm 3d printing rotterdam",
+          "3d print service netherlands, 3d printing netherlands, 3d print service rotterdam, 3d printing rotterdam, stl printing, rapid prototyping netherlands, custom 3d prints",
       },
       home: {
-        title: `3D Printing Service Rotterdam & Netherlands | B2C, Students & B2B | ${businessInfo.name}`,
+        title: `3D Printing Service Netherlands | ${businessInfo.name}`,
         description:
-          "3D printing service in Rotterdam and across the Netherlands for consumers, hobbyists, students, and businesses. No minimum order: from single prints and cosplay to prototypes and batch production. Order online directly!",
+          "Professional 3D printing service in the Netherlands. Upload your 3D files for an instant custom quote. Based in Rotterdam with fast tracked delivery nationwide.",
         keywords:
-          "3d print service rotterdam, 3d printing rotterdam, 3d print shop rotterdam, consumer 3d printing, student 3d printing rotterdam, hobbyist 3d printing, cosplay 3d print, order stl print, rapid prototyping netherlands, b2b 3d printing, custom 3d prints no minimum, affordable 3d printing netherlands, fdm 3d printing rotterdam",
+          "3d print service netherlands, 3d printing netherlands, 3d print service rotterdam, 3d printing rotterdam, stl printing, rapid prototyping netherlands, custom 3d prints",
       },
       gallery: {
-        title: `3D Print Model Gallery & Community Prints | ${businessInfo.name} Netherlands`,
+        title: `3D Print Model Gallery | ${businessInfo.name}`,
         description:
-          "Browse 3D printable designs or send models from Thingiverse, Printables, and MakerWorld. Order custom 3D prints delivered across the Netherlands.",
+          "Browse 3D printable designs or send models from Thingiverse, Printables, and MakerWorld. Custom 3D prints delivered across the Netherlands.",
         keywords:
-          "3D model printing, 3D print gallery, Thingiverse model laten printen, Printables 3D print, MakerWorld order, custom 3D printing Netherlands, order 3D prints online Netherlands",
+          "3D model printing, 3D print gallery, Thingiverse model laten printen, Printables 3D print, MakerWorld order, custom 3D printing Netherlands",
       },
       materials: {
-        title: `Engineering 3D Print Materials: PETG, Flexible TPU & PLA | ${businessInfo.name} NL`,
+        title: `3D Printing Materials: PETG, Flexible TPU & PLA | ${businessInfo.name}`,
         description:
-          "Engineering-grade filaments for prototypes, machine components, jigs & fixtures: heat/UV-resistant PETG, flexible TPU rubber for gaskets, and precision PLA with ±0.1mm tolerance.",
+          "High-grade filaments for prototypes and functional components: durable PETG, flexible TPU rubber, and precision PLA.",
         keywords:
-          "engineering 3D printing materials, PETG machine components, durable jigs and fixtures, flexible TPU gaskets, industrial tooling replacement, precision FDM tooling Netherlands, B2B 3D printing filaments",
+          "3D printing materials, PETG components, flexible TPU, PLA printing, 3D printing filaments Netherlands",
       },
       faq: {
-        title: `3D Printing FAQ: Consumers, Students, Hobbyists & B2B Invoicing | ${businessInfo.name}`,
+        title: `3D Printing FAQ | ${businessInfo.name}`,
         description:
-          "Answers to 3D printing questions: single-part consumer orders, student thesis models, B2B invoicing, NDAs, STEP/CAD slicing, and small-batch production.",
+          "Answers to common questions about 3D printing: materials, file formats, pricing, turnaround times, and delivery.",
         keywords:
-          "3D printing FAQ, consumer 3D printing no minimum, student prototyping FAQ, B2B 3D printing FAQ, invoice billing for businesses, NDA confidential 3D printing, STEP CAD file manufacturing, low volume batch production Netherlands",
+          "3D printing FAQ, 3D printing materials, STL file upload, turnaround time, delivery Netherlands",
       },
       privacy: {
         title: `Privacy Policy | ${businessInfo.name}`,
@@ -2239,7 +2239,7 @@ export const translations = {
       refunds: {
         title: `Refund and Return Policy | ${businessInfo.name}`,
         description:
-          "Information about our quality guarantee, free reprints for defective prints, and return policy on custom orders.",
+          "Information about our quality guarantee, reprints for defective prints, and return policy on custom orders.",
         keywords: "refund policy, retourbeleid, garantie 3D printen",
       },
       shippingPolicy: {
@@ -2254,30 +2254,30 @@ export const translations = {
       },
       schema: {
         siteDescription:
-          "Professional 3D printing service in Rotterdam and across the Netherlands for consumers, students, hobbyists, and businesses. No minimum order quantity.",
-        catalogName: "3D Printing Services for Consumers, Students, Hobbyists & Businesses",
-        fdmServiceName: "Custom FDM 3D Printing (PLA, PETG, TPU)",
+          "Professional 3D printing service in Rotterdam. Custom FDM prints in PLA, PETG, and flexible TPU with fast delivery.",
+        catalogName: "3D Printing Services",
+        fdmServiceName: "Custom FDM 3D Printing",
         fdmServiceDesc:
-          "High-precision FDM 3D printing for single custom parts, cosplay models, student prototypes, and industrial components with ±0.1mm tolerance.",
+          "High-precision FDM 3D printing for functional parts, prototypes, and custom models in PLA, PETG, and TPU.",
         hueforgeServiceName: "HueForge Filament Painting (3D Relief Art)",
         hueforgeServiceDesc:
           "Multi-color relief 3D art printing from 2D images using optical layer blending.",
         replacementServiceName:
-          "Replacement Parts & Consumer Repairs",
+          "Replacement Parts & Repairs",
         replacementServiceDesc:
-          "Reverse engineering and reproduction of discontinued household plastic parts, gears, tools, and custom brackets.",
+          "Reproduction and printing of discontinued or broken plastic components, clips, and brackets.",
         prototypingServiceName:
-          "Rapid Prototyping & Student Scale Models",
+          "Rapid Prototyping & Custom Models",
         prototypingServiceDesc:
-          "Fast turnaround functional prototypes, student project assemblies, and pre-production validation.",
+          "Fast turnaround functional prototypes, student project assemblies, and design validation.",
         toolingServiceName:
-          "3D Printed Jigs, Fixtures & Tooling",
+          "Custom Tooling, Jigs & Fixtures",
         toolingServiceDesc:
-          "Custom manufacturing of assembly jigs, drill fixtures, inspection gauges, and durable machine components.",
+          "Manufacturing of assembly fixtures, drill guides, inspection tools, and durable workshop components.",
         batchServiceName:
-          "Short-Run Plastic Batch Production (10–500+ units)",
+          "Small Batch Production (10–500+ units)",
         batchServiceDesc:
-          "Bridge manufacturing and low-volume production alternative to injection molding with commercial B2B invoicing.",
+          "Low-volume production runs with transparent business invoicing.",
         cityServiceTemplate: "3D Printing Service in {city}",
       },
     },
@@ -2285,16 +2285,16 @@ export const translations = {
       badge: "Local 3D Printing Service",
       heroTitle: "3D Print Service {city}",
       heroSubtitle:
-        "Professional FDM 3D printing for consumers, students, hobbyists, and businesses delivered to your doorstep in {city}. Fast turnaround within 2-5 business days via PostNL tracking.",
+        "Professional FDM 3D printing delivered to your doorstep in {city}. Fast turnaround within 2-5 business days via PostNL tracking.",
       quoteCta: "Request Instant Quote",
       viewFaq: "Local FAQ",
       deliveryBadge: "Fast delivery in {city} (2-5 business days)",
       precisionBadge: "±0.1mm Industrial Precision",
       materialsBadge: "Eco PLA, PETG & Flexible TPU",
       capabilitiesEyebrow: "Our Services in {city}",
-      capabilitiesTitle: "3D Printing for Everyone in {city}: Consumers, Students & Businesses",
+      capabilitiesTitle: "Custom 3D Printing in {city}",
       capabilitiesDesc:
-        "Whether you need a single replacement part, cosplay model, student thesis prototype, architectural maquette, or small-batch commercial production (10–500+ units) in {city}, we provide high-precision FDM manufacturing with instant quotes and fast tracked delivery.",
+        "From single replacement parts and scale models to functional prototypes and small production runs in {city}: we deliver high-precision FDM manufacturing with instant quotes and fast tracked shipping.",
       cardPrototypesTitle: "Rapid Prototyping",
       cardPrototypesDesc:
         "Validate functional prototypes, CAD/STEP assemblies, and pre-production iterations rapidly before mass production with ±0.1mm precision.",
@@ -2690,73 +2690,73 @@ export const translations = {
           "Bekijk beschikbare materialen en recente prints om de verwachtingen goed te zetten voordat je je offerte aanvraagt.",
       },
       process: {
-        eyebrow: "Productieproces",
-        title: "Van CAD-Model tot Industrieel Eindproduct",
+        eyebrow: "Werkwijze",
+        title: "Hoe Het Werkt",
         subtitle:
-          "Ons additieve productieproces garandeert herhaalnauwkeurigheid en industriële mechanische belastbaarheid.",
-        step1Title: "1. CAD/STEP Inspectie & DFM-Check",
+          "Eenvoudig en transparant, van 3D-bestand naar fysiek eindresultaat.",
+        step1Title: "1. Model Uploaden",
         step1Desc:
-          "Upload STEP-, STL- of 3MF-bestanden. We analyseren wanddiktes, overhangende geometrieën en passingen tot ±0.1mm vóór de start van productie.",
-        step2Title: "2. Materiaalkeuze & Printconfiguratie",
+          "Upload eenvoudig je STL-, 3MF- of CAD-bestand en selecteer het gewenste materiaal en de gewenste kleur.",
+        step2Title: "2. Directe Prijsindicatie",
         step2Desc:
-          "Kies hitte- en UV-bestendig PETG voor mechanische delen, flexibel TPU voor trillingsdempers en pakkingen, of maatvast PLA voor vormstudies.",
-        step3Title: "3. Gekalibreerde FDM Farm Productie",
+          "Krijg direct inzicht in de kosten op basis van jouw afmetingen, materiaalkeuze en infill.",
+        step3Title: "3. Zorgvuldig Geprint",
         step3Desc:
-          "Onze synchrone print farm verzorgt zowel enkelstuks functionele prototypes als kleine series van 10 tot 500+ stuks met consistente kwaliteit.",
-        step4Title: "4. Kwaliteitscontrole & PostNL Verzending",
+          "We printen jouw onderdeel met zorg op goed gekalibreerde printers voor een strak en nauwkeurig resultaat.",
+        step4Title: "4. Snelle Bezorging",
         step4Desc:
-          "Ieder geprint onderdeel wordt ontbraamd, gecontroleerd aan de hand van het CAD-model en binnen 2-5 werkdagen met PostNL track & trace verzonden.",
-        guaranteeTitle: "Gegarandeerde Industriële Kwaliteit & Maatvastheid",
+          "Veilig verpakt en binnen 2 tot 5 werkdagen geleverd via PostNL met betrouwbare track & trace.",
+        guaranteeTitle: "Kwaliteit & Zorgvuldige Afwerking",
         guaranteeText:
-          "Wij produceren functionele kunststof prototypes, montagetools en kleine series met uiterste precisie op basis van strikte additieve productierichtlijnen. Ieder afzonderlijk geprint onderdeel wordt na het 3D-printen ontbraamd, gecontroleerd aan de hand van het 3D CAD-model en nagemeten met digitale schuifmaten om naadloze montage in machines, behuizingen en kalibers te verzekeren. Of het nu gaat om een enkele spoedlevering of honderden identieke montagecomponenten, onze print farm in Nederland staat garant voor betrouwbare mechanische sterkte en snelle levering.",
+          "Elke print wordt voor verzending nagelopen op printkwaliteit en afwerking. Zo ontvang je een product dat direct klaar is voor gebruik.",
       },
       audiences: {
-        eyebrow: "Voor Iedereen",
-        title: "3D Printen voor Particulieren, Studenten, Hobbyisten & Bedrijven",
+        eyebrow: "Toepassingen",
+        title: "3D Printen voor Iedere Toepassing",
         subtitle:
-          "Geen minimale ordergrootte: van één enkel uniek model of cosplay prop tot professionele prototypes en B2B serieproductie.",
+          "Van een enkel uniek onderdeel of reparatie tot functionele prototypes en kleine series.",
         b2cTitle: "Particulieren & Huishoudens",
         b2cTag: "Vanaf 1 stuk",
         b2cDesc:
-          "Kapot plastic onderdeel namaken, custom gadgets, interieurdecoratie of unieke cadeaus. Geen minimale bestelgrootte: 1 enkel stuk is van harte welkom!",
+          "Kapot plastic onderdeel namaken, custom gadgets, interieurdecoratie of unieke cadeaus zonder minimale ordergrootte.",
         hobbyTitle: "Hobbyisten, Makers & Cosplay",
-        hobbyTag: "Cosplay & Gaming",
+        hobbyTag: "Creatief",
         hobbyDesc:
-          "Cosplay rekwisieten, miniaturen, board game accessoires, RC auto- en drone-onderdelen en HueForge meerkleurige kunst. Upload direct je STL van Thingiverse of Printables.",
-        studentsTitle: "Studenten & Afstudeerders",
-        studentsTag: "Studentvriendelijk",
+          "Cosplay rekwisieten, miniaturen, board game accessoires, RC onderdelen en HueForge reliëfs. Direct printen vanaf STL-bestanden.",
+        studentsTitle: "Studenten & Onderwijs",
+        studentsTag: "Onderwijs",
         studentsDesc:
-          "Afstudeerprojecten, bouwkundige maquettes, mechanische prototypes en onderzoeksmodellen. Snel, betaalbaar en flexibel voor studenten (o.a. TU Delft, Hogeschool Rotterdam, Erasmus).",
-        b2bTitle: "Bedrijven, MKB & Industrie",
-        b2bTag: "B2B & Kleinseries",
+          "Afstudeerprojecten, maquettes, prototypes en ontwerponderzoek. Snel en flexibel geholpen met praktische ondersteuning.",
+        b2bTitle: "Bedrijven & MKB",
+        b2bTag: "Zakelijk",
         b2bDesc:
-          "Functionele prototypes, machine-onderdelen, mallen & kalibers (jigs & fixtures) en serieproductie (10–500+ stuks) met facturatie met BTW en optionele NDA-geheimhouding.",
+          "Functionele prototypes, machine-onderdelen, kalibers, behuizingen en kleine series met overzichtelijke BTW-facturatie.",
       },
       faq: {
         eyebrow: "Veelgestelde Vragen",
-        title: "3D Printen voor Particulieren, Studenten & Bedrijven",
+        title: "Veelgestelde Vragen",
         subtitle:
-          "Heldere antwoorden over bestellingen vanaf 1 stuk, studentenprojecten, materiaalkeuze en zakelijke facturatie.",
+          "Heldere antwoorden over bestellingen vanaf 1 stuk, studentenprojecten, materialen en facturatie.",
         q1: "Kunnen particulieren, studenten of hobbyisten ook 1 enkel stuk bestellen?",
-        a1: "Ja, absoluut! Wij hanteren geen minimale ordergrootte. Of je nu één afgebroken vaatwasser-wieltje zoekt, een cosplay attribuut, een studenten afstudeerprototype of miniaturen: iedereen kan eenvoudig online bestellen.",
+        a1: "Ja, absoluut! Wij hanteren geen minimale bestelgrootte. Of je nu één afgebroken onderdeel nodig hebt of een maquette: iedereen kan eenvoudig bestellen.",
         q2: "Kunnen studenten en onderwijsinstellingen terecht voor maquettes en prototypes?",
-        a2: "Zeker! Veel studenten van o.a. TU Delft, Hogeschool Rotterdam en Erasmus Universiteit laten hun prototypes, bouwkundige maquettes en afstudeermodellen bij ons printen vanwege de snelle levertijd en scherpe tarieven.",
-        q3: "Kunnen bedrijven en MKB bestellen met BTW-factuur en geheimhouding (NDA)?",
-        a3: "Ja. Zakelijke klanten ontvangen een officiële BTW-factuur met zakelijke betalingsvoorwaarden. Voor vertrouwelijke ontwerpen ondertekenen wij desgewenst vooraf een geheimhoudingsovereenkomst (NDA).",
-        q4: "Wat is de gemiddelde levertijd in Rotterdam en de rest van Nederland?",
-        a4: "De meeste bestellingen worden binnen 2 tot 5 werkdagen geproduceerd en verzonden via PostNL pakketbezorging met track & trace naar jouw huisadres, universiteit of bedrijf.",
+        a2: "Zeker! We ondersteunen studenten en docenten regelmatig met het printen van maquettes, afstudeerprojecten en prototypes met snelle levering.",
+        q3: "Kunnen bedrijven en organisaties bestellen met een officiële BTW-factuur?",
+        a3: "Ja, zakelijke klanten ontvangen een overzichtelijke factuur met BTW en duidelijke specificaties voor de bedrijfsadministratie.",
+        q4: "Wat is de gemiddelde levertijd binnen Nederland?",
+        a4: "De meeste bestellingen worden binnen 2 tot 5 werkdagen geproduceerd en verzonden via PostNL met track & trace.",
       },
     },
     hero: {
-      mainHeading: "3D Print Service Rotterdam & Nederland",
-      subHeading: "Voor Particulieren, Hobbyisten, Studenten én Bedrijven",
+      mainHeading: "3D Print Service Nederland",
+      subHeading: "Voor Particulieren, Makers, Studenten én Bedrijven",
       introText:
-        "Dé allround 3D print service van Rotterdam voor heel Nederland. Geen minimale bestelgrootte: van één enkel uniek stuk, cosplay prop, studenten-afstudeerproject of vervangend plastic onderdeel tot professionele prototypes en B2B serieproductie. Upload je STL/3MF/STEP-bestand en bereken direct online je prijs met snelle levertijd binnen 2-5 werkdagen.",
+        "Professionele 3D-printservice in Nederland. Gevestigd in Rotterdam met snelle bezorging door heel het land. Upload direct je bestand voor een offerte op maat.",
       badgeNoMinimum: "Vanaf 1 stuk · Geen minimum",
-      badgeB2c: "Particulier & B2C",
-      badgeHobby: "Hobbyisten & Cosplay",
-      badgeStudents: "Studenten & Onderwijs",
-      badgeB2b: "Bedrijven & MKB",
+      badgeB2c: "Particulier",
+      badgeHobby: "Makers & Cosplay",
+      badgeStudents: "Studenten",
+      badgeB2b: "Zakelijk",
       titleLine1: "Maatwerk 3D Prints,",
       titleLine2: "Op Bestelling Gemaakt",
       description:
@@ -4700,39 +4700,39 @@ export const translations = {
     },
     seo: {
       default: {
-        title: `3D Print Service Rotterdam & Nederland | Particulier, Studenten & Zakelijk | ${businessInfo.name}`,
+        title: `3D Print Service Nederland | ${businessInfo.name}`,
         description:
-          "Dé 3D print service in Rotterdam en heel Nederland voor particulieren, hobbyisten, studenten én bedrijven. Geen minimale afname: van enkelstuks, cosplay en prototypes tot B2B serieproductie. Direct online bestellen!",
+          "Professionele 3D-printservice in Nederland. Upload direct je 3D-bestand voor een offerte op maat in PLA, PETG of TPU. Gevestigd in Rotterdam, snel bezorgd in heel Nederland.",
         keywords:
-          "3d print service rotterdam, 3d print shop rotterdam, 3d printen rotterdam, 3d printen particulier, 3d printen studenten rotterdam, cosplay 3d printen, hobby 3d printen, stl laten printen, rapid prototyping nederland, zakelijk 3d printen, 3d printen zonder minimum, goedkoop 3d printen rotterdam, fdm 3d print service, 3d print op maat rotterdam",
+          "3d print service nederland, 3d printen nederland, 3d print service rotterdam, 3d printen rotterdam, stl printen, online 3d printen, rapid prototyping, maatwerk 3d print",
       },
       home: {
-        title: `3D Print Service Rotterdam & Nederland | Particulier, Studenten & Zakelijk | ${businessInfo.name}`,
+        title: `3D Print Service Nederland | ${businessInfo.name}`,
         description:
-          "Dé 3D print service in Rotterdam en heel Nederland voor particulieren, hobbyisten, studenten én bedrijven. Geen minimale afname: van enkelstuks, cosplay en prototypes tot B2B serieproductie. Direct online bestellen!",
+          "Professionele 3D-printservice in Nederland. Upload direct je 3D-bestand voor een offerte op maat in PLA, PETG of TPU. Gevestigd in Rotterdam, snel bezorgd in heel Nederland.",
         keywords:
-          "3d print service rotterdam, 3d print shop rotterdam, 3d printen rotterdam, 3d printen particulier, 3d printen studenten rotterdam, cosplay 3d printen, hobby 3d printen, stl laten printen, rapid prototyping nederland, zakelijk 3d printen, 3d printen zonder minimum, goedkoop 3d printen rotterdam, fdm 3d print service, 3d print op maat rotterdam",
+          "3d print service nederland, 3d printen nederland, 3d print service rotterdam, 3d printen rotterdam, stl printen, online 3d printen, rapid prototyping, maatwerk 3d print",
       },
       gallery: {
-        title: `3D Print Modellen Galerij & Inspiratie | ${businessInfo.name} Nederland`,
+        title: `3D Print Modellen Galerij | ${businessInfo.name}`,
         description:
-          "Bekijk populaire 3D print modellen of bestel direct ontwerpen van Thingiverse, Printables en MakerWorld. Maatwerk 3D prints snel geleverd in heel Nederland.",
+          "Bekijk 3D-print modellen of bestel direct ontwerpen van Thingiverse, Printables en MakerWorld. Maatwerk 3D-prints snel geleverd in Nederland.",
         keywords:
-          "3D modellen printen, 3D print galerij, Thingiverse model laten printen, Printables model laten printen, MakerWorld bestand bestellen, 3D print bestellen online, 3D model laten printen",
+          "3D modellen printen, 3D print galerij, Thingiverse model laten printen, Printables model laten printen, MakerWorld bestand bestellen",
       },
       materials: {
-        title: `Technische 3D Print Materialen: PETG, Flexibel TPU & PLA | ${businessInfo.name} NL`,
+        title: `3D Print Materialen: PETG, Flexibel TPU & PLA | ${businessInfo.name}`,
         description:
-          "Industriële filamenten voor prototypes, machineonderdelen, mallen en gereedschapshouders: hitte- en UV-bestendig PETG, flexibel TPU rubber voor pakkingen en maatvast PLA met ±0.1mm industriële tolerantie.",
+          "Kwaliteitsfilamenten voor functionele onderdelen en prototypes: sterk PETG, flexibel TPU rubber en nauwkeurig PLA.",
         keywords:
-          "technische 3D print materialen, sterke PETG gereedschapshouders, machineonderdelen nabouwen, mallen en kalibers 3D printen, flexibel TPU pakkingen, industriële 3D prints Nederland, maatvaste kunststof onderdelen",
+          "3D print materialen, PETG filament, flexibel TPU, PLA printen, 3D printing Nederland",
       },
       faq: {
-        title: `Veelgestelde Vragen 3D Printen: Particulier, Studenten & Bedrijven | ${businessInfo.name}`,
+        title: `Veelgestelde Vragen 3D Printen | ${businessInfo.name}`,
         description:
-          "Antwoorden op vragen over 3D-printen: enkelstuks voor particulieren, studenten maquettes en prototypes, zakelijk op factuur met BTW en kleinserie productie.",
+          "Antwoorden op veelgestelde vragen over 3D-printen: materialen, bestandstypes, prijzen en levertijden.",
         keywords:
-          "3D printen particulier FAQ, studenten 3D printen, zakelijk 3D printen FAQ, 3D printen op factuur, BTW-factuur voor bedrijven, geheimhouding NDA ondersteuning, CAD STEP model laten printen, kleinserie 3D printen serieproductie",
+          "3D printen FAQ, veelgestelde vragen 3D printen, levertijd 3D print, materialen 3D printen, STL uploaden",
       },
       privacy: {
         title: `Privacybeleid | ${businessInfo.name}`,
@@ -4747,7 +4747,7 @@ export const translations = {
       refunds: {
         title: `Retour- en Terugbetalingsbeleid | ${businessInfo.name}`,
         description:
-          "Informatie over onze kwaliteitsgarantie, gratis herprints bij printfouten en ons beleid rond maatwerkbestellingen.",
+          "Informatie over onze kwaliteitsgarantie, herprints bij printfouten en ons beleid rond maatwerkbestellingen.",
         keywords: "refund policy, retourbeleid, garantie 3D printen",
       },
       shippingPolicy: {
@@ -4762,30 +4762,30 @@ export const translations = {
       },
       schema: {
         siteDescription:
-          "Professionele 3D print service in Rotterdam en heel Nederland voor particulieren, hobbyisten, studenten en bedrijven. Geen minimale ordergrootte.",
-        catalogName: "3D Print Diensten voor Particulieren, Studenten, Hobbyisten & Bedrijven",
+          "Professionele 3D-printservice in Rotterdam. Maatwerk FDM-prints in PLA, PETG en flexibel TPU met snelle levering.",
+        catalogName: "3D Print Diensten",
         fdmServiceName: "Maatwerk FDM 3D-Printen (PLA, PETG, TPU)",
         fdmServiceDesc:
-          "Precisie 3D-printen van enkelstuks, cosplay objecten, studentenprototypes en machineonderdelen met ±0.1mm industriële tolerantie.",
+          "Nauwkeurig 3D-printen van functionele onderdelen, prototypes en modellen in PLA, PETG en TPU.",
         hueforgeServiceName: "HueForge Filament Painting (3D Kunst & Reliëf)",
         hueforgeServiceDesc:
           "Meerkleurige 3D-reliëf schilderijen van 2D afbeeldingen met optische laagmenging.",
         replacementServiceName:
-          "Vervangende Onderdelen & Huishoudelijke Reparaties",
+          "Vervangende Onderdelen & Reparaties",
         replacementServiceDesc:
-          "Reverse engineering en reproductie van niet meer leverbare of kapotte kunststof onderdelen voor apparaten, machines en gereedschap.",
+          "Reproductie en printen van niet meer leverbare of kapotte kunststof onderdelen voor apparaten en gereedschap.",
         prototypingServiceName:
-          "Rapid Prototyping & Studenten Maquettes",
+          "Rapid Prototyping & Modellen",
         prototypingServiceDesc:
-          "Snelle functionele prototypes, studentenprojecten, architectuurmaquettes en nulseries met snelle levertijd.",
+          "Snelle functionele prototypes, studentenprojecten, maquettes en validatiemodellen.",
         toolingServiceName:
-          "Mallen, Kalibers & Gereedschapshouders 3D-Printen (Jigs & Fixtures)",
+          "Mallen & Kalibers 3D-Printen (Jigs & Fixtures)",
         toolingServiceDesc:
-          "Productie van montagemallen, inspectiekalibers, boorsjablonen en slijtvaste machineonderdelen voor industrie en werkplaats.",
+          "Productie van montagemallen, inspectiekalibers en slijtvaste werkplaatsonderdelen.",
         batchServiceName:
-          "Kleinserie Serieproductie Kunststof Onderdelen (10–500 stuks)",
+          "Kleine Series Kunststof Onderdelen (10–500 stuks)",
         batchServiceDesc:
-          "Spuitgieten alternatief voor kleine oplages, nulserie pre-productie, zakelijk bestellen op factuur met BTW en geheimhouding (NDA).",
+          "Kleine productieseries met duidelijke zakelijke facturatie.",
         cityServiceTemplate: "3D Print Service in {city}",
       },
     },
@@ -4793,16 +4793,16 @@ export const translations = {
       badge: "Lokale 3D-Printservice",
       heroTitle: "3D Print Service {city}",
       heroSubtitle:
-        "Professionele FDM 3D-printservice voor particulieren, studenten, hobbyisten en bedrijven geleverd aan jouw deur in {city}. Snelle levering binnen 2-5 werkdagen met PostNL track & trace.",
+        "Professionele FDM 3D-printservice geleverd aan jouw deur in {city}. Snelle levering binnen 2-5 werkdagen met PostNL track & trace.",
       quoteCta: "Vraag Direct Offerte Aan",
       viewFaq: "Lokale FAQ",
       deliveryBadge: "Snelle levering in {city} (2-5 werkdagen)",
       precisionBadge: "±0.1mm Industriële Precisie",
       materialsBadge: "Duurzaam PLA, PETG & Flexibel TPU",
       capabilitiesEyebrow: "Onze Diensten in {city}",
-      capabilitiesTitle: "3D-Printen voor Iedereen in {city}: Particulieren, Studenten & Bedrijven",
+      capabilitiesTitle: "3D-Printen op Maat in {city}",
       capabilitiesDesc:
-        "Of je nu een particulier bent met een kapot huishoudonderdeel of cosplay-ontwerp, een student met een afstudeerprototype of maquette, een maker, of een bedrijf dat machineonderdelen of kleinseries (10–500 stuks) zoekt in {city}: wij leveren professionele FDM-prints vanaf 1 enkel stuk tot complete series met directe online prijsopgave en snelle bezorging.",
+        "Van een enkel vervangend onderdeel of maquette tot functionele prototypes en kleine series (10–500 stuks) in {city}: wij leveren professionele FDM-prints met directe online prijsopgave en snelle bezorging.",
       cardPrototypesTitle: "Rapid Prototyping",
       cardPrototypesDesc:
         "Valideer functionele kunststof prototypes, CAD/STEP-assemblies en nulseries razendsnel vóór massaproductie met ±0.1mm industriële precisie.",

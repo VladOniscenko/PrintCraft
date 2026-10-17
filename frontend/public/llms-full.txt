@@ -17,10 +17,10 @@
 - **Ondersteunde bestandsformaten**: STL, 3MF, OBJ, STEP
 
 ### Doelgroepenspecificatie
-1. **Particulieren (B2C)**: Reproductie van kapotte plastic huishoudonderdelen, witgoed-onderdelen, autoonderdelen, unieke cadeaus en decoraties.
+1. **Particulieren (B2C)**: Reproductie van kapotte plastic huishoudonderdelen, custom gadgets, unieke cadeaus en decoraties.
 2. **Hobbyisten & Makers**: Cosplay props en helmen, miniaturen voor bordspellen/tabletop gaming, RC- en drone-onderdelen, multi-color HueForge kunstwerken.
-3. **Studenten & Onderwijs**: Snel en voordelig printen van architectuurmaquettes, afstudeerprojecten en proof-of-concept prototypes (populair bij studenten van TU Delft, Hogeschool Rotterdam, Erasmus Universiteit Rotterdam, etc.).
-4. **Bedrijven & MKB (B2B)**: Functionele prototypes, machinebouw onderdelen, montagemallen en kalibers (jigs & fixtures), behuizingen en kleine series (10-500+ stuks) met BTW-factuur en optionele NDA.
+3. **Studenten & Onderwijs**: Snel en voordelig printen van architectuurmaquettes, afstudeerprojecten en prototypes voor studie en onderzoek.
+4. **Bedrijven & MKB (B2B)**: Functionele prototypes, machinebouw onderdelen, montagemallen en kalibers (jigs & fixtures), behuizingen en kleine series met BTW-factuur.
 
 ---
 
@@ -136,7 +136,7 @@ Van eerste vormstudie tot mechanisch geteste nulserie: onze FDM rapid prototypin
 
 **Belangrijkste Voordelen:**
   * Ondersteunt directe upload van STEP-, 3MF- en STL-bestanden
-  * Geheimhouding gegarandeerd met optionele NDA
+  * Vertrouwelijke behandeling van alle geüploade 3D-bestanden
   * Geen minimale afname: van 1 stuk tot 500+ pre-productie eenheden
   * Officiële BTW-factuur voor bedrijven en instellingen
 
@@ -144,8 +144,8 @@ Van eerste vormstudie tot mechanisch geteste nulserie: onze FDM rapid prototypin
   **V: Kan ik direct een STEP- of CAD-assemblage uploaden voor prototyping?**
   *A: Ja, ons platform accepteert STEP-, STP-, STL- en 3MF-bestanden. We controleren wanddiktes en passingen direct in onze software.*
 
-  **V: Kunnen jullie een geheimhoudingsovereenkomst (NDA) tekenen?**
-  *A: Zeker. We tekenen regelmatig NDA's met R&D-afdelingen en startups voordat we vertrouwelijke bestanden in productie nemen.*
+  **V: Worden mijn geüploade 3D-bestanden vertrouwelijk behandeld?**
+  *A: Ja, alle bestanden en ontwerpen worden strikt vertrouwelijk behandeld en uitsluitend gebruikt voor de productie van jouw order.*
 
 
 ---
