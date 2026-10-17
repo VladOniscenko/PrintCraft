@@ -13,4 +13,3 @@ Disallow: /*/reset-password
 Disallow: /api/
 
 Sitemap: https://printmy3d.work/sitemap.xml
-

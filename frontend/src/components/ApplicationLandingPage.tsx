@@ -85,62 +85,70 @@ export default function ApplicationLandingPage({
       {/* Hero Section */}
       <header className="site-page-hero reveal-soft">
         <div className="site-page-hero-card reveal-up max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 mb-6">
-            <Sparkles size={14} className="text-emerald-500" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 text-emerald-300 border border-emerald-400/30 mb-6 backdrop-blur-xs">
+            <Sparkles size={14} className="text-emerald-300" />
             <span>{heroBadge}</span>
           </div>
 
-          <h1 className="site-page-hero-title text-4xl sm:text-5xl lg:text-6xl font-black text-[#12231e] tracking-tight leading-tight">
+          <h1 className="site-page-hero-title text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
             {heroTitle}
           </h1>
 
-          <p className="site-page-hero-subtitle text-lg sm:text-xl text-[#4f645e] mt-5 max-w-2xl mx-auto leading-relaxed">
+          <p className="site-page-hero-subtitle text-lg sm:text-xl text-emerald-100/90 mt-5 max-w-2xl mx-auto leading-relaxed font-normal">
             {heroSubtitle}
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               to={localizePath("/checkout")}
-              className="site-btn-primary px-8 py-3.5 rounded-xl font-bold shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2"
+              className="bg-emerald-400 hover:bg-emerald-300 text-emerald-950 px-8 py-3.5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
             >
               <span>{t("cityPage.quoteCta")}</span>
               <ArrowRight size={18} />
             </Link>
             <a
               href="#faqs"
-              className="site-btn-soft px-6 py-3.5 rounded-xl font-bold transition-all text-[#2e453e] hover:bg-[#ebf4f0]"
+              className="px-6 py-3.5 rounded-xl font-bold transition-all bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-xs"
             >
               {t("cityPage.viewFaq")}
             </a>
           </div>
 
           {/* Quick Specifications */}
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8 border-t border-[#d8e6e1] text-left">
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8 border-t border-white/15 text-left">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-emerald-100/70 text-emerald-800 shrink-0">
+              <div className="p-2.5 rounded-lg bg-white/10 text-emerald-300 border border-white/10 shrink-0">
                 <Timer size={20} />
               </div>
               <div>
-                <p className="text-xs text-[#5d736d] font-medium">{t("hero.fastTurnaround")}</p>
-                <p className="text-sm font-bold text-[#1a2d27]">{app.leadTime}</p>
+                <p className="text-xs text-emerald-200/80 font-medium">
+                  {t("hero.fastTurnaround")}
+                </p>
+                <p className="text-sm font-bold text-white">{app.leadTime}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-sky-100/70 text-sky-800 shrink-0">
+              <div className="p-2.5 rounded-lg bg-white/10 text-sky-300 border border-white/10 shrink-0">
                 <ShieldCheck size={20} />
               </div>
               <div>
-                <p className="text-xs text-[#5d736d] font-medium">{t("hero.highQuality")}</p>
-                <p className="text-sm font-bold text-[#1a2d27]">{app.precision}</p>
+                <p className="text-xs text-emerald-200/80 font-medium">
+                  {t("hero.highQuality")}
+                </p>
+                <p className="text-sm font-bold text-white">{app.precision}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-amber-100/70 text-amber-800 shrink-0">
+              <div className="p-2.5 rounded-lg bg-white/10 text-amber-300 border border-white/10 shrink-0">
                 <Layers size={20} />
               </div>
               <div>
-                <p className="text-xs text-[#5d736d] font-medium">{t("home.materials.eyebrow")}</p>
-                <p className="text-sm font-bold text-[#1a2d27]">{app.recommendedMaterials.join(", ")}</p>
+                <p className="text-xs text-emerald-200/80 font-medium">
+                  {t("home.materials.eyebrow")}
+                </p>
+                <p className="text-sm font-bold text-white">
+                  {app.recommendedMaterials.join(", ")}
+                </p>
               </div>
             </div>
           </div>
@@ -171,7 +179,10 @@ export default function ApplicationLandingPage({
               <ul className="space-y-2.5 text-sm text-[#435953]">
                 {benefits.map((benefit, idx) => (
                   <li key={idx} className="flex items-start gap-2.5">
-                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
+                    <CheckCircle2
+                      size={16}
+                      className="text-emerald-600 shrink-0 mt-0.5"
+                    />
                     <span>{benefit}</span>
                   </li>
                 ))}
@@ -198,12 +209,16 @@ export default function ApplicationLandingPage({
                 className="site-card p-6 rounded-2xl border border-[#d6e5df] hover:border-emerald-400 transition-all"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-black text-xl text-[#142621]">{mat.name}</h3>
+                  <h3 className="font-black text-xl text-[#142621]">
+                    {mat.name}
+                  </h3>
                   <span className="text-xs font-bold uppercase px-2.5 py-1 rounded bg-[#ecf6f2] text-emerald-700">
                     {mat.tagline}
                   </span>
                 </div>
-                <p className="text-sm text-[#546b65] leading-relaxed">{mat.desc}</p>
+                <p className="text-sm text-[#546b65] leading-relaxed">
+                  {mat.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -246,7 +261,11 @@ export default function ApplicationLandingPage({
                         isOpen ? "text-emerald-600" : "text-[#7b928b]"
                       }`}
                     >
-                      {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                      {isOpen ? (
+                        <ChevronUp size={20} />
+                      ) : (
+                        <ChevronDown size={20} />
+                      )}
                     </div>
                   </button>
 

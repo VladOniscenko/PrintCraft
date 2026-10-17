@@ -29,25 +29,6 @@ const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
 const FALLBACK_SLIDES: HeroSlide[] = [
   {
     id: "fallback-slide-1",
-    title: "HueForge Filament Painting: Turn Pictures into 3D Art",
-    titleNl: "HueForge Filament Painting: Maak van je Foto 3D Kunst",
-    subtext:
-      "Upload any photo or illustration to transform it into a vibrant, multi-color 3D relief print using optical layer blending. No painting required!",
-    subtextNl:
-      "Upload een 2D foto of illustratie en verander deze in een tactiel, meerkleurig 3D reliëf schilderij met optische laagmenging.",
-    priceText: "",
-    priceTextNl: "",
-    mediaUrl: "/uploads/hero/materials.svg",
-    mediaType: "image",
-    instructionTooltip:
-      "Drop any picture in our configurator for an instant 3D relief preview with color swaps.",
-    instructionTooltipNl:
-      "Sleep je afbeelding in onze configurator voor een directe full-color 3D reliëf weergave.",
-    isActive: true,
-    sortOrder: 1,
-  },
-  {
-    id: "fallback-slide-2",
     title: "High-Precision PETG & PLA 3D Printing",
     titleNl: "Hoge Precisie PETG & PLA 3D-Printen",
     subtext:
@@ -62,6 +43,25 @@ const FALLBACK_SLIDES: HeroSlide[] = [
       "High dimensional precision FDM printing for functional and mechanical components.",
     instructionTooltipNl:
       "Hoge maatnauwkeurigheid FDM-printen voor functionele en mechanische componenten.",
+    isActive: true,
+    sortOrder: 1,
+  },
+  {
+    id: "fallback-slide-2",
+    title: "HueForge Filament Painting: Turn Pictures into 3D Art",
+    titleNl: "HueForge Filament Painting: Maak van je Foto 3D Kunst",
+    subtext:
+      "Upload any photo or illustration to transform it into a vibrant, multi-color 3D relief print using optical layer blending. No painting required!",
+    subtextNl:
+      "Upload een 2D foto of illustratie en verander deze in een tactiel, meerkleurig 3D reliëf schilderij met optische laagmenging.",
+    priceText: "",
+    priceTextNl: "",
+    mediaUrl: "/uploads/hero/materials.svg",
+    mediaType: "image",
+    instructionTooltip:
+      "Drop any picture in our configurator for an instant 3D relief preview with color swaps.",
+    instructionTooltipNl:
+      "Sleep je afbeelding in onze configurator voor een directe full-color 3D reliëf weergave.",
     isActive: true,
     sortOrder: 2,
   },
@@ -128,20 +128,30 @@ export default function Hero() {
       try {
         const data = await getActiveHeroSlides();
         if (active && Array.isArray(data) && data.length > 0) {
-          const sorted = [...data].sort((a, b) => {
-            if (a.mediaType === "image" && b.mediaType !== "image") return -1;
-            if (a.mediaType !== "image" && b.mediaType === "image") return 1;
-            return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
-          });
+          const sorted = [...data].sort(
+            (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
+          );
           setSlides(sorted);
           setCurrentIndex(0);
         }
       } catch (err) {
-        console.warn("Could not load dynamic hero slides from API, using fallback slides:", err);
+        console.warn(
+          "Could not load dynamic hero slides from API, using fallback slides:",
+          err,
+        );
       }
     }
 
-    const idleWindow = typeof window !== "undefined" ? (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void }) : null;
+    const idleWindow =
+      typeof window !== "undefined"
+        ? (window as unknown as {
+            requestIdleCallback?: (
+              cb: () => void,
+              opts?: { timeout: number },
+            ) => number;
+            cancelIdleCallback?: (id: number) => void;
+          })
+        : null;
     if (idleWindow && typeof idleWindow.requestIdleCallback === "function") {
       idleHandle = idleWindow.requestIdleCallback(
         () => {
@@ -157,7 +167,11 @@ export default function Hero() {
 
     return () => {
       active = false;
-      if (idleHandle !== null && idleWindow && typeof idleWindow.cancelIdleCallback === "function") {
+      if (
+        idleHandle !== null &&
+        idleWindow &&
+        typeof idleWindow.cancelIdleCallback === "function"
+      ) {
         idleWindow.cancelIdleCallback(idleHandle);
       }
       if (timeoutHandle !== null) {
@@ -483,7 +497,10 @@ export default function Hero() {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
+                aria-label={t("hero.goToSlide", {
+                  index: idx + 1,
+                  title: slideItemTitle,
+                })}
                 onClick={() => goToSlide(idx)}
                 className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
               >
