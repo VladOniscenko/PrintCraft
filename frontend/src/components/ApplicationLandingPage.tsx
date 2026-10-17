@@ -121,9 +121,7 @@ export default function ApplicationLandingPage({
                 <Timer size={20} />
               </div>
               <div>
-                <p className="text-xs text-emerald-200/80 font-medium">
-                  {t("hero.fastTurnaround")}
-                </p>
+                <p className="text-xs text-emerald-200/80 font-medium">{t("hero.fastTurnaround")}</p>
                 <p className="text-sm font-bold text-white">{app.leadTime}</p>
               </div>
             </div>
@@ -132,9 +130,7 @@ export default function ApplicationLandingPage({
                 <ShieldCheck size={20} />
               </div>
               <div>
-                <p className="text-xs text-emerald-200/80 font-medium">
-                  {t("hero.highQuality")}
-                </p>
+                <p className="text-xs text-emerald-200/80 font-medium">{t("hero.highQuality")}</p>
                 <p className="text-sm font-bold text-white">{app.precision}</p>
               </div>
             </div>
@@ -143,12 +139,8 @@ export default function ApplicationLandingPage({
                 <Layers size={20} />
               </div>
               <div>
-                <p className="text-xs text-emerald-200/80 font-medium">
-                  {t("home.materials.eyebrow")}
-                </p>
-                <p className="text-sm font-bold text-white">
-                  {app.recommendedMaterials.join(", ")}
-                </p>
+                <p className="text-xs text-emerald-200/80 font-medium">{t("home.materials.eyebrow")}</p>
+                <p className="text-sm font-bold text-white">{app.recommendedMaterials.join(", ")}</p>
               </div>
             </div>
           </div>
@@ -179,10 +171,7 @@ export default function ApplicationLandingPage({
               <ul className="space-y-2.5 text-sm text-[#435953]">
                 {benefits.map((benefit, idx) => (
                   <li key={idx} className="flex items-start gap-2.5">
-                    <CheckCircle2
-                      size={16}
-                      className="text-emerald-600 shrink-0 mt-0.5"
-                    />
+                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
                     <span>{benefit}</span>
                   </li>
                 ))}
@@ -209,16 +198,12 @@ export default function ApplicationLandingPage({
                 className="site-card p-6 rounded-2xl border border-[#d6e5df] hover:border-emerald-400 transition-all"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-black text-xl text-[#142621]">
-                    {mat.name}
-                  </h3>
+                  <h3 className="font-black text-xl text-[#142621]">{mat.name}</h3>
                   <span className="text-xs font-bold uppercase px-2.5 py-1 rounded bg-[#ecf6f2] text-emerald-700">
                     {mat.tagline}
                   </span>
                 </div>
-                <p className="text-sm text-[#546b65] leading-relaxed">
-                  {mat.desc}
-                </p>
+                <p className="text-sm text-[#546b65] leading-relaxed">{mat.desc}</p>
               </div>
             ))}
           </div>
@@ -261,11 +246,7 @@ export default function ApplicationLandingPage({
                         isOpen ? "text-emerald-600" : "text-[#7b928b]"
                       }`}
                     >
-                      {isOpen ? (
-                        <ChevronUp size={20} />
-                      ) : (
-                        <ChevronDown size={20} />
-                      )}
+                      {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                     </div>
                   </button>
 

@@ -135,23 +135,11 @@ export default function Hero() {
           setCurrentIndex(0);
         }
       } catch (err) {
-        console.warn(
-          "Could not load dynamic hero slides from API, using fallback slides:",
-          err,
-        );
+        console.warn("Could not load dynamic hero slides from API, using fallback slides:", err);
       }
     }
 
-    const idleWindow =
-      typeof window !== "undefined"
-        ? (window as unknown as {
-            requestIdleCallback?: (
-              cb: () => void,
-              opts?: { timeout: number },
-            ) => number;
-            cancelIdleCallback?: (id: number) => void;
-          })
-        : null;
+    const idleWindow = typeof window !== "undefined" ? (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void }) : null;
     if (idleWindow && typeof idleWindow.requestIdleCallback === "function") {
       idleHandle = idleWindow.requestIdleCallback(
         () => {
@@ -167,11 +155,7 @@ export default function Hero() {
 
     return () => {
       active = false;
-      if (
-        idleHandle !== null &&
-        idleWindow &&
-        typeof idleWindow.cancelIdleCallback === "function"
-      ) {
+      if (idleHandle !== null && idleWindow && typeof idleWindow.cancelIdleCallback === "function") {
         idleWindow.cancelIdleCallback(idleHandle);
       }
       if (timeoutHandle !== null) {
@@ -497,10 +481,7 @@ export default function Hero() {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                aria-label={t("hero.goToSlide", {
-                  index: idx + 1,
-                  title: slideItemTitle,
-                })}
+                aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
                 onClick={() => goToSlide(idx)}
                 className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
               >
