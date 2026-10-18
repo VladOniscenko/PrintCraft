@@ -5,6 +5,13 @@ namespace PrintCraftApi.Data;
 
 public static class EmailTemplateSeeder
 {
+    private enum CtaButtonStyle
+    {
+        Primary,
+        Ghost,
+        MassiveSecurity
+    }
+
     public static List<EmailTemplate> GetDefaultTemplates() => new()
     {
         new EmailTemplate
@@ -17,7 +24,13 @@ public static class EmailTemplateSeeder
                 heading: "Reset Your Password",
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, we received a request to reset your password. Click the button below to choose a new password. If you did not request this, you can safely ignore this email.",
                 ctaText: "Reset My Password &rarr;",
-                ctaUrlPlaceholder: "{{ResetLink}}"
+                ctaUrlPlaceholder: "{{ResetLink}}",
+                badgeBg: "#f8fafc",
+                badgeBorder: "#e2e8f0",
+                badgeTextColor: "#334155",
+                ctaStyle: CtaButtonStyle.MassiveSecurity,
+                showDirectLink: false,
+                ctaSubtitle: "This password reset link expires in 2 hours. If you did not request this, you can safely ignore this email."
             )
         },
         new EmailTemplate
@@ -30,7 +43,11 @@ public static class EmailTemplateSeeder
                 heading: "Your 3D Files Are In Review",
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, we received your quote request for order #<strong>{{ShortOrderId}}</strong>. Our engineering team is reviewing your files, analyzing print geometry, and preparing your custom quote.",
                 ctaText: "Check Order Status &rarr;",
-                ctaUrlPlaceholder: "{{OrderUrl}}"
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                badgeBg: "#f1f5f9",
+                badgeBorder: "#cbd5e1",
+                badgeTextColor: "#475569",
+                ctaStyle: CtaButtonStyle.Ghost
             )
         },
         new EmailTemplate
@@ -44,6 +61,9 @@ public static class EmailTemplateSeeder
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Please log in to your portal to review the specifications and securely complete payment.",
                 ctaText: "Review Quote &amp; Pay &rarr;",
                 ctaUrlPlaceholder: "{{OrderUrl}}",
+                badgeBg: "#ecfdf5",
+                badgeBorder: "#a7f3d0",
+                badgeTextColor: "#047857",
                 detailBoxHtml: "{{QuoteMessage}}"
             )
         },
@@ -58,6 +78,23 @@ public static class EmailTemplateSeeder
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Payment Reference: <strong style=\"color: #133827; font-family: monospace;\">{{PaymentReference}}</strong>. Please review the quote and bank transfer instructions in your customer portal.",
                 ctaText: "View Transfer Instructions &rarr;",
                 ctaUrlPlaceholder: "{{OrderUrl}}",
+                badgeBg: "#fffbeb",
+                badgeBorder: "#fde68a",
+                badgeTextColor: "#b45309",
+                highlightBoxHtml: """
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ecfdf5; border-radius: 10px; border: 2px solid #059669; text-align: center; padding: 18px 20px;">
+                    <tr>
+                      <td align="center">
+                        <div style="font-size: 11px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;">
+                          Payment Reference (Include with Transfer)
+                        </div>
+                        <div style="font-size: 22px; font-weight: 800; color: #133827; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 2px;">
+                          {{PaymentReference}}
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                """,
                 detailBoxHtml: "{{QuoteMessage}}"
             )
         },
@@ -71,7 +108,24 @@ public static class EmailTemplateSeeder
                 heading: "Your 3D Part Has Shipped!",
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, your order #<strong>{{ShortOrderId}}</strong> has been dispatched via PostNL! Tracking Number: <strong style=\"color: #133827; font-family: monospace;\">{{TrackingCode}}</strong>.",
                 ctaText: "Track Your Shipment &rarr;",
-                ctaUrlPlaceholder: "{{OrderUrl}}"
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                badgeBg: "#eff6ff",
+                badgeBorder: "#bfdbfe",
+                badgeTextColor: "#1d4ed8",
+                highlightBoxHtml: """
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border-radius: 10px; border: 1.5px dashed #cbd5e1; text-align: center; padding: 18px 20px;">
+                    <tr>
+                      <td align="center">
+                        <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;">
+                          PostNL Tracking Number
+                        </div>
+                        <div style="font-size: 22px; font-weight: 800; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 2px;">
+                          {{TrackingCode}}
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                """
             )
         },
         new EmailTemplate
@@ -84,7 +138,19 @@ public static class EmailTemplateSeeder
                 heading: "Payment Received — Print Queued!",
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, we successfully received your payment for order #<strong>{{ShortOrderId}}</strong>. Your 3D models have been scheduled for printing.",
                 ctaText: "View Order Progress &rarr;",
-                ctaUrlPlaceholder: "{{OrderUrl}}"
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                badgeBg: "#ecfdf5",
+                badgeBorder: "#a7f3d0",
+                badgeTextColor: "#047857",
+                heroIconHtml: """
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto 12px auto;">
+                    <tr>
+                      <td align="center" style="width: 56px; height: 56px; background-color: #ecfdf5; border: 2px solid #a7f3d0; border-radius: 50%; text-align: center; vertical-align: middle;">
+                        <span style="font-size: 28px; line-height: 56px; color: #059669; font-weight: bold; display: block;">&#10003;</span>
+                      </td>
+                    </tr>
+                  </table>
+                """
             )
         }
     };
@@ -163,22 +229,116 @@ public static class EmailTemplateSeeder
         string introParagraph,
         string ctaText,
         string ctaUrlPlaceholder = "{{OrderUrl}}",
-        string? detailBoxHtml = null)
+        string? badgeBg = null,
+        string? badgeBorder = null,
+        string? badgeTextColor = null,
+        string? heroIconHtml = null,
+        string? highlightBoxHtml = null,
+        string? detailBoxHtml = null,
+        CtaButtonStyle ctaStyle = CtaButtonStyle.Primary,
+        bool showDirectLink = true,
+        string? ctaSubtitle = null)
     {
-        var detailBlock = !string.IsNullOrWhiteSpace(detailBoxHtml) ? $$$"""
-          <!-- Extra Details Box -->
+        badgeBg ??= "#ecfdf5";
+        badgeBorder ??= "#a7f3d0";
+        badgeTextColor ??= "#047857";
+
+        var iconBlock = !string.IsNullOrWhiteSpace(heroIconHtml) ? $$$"""
+          <!-- Hero Icon Section -->
           <tr>
-            <td class="mobile-p-20" style="padding: 0 40px 16px 40px;">
+            <td align="center" style="padding-bottom: 8px;">
+              {{{heroIconHtml}}}
+            </td>
+          </tr>
+        """ : "";
+
+        var highlightBlock = !string.IsNullOrWhiteSpace(highlightBoxHtml) ? $$$"""
+          <!-- Highlight Callout Box -->
+          <tr>
+            <td class="mobile-p-20" style="padding: 4px 40px 20px 40px;">
+              {{{highlightBoxHtml}}}
+            </td>
+          </tr>
+        """ : "";
+
+        var detailBlock = !string.IsNullOrWhiteSpace(detailBoxHtml) ? $$$"""
+          <!-- Extra Details / Engineering Note Box -->
+          <tr>
+            <td class="mobile-p-20" style="padding: 0 40px 20px 40px;">
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border-radius: 8px; border-left: 4px solid #133827; padding: 14px 18px;">
                 <tr>
-                  <td style="font-size: 14px; line-height: 22px; color: #334155;">
-                    {{{detailBoxHtml}}}
+                  <td>
+                    <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;">
+                      Engineering Team Note
+                    </div>
+                    <div style="font-size: 14px; line-height: 22px; color: #334155; font-style: italic;">
+                      {{{detailBoxHtml}}}
+                    </div>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
         """ : "";
+
+        string ctaButtonMarkup = ctaStyle switch
+        {
+            CtaButtonStyle.Ghost => $$$"""
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" style="border-radius: 10px; background-color: #ffffff; border: 1.5px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+                    <a href="{{{ctaUrlPlaceholder}}}" target="_blank" style="display: inline-block; padding: 14px 32px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; font-weight: 600; color: #334155; text-decoration: none; border-radius: 10px; letter-spacing: 0.2px;">
+                      {{{ctaText}}}
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            """,
+            CtaButtonStyle.MassiveSecurity => $$$"""
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 440px; margin: 0 auto;">
+                <tr>
+                  <td align="center" style="border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);">
+                    <a href="{{{ctaUrlPlaceholder}}}" target="_blank" style="display: block; padding: 18px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37; text-align: center;">
+                      {{{ctaText}}}
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            """,
+            _ => $$$"""
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" style="border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);">
+                    <a href="{{{ctaUrlPlaceholder}}}" target="_blank" style="display: inline-block; padding: 16px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37;">
+                      {{{ctaText}}}
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            """
+        };
+
+        string ctaFooterMarkup;
+        if (!string.IsNullOrWhiteSpace(ctaSubtitle))
+        {
+            ctaFooterMarkup = $$$"""
+              <p style="margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8; text-align: center;">
+                {{{ctaSubtitle}}}
+              </p>
+            """;
+        }
+        else if (showDirectLink)
+        {
+            ctaFooterMarkup = $$$"""
+              <p style="margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;">
+                Direct link: <a href="{{{ctaUrlPlaceholder}}}" target="_blank" style="color: #0f766e; text-decoration: underline; word-break: break-all;">{{{ctaUrlPlaceholder}}}</a>
+              </p>
+            """;
+        }
+        else
+        {
+            ctaFooterMarkup = "";
+        }
 
         return $$$"""
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -227,11 +387,12 @@ public static class EmailTemplateSeeder
 
                   <!-- Status Badge & Greeting Section -->
                   <tr>
-                    <td class="mobile-p-20 mobile-pt-24" style="padding: 32px 40px 12px 40px; text-align: center;">
+                    <td class="mobile-p-20 mobile-pt-24" style="padding: 32px 40px 16px 40px; text-align: center;">
+                      {{{iconBlock}}}
                       <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto 16px auto;">
                         <tr>
-                          <td style="background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 9999px; padding: 6px 16px; text-align: center;">
-                            <span style="font-size: 12px; font-weight: 700; color: #047857; text-transform: uppercase; letter-spacing: 0.8px;">
+                          <td style="background-color: {{{badgeBg}}}; border: 1px solid {{{badgeBorder}}}; border-radius: 9999px; padding: 6px 16px; text-align: center;">
+                            <span style="font-size: 12px; font-weight: 700; color: {{{badgeTextColor}}}; text-transform: uppercase; letter-spacing: 0.8px;">
                               {{{badgeText}}}
                             </span>
                           </td>
@@ -246,23 +407,15 @@ public static class EmailTemplateSeeder
                     </td>
                   </tr>
 
+                  {{{highlightBlock}}}
+
                   {{{detailBlock}}}
 
-                  <!-- Primary Call to Action Button -->
+                  <!-- Action Area (CTA) -->
                   <tr>
-                    <td class="mobile-p-20" style="padding: 12px 40px 28px 40px; text-align: center;">
-                      <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto;">
-                        <tr>
-                          <td align="center" style="border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);">
-                            <a href="{{{ctaUrlPlaceholder}}}" target="_blank" style="display: inline-block; padding: 16px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37;">
-                              {{{ctaText}}}
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
-                      <p style="margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;">
-                        Direct link: <a href="{{{ctaUrlPlaceholder}}}" target="_blank" style="color: #0f766e; text-decoration: underline; word-break: break-all;">{{{ctaUrlPlaceholder}}}</a>
-                      </p>
+                    <td class="mobile-p-20" style="padding: 12px 40px 32px 40px; text-align: center;">
+                      {{{ctaButtonMarkup}}}
+                      {{{ctaFooterMarkup}}}
                     </td>
                   </tr>
 
