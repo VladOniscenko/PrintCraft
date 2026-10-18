@@ -223,6 +223,42 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
+var isSeedOnly = args.Any(a => a is "--seed" or "--seed-only" or "seed");
+if (isSeedOnly)
+{
+    var forceReload = args.Any(a => a is "--force" or "-f" or "--reset");
+    Console.WriteLine("====================================================================");
+    Console.WriteLine($"[PrintCraft Seeder] Standalone CLI execution (ForceReload: {forceReload})");
+    Console.WriteLine("====================================================================");
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<PrintCraftDb>();
+
+        Console.WriteLine("[PrintCraft Seeder] Step 1/4: Applying database migrations & schema...");
+        await db.Database.MigrateAsync();
+        await EnsureSchemaColumnsAsync(db);
+
+        Console.WriteLine("[PrintCraft Seeder] Step 2/4: Seeding Hero Slides...");
+        HeroSlideSeeder.EnsureSeedAssets(app.Environment.WebRootPath, app.Environment.ContentRootPath);
+        var slideRes = await HeroSlideSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        Console.WriteLine($"[PrintCraft Seeder] -> Hero Slides: {slideRes.TotalBefore} before | +{slideRes.Inserted} inserted | {slideRes.Updated} updated | {slideRes.TotalAfter} total");
+
+        Console.WriteLine("[PrintCraft Seeder] Step 3/4: Seeding Email Templates...");
+        var emailRes = await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        Console.WriteLine($"[PrintCraft Seeder] -> Email Templates: {emailRes.TotalBefore} before | +{emailRes.Inserted} inserted | {emailRes.Updated} updated | {emailRes.TotalAfter} total");
+
+        Console.WriteLine("[PrintCraft Seeder] Step 4/4: Seeding Standard Filaments (PLA & PETG)...");
+        var filRes = await FilamentSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        Console.WriteLine($"[PrintCraft Seeder] -> Filaments: {filRes.TotalBefore} before | +{filRes.Inserted} inserted | {filRes.Updated} updated | {filRes.TotalAfter} total");
+
+        Console.WriteLine("====================================================================");
+        Console.WriteLine("[PrintCraft Seeder] Standalone seeding completed successfully! Exiting.");
+        Console.WriteLine("====================================================================");
+    }
+    return;
+}
+
 // --- MIDDLEWARE ---
 
 // 3. This enables the Swagger UI
@@ -368,24 +404,36 @@ app.MapGet("/uploads/{**filePath}", (string filePath, IWebHostEnvironment env, H
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PrintCraftDb>();
-    db.Database.Migrate();
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"PaymentFlow\" character varying(32) NOT NULL DEFAULT 'bank_transfer';");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"EstimatedPrintTime\" text NULL;");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"FilamentUsedGrams\" double precision NULL;");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"ScaleFactor\" double precision NOT NULL DEFAULT 1.0;");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"InfillPercent\" integer NOT NULL DEFAULT 20;");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PrintQuality\" character varying(64) NOT NULL DEFAULT 'Standard (0.20mm)';");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"SupportsNeeded\" boolean NOT NULL DEFAULT FALSE;");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PlateCost\" double precision NOT NULL DEFAULT 2.0;");
+    await db.Database.MigrateAsync();
+    await EnsureSchemaColumnsAsync(db);
+
+    HeroSlideSeeder.EnsureSeedAssets(app.Environment.WebRootPath, app.Environment.ContentRootPath);
+    await HeroSlideSeeder.EnsureDatabaseSeededAsync(db);
+    await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db);
+    await FilamentSeeder.EnsureDatabaseSeededAsync(db);
+}
+
+app.Run();
+
+static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
+{
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"PaymentFlow\" character varying(32) NOT NULL DEFAULT 'bank_transfer';");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"EstimatedPrintTime\" text NULL;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"FilamentUsedGrams\" double precision NULL;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"ScaleFactor\" double precision NOT NULL DEFAULT 1.0;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"InfillPercent\" integer NOT NULL DEFAULT 20;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PrintQuality\" character varying(64) NOT NULL DEFAULT 'Standard (0.20mm)';");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"SupportsNeeded\" boolean NOT NULL DEFAULT FALSE;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PlateCost\" double precision NOT NULL DEFAULT 2.0;");
 
     // Epic 8: State machine production fields
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedPrinter\" text NULL;");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedMaterial\" text NULL;");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"GCodeFinalized\" boolean NOT NULL DEFAULT FALSE;");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"HoldReason\" text NULL;");
-    db.Database.ExecuteSqlRaw("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"FlaggedForRefundReview\" boolean NOT NULL DEFAULT FALSE;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedPrinter\" text NULL;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedMaterial\" text NULL;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"GCodeFinalized\" boolean NOT NULL DEFAULT FALSE;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"HoldReason\" text NULL;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"FlaggedForRefundReview\" boolean NOT NULL DEFAULT FALSE;");
 
-    db.Database.ExecuteSqlRaw(@"
+    await db.Database.ExecuteSqlRawAsync(@"
         CREATE TABLE IF NOT EXISTS ""OrderItemChangeRequests"" (
             ""Id"" uuid NOT NULL PRIMARY KEY,
             ""OrderItemId"" uuid NOT NULL,
@@ -411,9 +459,6 @@ using (var scope = app.Services.CreateScope())
         CREATE INDEX IF NOT EXISTS ""IX_OrderItemChangeRequests_OrderItemId_Status"" ON ""OrderItemChangeRequests""(""OrderItemId"", ""Status"");
         CREATE INDEX IF NOT EXISTS ""IX_OrderItemChangeRequests_OrderId_RequestedAt"" ON ""OrderItemChangeRequests""(""OrderId"", ""RequestedAt"");
     ");
-
-    HeroSlideSeeder.EnsureSeedAssets(app.Environment.WebRootPath, app.Environment.ContentRootPath);
-    await HeroSlideSeeder.EnsureDatabaseSeededAsync(db);
 }
 
 app.Run();

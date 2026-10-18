@@ -165,5 +165,6 @@ public class PrintCraftDb : DbContext
 
         EmailTemplateSeeder.Seed(modelBuilder);
         HeroSlideSeeder.Seed(modelBuilder);
+        FilamentSeeder.Seed(modelBuilder);
     }
 }

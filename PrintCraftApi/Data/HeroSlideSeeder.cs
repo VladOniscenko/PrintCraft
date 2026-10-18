@@ -170,21 +170,23 @@ public static class HeroSlideSeeder
     }
 
     /// <summary>
-    /// Ensures database has default hero slides if the table is empty.
+    /// Ensures database has default hero slides if the table is empty or missing slides.
     /// </summary>
-    public static async Task EnsureDatabaseSeededAsync(PrintCraftDb db)
+    public static async Task<SeederResult> EnsureDatabaseSeededAsync(PrintCraftDb db, bool forceReload = false)
     {
         var defaults = GetDefaultSlides();
         var existingSlides = await db.HeroSlides.ToListAsync();
+        var result = new SeederResult { TotalBefore = existingSlides.Count };
 
         if (existingSlides.Count == 0)
         {
             await db.HeroSlides.AddRangeAsync(defaults);
             await db.SaveChangesAsync();
-            return;
+            result.Inserted = defaults.Count;
+            result.TotalAfter = defaults.Count;
+            return result;
         }
 
-        bool hasChanges = false;
         foreach (var def in defaults)
         {
             var match = existingSlides.FirstOrDefault(s => s.Id == def.Id)
@@ -193,13 +195,33 @@ public static class HeroSlideSeeder
             if (match == null)
             {
                 await db.HeroSlides.AddAsync(def);
-                hasChanges = true;
+                result.Inserted++;
+            }
+            else if (forceReload)
+            {
+                match.Title = def.Title;
+                match.TitleNl = def.TitleNl;
+                match.Subtext = def.Subtext;
+                match.SubtextNl = def.SubtextNl;
+                match.PriceText = def.PriceText;
+                match.PriceTextNl = def.PriceTextNl;
+                match.MediaUrl = def.MediaUrl;
+                match.MediaType = def.MediaType;
+                match.InstructionTooltip = def.InstructionTooltip;
+                match.InstructionTooltipNl = def.InstructionTooltipNl;
+                match.SortOrder = def.SortOrder;
+                match.IsActive = def.IsActive;
+                match.UpdatedAt = DateTime.UtcNow;
+                result.Updated++;
             }
         }
 
-        if (hasChanges)
+        if (result.Inserted > 0 || result.Updated > 0)
         {
             await db.SaveChangesAsync();
         }
+
+        result.TotalAfter = await db.HeroSlides.CountAsync();
+        return result;
     }
 }

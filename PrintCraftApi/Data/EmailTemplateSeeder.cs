@@ -5,96 +5,144 @@ namespace PrintCraftApi.Data;
 
 public static class EmailTemplateSeeder
 {
+    public static List<EmailTemplate> GetDefaultTemplates() => new()
+    {
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            TemplateName = "ResetPassword",
+            Subject = "Reset your PrintCraft password",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Security &bull; Account",
+                heading: "Reset Your Password",
+                introParagraph: "Hi <strong>{{CustomerName}}</strong>, we received a request to reset your password. Click the button below to choose a new password. If you did not request this, you can safely ignore this email.",
+                ctaText: "Reset My Password &rarr;",
+                ctaUrlPlaceholder: "{{ResetLink}}",
+                show3dRender: false
+            )
+        },
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+            TemplateName = "QuoteRequested",
+            Subject = "We received your quote request (Order #{{ShortOrderId}})",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Quote Received &bull; #{{ShortOrderId}}",
+                heading: "Your 3D Files Are In Review",
+                introParagraph: "Hi <strong>{{CustomerName}}</strong>, we received your quote request for order #<strong>{{ShortOrderId}}</strong>. Our engineering team is reviewing your files, analyzing print geometry, and preparing precision pricing.",
+                ctaText: "Check Order Status &rarr;",
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                show3dRender: true
+            )
+        },
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
+            TemplateName = "QuoteConfirmation",
+            Subject = "Your quote for order #{{ShortOrderId}} is ready",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Quote Ready &bull; #{{ShortOrderId}}",
+                heading: "Your Quote is Ready",
+                introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Total Price: <strong>&euro;{{Price}}</strong>. Please log in to your portal to review the specifications and securely complete payment.",
+                ctaText: "Review Quote &amp; Pay &rarr;",
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                show3dRender: true,
+                detailBoxHtml: "{{QuoteMessage}}"
+            )
+        },
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000004"),
+            TemplateName = "QuoteConfirmationBankTransfer",
+            Subject = "Your quote for order #{{ShortOrderId}} is ready for review",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Bank Transfer &bull; #{{ShortOrderId}}",
+                heading: "Your Quote is Ready for Review",
+                introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Total: <strong>&euro;{{Price}}</strong>. Payment Reference: <strong style=\"color: #133827; font-family: monospace;\">{{PaymentReference}}</strong>. Please review the quote and bank transfer instructions in your customer portal.",
+                ctaText: "View Transfer Instructions &rarr;",
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                show3dRender: true,
+                detailBoxHtml: "{{QuoteMessage}}"
+            )
+        },
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000005"),
+            TemplateName = "OrderSentTracking",
+            Subject = "Your order #{{ShortOrderId}} has shipped",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Shipped &bull; #{{ShortOrderId}}",
+                heading: "Your 3D Part Has Shipped!",
+                introParagraph: "Hi <strong>{{CustomerName}}</strong>, your order #<strong>{{ShortOrderId}}</strong> has been dispatched via PostNL! Tracking Number: <strong style=\"color: #133827; font-family: monospace;\">{{TrackingCode}}</strong>.",
+                ctaText: "Track Your Shipment &rarr;",
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                show3dRender: true
+            )
+        },
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000006"),
+            TemplateName = "OrderPaid",
+            Subject = "Payment confirmed for order #{{ShortOrderId}}",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Payment Received &bull; #{{ShortOrderId}}",
+                heading: "Payment Received — Print Queued!",
+                introParagraph: "Hi <strong>{{CustomerName}}</strong>, we successfully received your payment of <strong>&euro;{{Amount}}</strong> for order #<strong>{{ShortOrderId}}</strong>. Your 3D models have been scheduled for printing.",
+                ctaText: "View Order Progress &rarr;",
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                show3dRender: true
+            )
+        }
+    };
+
     public static void Seed(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<EmailTemplate>().HasData(
-            new EmailTemplate
+        modelBuilder.Entity<EmailTemplate>().HasData(GetDefaultTemplates());
+    }
+
+    /// <summary>
+    /// Ensures database has default email templates if the table is empty or missing templates.
+    /// </summary>
+    public static async Task<SeederResult> EnsureDatabaseSeededAsync(PrintCraftDb db, bool forceReload = false)
+    {
+        var defaults = GetDefaultTemplates();
+        var existing = await db.EmailTemplates.ToListAsync();
+        var result = new SeederResult { TotalBefore = existing.Count };
+
+        if (existing.Count == 0)
+        {
+            await db.EmailTemplates.AddRangeAsync(defaults);
+            await db.SaveChangesAsync();
+            result.Inserted = defaults.Count;
+            result.TotalAfter = defaults.Count;
+            return result;
+        }
+
+        foreach (var def in defaults)
+        {
+            var match = existing.FirstOrDefault(t => t.Id == def.Id)
+                        ?? existing.FirstOrDefault(t => string.Equals(t.TemplateName, def.TemplateName, StringComparison.OrdinalIgnoreCase));
+
+            if (match == null)
             {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
-                TemplateName = "ResetPassword",
-                Subject = "Reset your PrintCraft password",
-                Body = BuildCardHtmlTemplate(
-                    badgeText: "Security &bull; Account",
-                    heading: "Reset Your Password",
-                    introParagraph: "Hi <strong>{{CustomerName}}</strong>, we received a request to reset your password. Click the button below to choose a new password. If you did not request this, you can safely ignore this email.",
-                    ctaText: "Reset My Password &rarr;",
-                    ctaUrlPlaceholder: "{{ResetLink}}",
-                    show3dRender: false
-                )
-            },
-            new EmailTemplate
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                TemplateName = "QuoteRequested",
-                Subject = "We received your quote request (Order #{{ShortOrderId}})",
-                Body = BuildCardHtmlTemplate(
-                    badgeText: "Quote Received &bull; #{{ShortOrderId}}",
-                    heading: "Your 3D Files Are In Review",
-                    introParagraph: "Hi <strong>{{CustomerName}}</strong>, we received your quote request for order #<strong>{{ShortOrderId}}</strong>. Our engineering team is reviewing your files, analyzing print geometry, and preparing precision pricing.",
-                    ctaText: "Check Order Status &rarr;",
-                    ctaUrlPlaceholder: "{{OrderUrl}}",
-                    show3dRender: true
-                )
-            },
-            new EmailTemplate
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
-                TemplateName = "QuoteConfirmation",
-                Subject = "Your quote for order #{{ShortOrderId}} is ready",
-                Body = BuildCardHtmlTemplate(
-                    badgeText: "Quote Ready &bull; #{{ShortOrderId}}",
-                    heading: "Your Quote is Ready",
-                    introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Total Price: <strong>&euro;{{Price}}</strong>. Please log in to your portal to review the specifications and securely complete payment.",
-                    ctaText: "Review Quote &amp; Pay &rarr;",
-                    ctaUrlPlaceholder: "{{OrderUrl}}",
-                    show3dRender: true,
-                    detailBoxHtml: "{{QuoteMessage}}"
-                )
-            },
-            new EmailTemplate
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000004"),
-                TemplateName = "QuoteConfirmationBankTransfer",
-                Subject = "Your quote for order #{{ShortOrderId}} is ready for review",
-                Body = BuildCardHtmlTemplate(
-                    badgeText: "Bank Transfer &bull; #{{ShortOrderId}}",
-                    heading: "Your Quote is Ready for Review",
-                    introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Total: <strong>&euro;{{Price}}</strong>. Payment Reference: <strong style=\"color: #133827; font-family: monospace;\">{{PaymentReference}}</strong>. Please review the quote and bank transfer instructions in your customer portal.",
-                    ctaText: "View Transfer Instructions &rarr;",
-                    ctaUrlPlaceholder: "{{OrderUrl}}",
-                    show3dRender: true,
-                    detailBoxHtml: "{{QuoteMessage}}"
-                )
-            },
-            new EmailTemplate
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000005"),
-                TemplateName = "OrderSentTracking",
-                Subject = "Your order #{{ShortOrderId}} has shipped",
-                Body = BuildCardHtmlTemplate(
-                    badgeText: "Shipped &bull; #{{ShortOrderId}}",
-                    heading: "Your 3D Part Has Shipped!",
-                    introParagraph: "Hi <strong>{{CustomerName}}</strong>, your order #<strong>{{ShortOrderId}}</strong> has been dispatched via PostNL! Tracking Number: <strong style=\"color: #133827; font-family: monospace;\">{{TrackingCode}}</strong>.",
-                    ctaText: "Track Your Shipment &rarr;",
-                    ctaUrlPlaceholder: "{{OrderUrl}}",
-                    show3dRender: true
-                )
-            },
-            new EmailTemplate
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000006"),
-                TemplateName = "OrderPaid",
-                Subject = "Payment confirmed for order #{{ShortOrderId}}",
-                Body = BuildCardHtmlTemplate(
-                    badgeText: "Payment Received &bull; #{{ShortOrderId}}",
-                    heading: "Payment Received — Print Queued!",
-                    introParagraph: "Hi <strong>{{CustomerName}}</strong>, we successfully received your payment of <strong>&euro;{{Amount}}</strong> for order #<strong>{{ShortOrderId}}</strong>. Your 3D models have been scheduled for printing.",
-                    ctaText: "View Order Progress &rarr;",
-                    ctaUrlPlaceholder: "{{OrderUrl}}",
-                    show3dRender: true
-                )
+                await db.EmailTemplates.AddAsync(def);
+                result.Inserted++;
             }
-        );
+            else if (forceReload)
+            {
+                match.Subject = def.Subject;
+                match.Body = def.Body;
+                result.Updated++;
+            }
+        }
+
+        if (result.Inserted > 0 || result.Updated > 0)
+        {
+            await db.SaveChangesAsync();
+        }
+
+        result.TotalAfter = await db.EmailTemplates.CountAsync();
+        return result;
     }
 
     private static string BuildCardHtmlTemplate(
