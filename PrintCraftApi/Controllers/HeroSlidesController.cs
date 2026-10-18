@@ -131,11 +131,24 @@ public class HeroSlidesController : ControllerBase
             SubtextNl = slide.SubtextNl?.Trim(),
             PriceTextNl = slide.PriceTextNl?.Trim(),
             InstructionTooltipNl = slide.InstructionTooltipNl?.Trim(),
+            Titles = slide.Titles != null && slide.Titles.Count > 0 ? slide.Titles : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+            Subtexts = slide.Subtexts != null && slide.Subtexts.Count > 0 ? slide.Subtexts : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+            PriceTexts = slide.PriceTexts != null && slide.PriceTexts.Count > 0 ? slide.PriceTexts : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+            InstructionTooltips = slide.InstructionTooltips != null && slide.InstructionTooltips.Count > 0 ? slide.InstructionTooltips : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
             IsActive = slide.IsActive,
             SortOrder = slide.SortOrder,
             CreatedAt = now,
             UpdatedAt = now
         };
+
+        if (!newSlide.Titles.ContainsKey("en") && !string.IsNullOrWhiteSpace(newSlide.Title)) newSlide.Titles["en"] = newSlide.Title;
+        if (!newSlide.Titles.ContainsKey("nl") && !string.IsNullOrWhiteSpace(newSlide.TitleNl)) newSlide.Titles["nl"] = newSlide.TitleNl;
+        if (!newSlide.Subtexts.ContainsKey("en") && !string.IsNullOrWhiteSpace(newSlide.Subtext)) newSlide.Subtexts["en"] = newSlide.Subtext;
+        if (!newSlide.Subtexts.ContainsKey("nl") && !string.IsNullOrWhiteSpace(newSlide.SubtextNl)) newSlide.Subtexts["nl"] = newSlide.SubtextNl;
+        if (!newSlide.PriceTexts.ContainsKey("en") && !string.IsNullOrWhiteSpace(newSlide.PriceText)) newSlide.PriceTexts["en"] = newSlide.PriceText;
+        if (!newSlide.PriceTexts.ContainsKey("nl") && !string.IsNullOrWhiteSpace(newSlide.PriceTextNl)) newSlide.PriceTexts["nl"] = newSlide.PriceTextNl;
+        if (!newSlide.InstructionTooltips.ContainsKey("en") && !string.IsNullOrWhiteSpace(newSlide.InstructionTooltip)) newSlide.InstructionTooltips["en"] = newSlide.InstructionTooltip;
+        if (!newSlide.InstructionTooltips.ContainsKey("nl") && !string.IsNullOrWhiteSpace(newSlide.InstructionTooltipNl)) newSlide.InstructionTooltips["nl"] = newSlide.InstructionTooltipNl;
 
         _db.HeroSlides.Add(newSlide);
         await _db.SaveChangesAsync(cancellationToken);
@@ -183,6 +196,26 @@ public class HeroSlidesController : ControllerBase
         existing.SubtextNl = request.SubtextNl?.Trim();
         existing.PriceTextNl = request.PriceTextNl?.Trim();
         existing.InstructionTooltipNl = request.InstructionTooltipNl?.Trim();
+
+        if (request.Titles != null && request.Titles.Count > 0) existing.Titles = request.Titles;
+        if (request.Subtexts != null && request.Subtexts.Count > 0) existing.Subtexts = request.Subtexts;
+        if (request.PriceTexts != null && request.PriceTexts.Count > 0) existing.PriceTexts = request.PriceTexts;
+        if (request.InstructionTooltips != null && request.InstructionTooltips.Count > 0) existing.InstructionTooltips = request.InstructionTooltips;
+
+        // Bi-directional sync: If legacy fields were updated, reflect in dictionary
+        if (!string.IsNullOrWhiteSpace(existing.Title)) existing.Titles["en"] = existing.Title;
+        if (!string.IsNullOrWhiteSpace(existing.TitleNl)) existing.Titles["nl"] = existing.TitleNl;
+        if (!string.IsNullOrWhiteSpace(existing.Subtext)) existing.Subtexts["en"] = existing.Subtext;
+        if (!string.IsNullOrWhiteSpace(existing.SubtextNl)) existing.Subtexts["nl"] = existing.SubtextNl;
+        if (!string.IsNullOrWhiteSpace(existing.PriceText)) existing.PriceTexts["en"] = existing.PriceText;
+        if (!string.IsNullOrWhiteSpace(existing.PriceTextNl)) existing.PriceTexts["nl"] = existing.PriceTextNl;
+        if (!string.IsNullOrWhiteSpace(existing.InstructionTooltip)) existing.InstructionTooltips["en"] = existing.InstructionTooltip;
+        if (!string.IsNullOrWhiteSpace(existing.InstructionTooltipNl)) existing.InstructionTooltips["nl"] = existing.InstructionTooltipNl;
+
+        // And ensure dictionary values populate legacy fields
+        if (existing.Titles.TryGetValue("en", out var enTitle) && !string.IsNullOrWhiteSpace(enTitle)) existing.Title = enTitle;
+        if (existing.Titles.TryGetValue("nl", out var nlTitle) && !string.IsNullOrWhiteSpace(nlTitle)) existing.TitleNl = nlTitle;
+
         existing.IsActive = request.IsActive;
         existing.SortOrder = request.SortOrder;
         existing.UpdatedAt = DateTime.UtcNow;

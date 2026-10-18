@@ -150,8 +150,14 @@ public class PrintCraftDb : DbContext
         modelBuilder.Entity<UserAddress>()
             .HasIndex(a => new { a.UserId, a.IsDefault });
 
-        modelBuilder.Entity<HeroSlide>()
-            .HasIndex(s => new { s.IsActive, s.SortOrder });
+        modelBuilder.Entity<HeroSlide>(entity =>
+        {
+            entity.HasIndex(s => new { s.IsActive, s.SortOrder });
+            entity.Property(e => e.Titles).HasJsonConversion();
+            entity.Property(e => e.Subtexts).HasJsonConversion();
+            entity.Property(e => e.PriceTexts).HasJsonConversion();
+            entity.Property(e => e.InstructionTooltips).HasJsonConversion();
+        });
 
         modelBuilder.Entity<FaqItem>(entity =>
         {

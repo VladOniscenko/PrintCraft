@@ -11,31 +11,14 @@ import {
 } from "react-router-dom";
 import SeoManager from "./components/SeoManager";
 import { getCurrentUser, invalidateAuthCache } from "./services/api";
-import { useI18n, getInitialLanguage } from "./i18n/I18nContext.tsx";
+import { useI18n } from "./i18n/I18nContext.tsx";
 import { isSupportedLanguage, resolveLanguage } from "./i18n/translations";
-import { loadNamespaces } from "./i18n/loader";
 import type { TranslationNamespace } from "./i18n/schema";
-
 function lazyWithI18n<P extends object>(
   factory: () => Promise<{ default: React.ComponentType<P> }>,
-  namespaces: TranslationNamespace[],
+  _namespaces?: TranslationNamespace[],
 ) {
-  return lazy(async () => {
-    const lang = getInitialLanguage();
-    const [module] = await Promise.all([
-      factory(),
-      loadNamespaces(lang, namespaces),
-    ]);
-    return module;
-  });
-}
-
-// Preload Home translations immediately if visitor is on landing route
-if (typeof window !== "undefined") {
-  const p = window.location.pathname;
-  if (p === "/" || p === "/nl" || p === "/en" || p === "/nl/" || p === "/en/") {
-    void loadNamespaces(getInitialLanguage(), ["home", "hero", "recent"]);
-  }
+  return lazy(factory);
 }
 
 import Home from "./components/Home.tsx";

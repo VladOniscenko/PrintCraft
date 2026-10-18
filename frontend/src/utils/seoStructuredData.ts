@@ -54,7 +54,8 @@ export function buildHomepageJsonLd(
   const inLang = htmlLangMap[language] || language;
   const ogImage = `${origin}/uploads/hero/materials.svg`;
   const tSource = translations[language] || translations[defaultLanguage];
-  const schemaT = tSource.seo.schema;
+  const schemaT =
+    tSource?.seo?.schema || translations[defaultLanguage]?.seo?.schema;
   const localizedCountry =
     businessInfo.address.countryName[language] ||
     businessInfo.address.countryName.nl;
@@ -202,7 +203,7 @@ export function buildFaqJsonLd(
 ): SchemaGraph {
   const inLang = htmlLangMap[language] || language;
   const tSource = translations[language] || translations[defaultLanguage];
-  const faqSource = tSource.faq;
+  const faqSource = tSource?.faq || translations[defaultLanguage]?.faq;
   const faqItems: Array<{ q: string; a: string }> = [];
   if (faqSource) {
     for (let i = 1; i <= 20; i++) {
@@ -233,8 +234,20 @@ export function buildFaqJsonLd(
         },
       },
       buildBreadcrumbsJsonLd(canonicalUrl, [
-        { name: tSource.nav.home, url: `${origin}/${language}` },
-        { name: tSource.nav.faq, url: canonicalUrl },
+        {
+          name:
+            tSource?.nav?.home ||
+            translations[defaultLanguage]?.nav?.home ||
+            "Home",
+          url: `${origin}/${language}`,
+        },
+        {
+          name:
+            tSource?.nav?.faq ||
+            translations[defaultLanguage]?.nav?.faq ||
+            "FAQ",
+          url: canonicalUrl,
+        },
       ]),
       {
         "@type": "FAQPage",
@@ -280,7 +293,13 @@ export function buildStandardWebPageJsonLd(
         },
       },
       buildBreadcrumbsJsonLd(canonicalUrl, [
-        { name: tSource.nav.home, url: `${origin}/${language}` },
+        {
+          name:
+            tSource?.nav?.home ||
+            translations[defaultLanguage]?.nav?.home ||
+            "Home",
+          url: `${origin}/${language}`,
+        },
         { name: pageTitle, url: canonicalUrl },
       ]),
     ],

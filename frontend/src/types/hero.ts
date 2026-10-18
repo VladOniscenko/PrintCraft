@@ -12,6 +12,10 @@ export interface HeroSlide {
   subtextNl?: string | null;
   priceTextNl?: string | null;
   instructionTooltipNl?: string | null;
+  titles?: Record<string, string> | null;
+  subtexts?: Record<string, string> | null;
+  priceTexts?: Record<string, string> | null;
+  instructionTooltips?: Record<string, string> | null;
   isActive: boolean;
   sortOrder: number;
   createdAt?: string;

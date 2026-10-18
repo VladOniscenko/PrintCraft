@@ -29,6 +29,11 @@ import type { HeroMediaType, HeroSlide } from "../../types";
 import { resolveAssetUrl } from "../../utils/assetUrl";
 import { useNotify } from "../../context/NotifyContext";
 import { useI18n } from "../../i18n/I18nContext";
+import {
+  languageFlagMap,
+  supportedLanguages,
+  type SupportedLanguage,
+} from "../../i18n/translations";
 
 const HeroModelViewer = lazy(() => import("../HeroModelViewer"));
 
@@ -503,6 +508,11 @@ export default function AdminHeroSlides() {
 
   // Form state for new slide
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createLang, setCreateLang] = useState<SupportedLanguage>("en");
+  const [createTitles, setCreateTitles] = useState<Record<string, string>>({});
+  const [createSubtexts, setCreateSubtexts] = useState<Record<string, string>>({});
+  const [createPriceTexts, setCreatePriceTexts] = useState<Record<string, string>>({});
+  const [createInstructionTooltips, setCreateInstructionTooltips] = useState<Record<string, string>>({});
   const [createTitle, setCreateTitle] = useState("");
   const [createTitleNl, setCreateTitleNl] = useState("");
   const [createSubtext, setCreateSubtext] = useState("");
@@ -517,6 +527,7 @@ export default function AdminHeroSlides() {
   const [createSortOrder, setCreateSortOrder] = useState(0);
 
   // Edit form state
+  const [editLang, setEditLang] = useState<SupportedLanguage>("en");
   const [editFormData, setEditFormData] = useState<Partial<HeroSlide>>({});
 
   const fetchSlides = async () => {
@@ -538,7 +549,30 @@ export default function AdminHeroSlides() {
 
   const handleStartEdit = (slide: HeroSlide) => {
     setEditingId(slide.id);
-    setEditFormData({ ...slide });
+    const titles = { ...(slide.titles || {}) };
+    if (slide.title && !titles.en) titles.en = slide.title;
+    if (slide.titleNl && !titles.nl) titles.nl = slide.titleNl;
+
+    const subtexts = { ...(slide.subtexts || {}) };
+    if (slide.subtext && !subtexts.en) subtexts.en = slide.subtext;
+    if (slide.subtextNl && !subtexts.nl) subtexts.nl = slide.subtextNl;
+
+    const priceTexts = { ...(slide.priceTexts || {}) };
+    if (slide.priceText && !priceTexts.en) priceTexts.en = slide.priceText;
+    if (slide.priceTextNl && !priceTexts.nl) priceTexts.nl = slide.priceTextNl;
+
+    const instructionTooltips = { ...(slide.instructionTooltips || {}) };
+    if (slide.instructionTooltip && !instructionTooltips.en) instructionTooltips.en = slide.instructionTooltip;
+    if (slide.instructionTooltipNl && !instructionTooltips.nl) instructionTooltips.nl = slide.instructionTooltipNl;
+
+    setEditFormData({
+      ...slide,
+      titles,
+      subtexts,
+      priceTexts,
+      instructionTooltips,
+    });
+    setEditLang("en");
   };
 
   const handleCancelEdit = () => {
@@ -549,7 +583,39 @@ export default function AdminHeroSlides() {
   const handleSaveEdit = async (id: string) => {
     setSavingId(id);
     try {
-      const res = await api.put(`/heroslides/${id}`, editFormData);
+      const titles = { ...(editFormData.titles || {}) };
+      if (editFormData.title && !titles.en) titles.en = editFormData.title;
+      if (editFormData.titleNl && !titles.nl) titles.nl = editFormData.titleNl;
+
+      const subtexts = { ...(editFormData.subtexts || {}) };
+      if (editFormData.subtext && !subtexts.en) subtexts.en = editFormData.subtext;
+      if (editFormData.subtextNl && !subtexts.nl) subtexts.nl = editFormData.subtextNl;
+
+      const priceTexts = { ...(editFormData.priceTexts || {}) };
+      if (editFormData.priceText && !priceTexts.en) priceTexts.en = editFormData.priceText;
+      if (editFormData.priceTextNl && !priceTexts.nl) priceTexts.nl = editFormData.priceTextNl;
+
+      const instructionTooltips = { ...(editFormData.instructionTooltips || {}) };
+      if (editFormData.instructionTooltip && !instructionTooltips.en) instructionTooltips.en = editFormData.instructionTooltip;
+      if (editFormData.instructionTooltipNl && !instructionTooltips.nl) instructionTooltips.nl = editFormData.instructionTooltipNl;
+
+      const payload = {
+        ...editFormData,
+        title: titles.en || editFormData.title || "",
+        titleNl: titles.nl || editFormData.titleNl || null,
+        subtext: subtexts.en || editFormData.subtext || "",
+        subtextNl: subtexts.nl || editFormData.subtextNl || null,
+        priceText: priceTexts.en || editFormData.priceText || "",
+        priceTextNl: priceTexts.nl || editFormData.priceTextNl || null,
+        instructionTooltip: instructionTooltips.en || editFormData.instructionTooltip || null,
+        instructionTooltipNl: instructionTooltips.nl || editFormData.instructionTooltipNl || null,
+        titles,
+        subtexts,
+        priceTexts,
+        instructionTooltips,
+      };
+
+      const res = await api.put(`/heroslides/${id}`, payload);
       invalidateHeroSlidesCache();
       notifySuccess(t("admin.heroSlides.updateSuccess"));
       setSlides((prev) => prev.map((s) => (s.id === id ? res.data : s)));
@@ -607,23 +673,44 @@ export default function AdminHeroSlides() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!createTitle.trim() || !createMediaUrl.trim()) {
+    const primaryTitle = createTitles.en || createTitle;
+    if (!primaryTitle.trim() || !createMediaUrl.trim()) {
       notifyError(t("admin.heroSlides.validationTitleMedia"));
       return;
     }
 
     try {
+      const titles = { ...createTitles };
+      if (createTitle.trim() && !titles.en) titles.en = createTitle.trim();
+      if (createTitleNl.trim() && !titles.nl) titles.nl = createTitleNl.trim();
+
+      const subtexts = { ...createSubtexts };
+      if (createSubtext.trim() && !subtexts.en) subtexts.en = createSubtext.trim();
+      if (createSubtextNl.trim() && !subtexts.nl) subtexts.nl = createSubtextNl.trim();
+
+      const priceTexts = { ...createPriceTexts };
+      if (createPriceText.trim() && !priceTexts.en) priceTexts.en = createPriceText.trim();
+      if (createPriceTextNl.trim() && !priceTexts.nl) priceTexts.nl = createPriceTextNl.trim();
+
+      const instructionTooltips = { ...createInstructionTooltips };
+      if (createInstructionTooltip.trim() && !instructionTooltips.en) instructionTooltips.en = createInstructionTooltip.trim();
+      if (createInstructionTooltipNl.trim() && !instructionTooltips.nl) instructionTooltips.nl = createInstructionTooltipNl.trim();
+
       const payload = {
-        title: createTitle.trim(),
-        titleNl: createTitleNl.trim() || null,
-        subtext: createSubtext.trim(),
-        subtextNl: createSubtextNl.trim() || null,
-        priceText: createPriceText.trim(),
-        priceTextNl: createPriceTextNl.trim() || null,
+        title: titles.en || createTitle.trim(),
+        titleNl: titles.nl || createTitleNl.trim() || null,
+        subtext: subtexts.en || createSubtext.trim(),
+        subtextNl: subtexts.nl || createSubtextNl.trim() || null,
+        priceText: priceTexts.en || createPriceText.trim(),
+        priceTextNl: priceTexts.nl || createPriceTextNl.trim() || null,
         mediaUrl: createMediaUrl.trim(),
         mediaType: createMediaType,
-        instructionTooltip: createInstructionTooltip.trim() || null,
-        instructionTooltipNl: createInstructionTooltipNl.trim() || null,
+        instructionTooltip: instructionTooltips.en || createInstructionTooltip.trim() || null,
+        instructionTooltipNl: instructionTooltips.nl || createInstructionTooltipNl.trim() || null,
+        titles,
+        subtexts,
+        priceTexts,
+        instructionTooltips,
         isActive: createIsActive,
         sortOrder: createSortOrder,
       };
@@ -642,6 +729,10 @@ export default function AdminHeroSlides() {
       setCreateSubtextNl("");
       setCreatePriceText("");
       setCreatePriceTextNl("");
+      setCreateTitles({});
+      setCreateSubtexts({});
+      setCreatePriceTexts({});
+      setCreateInstructionTooltips({});
       setCreateMediaUrl("");
       setCreateMediaType("model3d");
       setCreateInstructionTooltip("");
@@ -807,115 +898,113 @@ export default function AdminHeroSlides() {
                   {isEditing ? (
                     // Edit Form
                     <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            {t("admin.heroSlides.fieldTitleEn")}
-                          </label>
-                          <input
-                            type="text"
-                            value={editFormData.title || ""}
-                            onChange={(e) =>
-                              setEditFormData({
-                                ...editFormData,
-                                title: e.target.value,
-                              })
-                            }
-                            className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            {t("admin.heroSlides.fieldPriceEn")}
-                          </label>
-                          <input
-                            type="text"
-                            value={editFormData.priceText || ""}
-                            onChange={(e) =>
-                              setEditFormData({
-                                ...editFormData,
-                                priceText: e.target.value,
-                              })
-                            }
-                            className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-                          />
-                        </div>
+                      {/* Language Selector Tabs */}
+                      <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-gray-100 rounded-xl">
+                        <span className="text-xs font-semibold text-gray-500 px-2">
+                          {t("admin.heroSlides.languageTab")}:
+                        </span>
+                        {supportedLanguages.map((lang) => (
+                          <button
+                            key={lang}
+                            type="button"
+                            onClick={() => setEditLang(lang)}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                              editLang === lang
+                                ? "bg-white text-emerald-800 shadow-xs"
+                                : "text-gray-600 hover:text-gray-900"
+                            }`}
+                          >
+                            <span>{languageFlagMap[lang]}</span>
+                            <span className="uppercase">{lang}</span>
+                          </button>
+                        ))}
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            {t("admin.heroSlides.fieldTitleNl")}
+                            {t("admin.heroSlides.fieldTitle")} ({editLang.toUpperCase()})
                           </label>
                           <input
                             type="text"
-                            placeholder={t("admin.heroSlides.nlTitlePlaceholder")}
-                            value={editFormData.titleNl || ""}
-                            onChange={(e) =>
-                              setEditFormData({
-                                ...editFormData,
-                                titleNl: e.target.value,
-                              })
+                            value={
+                              editFormData.titles?.[editLang] ??
+                              (editLang === "en"
+                                ? editFormData.title ?? ""
+                                : editLang === "nl"
+                                ? editFormData.titleNl ?? ""
+                                : "")
                             }
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setEditFormData((prev) => {
+                                const updated = { ...(prev.titles || {}), [editLang]: val };
+                                const next = { ...prev, titles: updated };
+                                if (editLang === "en") next.title = val;
+                                if (editLang === "nl") next.titleNl = val;
+                                return next;
+                              });
+                            }}
                             className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
                           />
                         </div>
 
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            {t("admin.heroSlides.fieldPriceNl")}
+                            {t("admin.heroSlides.fieldPrice")} ({editLang.toUpperCase()})
                           </label>
                           <input
                             type="text"
                             placeholder={t("admin.heroSlides.pricePlaceholder")}
-                            value={editFormData.priceTextNl || ""}
-                            onChange={(e) =>
-                              setEditFormData({
-                                ...editFormData,
-                                priceTextNl: e.target.value,
-                              })
+                            value={
+                              editFormData.priceTexts?.[editLang] ??
+                              (editLang === "en"
+                                ? editFormData.priceText ?? ""
+                                : editLang === "nl"
+                                ? editFormData.priceTextNl ?? ""
+                                : "")
                             }
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setEditFormData((prev) => {
+                                const updated = { ...(prev.priceTexts || {}), [editLang]: val };
+                                const next = { ...prev, priceTexts: updated };
+                                if (editLang === "en") next.priceText = val;
+                                if (editLang === "nl") next.priceTextNl = val;
+                                return next;
+                              });
+                            }}
                             className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
                           />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            {t("admin.heroSlides.fieldSubtextEn")}
-                          </label>
-                          <textarea
-                            rows={2}
-                            value={editFormData.subtext || ""}
-                            onChange={(e) =>
-                              setEditFormData({
-                                ...editFormData,
-                                subtext: e.target.value,
-                              })
-                            }
-                            className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            {t("admin.heroSlides.fieldSubtextNl")}
-                          </label>
-                          <textarea
-                            rows={2}
-                            placeholder={t("admin.heroSlides.nlDescPlaceholder")}
-                            value={editFormData.subtextNl || ""}
-                            onChange={(e) =>
-                              setEditFormData({
-                                ...editFormData,
-                                subtextNl: e.target.value,
-                              })
-                            }
-                            className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-                          />
-                        </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                          {t("admin.heroSlides.fieldSubtext")} ({editLang.toUpperCase()})
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={
+                            editFormData.subtexts?.[editLang] ??
+                            (editLang === "en"
+                              ? editFormData.subtext ?? ""
+                              : editLang === "nl"
+                              ? editFormData.subtextNl ?? ""
+                              : "")
+                          }
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setEditFormData((prev) => {
+                              const updated = { ...(prev.subtexts || {}), [editLang]: val };
+                              const next = { ...prev, subtexts: updated };
+                              if (editLang === "en") next.subtext = val;
+                              if (editLang === "nl") next.subtextNl = val;
+                              return next;
+                            });
+                          }}
+                          className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                        />
                       </div>
 
                       {/* Media URL with File Upload and File Selector */}
@@ -1070,41 +1159,33 @@ export default function AdminHeroSlides() {
                         )}
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            {t("admin.heroSlides.fieldTooltipEn")}
-                          </label>
-                          <input
-                            type="text"
-                            value={editFormData.instructionTooltip || ""}
-                            onChange={(e) =>
-                              setEditFormData({
-                                ...editFormData,
-                                instructionTooltip: e.target.value,
-                              })
-                            }
-                            className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-700 mb-1">
-                            {t("admin.heroSlides.fieldTooltipNl")}
-                          </label>
-                          <input
-                            type="text"
-                            placeholder={t("admin.heroSlides.nlInstructionPlaceholder")}
-                            value={editFormData.instructionTooltipNl || ""}
-                            onChange={(e) =>
-                              setEditFormData({
-                                ...editFormData,
-                                instructionTooltipNl: e.target.value,
-                              })
-                            }
-                            className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-                          />
-                        </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                          {t("admin.heroSlides.fieldTooltip")} ({editLang.toUpperCase()})
+                        </label>
+                        <input
+                          type="text"
+                          placeholder={t("admin.heroSlides.interactiveInstructions")}
+                          value={
+                            editFormData.instructionTooltips?.[editLang] ??
+                            (editLang === "en"
+                              ? editFormData.instructionTooltip ?? ""
+                              : editLang === "nl"
+                              ? editFormData.instructionTooltipNl ?? ""
+                              : "")
+                          }
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setEditFormData((prev) => {
+                              const updated = { ...(prev.instructionTooltips || {}), [editLang]: val };
+                              const next = { ...prev, instructionTooltips: updated };
+                              if (editLang === "en") next.instructionTooltip = val;
+                              if (editLang === "nl") next.instructionTooltipNl = val;
+                              return next;
+                            });
+                          }}
+                          className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                        />
                       </div>
 
                       <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
@@ -1323,89 +1404,83 @@ export default function AdminHeroSlides() {
               </div>
 
               <form onSubmit={handleCreate} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      {t("admin.heroSlides.fieldTitleEn")}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder={t("admin.heroSlides.enTitlePlaceholder")}
-                      value={createTitle}
-                      onChange={(e) => setCreateTitle(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      {t("admin.heroSlides.fieldPriceEn")}
-                    </label>
-                    <input
-                      type="text"
-                      placeholder={t("admin.heroSlides.enPricePlaceholder")}
-                      value={createPriceText}
-                      onChange={(e) => setCreatePriceText(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
+                {/* Language Selector Tabs */}
+                <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-gray-100 rounded-xl">
+                  <span className="text-xs font-semibold text-gray-500 px-2">
+                    {t("admin.heroSlides.languageTab")}:
+                  </span>
+                  {supportedLanguages.map((lang) => (
+                    <button
+                      key={lang}
+                      type="button"
+                      onClick={() => setCreateLang(lang)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                        createLang === lang
+                          ? "bg-white text-emerald-800 shadow-xs"
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      <span>{languageFlagMap[lang]}</span>
+                      <span className="uppercase">{lang}</span>
+                    </button>
+                  ))}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      {t("admin.heroSlides.fieldTitleNl")}
+                      {t("admin.heroSlides.fieldTitle")} ({createLang.toUpperCase()}) {createLang === "en" ? "*" : ""}
                     </label>
                     <input
                       type="text"
-                      placeholder={t("admin.heroSlides.nlTitlePlaceholder")}
-                      value={createTitleNl}
-                      onChange={(e) => setCreateTitleNl(e.target.value)}
+                      required={createLang === "en"}
+                      placeholder={t("admin.heroSlides.enTitlePlaceholder")}
+                      value={createTitles[createLang] ?? (createLang === "en" ? createTitle : createLang === "nl" ? createTitleNl : "")}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setCreateTitles((prev) => ({ ...prev, [createLang]: val }));
+                        if (createLang === "en") setCreateTitle(val);
+                        if (createLang === "nl") setCreateTitleNl(val);
+                      }}
                       className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      {t("admin.heroSlides.fieldPriceNl")}
+                      {t("admin.heroSlides.fieldPrice")} ({createLang.toUpperCase()})
                     </label>
                     <input
                       type="text"
                       placeholder={t("admin.heroSlides.pricePlaceholder")}
-                      value={createPriceTextNl}
-                      onChange={(e) => setCreatePriceTextNl(e.target.value)}
+                      value={createPriceTexts[createLang] ?? (createLang === "en" ? createPriceText : createLang === "nl" ? createPriceTextNl : "")}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setCreatePriceTexts((prev) => ({ ...prev, [createLang]: val }));
+                        if (createLang === "en") setCreatePriceText(val);
+                        if (createLang === "nl") setCreatePriceTextNl(val);
+                      }}
                       className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      {t("admin.heroSlides.fieldSubtextEn")}
-                    </label>
-                    <textarea
-                      rows={2}
-                      placeholder={t("admin.heroSlides.enDescPlaceholder")}
-                      value={createSubtext}
-                      onChange={(e) => setCreateSubtext(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      {t("admin.heroSlides.fieldSubtextNl")}
-                    </label>
-                    <textarea
-                      rows={2}
-                      placeholder={t("admin.heroSlides.nlDescPlaceholder")}
-                      value={createSubtextNl}
-                      onChange={(e) => setCreateSubtextNl(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    {t("admin.heroSlides.fieldSubtext")} ({createLang.toUpperCase()})
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder={t("admin.heroSlides.enDescPlaceholder")}
+                    value={createSubtexts[createLang] ?? (createLang === "en" ? createSubtext : createLang === "nl" ? createSubtextNl : "")}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCreateSubtexts((prev) => ({ ...prev, [createLang]: val }));
+                      if (createLang === "en") setCreateSubtext(val);
+                      if (createLang === "nl") setCreateSubtextNl(val);
+                    }}
+                    className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                  />
                 </div>
 
                 {/* Media URL with File Upload and File Selector */}
@@ -1549,15 +1624,18 @@ export default function AdminHeroSlides() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      {t("admin.heroSlides.fieldTooltipEn")}
+                      {t("admin.heroSlides.fieldTooltip")} ({createLang.toUpperCase()})
                     </label>
                     <input
                       type="text"
-                      placeholder={t("admin.heroSlides.enInstructionPlaceholder")}
-                      value={createInstructionTooltip}
-                      onChange={(e) =>
-                        setCreateInstructionTooltip(e.target.value)
-                      }
+                      placeholder={t("admin.heroSlides.interactiveInstructions")}
+                      value={createInstructionTooltips[createLang] ?? (createLang === "en" ? createInstructionTooltip : createLang === "nl" ? createInstructionTooltipNl : "")}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setCreateInstructionTooltips((prev) => ({ ...prev, [createLang]: val }));
+                        if (createLang === "en") setCreateInstructionTooltip(val);
+                        if (createLang === "nl") setCreateInstructionTooltipNl(val);
+                      }}
                       className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>

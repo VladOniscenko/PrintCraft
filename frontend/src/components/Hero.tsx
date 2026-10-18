@@ -23,6 +23,12 @@ import { getActiveHeroSlides, getCachedActiveHeroSlides } from "../services/api"
 import type { HeroSlide } from "../types";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import { useI18n } from "../i18n/I18nContext";
+import {
+  getHeroSlideTitle,
+  getHeroSlideSubtext,
+  getHeroSlidePrice,
+  getHeroSlideTooltip,
+} from "../utils/hero";
 
 const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
 
@@ -124,8 +130,6 @@ export default function Hero() {
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
   const timerRef = useRef<number | null>(null);
 
-  const isNl = language === "nl";
-
   // Fetch active slides from .NET API (cached client-side to prevent redundant roundtrips on route changes)
   useEffect(() => {
     let active = true;
@@ -182,22 +186,10 @@ export default function Hero() {
   const totalSlides = slides.length;
   const currentSlide = slides[currentIndex] || slides[0] || FALLBACK_SLIDES[0];
 
-  const slideTitle =
-    isNl && currentSlide.titleNl?.trim()
-      ? currentSlide.titleNl
-      : currentSlide.title;
-  const slideSubtext =
-    isNl && currentSlide.subtextNl?.trim()
-      ? currentSlide.subtextNl
-      : currentSlide.subtext;
-  const slidePrice =
-    isNl && currentSlide.priceTextNl?.trim()
-      ? currentSlide.priceTextNl
-      : currentSlide.priceText;
-  const slideTooltip =
-    isNl && currentSlide.instructionTooltipNl?.trim()
-      ? currentSlide.instructionTooltipNl
-      : currentSlide.instructionTooltip;
+  const slideTitle = getHeroSlideTitle(currentSlide, language);
+  const slideSubtext = getHeroSlideSubtext(currentSlide, language);
+  const slidePrice = getHeroSlidePrice(currentSlide, language);
+  const slideTooltip = getHeroSlideTooltip(currentSlide, language);
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (totalSlides > 0 ? (prev + 1) % totalSlides : 0));
@@ -488,8 +480,7 @@ export default function Hero() {
         >
           {slides.map((slide, idx) => {
             const isActive = idx === currentIndex;
-            const slideItemTitle =
-              isNl && slide.titleNl?.trim() ? slide.titleNl : slide.title;
+            const slideItemTitle = getHeroSlideTitle(slide, language);
             return (
               <button
                 key={slide.id || idx}

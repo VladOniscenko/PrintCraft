@@ -34,11 +34,17 @@ public class HeroSlide
 
     public string? InstructionTooltip { get; set; }
 
-    // Multilingual support (Dutch / second language)
+    // Multilingual support (Dutch / legacy columns preserved for 100% backward compatibility)
     public string? TitleNl { get; set; }
     public string? SubtextNl { get; set; }
     public string? PriceTextNl { get; set; }
     public string? InstructionTooltipNl { get; set; }
+
+    // Modern JSON-based multilingual dictionaries for all supported and future languages
+    public Dictionary<string, string> Titles { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, string> Subtexts { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, string> PriceTexts { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, string> InstructionTooltips { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     public bool IsActive { get; set; } = true;
 
@@ -47,5 +53,40 @@ public class HeroSlide
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-}
 
+    public string GetLocalizedTitle(string? language)
+    {
+        var lang = string.IsNullOrWhiteSpace(language) ? "en" : language.Trim().ToLowerInvariant();
+        if (Titles.TryGetValue(lang, out var val) && !string.IsNullOrWhiteSpace(val)) return val;
+        if (lang == "nl" && !string.IsNullOrWhiteSpace(TitleNl)) return TitleNl;
+        if (Titles.TryGetValue("en", out var enVal) && !string.IsNullOrWhiteSpace(enVal)) return enVal;
+        return Title;
+    }
+
+    public string GetLocalizedSubtext(string? language)
+    {
+        var lang = string.IsNullOrWhiteSpace(language) ? "en" : language.Trim().ToLowerInvariant();
+        if (Subtexts.TryGetValue(lang, out var val) && !string.IsNullOrWhiteSpace(val)) return val;
+        if (lang == "nl" && !string.IsNullOrWhiteSpace(SubtextNl)) return SubtextNl;
+        if (Subtexts.TryGetValue("en", out var enVal) && !string.IsNullOrWhiteSpace(enVal)) return enVal;
+        return Subtext;
+    }
+
+    public string GetLocalizedPriceText(string? language)
+    {
+        var lang = string.IsNullOrWhiteSpace(language) ? "en" : language.Trim().ToLowerInvariant();
+        if (PriceTexts.TryGetValue(lang, out var val) && !string.IsNullOrWhiteSpace(val)) return val;
+        if (lang == "nl" && !string.IsNullOrWhiteSpace(PriceTextNl)) return PriceTextNl;
+        if (PriceTexts.TryGetValue("en", out var enVal) && !string.IsNullOrWhiteSpace(enVal)) return enVal;
+        return PriceText;
+    }
+
+    public string? GetLocalizedTooltip(string? language)
+    {
+        var lang = string.IsNullOrWhiteSpace(language) ? "en" : language.Trim().ToLowerInvariant();
+        if (InstructionTooltips.TryGetValue(lang, out var val) && !string.IsNullOrWhiteSpace(val)) return val;
+        if (lang == "nl" && !string.IsNullOrWhiteSpace(InstructionTooltipNl)) return InstructionTooltipNl;
+        if (InstructionTooltips.TryGetValue("en", out var enVal) && !string.IsNullOrWhiteSpace(enVal)) return enVal;
+        return InstructionTooltip;
+    }
+}

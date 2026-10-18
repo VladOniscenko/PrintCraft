@@ -97,8 +97,8 @@ public class SeederTests
         var result = await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db);
 
         Assert.Equal(0, result.TotalBefore);
-        Assert.Equal(12, result.Inserted);
-        Assert.Equal(12, result.TotalAfter);
+        Assert.Equal(30, result.Inserted);
+        Assert.Equal(30, result.TotalAfter);
 
         var templates = await db.EmailTemplates.ToListAsync();
         Assert.Contains(templates, t => t.TemplateName == "QuoteRequested");

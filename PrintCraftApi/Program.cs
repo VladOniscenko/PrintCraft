@@ -520,6 +520,12 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
     await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"EmailTemplates\" ADD COLUMN IF NOT EXISTS \"Language\" text NOT NULL DEFAULT 'en';");
     await db.Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS \"IX_EmailTemplates_TemplateName_Language\" ON \"EmailTemplates\" (\"TemplateName\", \"Language\");");
 
+    // Multilingual Hero Slides columns
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"Titles\" text NULL;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"Subtexts\" text NULL;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"PriceTexts\" text NULL;");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"InstructionTooltips\" text NULL;");
+
     await db.Database.ExecuteSqlRawAsync(@"
         CREATE TABLE IF NOT EXISTS ""OrderItemChangeRequests"" (
             ""Id"" uuid NOT NULL PRIMARY KEY,

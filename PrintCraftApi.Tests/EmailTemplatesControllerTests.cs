@@ -59,7 +59,7 @@ public class EmailTemplatesControllerTests
         var ok = Assert.IsType<OkObjectResult>(result);
         var templates = Assert.IsAssignableFrom<List<EmailTemplatesController.EmailTemplateDto>>(ok.Value);
 
-        Assert.Equal(12, templates.Count);
+        Assert.Equal(30, templates.Count);
         Assert.All(templates, t => Assert.True(t.IsSystemTemplate));
         Assert.Contains(templates, t => t.TemplateName == "QuoteRequested" && t.DetectedPlaceholders.Contains("ShortOrderId"));
     }
@@ -245,7 +245,7 @@ public class EmailTemplatesControllerTests
         var defaults = EmailTemplateSeeder.GetDefaultTemplates();
         var orderPaidTemplates = defaults.Where(t => t.TemplateName == "OrderPaid").ToList();
 
-        Assert.Equal(2, orderPaidTemplates.Count); // EN and NL
+        Assert.Equal(5, orderPaidTemplates.Count); // EN, NL, TR, RU, AR
 
         foreach (var template in orderPaidTemplates)
         {

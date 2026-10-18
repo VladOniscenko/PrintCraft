@@ -21,7 +21,6 @@ import {
 } from "./translations";
 import {
   subscribeTranslations,
-  loadNamespace,
   loadNamespaces,
   isNamespaceLoaded,
 } from "./loader";
@@ -171,16 +170,12 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     (key: TranslationKey, vars?: Record<string, string | number>): string => {
       let value = getNestedTranslation(translations[language], key);
 
-      if (!value) {
+      // Fallback to English if translation is missing in current language
+      if (!value && language !== "en") {
         value = getNestedTranslation(translations.en, key);
       }
 
       if (!value) {
-        // Trigger lazy loading of missing namespace in background if needed
-        const ns = key.split(".")[0] as TranslationNamespace;
-        if (ns && !isNamespaceLoaded(language, ns)) {
-          void loadNamespace(language, ns);
-        }
         return `🔴 [${key}]`;
       }
 
@@ -192,7 +187,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
       return value;
     },
-    [language, version],
+    [language],
   );
 
   const value = useMemo(

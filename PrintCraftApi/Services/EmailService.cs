@@ -128,29 +128,46 @@ public sealed class GmailSmtpEmailService : IEmailService
     {
         var targetLang = NormalizeLanguage(language);
 
-        // 1. Try target language match
+        // 1. Try target language match in database (admin custom override)
         var template = await _db.EmailTemplates
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.TemplateName == templateName && t.Language == targetLang);
 
-        // 2. Fallback to English if target not found
-        if (template == null && targetLang != "en")
-        {
-            template = await _db.EmailTemplates
-                .AsNoTracking()
-                .FirstOrDefaultAsync(t => t.TemplateName == templateName && t.Language == "en");
-        }
+        string subject;
+        string body;
 
-        // 3. Fallback to legacy row without language specified
-        if (template == null)
+        if (template != null)
         {
-            template = await _db.EmailTemplates
-                .AsNoTracking()
-                .FirstOrDefaultAsync(t => t.TemplateName == templateName);
+            subject = template.Subject;
+            body = template.Body;
         }
+        else
+        {
+            // 2. Generate dynamically from the centralized multilingual template engine
+            var generated = EmailTemplateSeeder.GenerateTemplate(templateName, targetLang);
+            if (!string.IsNullOrWhiteSpace(generated.Body))
+            {
+                subject = generated.Subject;
+                body = generated.Body;
+            }
+            else
+            {
+                // 3. Fallback to English in database if generator doesn't know this custom template
+                template = await _db.EmailTemplates
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(t => t.TemplateName == templateName && t.Language == "en");
 
-        var subject = template?.Subject ?? $"Notification: {templateName}";
-        var body = template?.Body ?? "No template found.";
+                if (template == null)
+                {
+                    template = await _db.EmailTemplates
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(t => t.TemplateName == templateName);
+                }
+
+                subject = template?.Subject ?? $"Notification: {templateName}";
+                body = template?.Body ?? "No template found.";
+            }
+        }
 
         foreach (var (key, value) in variables)
         {
