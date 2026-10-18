@@ -29,7 +29,7 @@ public static class EmailTemplateSeeder
             Body = BuildCardHtmlTemplate(
                 badgeText: "Quote Received &bull; #{{ShortOrderId}}",
                 heading: "Your 3D Files Are In Review",
-                introParagraph: "Hi <strong>{{CustomerName}}</strong>, we received your quote request for order #<strong>{{ShortOrderId}}</strong>. Our engineering team is reviewing your files, analyzing print geometry, and preparing precision pricing.",
+                introParagraph: "Hi <strong>{{CustomerName}}</strong>, we received your quote request for order #<strong>{{ShortOrderId}}</strong>. Our engineering team is reviewing your files, analyzing print geometry, and preparing your custom quote.",
                 ctaText: "Check Order Status &rarr;",
                 ctaUrlPlaceholder: "{{OrderUrl}}",
                 show3dRender: true
@@ -43,7 +43,7 @@ public static class EmailTemplateSeeder
             Body = BuildCardHtmlTemplate(
                 badgeText: "Quote Ready &bull; #{{ShortOrderId}}",
                 heading: "Your Quote is Ready",
-                introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Total Price: <strong>&euro;{{Price}}</strong>. Please log in to your portal to review the specifications and securely complete payment.",
+                introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Please log in to your portal to review the specifications and securely complete payment.",
                 ctaText: "Review Quote &amp; Pay &rarr;",
                 ctaUrlPlaceholder: "{{OrderUrl}}",
                 show3dRender: true,
@@ -58,7 +58,7 @@ public static class EmailTemplateSeeder
             Body = BuildCardHtmlTemplate(
                 badgeText: "Bank Transfer &bull; #{{ShortOrderId}}",
                 heading: "Your Quote is Ready for Review",
-                introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Total: <strong>&euro;{{Price}}</strong>. Payment Reference: <strong style=\"color: #133827; font-family: monospace;\">{{PaymentReference}}</strong>. Please review the quote and bank transfer instructions in your customer portal.",
+                introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Payment Reference: <strong style=\"color: #133827; font-family: monospace;\">{{PaymentReference}}</strong>. Please review the quote and bank transfer instructions in your customer portal.",
                 ctaText: "View Transfer Instructions &rarr;",
                 ctaUrlPlaceholder: "{{OrderUrl}}",
                 show3dRender: true,
@@ -87,7 +87,7 @@ public static class EmailTemplateSeeder
             Body = BuildCardHtmlTemplate(
                 badgeText: "Payment Received &bull; #{{ShortOrderId}}",
                 heading: "Payment Received — Print Queued!",
-                introParagraph: "Hi <strong>{{CustomerName}}</strong>, we successfully received your payment of <strong>&euro;{{Amount}}</strong> for order #<strong>{{ShortOrderId}}</strong>. Your 3D models have been scheduled for printing.",
+                introParagraph: "Hi <strong>{{CustomerName}}</strong>, we successfully received your payment for order #<strong>{{ShortOrderId}}</strong>. Your 3D models have been scheduled for printing.",
                 ctaText: "View Order Progress &rarr;",
                 ctaUrlPlaceholder: "{{OrderUrl}}",
                 show3dRender: true
@@ -128,7 +128,11 @@ public static class EmailTemplateSeeder
                 await db.EmailTemplates.AddAsync(def);
                 result.Inserted++;
             }
-            else if (forceReload)
+            else if (forceReload
+                     || match.Body.Contains("3D CAD / Slicing Preview")
+                     || match.Body.Contains("&euro;{{Price}}")
+                     || match.Body.Contains("&euro;{{Amount}}")
+                     || match.Body.Contains("precision pricing"))
             {
                 match.Subject = def.Subject;
                 match.Body = def.Body;
@@ -160,24 +164,7 @@ public static class EmailTemplateSeeder
             <td class="mobile-p-20" style="padding: 16px 40px 24px 40px;">
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%); border-radius: 12px; border: 1px solid #334155; box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 12px 24px -6px rgba(15, 23, 42, 0.3); overflow: hidden;">
                 <tr>
-                  <td style="padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
-                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-                      <tr>
-                        <td align="left">
-                          <span style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">
-                            3D CAD / Slicing Preview
-                          </span>
-                        </td>
-                        <td align="right">
-                          <span style="display: inline-block; width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; vertical-align: middle;"></span>
-                          <span style="font-size: 11px; color: #cbd5e1; font-weight: 500; margin-left: 6px;">Ready</span>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <tr>
-                  <td align="center" style="padding: 24px 20px 28px 20px;">
+                  <td align="center" style="padding: 28px 20px 28px 20px;">
                     <a href="{{OrderUrl}}" target="_blank" style="text-decoration: none; display: block;">
                       <img class="hero-image" src="{{RenderedImageUrl}}" alt="3D Render Preview for order #{{ShortOrderId}}" width="440" style="display: block; max-width: 100%; height: auto; max-height: 280px; object-fit: contain; margin: 0 auto; filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.45));" />
                     </a>
@@ -194,6 +181,7 @@ public static class EmailTemplateSeeder
             </td>
           </tr>
         """ : "";
+
 
         var detailBlock = !string.IsNullOrWhiteSpace(detailBoxHtml) ? $$$"""
           <!-- Extra Details Box -->

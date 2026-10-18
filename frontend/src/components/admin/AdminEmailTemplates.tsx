@@ -37,8 +37,6 @@ const COMMON_PLACEHOLDERS = [
   "ShortOrderId",
   "OrderId",
   "OrderUrl",
-  "Price",
-  "Amount",
   "QuoteMessage",
   "PaymentReference",
   "TrackingCode",
@@ -55,23 +53,33 @@ export default function AdminEmailTemplates() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState<"all" | "system" | "custom">("all");
+  const [filterType, setFilterType] = useState<"all" | "system" | "custom">(
+    "all",
+  );
 
   // Edit / Create modal state
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(
+    null,
+  );
   const [formName, setFormName] = useState("");
   const [formSubject, setFormSubject] = useState("");
   const [formBody, setFormBody] = useState("");
-  const [editorTab, setEditorTab] = useState<"code" | "preview" | "split">("split");
+  const [editorTab, setEditorTab] = useState<"code" | "preview" | "split">(
+    "split",
+  );
   const [livePreviewHtml, setLivePreviewHtml] = useState("");
   const [livePreviewLoading, setLivePreviewLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Standalone Preview Modal state
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
-  const [previewTemplate, setPreviewTemplate] = useState<EmailTemplate | null>(null);
-  const [previewViewport, setPreviewViewport] = useState<"desktop" | "mobile">("desktop");
+  const [previewTemplate, setPreviewTemplate] = useState<EmailTemplate | null>(
+    null,
+  );
+  const [previewViewport, setPreviewViewport] = useState<"desktop" | "mobile">(
+    "desktop",
+  );
   const [previewHtml, setPreviewHtml] = useState("");
   const [previewSubject, setPreviewSubject] = useState("");
   const [modalPreviewLoading, setModalPreviewLoading] = useState(false);
@@ -84,12 +92,15 @@ export default function AdminEmailTemplates() {
 
   // Delete & Reset Confirm Modals
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [deletingTemplate, setDeletingTemplate] = useState<EmailTemplate | null>(null);
+  const [deletingTemplate, setDeletingTemplate] =
+    useState<EmailTemplate | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
 
-  const [copiedPlaceholder, setCopiedPlaceholder] = useState<string | null>(null);
+  const [copiedPlaceholder, setCopiedPlaceholder] = useState<string | null>(
+    null,
+  );
   const bodyTextareaRef = useRef<HTMLTextAreaElement>(null);
   const subjectInputRef = useRef<HTMLInputElement>(null);
   const lastFocusedInputRef = useRef<"subject" | "body">("body");
@@ -161,7 +172,7 @@ export default function AdminEmailTemplates() {
     setFormName("");
     setFormSubject("");
     setFormBody(
-      '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n</head>\n<body style="font-family: sans-serif; background-color: #f8fafc; padding: 24px;">\n  <table width="100%" cellpadding="0" cellspacing="0">\n    <tr>\n      <td align="center">\n        <table width="600" style="background: #ffffff; border-radius: 12px; padding: 32px; border: 1px solid #e2e8f0;">\n          <tr>\n            <td>\n              <h1 style="color: #133827; margin: 0 0 16px;">Hello {{CustomerName}},</h1>\n              <p style="color: #475569; font-size: 15px; line-height: 24px;">Your order #<strong>{{ShortOrderId}}</strong> update...</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>'
+      '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n</head>\n<body style="font-family: sans-serif; background-color: #f8fafc; padding: 24px;">\n  <table width="100%" cellpadding="0" cellspacing="0">\n    <tr>\n      <td align="center">\n        <table width="600" style="background: #ffffff; border-radius: 12px; padding: 32px; border: 1px solid #e2e8f0;">\n          <tr>\n            <td>\n              <h1 style="color: #133827; margin: 0 0 16px;">Hello {{CustomerName}},</h1>\n              <p style="color: #475569; font-size: 15px; line-height: 24px;">Your order #<strong>{{ShortOrderId}}</strong> update...</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>',
     );
     setEditorTab("split");
     setIsEditorOpen(true);
@@ -183,21 +194,31 @@ export default function AdminEmailTemplates() {
       const el = subjectInputRef.current;
       const start = el.selectionStart ?? formSubject.length;
       const end = el.selectionEnd ?? formSubject.length;
-      const next = formSubject.substring(0, start) + placeholder + formSubject.substring(end);
+      const next =
+        formSubject.substring(0, start) +
+        placeholder +
+        formSubject.substring(end);
       setFormSubject(next);
       setTimeout(() => {
         el.focus();
-        el.setSelectionRange(start + placeholder.length, start + placeholder.length);
+        el.setSelectionRange(
+          start + placeholder.length,
+          start + placeholder.length,
+        );
       }, 50);
     } else if (bodyTextareaRef.current) {
       const el = bodyTextareaRef.current;
       const start = el.selectionStart ?? formBody.length;
       const end = el.selectionEnd ?? formBody.length;
-      const next = formBody.substring(0, start) + placeholder + formBody.substring(end);
+      const next =
+        formBody.substring(0, start) + placeholder + formBody.substring(end);
       setFormBody(next);
       setTimeout(() => {
         el.focus();
-        el.setSelectionRange(start + placeholder.length, start + placeholder.length);
+        el.setSelectionRange(
+          start + placeholder.length,
+          start + placeholder.length,
+        );
       }, 50);
     }
 
@@ -235,7 +256,7 @@ export default function AdminEmailTemplates() {
       notifyError(
         editingTemplate
           ? t("admin.emailTemplates.updateFailed")
-          : t("admin.emailTemplates.createFailed")
+          : t("admin.emailTemplates.createFailed"),
       );
     } finally {
       setSaving(false);
@@ -286,7 +307,9 @@ export default function AdminEmailTemplates() {
     setSendingTest(true);
     try {
       await sendTestEmailTemplate(testTemplate.id, testRecipient.trim());
-      notifySuccess(t("admin.emailTemplates.testSuccess", { email: testRecipient.trim() }));
+      notifySuccess(
+        t("admin.emailTemplates.testSuccess", { email: testRecipient.trim() }),
+      );
       setTestModalOpen(false);
     } catch {
       notifyError(t("admin.emailTemplates.testFailed"));
@@ -389,7 +412,9 @@ export default function AdminEmailTemplates() {
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {t("admin.emailTemplates.systemFilter", { count: counts.system })}
+                {t("admin.emailTemplates.systemFilter", {
+                  count: counts.system,
+                })}
               </button>
               <button
                 type="button"
@@ -400,7 +425,9 @@ export default function AdminEmailTemplates() {
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {t("admin.emailTemplates.customFilter", { count: counts.custom })}
+                {t("admin.emailTemplates.customFilter", {
+                  count: counts.custom,
+                })}
               </button>
             </div>
           </div>
@@ -425,7 +452,9 @@ export default function AdminEmailTemplates() {
           <div className="flex h-64 items-center justify-center rounded-2xl border border-gray-200 bg-white">
             <div className="flex items-center gap-3 text-teal-700">
               <Loader2 size={24} className="animate-spin" />
-              <span className="text-sm font-semibold">{t("common.loading")}</span>
+              <span className="text-sm font-semibold">
+                {t("common.loading")}
+              </span>
             </div>
           </div>
         ) : filteredTemplates.length === 0 ? (
@@ -477,23 +506,24 @@ export default function AdminEmailTemplates() {
                     </p>
                   </div>
 
-                  {item.detectedPlaceholders && item.detectedPlaceholders.length > 0 && (
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">
-                        {t("admin.emailTemplates.availablePlaceholders")}
-                      </span>
-                      <div className="flex flex-wrap gap-1 max-h-16 overflow-hidden">
-                        {item.detectedPlaceholders.map((ph) => (
-                          <span
-                            key={ph}
-                            className="inline-block rounded-md bg-gray-100 px-1.5 py-0.5 text-[10px] font-mono text-gray-600 border border-gray-200"
-                          >
-                            {`{{${ph}}}`}
-                          </span>
-                        ))}
+                  {item.detectedPlaceholders &&
+                    item.detectedPlaceholders.length > 0 && (
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">
+                          {t("admin.emailTemplates.availablePlaceholders")}
+                        </span>
+                        <div className="flex flex-wrap gap-1 max-h-16 overflow-hidden">
+                          {item.detectedPlaceholders.map((ph) => (
+                            <span
+                              key={ph}
+                              className="inline-block rounded-md bg-gray-100 px-1.5 py-0.5 text-[10px] font-mono text-gray-600 border border-gray-200"
+                            >
+                              {`{{${ph}}}`}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
 
                 <div className="mt-5 pt-3.5 border-t border-gray-100 flex items-center justify-between gap-1">
@@ -621,7 +651,10 @@ export default function AdminEmailTemplates() {
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleSave} className="flex flex-col flex-1 overflow-hidden">
+            <form
+              onSubmit={handleSave}
+              className="flex flex-col flex-1 overflow-hidden"
+            >
               <div className="p-6 space-y-4 border-b bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Template Name */}
@@ -710,8 +743,12 @@ export default function AdminEmailTemplates() {
                     }`}
                   >
                     <div className="px-4 py-2 bg-slate-900 border-b border-slate-700/60 flex items-center justify-between text-xs text-slate-400">
-                      <span className="font-mono">{t("admin.emailTemplates.codeEditorHeader")}</span>
-                      <span className="text-[11px]">{t("admin.emailTemplates.codeEditorHint")}</span>
+                      <span className="font-mono">
+                        {t("admin.emailTemplates.codeEditorHeader")}
+                      </span>
+                      <span className="text-[11px]">
+                        {t("admin.emailTemplates.codeEditorHint")}
+                      </span>
                     </div>
                     <textarea
                       ref={bodyTextareaRef}
@@ -737,13 +774,19 @@ export default function AdminEmailTemplates() {
                   >
                     <div className="px-4 py-2 bg-gray-200 border-b border-gray-300 flex items-center justify-between text-xs text-gray-700">
                       <div className="flex items-center gap-2 truncate">
-                        <span className="font-bold">{t("admin.emailTemplates.previewSubjectPrefix")}</span>
-                        <span className="truncate max-w-sm text-gray-900 font-semibold">{formSubject}</span>
+                        <span className="font-bold">
+                          {t("admin.emailTemplates.previewSubjectPrefix")}
+                        </span>
+                        <span className="truncate max-w-sm text-gray-900 font-semibold">
+                          {formSubject}
+                        </span>
                       </div>
                       {livePreviewLoading && (
                         <div className="flex items-center gap-1.5 text-teal-700 text-[11px]">
                           <Loader2 size={12} className="animate-spin" />
-                          <span>{t("admin.emailTemplates.loadingPreview")}</span>
+                          <span>
+                            {t("admin.emailTemplates.loadingPreview")}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -799,11 +842,10 @@ export default function AdminEmailTemplates() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-gray-900">
-                    {t("admin.emailTemplates.modalPreviewTitle")}: {previewTemplate.templateName}
+                    {t("admin.emailTemplates.modalPreviewTitle")}:{" "}
+                    {previewTemplate.templateName}
                   </h3>
-                  <p className="text-xs text-gray-500">
-                    {previewSubject}
-                  </p>
+                  <p className="text-xs text-gray-500">{previewSubject}</p>
                 </div>
               </div>
 
@@ -866,7 +908,10 @@ export default function AdminEmailTemplates() {
             </div>
 
             <div className="px-6 py-3 border-t bg-gray-50 flex items-center justify-between text-xs text-gray-500">
-              <span>{t("admin.emailTemplates.previewToPrefix")} {t("admin.emailTemplates.previewToMock")}</span>
+              <span>
+                {t("admin.emailTemplates.previewToPrefix")}{" "}
+                {t("admin.emailTemplates.previewToMock")}
+              </span>
               <button
                 type="button"
                 onClick={() => setPreviewModalOpen(false)}
@@ -889,7 +934,9 @@ export default function AdminEmailTemplates() {
                   <Send size={18} />
                 </div>
                 <h3 className="text-base font-bold text-gray-900">
-                  {t("admin.emailTemplates.modalTestTitle", { name: testTemplate.templateName })}
+                  {t("admin.emailTemplates.modalTestTitle", {
+                    name: testTemplate.templateName,
+                  })}
                 </h3>
               </div>
               <button
@@ -910,7 +957,9 @@ export default function AdminEmailTemplates() {
                   type="email"
                   value={testRecipient}
                   onChange={(e) => setTestRecipient(e.target.value)}
-                  placeholder={t("admin.emailTemplates.testRecipientPlaceholder")}
+                  placeholder={t(
+                    "admin.emailTemplates.testRecipientPlaceholder",
+                  )}
                   required
                   className="w-full rounded-xl border border-gray-300 px-3.5 py-2 text-sm focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600"
                 />

@@ -167,4 +167,49 @@ public class EmailTemplatesControllerTests
         Assert.Contains("E4A8F201", val.Subject);
         Assert.Contains("https://printmy3d.work/orders/", val.HtmlBody);
     }
+
+    [Fact]
+    public void SeededDefaultTemplates_DoNotContainPricesOrSlicingPreviewHeader()
+    {
+        var defaults = EmailTemplateSeeder.GetDefaultTemplates();
+        Assert.NotEmpty(defaults);
+
+        foreach (var template in defaults)
+        {
+            Assert.DoesNotContain("3D CAD / Slicing Preview", template.Body);
+            Assert.DoesNotContain("&euro;", template.Body, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("€", template.Body);
+            Assert.DoesNotContain("{{Price}}", template.Body);
+            Assert.DoesNotContain("{{Amount}}", template.Body);
+        }
+    }
+
+    [Fact]
+    public async Task EnsureDatabaseSeeded_AutomaticallyUpgradesLegacyTemplatesWithPricesOrSlicingPreview()
+    {
+        var options = new DbContextOptionsBuilder<PrintCraftDb>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
+            .Options;
+        using var db = new PrintCraftDb(options);
+
+        // Seed a legacy template
+        var legacy = new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
+            TemplateName = "QuoteConfirmation",
+            Subject = "Legacy Subject",
+            Body = "<div>3D CAD / Slicing Preview</div><p>Total Price: &euro;{{Price}}</p>"
+        };
+        await db.EmailTemplates.AddAsync(legacy);
+        await db.SaveChangesAsync();
+
+        var result = await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db, forceReload: false);
+
+        Assert.True(result.Updated > 0);
+        var updated = await db.EmailTemplates.FirstAsync(t => t.Id == legacy.Id);
+        Assert.DoesNotContain("3D CAD / Slicing Preview", updated.Body);
+        Assert.DoesNotContain("&euro;", updated.Body);
+        Assert.DoesNotContain("{{Price}}", updated.Body);
+    }
 }
+
