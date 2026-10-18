@@ -234,10 +234,35 @@ if (isSeedOnly)
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<PrintCraftDb>();
+        var connStr = db.Database.GetConnectionString() ?? "";
+        try
+        {
+            var npgsqlBuilder = new Npgsql.NpgsqlConnectionStringBuilder(connStr);
+            Console.WriteLine($"[PrintCraft Seeder] Target database: Host='{npgsqlBuilder.Host}', Port={npgsqlBuilder.Port}, Database='{npgsqlBuilder.Database}', User='{npgsqlBuilder.Username}'");
+        }
+        catch
+        {
+            Console.WriteLine("[PrintCraft Seeder] Target database connection string loaded.");
+        }
 
         Console.WriteLine("[PrintCraft Seeder] Step 1/4: Applying database migrations & schema...");
-        await db.Database.MigrateAsync();
-        await EnsureSchemaColumnsAsync(db);
+        try
+        {
+            await db.Database.MigrateAsync();
+            await EnsureSchemaColumnsAsync(db);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"[PrintCraft Seeder] ERROR: Database connection failed: {ex.Message}");
+            Console.WriteLine("[PrintCraft Seeder] Common causes & fixes:");
+            Console.WriteLine("  1. The postgres container is not running: run 'docker compose ps' to check.");
+            Console.WriteLine("  2. If using Docker, ensure the database host in ConnectionStrings__DefaultConnection is 'postgres' (the Docker service name), not 'localhost'.");
+            Console.WriteLine("  3. Make sure the containers share the same network: run 'docker compose up -d postgres'.");
+            Console.WriteLine("  4. Or run the seeder via Docker Compose directly: 'docker compose run --rm seeder'");
+            Console.WriteLine();
+            throw;
+        }
 
         Console.WriteLine("[PrintCraft Seeder] Step 2/4: Seeding Hero Slides...");
         HeroSlideSeeder.EnsureSeedAssets(app.Environment.WebRootPath, app.Environment.ContentRootPath);

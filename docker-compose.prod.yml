@@ -56,6 +56,31 @@ services:
       - printcraft_dp_keys:/root/.aspnet/DataProtection-Keys
     restart: unless-stopped
 
+  seeder:
+    profiles: ["seed", "tools"]
+    build:
+      context: .
+      dockerfile: PrintCraftApi/Dockerfile
+    command: ["--seed"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      FrontendBaseUrl: ${FrontendBaseUrl:?FrontendBaseUrl is required}
+      BackendBaseUrl: ${BackendBaseUrl:?BackendBaseUrl is required}
+      JwtSecret: ${JwtSecret}
+      JwtIssuer: ${JwtIssuer}
+      JwtAudience: ${JwtAudience}
+      Email__Username: ${Email__Username:?Email username is required}
+      Email__Password: ${Email__Password:?Email password is required}
+      Email__SenderEmail: ${Email__SenderEmail:?Sender email required}
+      Email__SmtpHost: ${Email__SmtpHost:?SMTP host required}
+    volumes:
+      - printcraft_uploads:/app/wwwroot/uploads
+      - printcraft_dp_keys:/root/.aspnet/DataProtection-Keys
+
   frontend:
     build:
       context: ./frontend
