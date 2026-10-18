@@ -66,3 +66,4 @@ const trLocale: TranslationSchema = {
 };
 
 export default trLocale;
+

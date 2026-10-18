@@ -64,3 +64,4 @@ export function getHeroSlideTooltip(
   }
   return slide.instructionTooltip?.trim() || undefined;
 }
+

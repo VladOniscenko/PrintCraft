@@ -66,3 +66,4 @@ const enLocale: TranslationSchema = {
 };
 
 export default enLocale;
+

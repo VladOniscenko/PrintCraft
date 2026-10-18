@@ -66,3 +66,4 @@ const ruLocale: TranslationSchema = {
 };
 
 export default ruLocale;
+

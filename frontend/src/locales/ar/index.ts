@@ -66,3 +66,4 @@ const arLocale: TranslationSchema = {
 };
 
 export default arLocale;
+
