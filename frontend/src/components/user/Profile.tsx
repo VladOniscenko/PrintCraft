@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
-import api from "../../services/api";
+import api, { getCurrentUser, invalidateAuthCache } from "../../services/api";
 import { useI18n } from "../../i18n/I18nContext";
 import {
   supportedLanguages,
@@ -88,18 +88,20 @@ export default function Profile() {
 
   const fetchProfileData = async () => {
     try {
-      // 1. Fetch User Data
-      const userResponse = await api.get("/auth/me");
-      const prefLang = resolveLanguage(
-        userResponse.data?.preferredLanguage || language,
-      );
-      setUserData({
-        id: userResponse.data.id,
-        name: userResponse.data.name,
-        email: userResponse.data.email,
-        preferredLanguage: prefLang,
-      });
-      setActivePrefLang(prefLang);
+      // 1. Fetch User Data (using client-side cached auth session)
+      const user = await getCurrentUser();
+      if (user) {
+        const prefLang = resolveLanguage(
+          user.preferredLanguage || language,
+        );
+        setUserData({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          preferredLanguage: prefLang,
+        });
+        setActivePrefLang(prefLang);
+      }
 
       // 2. Fetch All Addresses
       const addressesResponse = await api.get("/me/addresses");
@@ -116,6 +118,7 @@ export default function Profile() {
     setSavingLanguage(true);
     try {
       await api.put("/auth/me/language", { language: newLang });
+      invalidateAuthCache();
       setActivePrefLang(newLang);
       setUserData((prev) => ({ ...prev, preferredLanguage: newLang }));
       setLanguage(newLang);

@@ -19,7 +19,7 @@ import {
   Sparkles,
   Tag,
 } from "lucide-react";
-import { getActiveHeroSlides } from "../services/api";
+import { getActiveHeroSlides, getCachedActiveHeroSlides } from "../services/api";
 import type { HeroSlide } from "../types";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import { useI18n } from "../i18n/I18nContext";
@@ -109,7 +109,15 @@ const AUTOPLAY_INTERVAL_MS = 5000;
 
 export default function Hero() {
   const { t, language, localizePath } = useI18n();
-  const [slides, setSlides] = useState<HeroSlide[]>(FALLBACK_SLIDES);
+  const [slides, setSlides] = useState<HeroSlide[]>(() => {
+    const cached = getCachedActiveHeroSlides();
+    if (cached && cached.length > 0) {
+      return [...cached].sort(
+        (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
+      );
+    }
+    return FALLBACK_SLIDES;
+  });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -118,7 +126,7 @@ export default function Hero() {
 
   const isNl = language === "nl";
 
-  // Fetch active slides from .NET API after initial paint / during idle
+  // Fetch active slides from .NET API (cached client-side to prevent redundant roundtrips on route changes)
   useEffect(() => {
     let active = true;
     let idleHandle: number | null = null;
@@ -132,24 +140,31 @@ export default function Hero() {
             (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
           );
           setSlides(sorted);
-          setCurrentIndex(0);
         }
       } catch (err) {
         console.warn("Could not load dynamic hero slides from API, using fallback slides:", err);
       }
     }
 
+    // If already cached synchronously, no delay is required
+    if (getCachedActiveHeroSlides() !== null) {
+      void loadSlides();
+      return () => {
+        active = false;
+      };
+    }
+
     const idleWindow = typeof window !== "undefined" ? (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void }) : null;
     if (idleWindow && typeof idleWindow.requestIdleCallback === "function") {
       idleHandle = idleWindow.requestIdleCallback(
         () => {
-          void loadSlides();
+          if (active) void loadSlides();
         },
         { timeout: 3000 },
       );
     } else {
       timeoutHandle = setTimeout(() => {
-        void loadSlides();
+        if (active) void loadSlides();
       }, 2000) as unknown as number;
     }
 

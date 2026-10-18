@@ -87,10 +87,6 @@ if (!isSeedOnly)
     builder.Services.AddHostedService<BackgroundEmailWorker>();
     builder.Services.AddSingleton<IEmailService, QueuedEmailService>();
 
-    // Visitor Tracking (Background Queue + Batch Persistence Worker)
-    builder.Services.AddSingleton<IVisitorTrackingQueue, VisitorTrackingQueue>();
-    builder.Services.AddHostedService<VisitorTrackingBackgroundWorker>();
-
     builder.Services.AddScoped<IInvoiceService, InvoiceService>();
     builder.Services.AddScoped<IPrintPricingService, PrintPricingService>();
     builder.Services.AddSingleton<IPricingQueue, PricingQueue>();

@@ -17,7 +17,6 @@ public class ApiAuthorizationTests
         "AuthController.ResetPassword",
         "OrdersController.CreateQuote",
         "QuoteDraftsController.Create",
-        "AnalyticsController.TrackVisit",
         "UploadController.Upload",
         "UploadController.DeleteTempUpload",
         "FilamentPaintingController.GeneratePainting"
@@ -146,8 +145,8 @@ public class ApiAuthorizationTests
     [Fact]
     public void WhitelistedPublicMutatingEndpoints_AreStrictlyLimited()
     {
-        // Enforce that only the intended 10 endpoints are whitelisted
-        Assert.Equal(10, ApprovedPublicMutatingActions.Count);
+        // Enforce that only the intended 9 endpoints are whitelisted
+        Assert.Equal(9, ApprovedPublicMutatingActions.Count);
     }
 }
 

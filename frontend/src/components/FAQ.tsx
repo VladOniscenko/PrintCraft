@@ -5,13 +5,21 @@ import { useI18n } from "../i18n/I18nContext";
 import Footer from "./Footer";
 import { Link } from "react-router-dom";
 import { businessInfo } from "../config/businessInfo";
-import { getFaqItems } from "../services/api";
+import { getFaqItems, getCachedFaqItems } from "../services/api";
 import type { FaqItem } from "../types/faq";
 import { getLocalizedText } from "../utils/i18nHelpers";
 
 export default function FAQ() {
   const { t, language, localizePath } = useI18n();
-  const [dynamicItems, setDynamicItems] = useState<FaqItem[]>([]);
+  const [dynamicItems, setDynamicItems] = useState<FaqItem[]>(() => {
+    const cached = getCachedFaqItems();
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      return cached
+        .filter((item: FaqItem) => item.isActive)
+        .sort((a: FaqItem, b: FaqItem) => a.sortOrder - b.sortOrder);
+    }
+    return [];
+  });
 
   useEffect(() => {
     let isMounted = true;

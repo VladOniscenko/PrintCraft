@@ -17,41 +17,11 @@ interface OrdersResponse {
   totalCount: number;
 }
 
-interface VisitBucket {
-  label: string;
-  views: number;
-  uniqueVisitors: number;
-}
-
-interface CountryStat {
-  countryCode: string;
-  views: number;
-  uniqueVisitors: number;
-}
-
-interface CityStat {
-  countryCode: string;
-  city: string;
-  views: number;
-  uniqueVisitors: number;
-}
-
-interface VisitAnalytics {
-  generatedAtUtc: string;
-  liveVisitorsNow: number;
-  viewsByDay: VisitBucket[];
-  viewsByMonth: VisitBucket[];
-  viewsByYear: VisitBucket[];
-  topCountries: CountryStat[];
-  topCities: CityStat[];
-}
-
 type DashboardData = {
   summary: Summary;
   orders: Order[];
   usersCount: number;
   filaments: Filament[];
-  analytics: VisitAnalytics;
 };
 
 function StatCard({
@@ -112,7 +82,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [summaryRes, ordersRes, usersRes, filamentsRes, analyticsRes] =
+        const [summaryRes, ordersRes, usersRes, filamentsRes] =
           await Promise.all([
             api.get<Summary>("/admin/summary"),
             api.get<OrdersResponse>(
@@ -120,7 +90,6 @@ export default function AdminDashboard() {
             ),
             api.get<{ totalCount: number }>("/admin/users?page=1&pageSize=1"),
             api.get<Filament[]>("/filaments"),
-            api.get<VisitAnalytics>("/admin/analytics/visits"),
           ]);
 
         setData({
@@ -128,7 +97,6 @@ export default function AdminDashboard() {
           orders: ordersRes.data.results || [],
           usersCount: usersRes.data.totalCount || 0,
           filaments: Array.isArray(filamentsRes.data) ? filamentsRes.data : [],
-          analytics: analyticsRes.data,
         });
       } catch (err) {
         console.error(err);
@@ -161,7 +129,7 @@ export default function AdminDashboard() {
     return null;
   }
 
-  const { summary, orders, usersCount, filaments, analytics } = data;
+  const { summary, orders, usersCount, filaments } = data;
 
   const statusCounts = orders.reduce<Record<string, number>>((acc, order) => {
     const key = order.status || "unknown";
@@ -260,22 +228,6 @@ export default function AdminDashboard() {
         filaments.length
       : 0;
 
-  const dailyViews = analytics.viewsByDay.reduce(
-    (sum, row) => sum + row.views,
-    0,
-  );
-  const monthlyViews = analytics.viewsByMonth.reduce(
-    (sum, row) => sum + row.views,
-    0,
-  );
-  const yearlyViews = analytics.viewsByYear.reduce(
-    (sum, row) => sum + row.views,
-    0,
-  );
-  const uniqueCountries = analytics.topCountries.length;
-  const topCountriesPreview = analytics.topCountries.slice(0, 3);
-  const topCitiesPreview = analytics.topCities.slice(0, 3);
-
   const quickSnapshot = [
     {
       label: t("admin.dashboard.totalOrders"),
@@ -293,9 +245,9 @@ export default function AdminDashboard() {
       hint: t("admin.dashboard.hintRevenuePaidOrders"),
     },
     {
-      label: t("admin.dashboard.liveVisitorsNow"),
-      value: analytics.liveVisitorsNow,
-      hint: t("admin.dashboard.hintLastFiveMinutes"),
+      label: t("admin.dashboard.inStockFilaments"),
+      value: inStockFilaments,
+      hint: t("admin.dashboard.materials"),
     },
     {
       label: t("admin.dashboard.totalUsers"),
@@ -468,160 +420,6 @@ export default function AdminDashboard() {
           rows={inventoryRows}
           compact
         />
-      </section>
-
-      <section className="admin-panel p-5 mb-6">
-        <h2 className="text-lg font-semibold mb-1 text-[#16251f]">
-          {t("admin.dashboard.trafficTitle")}
-        </h2>
-        <p className="text-xs text-[#5f736d] mb-3">
-          {t("admin.dashboard.trafficSubtitle")}
-        </p>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
-          <div className="rounded-lg border border-[#dbe7e2] bg-[#f8fcfa] px-3 py-2">
-            <p className="text-[11px] uppercase tracking-wide text-[#6d837b]">
-              {t("admin.dashboard.liveVisitorsNow")}
-            </p>
-            <p className="text-lg font-bold text-[#16251f]">
-              {analytics.liveVisitorsNow}
-            </p>
-          </div>
-          <div className="rounded-lg border border-[#dbe7e2] bg-[#f8fcfa] px-3 py-2">
-            <p className="text-[11px] uppercase tracking-wide text-[#6d837b]">
-              {t("admin.dashboard.viewsLast14Days")}
-            </p>
-            <p className="text-lg font-bold text-[#16251f]">{dailyViews}</p>
-          </div>
-          <div className="rounded-lg border border-[#dbe7e2] bg-[#f8fcfa] px-3 py-2">
-            <p className="text-[11px] uppercase tracking-wide text-[#6d837b]">
-              {t("admin.dashboard.viewsLast12Months")}
-            </p>
-            <p className="text-lg font-bold text-[#16251f]">{monthlyViews}</p>
-          </div>
-          <div className="rounded-lg border border-[#dbe7e2] bg-[#f8fcfa] px-3 py-2">
-            <p className="text-[11px] uppercase tracking-wide text-[#6d837b]">
-              {t("admin.dashboard.viewsLast5Years")}
-            </p>
-            <p className="text-lg font-bold text-[#16251f]">{yearlyViews}</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
-          <div className="rounded-lg border border-[#dbe7e2] bg-[#f8fcfa] p-3">
-            <h3 className="text-sm font-semibold text-[#1f312b] mb-1">
-              {t("admin.dashboard.topCountries")}
-            </h3>
-            {topCountriesPreview.length === 0 ? (
-              <p className="text-xs text-[#6d837b]">
-                {t("admin.dashboard.noLocationData")}
-              </p>
-            ) : (
-              <div className="space-y-1">
-                {topCountriesPreview.map((row) => (
-                  <div
-                    key={row.countryCode}
-                    className="flex items-center justify-between text-xs text-[#3b564e]"
-                  >
-                    <span>{row.countryCode}</span>
-                    <span>{row.views}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="rounded-lg border border-[#dbe7e2] bg-[#f8fcfa] p-3">
-            <h3 className="text-sm font-semibold text-[#1f312b] mb-1">
-              {t("admin.dashboard.topCities")}
-            </h3>
-            {topCitiesPreview.length === 0 ? (
-              <p className="text-xs text-[#6d837b]">
-                {t("admin.dashboard.noLocationData")}
-              </p>
-            ) : (
-              <div className="space-y-1">
-                {topCitiesPreview.map((row) => (
-                  <div
-                    key={`${row.countryCode}-${row.city}`}
-                    className="flex items-center justify-between text-xs text-[#3b564e]"
-                  >
-                    <span className="truncate pr-2">
-                      {row.city}, {row.countryCode}
-                    </span>
-                    <span>{row.views}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <details className="rounded-lg border border-[#dbe7e2] bg-[#fbfefd] p-3">
-          <summary className="cursor-pointer text-sm font-semibold text-[#1f312b]">
-            {t("admin.dashboard.trafficDetailsToggle")}
-          </summary>
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-3 mt-3">
-            <div className="rounded-lg border border-[#dbe7e2] bg-[#f7fcf9] p-3">
-              <h3 className="font-semibold text-[#1f312b] mb-2 text-sm">
-                {t("admin.dashboard.dailyViews")}
-              </h3>
-              <div className="space-y-1 max-h-44 overflow-y-auto">
-                {analytics.viewsByDay.map((row) => (
-                  <div
-                    key={row.label}
-                    className="flex items-center justify-between text-xs text-[#395049]"
-                  >
-                    <span>{row.label}</span>
-                    <span>
-                      {row.views} / {row.uniqueVisitors}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-lg border border-[#dbe7e2] bg-[#f7fcf9] p-3">
-              <h3 className="font-semibold text-[#1f312b] mb-2 text-sm">
-                {t("admin.dashboard.monthlyViews")}
-              </h3>
-              <div className="space-y-1 max-h-44 overflow-y-auto">
-                {analytics.viewsByMonth.map((row) => (
-                  <div
-                    key={row.label}
-                    className="flex items-center justify-between text-xs text-[#395049]"
-                  >
-                    <span>{row.label}</span>
-                    <span>
-                      {row.views} / {row.uniqueVisitors}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-lg border border-[#dbe7e2] bg-[#f7fcf9] p-3">
-              <h3 className="font-semibold text-[#1f312b] mb-2 text-sm">
-                {t("admin.dashboard.yearlyViews")}
-              </h3>
-              <div className="space-y-1 max-h-44 overflow-y-auto">
-                {analytics.viewsByYear.map((row) => (
-                  <div
-                    key={row.label}
-                    className="flex items-center justify-between text-xs text-[#395049]"
-                  >
-                    <span>{row.label}</span>
-                    <span>
-                      {row.views} / {row.uniqueVisitors}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </details>
-
-        <p className="text-xs text-[#6e857d] mt-2">
-          {t("admin.dashboard.locationsTracked")}: {uniqueCountries} •{" "}
-          {new Date(analytics.generatedAtUtc).toLocaleString()}
-        </p>
       </section>
     </AdminLayout>
   );

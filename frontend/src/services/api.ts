@@ -1,8 +1,34 @@
 import axios from "axios";
 import { resolveLanguage } from "../i18n/translations";
-import type { FaqItem, FaqTopic, ManagedCity } from "../types";
+import type { FaqItem, FaqTopic, ManagedCity, HeroSlide, User } from "../types";
+import { createCache, createKeyedCache } from "./cache";
 
 const VISITOR_ID_STORAGE_KEY = "pc_visitor_id";
+
+// --- SPA Client Caches (prevents duplicate network roundtrips on route changes) ---
+const authMeCache = createCache<User>({
+  ttlMs: 5 * 60 * 1000, // 5 minutes
+  storageKey: "pc_cache_auth_me",
+});
+
+const heroSlidesCache = createCache<HeroSlide[]>({
+  ttlMs: 15 * 60 * 1000, // 15 minutes
+  storageKey: "pc_cache_heroslides",
+});
+
+const faqItemsCache = createCache<FaqItem[]>({
+  ttlMs: 15 * 60 * 1000, // 15 minutes
+  storageKey: "pc_cache_faq_items",
+});
+
+const faqTopicsCache = createCache<FaqTopic[]>({
+  ttlMs: 15 * 60 * 1000, // 15 minutes
+  storageKey: "pc_cache_faq_topics",
+});
+
+const faqTopicBySlugCache = createKeyedCache<FaqTopic>({
+  ttlMs: 15 * 60 * 1000, // 15 minutes
+});
 
 function generateVisitorId() {
   if (
@@ -49,6 +75,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
+      invalidateAuthCache();
       const hadToken = !!localStorage.getItem("token");
       if (hadToken) {
         localStorage.removeItem("token");
@@ -73,9 +100,47 @@ api.interceptors.response.use(
   },
 );
 
-export async function getActiveHeroSlides() {
-  const res = await api.get("/heroslides/active");
-  return Array.isArray(res.data) ? res.data : [];
+// --- Auth Session & User Cache API ---
+
+export async function getCurrentUser(force = false): Promise<User | null> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  if (!token) {
+    authMeCache.invalidate();
+    return null;
+  }
+
+  return authMeCache.fetch(async () => {
+    const res = await api.get("/auth/me");
+    if (res?.data) {
+      localStorage.setItem("user", JSON.stringify(res.data));
+    }
+    return res.data;
+  }, force);
+}
+
+export function getCachedCurrentUser(): User | null {
+  return authMeCache.get();
+}
+
+export function invalidateAuthCache(): void {
+  authMeCache.invalidate();
+}
+
+// --- Hero Slides API ---
+
+export async function getActiveHeroSlides(force = false): Promise<HeroSlide[]> {
+  return heroSlidesCache.fetch(async () => {
+    const res = await api.get("/heroslides/active");
+    return Array.isArray(res.data) ? res.data : [];
+  }, force);
+}
+
+export function getCachedActiveHeroSlides(): HeroSlide[] | null {
+  return heroSlidesCache.get();
+}
+
+export function invalidateHeroSlidesCache(): void {
+  heroSlidesCache.invalidate();
 }
 
 export async function getHeroSlides(all?: boolean) {
@@ -125,6 +190,7 @@ export async function uploadHeroMedia(file: File) {
 
 export async function seedDefaultHeroSlides() {
   const res = await api.post("/heroslides/seed-defaults");
+  invalidateHeroSlidesCache();
   return Array.isArray(res.data) ? res.data : [];
 }
 
@@ -198,13 +264,29 @@ export async function resetDefaultEmailTemplates() {
 
 // --- FAQ API ---
 
-export async function getFaqItems(all = false, category?: string): Promise<FaqItem[]> {
+export async function getFaqItems(all = false, category?: string, force = false): Promise<FaqItem[]> {
+  // Use client-side cache for default active storefront query
+  if (!all && !category) {
+    return faqItemsCache.fetch(async () => {
+      const res = await api.get("/faq");
+      return Array.isArray(res.data) ? res.data : [];
+    }, force);
+  }
+
   const params = new URLSearchParams();
   if (all) params.append("all", "true");
   if (category) params.append("category", category);
   const query = params.toString() ? `?${params.toString()}` : "";
   const res = await api.get(`/faq${query}`);
   return res.data;
+}
+
+export function getCachedFaqItems(): FaqItem[] | null {
+  return faqItemsCache.get();
+}
+
+export function invalidateFaqCache(): void {
+  faqItemsCache.invalidate();
 }
 
 export async function getFaqItem(id: string): Promise<FaqItem> {
@@ -214,54 +296,84 @@ export async function getFaqItem(id: string): Promise<FaqItem> {
 
 export async function createFaqItem(item: Partial<FaqItem>): Promise<FaqItem> {
   const res = await api.post("/faq", item);
+  invalidateFaqCache();
   return res.data;
 }
 
 export async function updateFaqItem(id: string, item: Partial<FaqItem>): Promise<FaqItem> {
   const res = await api.put(`/faq/${id}`, item);
+  invalidateFaqCache();
   return res.data;
 }
 
 export async function deleteFaqItem(id: string): Promise<{ message: string }> {
   const res = await api.delete(`/faq/${id}`);
+  invalidateFaqCache();
   return res.data;
 }
 
 export async function seedFaqItems(forceReload = false): Promise<unknown> {
   const res = await api.post(`/faq/seed?forceReload=${forceReload}`);
+  invalidateFaqCache();
   return res.data;
 }
 
 // --- FAQ Topics / Solutions (/faq/{alias}) API ---
 
-export async function getFaqTopics(all = false): Promise<FaqTopic[]> {
-  const query = all ? "?all=true" : "";
-  const res = await api.get(`/faq-topics${query}`);
+export async function getFaqTopics(all = false, force = false): Promise<FaqTopic[]> {
+  if (!all) {
+    return faqTopicsCache.fetch(async () => {
+      const res = await api.get("/faq-topics");
+      return Array.isArray(res.data) ? res.data : [];
+    }, force);
+  }
+
+  const res = await api.get("/faq-topics?all=true");
   return res.data;
 }
 
-export async function getFaqTopic(slugOrId: string): Promise<FaqTopic> {
-  const res = await api.get(`/faq-topics/${encodeURIComponent(slugOrId)}`);
-  return res.data;
+export function getCachedFaqTopics(): FaqTopic[] | null {
+  return faqTopicsCache.get();
+}
+
+export async function getFaqTopic(slugOrId: string, force = false): Promise<FaqTopic> {
+  const key = slugOrId.trim().toLowerCase();
+  return faqTopicBySlugCache.fetch(key, async () => {
+    const res = await api.get(`/faq-topics/${encodeURIComponent(slugOrId)}`);
+    return res.data;
+  }, force);
+}
+
+export function getCachedFaqTopic(slugOrId: string): FaqTopic | null {
+  return faqTopicBySlugCache.get(slugOrId.trim().toLowerCase());
+}
+
+export function invalidateFaqTopicsCache(slugOrId?: string): void {
+  faqTopicsCache.invalidate();
+  faqTopicBySlugCache.invalidate(slugOrId ? slugOrId.trim().toLowerCase() : undefined);
 }
 
 export async function createFaqTopic(topic: Partial<FaqTopic>): Promise<FaqTopic> {
   const res = await api.post("/faq-topics", topic);
+  invalidateFaqTopicsCache();
   return res.data;
 }
 
 export async function updateFaqTopic(id: string, topic: Partial<FaqTopic>): Promise<FaqTopic> {
   const res = await api.put(`/faq-topics/${id}`, topic);
+  invalidateFaqTopicsCache(topic.slug || id);
   return res.data;
 }
 
 export async function deleteFaqTopic(id: string): Promise<{ message: string }> {
   const res = await api.delete(`/faq-topics/${id}`);
+  invalidateFaqTopicsCache();
   return res.data;
 }
 
 export async function seedFaqTopics(forceReload = false): Promise<unknown> {
   const res = await api.post(`/faq-topics/seed?forceReload=${forceReload}`);
+  invalidateFaqTopicsCache();
   return res.data;
 }
 

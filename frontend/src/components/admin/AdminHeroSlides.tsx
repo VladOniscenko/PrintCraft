@@ -21,6 +21,7 @@ import AdminLayout from "./AdminLayout";
 import api, {
   getHeroAvailableFiles,
   getHeroSlides,
+  invalidateHeroSlidesCache,
   seedDefaultHeroSlides,
   uploadHeroMedia,
 } from "../../services/api";
@@ -549,6 +550,7 @@ export default function AdminHeroSlides() {
     setSavingId(id);
     try {
       const res = await api.put(`/heroslides/${id}`, editFormData);
+      invalidateHeroSlidesCache();
       notifySuccess(t("admin.heroSlides.updateSuccess"));
       setSlides((prev) => prev.map((s) => (s.id === id ? res.data : s)));
       setEditingId(null);
@@ -569,6 +571,7 @@ export default function AdminHeroSlides() {
     setDeletingId(id);
     try {
       await api.delete(`/heroslides/${id}`);
+      invalidateHeroSlidesCache();
       notifySuccess(t("admin.heroSlides.deleteSuccess"));
       setSlides((prev) => prev.filter((s) => s.id !== id));
     } catch (err) {
@@ -626,6 +629,7 @@ export default function AdminHeroSlides() {
       };
 
       const res = await api.post("/heroslides", payload);
+      invalidateHeroSlidesCache();
       notifySuccess(t("admin.heroSlides.createSuccess"));
       setSlides((prev) =>
         [...prev, res.data].sort((a, b) => a.sortOrder - b.sortOrder),

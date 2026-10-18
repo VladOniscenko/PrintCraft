@@ -22,7 +22,7 @@ import {
 } from "../config/seoApplications";
 import { dutchCities, getCityName } from "../config/dutchCities";
 import { businessInfo } from "../config/businessInfo";
-import { getFaqTopic } from "../services/api";
+import { getFaqTopic, getCachedFaqTopic } from "../services/api";
 import type { FaqTopic } from "../types/faq";
 import {
   getLocalizedText,
@@ -42,7 +42,9 @@ export default function ApplicationLandingPage({
   const { language, t, localizePath } = useI18n();
 
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
-  const [dynamicTopic, setDynamicTopic] = useState<FaqTopic | null>(null);
+  const [dynamicTopic, setDynamicTopic] = useState<FaqTopic | null>(() => {
+    return activeSlug ? getCachedFaqTopic(activeSlug) : null;
+  });
 
   useEffect(() => {
     if (!activeSlug) return;

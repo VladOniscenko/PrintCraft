@@ -18,7 +18,6 @@ public class PrintCraftDb : DbContext
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<OrderItemAttachment> OrderItemAttachments => Set<OrderItemAttachment>();
     public DbSet<UserAddress> UserAddresses => Set<UserAddress>();
-    public DbSet<VisitEvent> VisitEvents => Set<VisitEvent>();
     public DbSet<ManualPaymentNotification> ManualPaymentNotifications => Set<ManualPaymentNotification>();
     public DbSet<QuoteDraft> QuoteDrafts => Set<QuoteDraft>();
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
@@ -85,18 +84,6 @@ public class PrintCraftDb : DbContext
             .WithMany()
             .HasForeignKey(cr => cr.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<VisitEvent>()
-            .HasIndex(v => v.VisitedAt);
-
-        modelBuilder.Entity<VisitEvent>()
-            .HasIndex(v => new { v.EventType, v.VisitedAt });
-
-        modelBuilder.Entity<VisitEvent>()
-            .HasIndex(v => new { v.VisitorKey, v.VisitedAt });
-
-        modelBuilder.Entity<VisitEvent>()
-            .HasIndex(v => new { v.CountryCode, v.VisitedAt });
 
         modelBuilder.Entity<Order>()
             .Property(o => o.PaymentFlow)

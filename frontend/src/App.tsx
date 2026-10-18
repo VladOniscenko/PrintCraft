@@ -10,32 +10,10 @@ import {
   useParams,
 } from "react-router-dom";
 import SeoManager from "./components/SeoManager";
-import api from "./services/api";
+import { getCurrentUser, invalidateAuthCache } from "./services/api";
 import { useI18n } from "./i18n/I18nContext.tsx";
 import { isSupportedLanguage, resolveLanguage } from "./i18n/translations";
 
-const recentVisitDispatches = new Map<string, number>();
-
-function shouldSendVisit(eventType: "pageview" | "heartbeat", path: string) {
-  const key = `${eventType}:${path}`;
-  const now = Date.now();
-  const minGapMs = eventType === "pageview" ? 3000 : 55000;
-  const previous = recentVisitDispatches.get(key) ?? 0;
-
-  if (now - previous < minGapMs) {
-    return false;
-  }
-
-  recentVisitDispatches.set(key, now);
-
-  for (const [entryKey, timestamp] of recentVisitDispatches) {
-    if (now - timestamp > 10 * 60 * 1000) {
-      recentVisitDispatches.delete(entryKey);
-    }
-  }
-
-  return true;
-}
 
 import Home from "./components/Home.tsx";
 const Login = lazy(() => import("./components/Login.tsx"));
@@ -123,10 +101,10 @@ function AuthSessionGuard() {
       if (!token) return;
 
       try {
-        const res = await api.get("/auth/me");
+        const user = await getCurrentUser();
         if (cancelled) return;
-        if (res?.data) {
-          localStorage.setItem("user", JSON.stringify(res.data));
+        if (user) {
+          localStorage.setItem("user", JSON.stringify(user));
         }
       } catch (err) {
         if (cancelled) return;
@@ -135,6 +113,7 @@ function AuthSessionGuard() {
           if (status === 401 || status === 404) {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
+            invalidateAuthCache();
             const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
             const preferred = resolveLanguage(stored);
             navigate(`/${preferred}/login`, { replace: true, state: { from: locationRef.current } });
@@ -163,58 +142,6 @@ function AuthSessionGuard() {
   return null;
 }
 
-function VisitTracker() {
-  const location = useLocation();
-
-  useEffect(() => {
-    const path = `${location.pathname}${location.search}`;
-    let stopped = false;
-
-    const sendVisit = async (eventType: "pageview" | "heartbeat") => {
-      if (!shouldSendVisit(eventType, path)) {
-        return;
-      }
-
-      try {
-        await api.post("/analytics/visit", {
-          path,
-          eventType,
-        });
-      } catch {
-        if (!stopped) {
-          // Intentionally swallow analytics tracking errors.
-        }
-      }
-    };
-
-    const idleWindow = typeof window !== "undefined" ? (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }) : null;
-    if (idleWindow && typeof idleWindow.requestIdleCallback === "function") {
-      idleWindow.requestIdleCallback(
-        () => {
-          if (!stopped) void sendVisit("pageview");
-        },
-        { timeout: 3500 },
-      );
-    } else {
-      setTimeout(() => {
-        if (!stopped) void sendVisit("pageview");
-      }, 2500);
-    }
-
-    const heartbeatId = window.setInterval(() => {
-      if (document.visibilityState === "visible") {
-        void sendVisit("heartbeat");
-      }
-    }, 60000);
-
-    return () => {
-      stopped = true;
-      window.clearInterval(heartbeatId);
-    };
-  }, [location.pathname, location.search]);
-
-  return null;
-}
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -283,7 +210,6 @@ export default function App() {
   return (
     <>
       <AuthSessionGuard />
-      <VisitTracker />
       <ScrollToTop />
       <SeoManager />
       <Suspense
