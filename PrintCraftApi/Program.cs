@@ -464,16 +464,38 @@ app.MapGet("/uploads/{**filePath}", (string filePath, IWebHostEnvironment env, H
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PrintCraftDb>();
-    await db.Database.MigrateAsync();
-    await EnsureSchemaColumnsAsync(db);
+    try
+    {
+        await db.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[PrintCraft DB] Migration warning (proceeding with safe schema sync): {ex.Message}");
+    }
 
-    HeroSlideSeeder.EnsureSeedAssets(app.Environment.WebRootPath, app.Environment.ContentRootPath);
-    await HeroSlideSeeder.EnsureDatabaseSeededAsync(db, forceReload);
-    await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db, forceReload);
-    await FilamentSeeder.EnsureDatabaseSeededAsync(db, forceReload);
-    await FaqItemSeeder.EnsureDatabaseSeededAsync(db, forceReload);
-    await FaqTopicSeeder.EnsureDatabaseSeededAsync(db, forceReload);
-    await CitySeeder.EnsureDatabaseSeededAsync(db, forceReload);
+    try
+    {
+        await EnsureSchemaColumnsAsync(db);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[PrintCraft DB] Schema check warning: {ex.Message}");
+    }
+
+    try
+    {
+        HeroSlideSeeder.EnsureSeedAssets(app.Environment.WebRootPath, app.Environment.ContentRootPath);
+        await HeroSlideSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        await FilamentSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        await FaqItemSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        await FaqTopicSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        await CitySeeder.EnsureDatabaseSeededAsync(db, forceReload);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[PrintCraft DB] Seeder warning: {ex.Message}");
+    }
 }
 
 app.Run();
@@ -527,6 +549,58 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
         );
         CREATE INDEX IF NOT EXISTS ""IX_OrderItemChangeRequests_OrderItemId_Status"" ON ""OrderItemChangeRequests""(""OrderItemId"", ""Status"");
         CREATE INDEX IF NOT EXISTS ""IX_OrderItemChangeRequests_OrderId_RequestedAt"" ON ""OrderItemChangeRequests""(""OrderId"", ""RequestedAt"");
+
+        CREATE TABLE IF NOT EXISTS ""Cities"" (
+            ""Id"" uuid NOT NULL PRIMARY KEY,
+            ""Slug"" text NOT NULL,
+            ""Names"" text NOT NULL,
+            ""Province"" text NOT NULL,
+            ""Latitude"" double precision NULL,
+            ""Longitude"" double precision NULL,
+            ""IsActive"" boolean NOT NULL DEFAULT TRUE,
+            ""SortOrder"" integer NOT NULL DEFAULT 0,
+            ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT NOW(),
+            ""UpdatedAt"" timestamp with time zone NOT NULL DEFAULT NOW()
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS ""IX_Cities_Slug"" ON ""Cities"" (""Slug"");
+        CREATE INDEX IF NOT EXISTS ""IX_Cities_Province_IsActive"" ON ""Cities"" (""Province"", ""IsActive"");
+
+        CREATE TABLE IF NOT EXISTS ""FaqItems"" (
+            ""Id"" uuid NOT NULL PRIMARY KEY,
+            ""Question"" text NOT NULL,
+            ""Answer"" text NOT NULL,
+            ""Category"" text NOT NULL,
+            ""SortOrder"" integer NOT NULL DEFAULT 0,
+            ""IsActive"" boolean NOT NULL DEFAULT TRUE,
+            ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT NOW(),
+            ""UpdatedAt"" timestamp with time zone NOT NULL DEFAULT NOW()
+        );
+        CREATE INDEX IF NOT EXISTS ""IX_FaqItems_Category_IsActive_SortOrder"" ON ""FaqItems"" (""Category"", ""IsActive"", ""SortOrder"");
+
+        CREATE TABLE IF NOT EXISTS ""FaqTopics"" (
+            ""Id"" uuid NOT NULL PRIMARY KEY,
+            ""Slug"" text NOT NULL,
+            ""Key"" text NULL,
+            ""Names"" text NOT NULL,
+            ""Tagline"" text NOT NULL,
+            ""Badge"" text NOT NULL,
+            ""HeroTitle"" text NOT NULL,
+            ""HeroSubtitle"" text NOT NULL,
+            ""Description"" text NOT NULL,
+            ""Benefits"" text NOT NULL,
+            ""RecommendedMaterials"" text NOT NULL,
+            ""LeadTime"" text NOT NULL,
+            ""Precision"" text NOT NULL,
+            ""MetaTitle"" text NOT NULL,
+            ""MetaDescription"" text NOT NULL,
+            ""MetaKeywords"" text NOT NULL,
+            ""Faqs"" text NOT NULL,
+            ""IsActive"" boolean NOT NULL DEFAULT TRUE,
+            ""SortOrder"" integer NOT NULL DEFAULT 0,
+            ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT NOW(),
+            ""UpdatedAt"" timestamp with time zone NOT NULL DEFAULT NOW()
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS ""IX_FaqTopics_Slug"" ON ""FaqTopics"" (""Slug"");
     ");
 }
 
