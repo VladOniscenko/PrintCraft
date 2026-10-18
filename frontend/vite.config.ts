@@ -5,10 +5,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { businessInfo } from "./src/config/businessInfo";
 import {
-  translations,
   supportedLanguages,
   defaultLanguage,
-} from "./src/i18n/translations";
+} from "./src/i18n/config";
+import nlSeo from "./src/locales/nl/seo.json";
 import {
   buildHomepageJsonLd,
   getValidatedOrigin,
@@ -180,8 +180,8 @@ export default defineConfig(({ mode }) => {
   const homepageJsonLdString = JSON.stringify(
     buildHomepageJsonLd(
       `${origin}/nl`,
-      translations.nl.seo.home.title,
-      translations.nl.seo.home.description,
+      nlSeo.home.title,
+      nlSeo.home.description,
       "nl",
     ),
     null,

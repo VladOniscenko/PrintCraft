@@ -1,0 +1,11 @@
+{
+  "title": "3D-modelviewer",
+  "backToOrder": "Terug naar order",
+  "download": "Bestand downloaden",
+  "loading": "Preview laden...",
+  "notFound": "Model niet gevonden voor dit orderitem.",
+  "orderItem": "Orderitem",
+  "unnamed": "Naamloos model",
+  "previewUnavailable": "Voor dit bestandstype is geen preview beschikbaar.",
+  "previewUnavailableHint": "Je kunt het bestand nog steeds downloaden en openen in een CAD-viewer."
+}

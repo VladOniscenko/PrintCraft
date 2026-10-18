@@ -1,0 +1,11 @@
+{
+  "title": "3D Model Viewer",
+  "backToOrder": "Back to order",
+  "download": "Download file",
+  "loading": "Loading preview...",
+  "notFound": "Model not found for this order item.",
+  "orderItem": "Order item",
+  "unnamed": "Untitled model",
+  "previewUnavailable": "Preview is unavailable for this file type.",
+  "previewUnavailableHint": "You can still download and open the file in a CAD viewer."
+}

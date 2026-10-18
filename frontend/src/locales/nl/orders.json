@@ -1,0 +1,14 @@
+{
+  "title": "Mijn Projecten",
+  "subtitle": "Volg je 3D print aanvragen en verzendstatus.",
+  "loading": "Ordergeschiedenis laden...",
+  "none": "Nog geen projecten",
+  "noneDesc": "Upload je 3D-ontwerpen en ontvang een offerte op maat.",
+  "start": "Start Nieuw Project",
+  "model": "Model",
+  "models": "Modellen",
+  "shippingTo": "Verzending naar",
+  "manage": "Project Beheren",
+  "project": "Project",
+  "placedOn": "Geplaatst op"
+}

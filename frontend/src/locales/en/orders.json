@@ -1,0 +1,14 @@
+{
+  "title": "My Projects",
+  "subtitle": "Track your 3D printing requests and shipping status.",
+  "loading": "Loading your order history...",
+  "none": "No projects yet",
+  "noneDesc": "Upload your 3D designs to get a custom price quote from our shop.",
+  "start": "Start New Project",
+  "model": "Model",
+  "models": "Models",
+  "shippingTo": "Shipping to",
+  "manage": "Manage Project",
+  "project": "Project",
+  "placedOn": "Placed on"
+}

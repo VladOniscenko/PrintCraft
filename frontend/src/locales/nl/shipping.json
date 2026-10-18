@@ -1,0 +1,19 @@
+{
+  "error": {
+    "fullNameRequired": "Volledige naam is verplicht",
+    "fullNameLength": "Volledige naam moet tussen 2-100 tekens zijn",
+    "fullNameInvalid": "Volledige naam bevat niet-ondersteunde tekens",
+    "phoneRequired": "Telefoonnummer is verplicht",
+    "phoneInvalid": "Telefoonnummer formaat is ongeldig",
+    "phoneLength": "Telefoonnummer moet tussen 7-15 cijfers bevatten",
+    "addressRequired": "Adres is verplicht",
+    "addressLength": "Adres moet tussen 5-120 tekens zijn",
+    "addressInvalid": "Adres bevat niet-ondersteunde tekens",
+    "cityRequired": "Stad is verplicht",
+    "cityLength": "Stad moet tussen 2-80 tekens zijn",
+    "cityInvalid": "Stad bevat niet-ondersteunde tekens",
+    "postalRequired": "Postcode is verplicht",
+    "postalLength": "Postcode moet tussen 3-12 tekens zijn",
+    "postalInvalid": "Postcode formaat is ongeldig"
+  }
+}

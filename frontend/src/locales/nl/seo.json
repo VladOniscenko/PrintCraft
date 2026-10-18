@@ -1,0 +1,69 @@
+{
+  "default": {
+    "title": "3D Print Service Nederland | Print My 3D",
+    "description": "Professionele 3D-printservice in Nederland. Upload direct je 3D-bestand voor een offerte op maat in PLA, PETG of TPU. Gevestigd in Rotterdam, snel bezorgd in heel Nederland.",
+    "keywords": "3d print service nederland, 3d printen nederland, 3d print service rotterdam, 3d printen rotterdam, stl printen, online 3d printen, rapid prototyping, maatwerk 3d print"
+  },
+  "home": {
+    "title": "3D Print Service Nederland | Print My 3D",
+    "description": "Professionele 3D-printservice in Nederland. Upload direct je 3D-bestand voor een offerte op maat in PLA, PETG of TPU. Gevestigd in Rotterdam, snel bezorgd in heel Nederland.",
+    "keywords": "3d print service nederland, 3d printen nederland, 3d print service rotterdam, 3d printen rotterdam, stl printen, online 3d printen, rapid prototyping, maatwerk 3d print"
+  },
+  "gallery": {
+    "title": "3D Print Modellen Galerij | Print My 3D",
+    "description": "Bekijk 3D-print modellen of bestel direct ontwerpen van Thingiverse, Printables en MakerWorld. Maatwerk 3D-prints snel geleverd in Nederland.",
+    "keywords": "3D modellen printen, 3D print galerij, Thingiverse model laten printen, Printables model laten printen, MakerWorld bestand bestellen"
+  },
+  "materials": {
+    "title": "3D Print Materialen: PETG, Flexibel TPU & PLA | Print My 3D",
+    "description": "Kwaliteitsfilamenten voor functionele onderdelen en prototypes: sterk PETG, flexibel TPU rubber en nauwkeurig PLA.",
+    "keywords": "3D print materialen, PETG filament, flexibel TPU, PLA printen, 3D printing Nederland"
+  },
+  "faq": {
+    "title": "Veelgestelde Vragen 3D Printen | Print My 3D",
+    "description": "Antwoorden op veelgestelde vragen over 3D-printen: materialen, bestandstypes, prijzen en levertijden.",
+    "keywords": "3D printen FAQ, veelgestelde vragen 3D printen, levertijd 3D print, materialen 3D printen, STL uploaden"
+  },
+  "privacy": {
+    "title": "Privacybeleid | Print My 3D",
+    "description": "Privacybeleid van Print My 3D. Hoe wij persoonsgegevens en geüploade 3D-bestanden beveiligen en verwerken conform de AVG.",
+    "keywords": "privacy policy, AVG, GDPR, data protection"
+  },
+  "terms": {
+    "title": "Algemene Voorwaarden | Print My 3D",
+    "description": "Algemene voorwaarden van Print My 3D voor 3D-printdiensten, offertes, bestellingen en maatwerkproductie.",
+    "keywords": "terms of service, algemene voorwaarden, 3D printing terms"
+  },
+  "refunds": {
+    "title": "Retour- en Terugbetalingsbeleid | Print My 3D",
+    "description": "Informatie over onze kwaliteitsgarantie, herprints bij printfouten en ons beleid rond maatwerkbestellingen.",
+    "keywords": "refund policy, retourbeleid, garantie 3D printen"
+  },
+  "shippingPolicy": {
+    "title": "Verzendbeleid & Levering | Print My 3D",
+    "description": "Verzendinformatie van Print My 3D. Snelle levering binnen 2-5 werkdagen in heel Nederland met betrouwbare pakketbezorging.",
+    "keywords": "shipping policy, verzendbeleid, levertijd 3D printen Nederland"
+  },
+  "notFound": {
+    "title": "Pagina niet gevonden | Print My 3D",
+    "description": "De opgevraagde pagina kon niet worden gevonden. Keer terug naar Print My 3D voor 3D-printdiensten.",
+    "keywords": "404, not found"
+  },
+  "schema": {
+    "siteDescription": "Professionele 3D-printservice in Rotterdam. Maatwerk FDM-prints in PLA, PETG en flexibel TPU met snelle levering.",
+    "catalogName": "3D Print Diensten",
+    "fdmServiceName": "Maatwerk FDM 3D-Printen (PLA, PETG, TPU)",
+    "fdmServiceDesc": "Nauwkeurig 3D-printen van functionele onderdelen, prototypes en modellen in PLA, PETG en TPU.",
+    "hueforgeServiceName": "HueForge Filament Painting (3D Kunst & Reliëf)",
+    "hueforgeServiceDesc": "Meerkleurige 3D-reliëf schilderijen van 2D afbeeldingen met optische laagmenging.",
+    "replacementServiceName": "Vervangende Onderdelen & Reparaties",
+    "replacementServiceDesc": "Reproductie en printen van niet meer leverbare of kapotte kunststof onderdelen voor apparaten en gereedschap.",
+    "prototypingServiceName": "Rapid Prototyping & Modellen",
+    "prototypingServiceDesc": "Snelle functionele prototypes, studentenprojecten, maquettes en validatiemodellen.",
+    "toolingServiceName": "Mallen & Kalibers 3D-Printen (Jigs & Fixtures)",
+    "toolingServiceDesc": "Productie van montagemallen, inspectiekalibers en slijtvaste werkplaatsonderdelen.",
+    "batchServiceName": "Kleine Series Kunststof Onderdelen (10–500 stuks)",
+    "batchServiceDesc": "Kleine productieseries met duidelijke zakelijke facturatie.",
+    "cityServiceTemplate": "3D Print Service in {city}"
+  }
+}

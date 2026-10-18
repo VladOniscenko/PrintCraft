@@ -1,0 +1,23 @@
+{
+  "quote_requested": "Offerte aangevraagd",
+  "unknown": "Onbekend",
+  "awaiting_payment": "In afwachting van betaling",
+  "ready_to_print": "Klaar om te printen",
+  "printing": "In productie",
+  "post_processing": "Nabewerking",
+  "shipped": "Verzonden",
+  "on_hold": "In de wacht",
+  "cancelled": "Geannuleerd",
+  "returned": "Geretourneerd",
+  "pendingQuote": "Offerte in behandeling",
+  "pending_quote": "Offerte in behandeling",
+  "quoted": "Geoffreerd",
+  "expiredQuote": "Offerte verlopen",
+  "pendingPayment": "In afwachting van betaling",
+  "pending_payment": "In afwachting van betaling",
+  "completed": "Afgerond",
+  "sent": "Verstuurd",
+  "delivered": "Afgeleverd",
+  "paid": "Betaald",
+  "failed": "Mislukt"
+}

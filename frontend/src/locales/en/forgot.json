@@ -1,0 +1,11 @@
+{
+  "title": "Forgot password",
+  "subtitle": "Enter your account email and we will send you a reset link.",
+  "successMessage": "If the account exists, a reset email has been sent.",
+  "errorMessage": "Could not send reset email right now.",
+  "emailPlaceholder": "you@example.com",
+  "emailLabel": "Email address",
+  "submitButton": "Send reset email",
+  "rememberPassword": "Remembered your password?",
+  "signIn": "Sign in"
+}

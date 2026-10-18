@@ -1,0 +1,69 @@
+{
+  "default": {
+    "title": "3D Printing Service Netherlands | Print My 3D",
+    "description": "Professional 3D printing service in the Netherlands. Upload your 3D files for an instant custom quote. Based in Rotterdam with fast tracked delivery nationwide.",
+    "keywords": "3d print service netherlands, 3d printing netherlands, 3d print service rotterdam, 3d printing rotterdam, stl printing, rapid prototyping netherlands, custom 3d prints"
+  },
+  "home": {
+    "title": "3D Printing Service Netherlands | Print My 3D",
+    "description": "Professional 3D printing service in the Netherlands. Upload your 3D files for an instant custom quote. Based in Rotterdam with fast tracked delivery nationwide.",
+    "keywords": "3d print service netherlands, 3d printing netherlands, 3d print service rotterdam, 3d printing rotterdam, stl printing, rapid prototyping netherlands, custom 3d prints"
+  },
+  "gallery": {
+    "title": "3D Print Model Gallery | Print My 3D",
+    "description": "Browse 3D printable designs or send models from Thingiverse, Printables, and MakerWorld. Custom 3D prints delivered across the Netherlands.",
+    "keywords": "3D model printing, 3D print gallery, Thingiverse model laten printen, Printables 3D print, MakerWorld order, custom 3D printing Netherlands"
+  },
+  "materials": {
+    "title": "3D Printing Materials: PETG, Flexible TPU & PLA | Print My 3D",
+    "description": "High-grade filaments for prototypes and functional components: durable PETG, flexible TPU rubber, and precision PLA.",
+    "keywords": "3D printing materials, PETG components, flexible TPU, PLA printing, 3D printing filaments Netherlands"
+  },
+  "faq": {
+    "title": "3D Printing FAQ | Print My 3D",
+    "description": "Answers to common questions about 3D printing: materials, file formats, pricing, turnaround times, and delivery.",
+    "keywords": "3D printing FAQ, 3D printing materials, STL file upload, turnaround time, delivery Netherlands"
+  },
+  "privacy": {
+    "title": "Privacy Policy | Print My 3D",
+    "description": "Privacy Policy of Print My 3D. How we protect and process personal data and uploaded 3D files under GDPR.",
+    "keywords": "privacy policy, AVG, GDPR, data protection"
+  },
+  "terms": {
+    "title": "Terms of Service | Print My 3D",
+    "description": "Terms of Service of Print My 3D for 3D printing services, quotes, orders and custom manufacturing.",
+    "keywords": "terms of service, algemene voorwaarden, 3D printing terms"
+  },
+  "refunds": {
+    "title": "Refund and Return Policy | Print My 3D",
+    "description": "Information about our quality guarantee, reprints for defective prints, and return policy on custom orders.",
+    "keywords": "refund policy, retourbeleid, garantie 3D printen"
+  },
+  "shippingPolicy": {
+    "title": "Shipping Policy & Delivery Times | Print My 3D",
+    "description": "Shipping information for Print My 3D. Fast delivery within 2-5 business days across the Netherlands.",
+    "keywords": "shipping policy, verzendbeleid, levertijd 3D printen Nederland"
+  },
+  "notFound": {
+    "title": "Page Not Found | Print My 3D",
+    "description": "The requested page could not be found. Return to Print My 3D for 3D printing services.",
+    "keywords": "404, not found"
+  },
+  "schema": {
+    "siteDescription": "Professional 3D printing service in Rotterdam. Custom FDM prints in PLA, PETG, and flexible TPU with fast delivery.",
+    "catalogName": "3D Printing Services",
+    "fdmServiceName": "Custom FDM 3D Printing",
+    "fdmServiceDesc": "High-precision FDM 3D printing for functional parts, prototypes, and custom models in PLA, PETG, and TPU.",
+    "hueforgeServiceName": "HueForge Filament Painting (3D Relief Art)",
+    "hueforgeServiceDesc": "Multi-color relief 3D art printing from 2D images using optical layer blending.",
+    "replacementServiceName": "Replacement Parts & Repairs",
+    "replacementServiceDesc": "Reproduction and printing of discontinued or broken plastic components, clips, and brackets.",
+    "prototypingServiceName": "Rapid Prototyping & Custom Models",
+    "prototypingServiceDesc": "Fast turnaround functional prototypes, student project assemblies, and design validation.",
+    "toolingServiceName": "Custom Tooling, Jigs & Fixtures",
+    "toolingServiceDesc": "Manufacturing of assembly fixtures, drill guides, inspection tools, and durable workshop components.",
+    "batchServiceName": "Small Batch Production (10–500+ units)",
+    "batchServiceDesc": "Low-volume production runs with transparent business invoicing.",
+    "cityServiceTemplate": "3D Printing Service in {city}"
+  }
+}

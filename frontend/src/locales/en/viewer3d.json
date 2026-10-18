@@ -1,0 +1,19 @@
+{
+  "toggleRotation": "Toggle Auto-Rotation",
+  "toggleWireframe": "Toggle Wireframe Mesh",
+  "toggleGrid": "Toggle Ground Grid",
+  "changeBgColor": "Change Background Color",
+  "resetCamera": "Reset Camera View",
+  "printGuidelines": "Print Guidelines & Tooltips",
+  "expandDialog": "Expand 3D Dialog",
+  "inspect": "Inspect",
+  "baseDimensionsScale": "(Base: {x} × {y} × {z} mm @ {scale}x)",
+  "boundingBox": "Bounding Box Dimensions",
+  "exceedsBuildVolume": "Exceeds build volume (>256 mm)",
+  "layerHeightTitle": "Layer Height",
+  "layerHeightDesc": "Standard 0.20mm offers the ideal balance of speed and finish. Use 0.12mm for fine detail/miniatures, or 0.28mm for fast prototypes.",
+  "infillDensityTitle": "Infill Density",
+  "infillDensityDesc": "15%–20% is optimal for display and decorative pieces. Use 40%+ for mechanical brackets and load-bearing tools.",
+  "colorMaterialTitle": "Color & Material",
+  "colorMaterialDesc": "Previewed live above on your 3D geometry. Colors directly correspond to in-stock spools in our material inventory."
+}

@@ -1,9 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const createJiti = require("jiti");
-
-const jiti = createJiti(path.join(process.cwd(), "index.js"));
-const { translations } = jiti("./src/i18n/translations.ts");
 
 function flattenKeys(obj, prefix = "") {
   const keys = new Map();
@@ -21,6 +17,25 @@ function flattenKeys(obj, prefix = "") {
   return keys;
 }
 
+function loadLocale(lang) {
+  const dir = path.join(process.cwd(), "src", "locales", lang);
+  if (!fs.existsSync(dir)) {
+    throw new Error(`Locale directory missing: ${dir}`);
+  }
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
+  const all = {};
+  for (const f of files) {
+    const ns = f.replace(".json", "");
+    const data = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    if (ns === "root") {
+      Object.assign(all, data);
+    } else {
+      all[ns] = data;
+    }
+  }
+  return { all, files };
+}
+
 function getSourceFiles(dir) {
   const results = [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -30,7 +45,8 @@ function getSourceFiles(dir) {
       if (
         entry.name !== "node_modules" &&
         entry.name !== "dist" &&
-        entry.name !== "scratch"
+        entry.name !== "scratch" &&
+        entry.name !== "locales"
       ) {
         results.push(...getSourceFiles(full));
       }
@@ -54,7 +70,9 @@ function checkCodeUsages(enKeys, nlKeys) {
   for (const filePath of files) {
     if (
       filePath.includes("translations.ts") ||
-      filePath.includes("I18nContext.tsx")
+      filePath.includes("I18nContext.tsx") ||
+      filePath.includes("schema.ts") ||
+      filePath.includes("loader.ts")
     ) {
       continue;
     }
@@ -92,14 +110,40 @@ function checkCodeUsages(enKeys, nlKeys) {
 }
 
 function main() {
-  console.log("🔍 Validating translation resources and key usage...");
+  console.log("🔍 Validating modular translation JSON files and key usage...");
 
-  const enMap = flattenKeys(translations.en);
-  const nlMap = flattenKeys(translations.nl);
+  const { all: enTranslations, files: enFiles } = loadLocale("en");
+  const { all: nlTranslations, files: nlFiles } = loadLocale("nl");
 
   const errors = [];
 
-  // 1. Missing keys in NL compared to canonical EN
+  // 1. File parity between locales
+  const enFileSet = new Set(enFiles);
+  const nlFileSet = new Set(nlFiles);
+
+  for (const f of enFileSet) {
+    if (!nlFileSet.has(f)) {
+      errors.push({
+        type: "MISSING_LOCALE_FILE",
+        locale: "nl",
+        message: `Locale 'nl' is missing file '${f}' present in canonical 'en'`,
+      });
+    }
+  }
+  for (const f of nlFileSet) {
+    if (!enFileSet.has(f)) {
+      errors.push({
+        type: "EXTRA_LOCALE_FILE",
+        locale: "nl",
+        message: `Locale 'nl' has unexpected file '${f}' not present in canonical 'en'`,
+      });
+    }
+  }
+
+  const enMap = flattenKeys(enTranslations);
+  const nlMap = flattenKeys(nlTranslations);
+
+  // 2. Missing keys in NL compared to canonical EN
   for (const [key, val] of enMap) {
     if (!nlMap.has(key)) {
       errors.push({
@@ -121,7 +165,7 @@ function main() {
     }
   }
 
-  // 2. Extraneous keys in NL not in canonical EN
+  // 3. Extraneous keys in NL not in canonical EN
   for (const [key] of nlMap) {
     if (!enMap.has(key)) {
       errors.push({
@@ -133,7 +177,7 @@ function main() {
     }
   }
 
-  // 3. Keys referenced in codebase vs translations
+  // 4. Keys referenced in codebase vs translations
   const codeErrors = checkCodeUsages(enMap, nlMap);
   for (const err of codeErrors) {
     errors.push({
@@ -145,9 +189,11 @@ function main() {
   }
 
   console.log(`📊 Statistics:
-  - Canonical (en) keys: ${enMap.size}
-  - Target (nl) keys:    ${nlMap.size}
-  - Total issues found:  ${errors.length}
+  - Canonical (en) files: ${enFiles.length}
+  - Canonical (en) keys:  ${enMap.size}
+  - Target (nl) files:    ${nlFiles.length}
+  - Target (nl) keys:     ${nlMap.size}
+  - Total issues found:   ${errors.length}
 `);
 
   if (errors.length > 0) {
@@ -162,7 +208,7 @@ function main() {
   }
 
   console.log(
-    "✅ All translation keys are synchronized and verified across locales!",
+    "✅ All modular translation files and keys are synchronized and verified across locales!",
   );
   process.exit(0);
 }

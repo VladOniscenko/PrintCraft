@@ -11,58 +11,144 @@ import {
 } from "react-router-dom";
 import SeoManager from "./components/SeoManager";
 import { getCurrentUser, invalidateAuthCache } from "./services/api";
-import { useI18n } from "./i18n/I18nContext.tsx";
+import { useI18n, getInitialLanguage } from "./i18n/I18nContext.tsx";
 import { isSupportedLanguage, resolveLanguage } from "./i18n/translations";
+import { loadNamespaces } from "./i18n/loader";
+import type { TranslationNamespace } from "./i18n/schema";
 
+function lazyWithI18n<P extends object>(
+  factory: () => Promise<{ default: React.ComponentType<P> }>,
+  namespaces: TranslationNamespace[],
+) {
+  return lazy(async () => {
+    const lang = getInitialLanguage();
+    const [module] = await Promise.all([
+      factory(),
+      loadNamespaces(lang, namespaces),
+    ]);
+    return module;
+  });
+}
 
-import Home from "./components/Home.tsx";
-const Login = lazy(() => import("./components/Login.tsx"));
-const Quote = lazy(() => import("./components/Quote.tsx"));
-const Signup = lazy(() => import("./components/Signup.tsx"));
-const FAQ = lazy(() => import("./components/FAQ.tsx"));
-const Orders = lazy(() => import("./components/user/Orders.tsx"));
-const Profile = lazy(() => import("./components/user/Profile.tsx"));
-const OrderDetail = lazy(() => import("./components/OrderDetail.tsx"));
-const AdminDashboard = lazy(() => import("./components/admin/AdminDashboard"));
-const AdminOrders = lazy(() => import("./components/admin/AdminOrders.tsx"));
-const AdminOrderDetail = lazy(
+// Preload Home translations immediately if visitor is on landing route
+if (typeof window !== "undefined") {
+  const p = window.location.pathname;
+  if (p === "/" || p === "/nl" || p === "/en" || p === "/nl/" || p === "/en/") {
+    void loadNamespaces(getInitialLanguage(), ["home", "hero", "recent"]);
+  }
+}
+
+const Home = lazyWithI18n(
+  () => import("./components/Home.tsx"),
+  ["home", "hero", "recent"],
+);
+const Login = lazyWithI18n(() => import("./components/Login.tsx"), ["login"]);
+const Quote = lazyWithI18n(
+  () => import("./components/Quote.tsx"),
+  ["quote", "viewer3d", "filamentPainting", "modelViewer"],
+);
+const Signup = lazyWithI18n(() => import("./components/Signup.tsx"), ["signup"]);
+const FAQ = lazyWithI18n(() => import("./components/FAQ.tsx"), ["faq"]);
+const Orders = lazyWithI18n(
+  () => import("./components/user/Orders.tsx"),
+  ["orders"],
+);
+const Profile = lazyWithI18n(
+  () => import("./components/user/Profile.tsx"),
+  ["profile"],
+);
+const OrderDetail = lazyWithI18n(
+  () => import("./components/OrderDetail.tsx"),
+  ["orderDetail"],
+);
+const AdminDashboard = lazyWithI18n(
+  () => import("./components/admin/AdminDashboard"),
+  ["admin", "orderDetail"],
+);
+const AdminOrders = lazyWithI18n(
+  () => import("./components/admin/AdminOrders.tsx"),
+  ["admin", "orderDetail"],
+);
+const AdminOrderDetail = lazyWithI18n(
   () => import("./components/admin/AdminOrderDetail.tsx"),
+  ["admin", "orderDetail"],
 );
-const AdminPayments = lazy(
+const AdminPayments = lazyWithI18n(
   () => import("./components/admin/AdminPayments.tsx"),
+  ["admin"],
 );
-const AdminUsers = lazy(() => import("./components/admin/AdminUsers.tsx"));
-const AdminUserDetail = lazy(
+const AdminUsers = lazyWithI18n(
+  () => import("./components/admin/AdminUsers.tsx"),
+  ["admin"],
+);
+const AdminUserDetail = lazyWithI18n(
   () => import("./components/admin/AdminUserDetail.tsx"),
+  ["admin"],
 );
-const AdminFilaments = lazy(
+const AdminFilaments = lazyWithI18n(
   () => import("./components/admin/AdminFilaments.tsx"),
+  ["admin"],
 );
-const AdminHeroSlides = lazy(
+const AdminHeroSlides = lazyWithI18n(
   () => import("./components/admin/AdminHeroSlides.tsx"),
+  ["admin"],
 );
-const AdminEmailTemplates = lazy(
+const AdminEmailTemplates = lazyWithI18n(
   () => import("./components/admin/AdminEmailTemplates.tsx"),
+  ["admin"],
 );
-const AdminFaq = lazy(() => import("./components/admin/AdminFaq.tsx"));
-const AdminCities = lazy(() => import("./components/admin/AdminCities.tsx"));
-const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy.tsx"));
-const TermsOfService = lazy(() => import("./components/TermsOfService.tsx"));
-const RefundPolicy = lazy(() => import("./components/RefundPolicy.tsx"));
-const ShippingPolicy = lazy(() => import("./components/ShippingPolicy.tsx"));
-const ForgotPassword = lazy(() => import("./components/ForgotPassword.tsx"));
-const ResetPassword = lazy(() => import("./components/ResetPassword.tsx"));
-const ModelFilesBrowser = lazy(
+const AdminFaq = lazyWithI18n(
+  () => import("./components/admin/AdminFaq.tsx"),
+  ["admin", "faq"],
+);
+const AdminCities = lazyWithI18n(
+  () => import("./components/admin/AdminCities.tsx"),
+  ["admin", "cityPage"],
+);
+const PrivacyPolicy = lazyWithI18n(
+  () => import("./components/PrivacyPolicy.tsx"),
+  ["legal"],
+);
+const TermsOfService = lazyWithI18n(
+  () => import("./components/TermsOfService.tsx"),
+  ["legal"],
+);
+const RefundPolicy = lazyWithI18n(
+  () => import("./components/RefundPolicy.tsx"),
+  ["legal"],
+);
+const ShippingPolicy = lazyWithI18n(
+  () => import("./components/ShippingPolicy.tsx"),
+  ["legal"],
+);
+const ForgotPassword = lazyWithI18n(
+  () => import("./components/ForgotPassword.tsx"),
+  ["forgot"],
+);
+const ResetPassword = lazyWithI18n(
+  () => import("./components/ResetPassword.tsx"),
+  ["reset"],
+);
+const ModelFilesBrowser = lazyWithI18n(
   () => import("./components/ModelFilesBrowser.tsx"),
+  ["models", "modelFiles", "viewer3d"],
 );
-const AdminUploadedModelViewerPage = lazy(
+const AdminUploadedModelViewerPage = lazyWithI18n(
   () => import("./components/admin/AdminUploadedModelViewerPage.tsx"),
+  ["admin", "viewer3d", "modelFiles"],
 );
-const CityLandingPage = lazy(() => import("./components/CityLandingPage.tsx"));
-const ApplicationLandingPage = lazy(
+const CityLandingPage = lazyWithI18n(
+  () => import("./components/CityLandingPage.tsx"),
+  ["cityPage"],
+);
+const ApplicationLandingPage = lazyWithI18n(
   () => import("./components/ApplicationLandingPage.tsx"),
+  ["faq"],
 );
-const NotFound = lazy(() => import("./components/NotFound.tsx"));
+const NotFound = lazyWithI18n(
+  () => import("./components/NotFound.tsx"),
+  ["notFound"],
+);
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");

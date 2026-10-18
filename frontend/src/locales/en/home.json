@@ -1,0 +1,143 @@
+{
+  "footer": "© 2026 Print My 3D. All rights reserved.",
+  "solutions": {
+    "eyebrow": "Tailored 3D Printing",
+    "title": "Commercial & Engineering Solutions",
+    "subtitle": "From functional prototypes and replacement parts to custom electronics enclosures and factory tooling. Built to precise specifications.",
+    "viewSolution": "View solution",
+    "viewSpecific": "Explore {name}",
+    "learnMore": "Learn more"
+  },
+  "quickQuote": {
+    "fileMode": "I have a file",
+    "ideaMode": "I have an idea",
+    "dropTitle": "Drop your 3D file here",
+    "dropHint": "or click to choose an STL, OBJ, 3MF or STEP file",
+    "descriptionPlaceholder": "Tell us what you want made, how you will use it, and what matters most...",
+    "saving": "Saving request...",
+    "startRequest": "Start your request",
+    "continue": "Continue request",
+    "almostReady": "Almost ready",
+    "preserved": "Your request stays saved while you sign in.",
+    "name": "Name",
+    "email": "Email address",
+    "password": "Password (at least 8 characters)",
+    "loginContinue": "Sign in and continue",
+    "registerContinue": "Create account and continue",
+    "switchRegister": "No account yet? Register",
+    "switchLogin": "Already have an account? Sign in",
+    "descriptionTooShort": "Describe your project in at least 10 characters.",
+    "saveFailed": "We could not save your request. Please try again.",
+    "uploadFailed": "Upload failed. Check the file and try again.",
+    "loginFailed": "Sign in failed.",
+    "registerFailed": "Registration failed.",
+    "removeFile": "Remove file",
+    "close": "Close",
+    "descriptionFile": "Project description",
+    "pla": "Everyday use",
+    "petg": "Extra strong",
+    "tpu": "Flexible"
+  },
+  "showcase": {
+    "eyebrow": "Print My 3D studio",
+    "title": "What we can make for you",
+    "subtitle": "From a first idea to a part that performs every day. You bring the direction, we make it tangible.",
+    "partTitle": "Replacement parts & repairs",
+    "partTag": "High precision",
+    "prototypeTitle": "Rapid prototyping & engineering",
+    "prototypeTag": "Fast iterations",
+    "caseTitle": "Electronics enclosures & mounts",
+    "caseTag": "PETG & TPU",
+    "detailTitle": "HueForge 3D relief art & models",
+    "detailTag": "Full color"
+  },
+  "materials": {
+    "eyebrow": "Materials",
+    "title": "Choose your strength",
+    "subtitle": "Not sure yet? Describe your use case and we will help you choose.",
+    "plaTitle": "Everyday & Prototyping",
+    "plaText": "High-precision FDM printing with ±0.1mm tolerance for rapid prototyping, organizers, and dimensionally accurate models.",
+    "petgTitle": "Extra Strong & Heat-Resistant",
+    "petgText": "PETG 3D printing service for high-strength functional parts, heat-resistant enclosures, and UV-resistant outdoor prints.",
+    "tpuTitle": "Flexible Rubber",
+    "tpuText": "Flexible TPU 3D printing service for rubber-like parts, shock absorbers, protective casings, and custom gaskets."
+  },
+  "modelFinder": {
+    "badge": "Model Starter",
+    "bridgeBadge": "Optional Step",
+    "bridgeTitle": "No model yet? You can browse a few trusted libraries first.",
+    "bridgeSubtitle": "Use this only if you still need a printable file before requesting your quote.",
+    "title": "Need a 3D model first? Start here",
+    "subtitle": "Explore trusted libraries to find printable files, then upload your favorite model to request a quote.",
+    "makerworld": {
+      "title": "MakerWorld",
+      "desc": "Curated designs from the 3D printing community, organized by printer-friendly quality and trending builds.",
+      "cta": "Browse models"
+    },
+    "printables": {
+      "title": "Printables",
+      "desc": "A huge model catalog with practical parts, cosplay files, miniatures, and home tools.",
+      "cta": "Find files"
+    },
+    "thingiverse": {
+      "title": "Thingiverse",
+      "desc": "Classic open model platform with millions of community uploads and remix-ready projects.",
+      "cta": "Explore library"
+    },
+    "custom": {
+      "title": "Need custom help?",
+      "desc": "If you cannot find the right file, describe your idea and we can help turn it into a printable model.",
+      "cta": "Request a quote"
+    }
+  },
+  "proof": {
+    "bridgeBadge": "Quality Check",
+    "bridgeTitle": "Now choose finish and quality level.",
+    "bridgeSubtitle": "See available materials and recent prints to set expectations before you request your quote."
+  },
+  "process": {
+    "eyebrow": "Workflow",
+    "title": "How It Works",
+    "subtitle": "Simple and transparent, from 3D model to physical product.",
+    "step1Title": "1. Upload Model",
+    "step1Desc": "Upload your STL, 3MF, or CAD file and pick your preferred material and color.",
+    "step2Title": "2. Instant Pricing",
+    "step2Desc": "Get clear, immediate pricing based on dimensions, material choice, and infill settings.",
+    "step3Title": "3. Precision Printing",
+    "step3Desc": "We print your parts with care on calibrated printers for a clean, accurate result.",
+    "step4Title": "4. Fast Delivery",
+    "step4Desc": "Carefully packaged and delivered within 2 to 5 business days via PostNL with tracking.",
+    "guaranteeTitle": "Reliable Quality & Careful Finish",
+    "guaranteeText": "Every print is inspected for surface quality and fit before dispatch, ready for use right out of the box."
+  },
+  "audiences": {
+    "eyebrow": "Applications",
+    "title": "3D Printing for Every Need",
+    "subtitle": "From single replacement parts and creative builds to prototypes and small batches.",
+    "b2cTitle": "Consumers & Home",
+    "b2cTag": "From 1 piece",
+    "b2cDesc": "Broken household replacement parts, custom gadgets, home fixes, or personalized gifts with no minimum order.",
+    "hobbyTitle": "Hobbyists, Makers & Cosplay",
+    "hobbyTag": "Creative",
+    "hobbyDesc": "Cosplay props, tabletop miniatures, board game accessories, RC parts, and HueForge relief art. Direct printing from STL files.",
+    "studentsTitle": "Students & Education",
+    "studentsTag": "Education",
+    "studentsDesc": "Scale models, thesis prints, and prototypes for academic projects with fast turnaround.",
+    "b2bTitle": "Businesses & SMEs",
+    "b2bTag": "Commercial",
+    "b2bDesc": "Functional prototypes, custom enclosures, fixtures, and small production runs with itemized VAT invoicing."
+  },
+  "faq": {
+    "eyebrow": "Frequently Asked Questions",
+    "title": "Frequently Asked Questions",
+    "subtitle": "Clear answers regarding single orders, student projects, materials, and invoicing.",
+    "q1": "Can I order a single piece without a minimum order quantity?",
+    "a1": "Yes, absolutely! We have no minimum order size. Single-item prints are always welcome.",
+    "q2": "Can students and educational institutions order models?",
+    "a2": "Yes! We regularly help students and educators print scale models, prototypes, and graduation projects with fast turnaround.",
+    "q3": "Can businesses order with an official VAT invoice?",
+    "a3": "Yes, business customers receive a clear, itemized VAT invoice for easy accounting.",
+    "q4": "What is the typical turnaround and delivery time?",
+    "a4": "Most orders are printed and dispatched within 2 to 5 business days using tracked PostNL delivery across the Netherlands."
+  }
+}

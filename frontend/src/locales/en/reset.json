@@ -1,0 +1,13 @@
+{
+  "tokenMissing": "Reset token is missing.",
+  "passwordTooShort": "Password must be at least 8 characters.",
+  "passwordsMismatch": "Passwords do not match.",
+  "resetFailed": "Could not reset password.",
+  "title": "Reset password",
+  "subtitle": "Create a new password for your account.",
+  "passwordPlaceholder": "At least 8 characters",
+  "confirmPlaceholder": "Repeat password",
+  "submitButton": "Reset password",
+  "successMessage": "Password updated successfully.",
+  "goToLogin": "Go to login"
+}

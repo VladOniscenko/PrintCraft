@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useState,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -14,7 +15,14 @@ import {
   defaultLanguage,
   type SupportedLanguage,
   type TranslationKey,
+  type TranslationNamespace,
 } from "./translations";
+import {
+  subscribeTranslations,
+  loadNamespace,
+  loadNamespaces,
+  isNamespaceLoaded,
+} from "./loader";
 
 type I18nContextType = {
   language: SupportedLanguage;
@@ -22,8 +30,9 @@ type I18nContextType = {
   t: (key: TranslationKey, vars?: Record<string, string | number>) => string;
   languageOptions: typeof languageOptions;
   localizePath: (path: string) => string;
+  loadNamespaces: (namespaces: TranslationNamespace[]) => Promise<void>;
+  isNamespaceLoaded: (namespace: TranslationNamespace) => boolean;
 };
-
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
@@ -52,6 +61,7 @@ function getNestedTranslation(
   obj: Record<string, unknown>,
   path: string,
 ): string | undefined {
+  if (!obj || typeof obj !== "object") return undefined;
   const keys = path.split(".");
   let current: unknown = obj;
 
@@ -72,6 +82,14 @@ function getNestedTranslation(
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [, setVersion] = useState(0);
+
+  // Re-render when newly loaded namespaces arrive
+  useEffect(() => {
+    return subscribeTranslations(() => {
+      setVersion((v) => v + 1);
+    });
+  }, []);
 
   // Extract language from URL path: /nl/... or /en/...
   const pathParts = location.pathname.split("/").filter(Boolean);
@@ -125,6 +143,20 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     [language],
   );
 
+  const loadNamespacesForLanguage = useCallback(
+    (namespaces: TranslationNamespace[]) => {
+      return loadNamespaces(language, namespaces);
+    },
+    [language],
+  );
+
+  const checkNamespaceLoaded = useCallback(
+    (namespace: TranslationNamespace) => {
+      return isNamespaceLoaded(language, namespace);
+    },
+    [language],
+  );
+
   const t = useCallback(
     (key: TranslationKey, vars?: Record<string, string | number>): string => {
       let value = getNestedTranslation(translations[language], key);
@@ -134,6 +166,11 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (!value) {
+        // Trigger lazy loading of missing namespace in background if needed
+        const ns = key.split(".")[0] as TranslationNamespace;
+        if (ns && !isNamespaceLoaded(language, ns)) {
+          void loadNamespace(language, ns);
+        }
         return `🔴 [${key}]`;
       }
 
@@ -149,8 +186,23 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ language, setLanguage, t, languageOptions, localizePath }),
-    [language, setLanguage, t, localizePath],
+    () => ({
+      language,
+      setLanguage,
+      t,
+      languageOptions,
+      localizePath,
+      loadNamespaces: loadNamespacesForLanguage,
+      isNamespaceLoaded: checkNamespaceLoaded,
+    }),
+    [
+      language,
+      setLanguage,
+      t,
+      localizePath,
+      loadNamespacesForLanguage,
+      checkNamespaceLoaded,
+    ],
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;

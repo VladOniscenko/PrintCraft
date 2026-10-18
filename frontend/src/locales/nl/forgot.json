@@ -1,0 +1,11 @@
+{
+  "title": "Wachtwoord vergeten",
+  "subtitle": "Vul je e-mailadres in en wij sturen je een resetlink.",
+  "successMessage": "Indien het account bestaat, is een reset-e-mail verzonden.",
+  "errorMessage": "Kon reset-e-mail nu niet verzenden.",
+  "emailPlaceholder": "you@example.com",
+  "emailLabel": "E-mailadres",
+  "submitButton": "Stuur reset-e-mail",
+  "rememberPassword": "Wachtwoord onthouden?",
+  "signIn": "Inloggen"
+}

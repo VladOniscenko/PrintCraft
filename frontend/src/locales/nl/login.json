@@ -1,0 +1,19 @@
+{
+  "welcome": "Welkom terug",
+  "subtitle": "Vul je gegevens in om toegang te krijgen tot je account.",
+  "error": {
+    "invalid": "Ongeldig e-mailadres of wachtwoord. Probeer opnieuw."
+  },
+  "email": "E-mailadres",
+  "password": "Wachtwoord",
+  "remember": "Onthoud mij",
+  "forgot": "Wachtwoord vergeten?",
+  "signIn": "Inloggen",
+  "noAccount": "Nog geen account?",
+  "signUpFree": "Gratis registreren",
+  "visualTitle1": "Breng je digitale",
+  "visualTitle2": "ideeën tot leven.",
+  "visualDesc": "Log in om je orders te volgen, nieuwe ontwerpen te uploaden en je 3D-printprojecten te beheren.",
+  "emailPlaceholder": "you@example.com",
+  "passwordPlaceholder": "••••••••"
+}

@@ -1,0 +1,9 @@
+{
+  "confirmCleanup": "Weet je zeker dat je ongebruikte bestanden wilt opschonen? Bestanden die alleen gekoppeld zijn aan geannuleerde, voltooide of geretourneerde orders (en wees-uploads) worden verwijderd. Actieve orderbestanden en hero-media blijven behouden.",
+  "cleanupTooltip": "Veilig bestanden opschonen van geannuleerde, voltooide en geretourneerde orders",
+  "cleaning": "Opschonen...",
+  "cleanup": "Opschonen",
+  "cleanupSuccess": "Opschonen voltooid: {count} bestanden verwijderd ({freed} vrijgemaakt).",
+  "noEligibleFiles": "Geen in aanmerking komende bestanden gevonden om op te schonen.",
+  "cleanupFailed": "Opschonen van bestanden mislukt."
+}

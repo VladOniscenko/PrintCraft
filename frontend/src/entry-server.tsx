@@ -10,6 +10,32 @@ import {
   resolveLanguage,
   type SupportedLanguage,
 } from "./i18n/translations";
+import { translationsStore } from "./i18n/loader";
+
+// Preload all locales synchronously for build-time SSR pre-rendering
+const allSsrLocales = import.meta.glob<Record<string, unknown>>(
+  "./locales/*/*.json",
+  { eager: true },
+);
+
+for (const [filePath, mod] of Object.entries(allSsrLocales)) {
+  const match = filePath.match(/locales\/([^/]+)\/([^.]+)\.json$/);
+  if (match) {
+    const [, lang, ns] = match;
+    const data = (mod as { default?: unknown }).default || mod;
+    if (ns === "root") {
+      Object.assign(translationsStore[lang as SupportedLanguage], data);
+    } else {
+      (
+        translationsStore[lang as SupportedLanguage] as unknown as Record<
+          string,
+          unknown
+        >
+      )[ns] = data;
+    }
+  }
+}
+
 import { businessInfo } from "./config/businessInfo";
 import { parsePath, getRouteSeo } from "./components/SeoManager";
 import {

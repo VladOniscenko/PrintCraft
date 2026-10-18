@@ -1,0 +1,13 @@
+{
+  "tokenMissing": "Hersteltoken ontbreekt.",
+  "passwordTooShort": "Wachtwoord moet minimaal 8 tekens lang zijn.",
+  "passwordsMismatch": "Wachtwoorden komen niet overeen.",
+  "resetFailed": "Kon wachtwoord niet opnieuw instellen.",
+  "title": "Wachtwoord resetten",
+  "subtitle": "Maak een nieuw wachtwoord voor je account.",
+  "passwordPlaceholder": "Minimaal 8 tekens",
+  "confirmPlaceholder": "Herhaal wachtwoord",
+  "submitButton": "Wachtwoord resetten",
+  "successMessage": "Wachtwoord succesvol bijgewerkt.",
+  "goToLogin": "Ga naar inloggen"
+}

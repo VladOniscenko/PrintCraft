@@ -1,0 +1,9 @@
+{
+  "confirmCleanup": "Are you sure you want to clean up unused files? Files connected only to cancelled, completed, or returned orders (and orphan uploads) will be deleted. Active order files and hero slide media are strictly preserved.",
+  "cleanupTooltip": "Safely clean up files from cancelled, completed, and returned orders",
+  "cleaning": "Cleaning...",
+  "cleanup": "Cleanup",
+  "cleanupSuccess": "Cleanup completed: deleted {count} files ({freed} freed).",
+  "noEligibleFiles": "No eligible files found to clean up.",
+  "cleanupFailed": "Failed to clean up files."
+}

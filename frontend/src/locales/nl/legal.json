@@ -1,0 +1,53 @@
+{
+  "updated": "Laatst bijgewerkt: 27 maart 2026",
+  "contact": {
+    "title": "Juridisch Contact",
+    "body": "Voor juridische of privacyvragen kun je mailen naar info@printmy3d.work. We reageren doorgaans binnen 5 werkdagen."
+  },
+  "privacy": {
+    "title": "Privacybeleid",
+    "section1Title": "Welke gegevens we verzamelen",
+    "section1Body": "We verzamelen gegevens die nodig zijn voor onze dienstverlening: accountgegevens, contactgegevens, verzendadres, betaalstatus en geuploade modelbestanden.",
+    "section2Title": "Hoe we je gegevens gebruiken",
+    "section2Body": "Je gegevens gebruiken we voor offerteberekening, productieplanning, verzending, klantenservice, fraudepreventie en operationele communicatie. We verkopen geen persoonsgegevens.",
+    "section3Title": "Bewaartermijn",
+    "section3Body": "Bestel- en factuurgegevens bewaren we zolang wettelijk vereist voor administratie en boekhouding. Niet-essentiële gegevens verwijderen we op een geverifieerd verzoek.",
+    "section4Title": "Jouw rechten",
+    "section4Body": "Je kunt inzage, correctie, verwijdering of export van persoonsgegevens aanvragen, voor zover dit past binnen wettelijke bewaarplichten."
+  },
+  "terms": {
+    "title": "Algemene Voorwaarden",
+    "section1Title": "Reikwijdte van de dienst",
+    "section1Body": "Door bestanden aan te leveren bevestig je dat je eigenaar bent van die bestanden of bevoegd bent om ze te gebruiken, en dat ze geen wet of rechten van derden schenden.",
+    "section2Title": "Offertes en bestellingen",
+    "section2Body": "Offertes zijn maatwerkramingen op basis van modelgrootte, aantallen, materiaalkeuze, printcomplexiteit en eventuele afwerking. Productie start uitsluitend na expliciet akkoord en bevestigde betaling.",
+    "pricingDisclaimerTitle": "Prijs- en offertegeldigheid",
+    "pricingDisclaimerBody": "Getoonde richtprijzen op de website zijn indicatief. De definitieve prijs kan per aanvraag afwijken doordat grootte, aantallen, geometrie, supportgebruik, nabewerking en verzendmethode de werkelijke kostprijs beïnvloeden. Getoonde prijzen en conceptoffertes zijn niet bindend; rechten ontstaan pas na schriftelijke offertebevestiging door Print My 3D.",
+    "section3Title": "Beperking van aansprakelijkheid",
+    "section3Body": "Klanten blijven verantwoordelijk voor de functionele geschiktheid en veiligheid van aangeleverde ontwerpen. Onze aansprakelijkheid is, waar wettelijk toegestaan, beperkt tot de waarde van de betreffende bestelling.",
+    "section4Title": "Toepasselijk recht",
+    "section4Body": "Op deze voorwaarden is Nederlands recht van toepassing. Geschillen worden voorgelegd aan de bevoegde rechter in Nederland, tenzij dwingend consumentenrecht anders bepaalt."
+  },
+  "refunds": {
+    "title": "Retour- en Terugbetaalbeleid",
+    "section1Title": "Beschadigde of defecte items",
+    "section1Body": "Als een item beschadigd aankomt of ernstige productiefouten bevat, neem dan binnen 3 dagen contact op met foto's. We beoordelen het en bieden waar passend een herprint of terugbetaling.",
+    "section2Title": "Maatwerkproducten",
+    "section2Body": "Omdat iedere print op aanvraag wordt gemaakt en vaak uniek is in formaat en aantallen, zijn goedgekeurde maatwerkbestellingen in principe niet restitueerbaar, behalve bij aantoonbare productiefouten.",
+    "section3Title": "Annulering",
+    "section3Body": "Een offerte kun je annuleren voordat productie start. Zodra productie is begonnen, is annuleren doorgaans niet meer mogelijk.",
+    "section4Title": "Uitsluitingen",
+    "section4Body": "Kleurafwijkingen, kleine oppervlaktelijnen en maatverschillen binnen normale 3D-print toleranties gelden niet als defect."
+  },
+  "shipping": {
+    "title": "Verzendbeleid",
+    "section1Title": "Verwerkingstijd",
+    "section1Body": "De meeste bestellingen worden binnen 2 tot 5 werkdagen geproduceerd en verzendklaar gemaakt, afhankelijk van drukte, complexiteit, materiaalbeschikbaarheid en bestelde aantallen.",
+    "section2Title": "Leveringsgebied",
+    "section2Body": "We leveren door heel Nederland. Voor producten met vaste checkout-prijs worden verzendkosten tijdens checkout getoond. Voor offertebestellingen worden bezorgkosten opgenomen of gespecificeerd in de offerte en kunnen deze afwijken op basis van pakketgrootte, gewicht, aantallen en bestemming.",
+    "section3Title": "Track & trace",
+    "section3Body": "Wanneer beschikbaar delen we na verzending track & trace-gegevens zodat je de levering kunt volgen.",
+    "section4Title": "Vertraging en risico",
+    "section4Body": "Vertraging door vervoerders kan buiten onze invloed liggen. Het risico gaat over bij levering, tenzij dwingend consumentenrecht anders bepaalt."
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "updated": "Last updated: 27 March 2026",
+  "contact": {
+    "title": "Legal Contact",
+    "body": "For legal or privacy questions, email info@printmy3d.work. We aim to respond within 5 business days."
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "section1Title": "What we collect",
+    "section1Body": "We collect data needed to operate our service: account details, contact information, shipping address, payment status, and uploaded model files.",
+    "section2Title": "How we use your data",
+    "section2Body": "We use your data for quote calculation, production planning, shipping, customer support, fraud prevention, and operational communication. We do not sell personal data.",
+    "section3Title": "Data retention",
+    "section3Body": "Order and invoice records are stored as required for accounting and legal obligations. Non-essential data can be removed on verified request.",
+    "section4Title": "Your rights",
+    "section4Body": "You can request access, correction, deletion, or export of personal data, subject to legal retention requirements."
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "section1Title": "Service scope",
+    "section1Body": "By submitting files, you confirm that you own or are authorized to use them and that they do not violate laws or third-party rights.",
+    "section2Title": "Quotes and orders",
+    "section2Body": "Quotes are customized estimates based on model size, quantity, material choice, print complexity, and finishing requirements. Production starts only after explicit approval and confirmed payment.",
+    "pricingDisclaimerTitle": "Prices and quote validity",
+    "pricingDisclaimerBody": "Indicative prices shown on the website are guidance only. Final pricing may differ per request because size, quantity, geometry, support usage, post-processing, and delivery method can change actual cost. Displayed prices and draft quotes are non-binding; rights only arise after written quote confirmation by Print My 3D.",
+    "section3Title": "Limitation of liability",
+    "section3Body": "Customers are responsible for functional suitability and safety of uploaded designs. Our liability is limited to the value of the specific order where legally allowed.",
+    "section4Title": "Governing law",
+    "section4Body": "These terms are governed by Dutch law. Disputes are handled by the competent court in the Netherlands unless mandatory consumer law states otherwise."
+  },
+  "refunds": {
+    "title": "Refund Policy",
+    "section1Title": "Damaged or defective items",
+    "section1Body": "If an item arrives damaged or has major production defects, contact us within 3 days with photos. We will assess and offer a reprint or refund where appropriate.",
+    "section2Title": "Custom-made products",
+    "section2Body": "Because each print is produced on request and often unique in size and quantity, approved custom orders are generally non-refundable unless there is a clear manufacturing error.",
+    "section3Title": "Cancellation",
+    "section3Body": "Quotes can be canceled before production starts. Once production has started, cancellation is usually no longer possible.",
+    "section4Title": "Exclusions",
+    "section4Body": "Color variation, minor surface artifacts, or dimensional tolerances within normal 3D-print limits are not treated as defects."
+  },
+  "shipping": {
+    "title": "Shipping Policy",
+    "section1Title": "Processing time",
+    "section1Body": "Most orders are produced and prepared for shipment within 2 to 5 business days, depending on queue, complexity, material availability, and ordered quantity.",
+    "section2Title": "Delivery area",
+    "section2Body": "We deliver across the Netherlands. For fixed-price checkout products, shipping fees are shown at checkout. For quote-based orders, delivery costs are included or specified in the quote and may vary by package size, weight, quantity, and destination.",
+    "section3Title": "Tracking",
+    "section3Body": "When available, tracking details are shared after dispatch so you can follow delivery progress.",
+    "section4Title": "Delays and risk",
+    "section4Body": "Carrier delays may occur outside our control. Risk transfers at delivery unless mandatory consumer law provides otherwise."
+  }
+}

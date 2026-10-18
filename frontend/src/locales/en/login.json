@@ -1,0 +1,19 @@
+{
+  "welcome": "Welcome back",
+  "subtitle": "Please enter your details to access your account.",
+  "error": {
+    "invalid": "Invalid email or password. Please try again."
+  },
+  "email": "Email address",
+  "password": "Password",
+  "remember": "Remember me",
+  "forgot": "Forgot password?",
+  "signIn": "Sign in",
+  "noAccount": "Don't have an account?",
+  "signUpFree": "Sign up for free",
+  "visualTitle1": "Bring your digital",
+  "visualTitle2": "ideas to the real world.",
+  "visualDesc": "Log in to track your orders, upload new designs, and manage your custom 3D printing projects.",
+  "emailPlaceholder": "you@example.com",
+  "passwordPlaceholder": "••••••••"
+}

@@ -1,0 +1,33 @@
+{
+  "title": "Bestanden",
+  "subtitle": "Bekijk geuploade 3D-bestanden en referentieafbeeldingen die in producten en orders worden gebruikt.",
+  "refresh": "Vernieuwen",
+  "searchPlaceholder": "Zoek op bestandsnaam of extensie",
+  "count": "Zichtbare bestanden",
+  "loading": "Bestanden laden...",
+  "empty": "Geen bestanden gevonden.",
+  "open": "Openen",
+  "order": "Order",
+  "view3d": "Bekijk bestand",
+  "viewImage": "Bekijk afbeelding",
+  "delete": "Verwijderen",
+  "deleting": "Verwijderen...",
+  "backToFiles": "Terug naar bestanden",
+  "deleteConfirm": "Dit bestand verwijderen? Dit kan niet ongedaan worden gemaakt.",
+  "deleteFailed": "Bestand kon niet worden verwijderd.",
+  "cleanupOrphans": "Verwijder verweesde bestanden",
+  "cleanupRunning": "Bezig met opschonen...",
+  "cleanupConfirm": "Alle verweesde bestanden verwijderen (niet gekoppeld aan producten of orders)?",
+  "cleanupNone": "Geen verweesde bestanden gevonden.",
+  "cleanupDone": "Opschonen voltooid. {count} bestanden verwijderd.",
+  "cleanupFailed": "Opschonen van verweesde bestanden is mislukt.",
+  "deleteBlocked": "Kan niet verwijderen: bestand is gekoppeld aan een product of order.",
+  "loadFailed": "Kon bestanden niet laden.",
+  "table": {
+    "file": "Bestand",
+    "type": "Type",
+    "size": "Grootte",
+    "updated": "Bijgewerkt",
+    "action": "Actie"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "title": "Files",
+  "subtitle": "Browse uploaded 3D files and reference images used in products and orders.",
+  "refresh": "Refresh",
+  "searchPlaceholder": "Search by filename or extension",
+  "count": "Visible files",
+  "loading": "Loading files...",
+  "empty": "No files found.",
+  "open": "Open",
+  "order": "Order",
+  "view3d": "View file",
+  "viewImage": "View image",
+  "delete": "Delete",
+  "deleting": "Deleting...",
+  "backToFiles": "Back to files",
+  "deleteConfirm": "Delete this file? This cannot be undone.",
+  "deleteFailed": "Could not delete file.",
+  "cleanupOrphans": "Cleanup Orphans",
+  "cleanupRunning": "Cleaning...",
+  "cleanupConfirm": "Delete all orphan files (not linked to products or orders)?",
+  "cleanupNone": "No orphan files found.",
+  "cleanupDone": "Cleanup completed. Deleted {count} files.",
+  "cleanupFailed": "Could not cleanup orphan files.",
+  "deleteBlocked": "Cannot delete: file is linked to a product or an order.",
+  "loadFailed": "Could not load files.",
+  "table": {
+    "file": "File",
+    "type": "Type",
+    "size": "Size",
+    "updated": "Updated",
+    "action": "Action"
+  }
+}

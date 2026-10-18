@@ -1,0 +1,23 @@
+{
+  "quote_requested": "Quote Requested",
+  "unknown": "Unknown",
+  "awaiting_payment": "Awaiting Payment",
+  "ready_to_print": "Ready to Print",
+  "printing": "Printing",
+  "post_processing": "Post-Processing",
+  "shipped": "Shipped",
+  "on_hold": "On Hold",
+  "cancelled": "Cancelled",
+  "returned": "Returned",
+  "pendingQuote": "Pending Quote",
+  "pending_quote": "Pending Quote",
+  "quoted": "Quoted",
+  "expiredQuote": "Expired Quote",
+  "pendingPayment": "Pending Payment",
+  "pending_payment": "Pending Payment",
+  "completed": "Completed",
+  "sent": "Sent",
+  "delivered": "Delivered",
+  "paid": "Paid",
+  "failed": "Failed"
+}

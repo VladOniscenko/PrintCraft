@@ -1,0 +1,18 @@
+{
+  "title": "Create an account",
+  "subtitle": "Start bringing your 3D ideas to life today.",
+  "success": "Account created! Redirecting to login...",
+  "error": {
+    "default": "Could not create account. Email might already be in use."
+  },
+  "name": "Full Name",
+  "namePlaceholder": "Alex Maker",
+  "email": "Email address",
+  "emailPlaceholder": "you@example.com",
+  "passwordPlaceholder": "Create a strong password",
+  "submit": "Sign up",
+  "haveAccount": "Already have an account?",
+  "signIn": "Sign in",
+  "visualTitle": "Join the makers.",
+  "visualDesc": "Create a free account to get instant quotes, save your favorite materials, and track your print history."
+}

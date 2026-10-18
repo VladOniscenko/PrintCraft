@@ -1,0 +1,19 @@
+{
+  "error": {
+    "fullNameRequired": "Full name is required",
+    "fullNameLength": "Full name must be 2-100 characters",
+    "fullNameInvalid": "Full name contains unsupported characters",
+    "phoneRequired": "Phone number is required",
+    "phoneInvalid": "Phone number format is invalid",
+    "phoneLength": "Phone number must contain 7-15 digits",
+    "addressRequired": "Address is required",
+    "addressLength": "Address must be 5-120 characters",
+    "addressInvalid": "Address contains unsupported characters",
+    "cityRequired": "City is required",
+    "cityLength": "City must be 2-80 characters",
+    "cityInvalid": "City contains unsupported characters",
+    "postalRequired": "Postal code is required",
+    "postalLength": "Postal code must be 3-12 characters",
+    "postalInvalid": "Postal code format is invalid"
+  }
+}

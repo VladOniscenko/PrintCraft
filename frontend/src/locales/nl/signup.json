@@ -1,0 +1,18 @@
+{
+  "title": "Maak een account",
+  "subtitle": "Begin vandaag met het realiseren van je 3D-ideeën.",
+  "success": "Account aangemaakt! Je wordt doorgestuurd naar inloggen...",
+  "error": {
+    "default": "Kon account niet aanmaken. Het e-mailadres is mogelijk al in gebruik."
+  },
+  "name": "Volledige naam",
+  "namePlaceholder": "Alex Maker",
+  "email": "E-mailadres",
+  "emailPlaceholder": "you@example.com",
+  "passwordPlaceholder": "Maak een sterk wachtwoord",
+  "submit": "Registreren",
+  "haveAccount": "Heb je al een account?",
+  "signIn": "Inloggen",
+  "visualTitle": "Word ook maker.",
+  "visualDesc": "Maak gratis een account aan voor snelle offertes, favoriete materialen en orderhistorie."
+}

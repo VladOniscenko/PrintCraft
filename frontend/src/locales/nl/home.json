@@ -1,0 +1,143 @@
+{
+  "footer": "© 2026 Print My 3D. Alle rechten voorbehouden.",
+  "solutions": {
+    "eyebrow": "Maatwerk 3D Printen",
+    "title": "Zakelijke & Industriële Oplossingen",
+    "subtitle": "Van functionele prototypes en reserveonderdelen tot op maat gemaakte behuizingen en industriële mallen. Vervaardigd volgens strenge specificaties.",
+    "viewSolution": "Bekijk oplossing",
+    "viewSpecific": "Ontdek {name}",
+    "learnMore": "Lees meer"
+  },
+  "quickQuote": {
+    "fileMode": "Ik heb een bestand",
+    "ideaMode": "Ik heb een idee",
+    "dropTitle": "Sleep je 3D-bestand hierheen",
+    "dropHint": "of klik om een STL-, OBJ-, 3MF- of STEP-bestand te kiezen",
+    "descriptionPlaceholder": "Vertel wat je wilt laten maken, waarvoor je het gebruikt en wat belangrijk is...",
+    "saving": "Aanvraag opslaan...",
+    "startRequest": "Start je aanvraag",
+    "continue": "Doorgaan met aanvraag",
+    "almostReady": "Bijna klaar",
+    "preserved": "Je aanvraag blijft bewaard tijdens het inloggen.",
+    "name": "Naam",
+    "email": "E-mailadres",
+    "password": "Wachtwoord (minimaal 8 tekens)",
+    "loginContinue": "Inloggen en doorgaan",
+    "registerContinue": "Account maken en doorgaan",
+    "switchRegister": "Nog geen account? Registreren",
+    "switchLogin": "Al een account? Inloggen",
+    "descriptionTooShort": "Beschrijf je project in minimaal 10 tekens.",
+    "saveFailed": "Je aanvraag kon niet worden opgeslagen. Probeer opnieuw.",
+    "uploadFailed": "Uploaden is niet gelukt. Controleer het bestand en probeer opnieuw.",
+    "loginFailed": "Inloggen is niet gelukt.",
+    "registerFailed": "Registreren is niet gelukt.",
+    "removeFile": "Bestand verwijderen",
+    "close": "Sluiten",
+    "descriptionFile": "Beschrijving van je project",
+    "pla": "Dagelijks gebruik",
+    "petg": "Super sterk",
+    "tpu": "Flexibel"
+  },
+  "showcase": {
+    "eyebrow": "Print My 3D studio",
+    "title": "Wat we voor je kunnen maken",
+    "subtitle": "Van een eerste idee tot een onderdeel dat elke dag moet presteren. Jij levert de richting, wij maken het tastbaar.",
+    "partTitle": "Vervangende onderdelen & repair",
+    "partTag": "Hoge precisie",
+    "prototypeTitle": "Rapid prototyping & engineering",
+    "prototypeTag": "Snelle iteraties",
+    "caseTitle": "Elektronica behuizingen & mounts",
+    "caseTag": "PETG & TPU",
+    "detailTitle": "HueForge 3D reliëf kunst & maquettes",
+    "detailTag": "Meerkleurig"
+  },
+  "materials": {
+    "eyebrow": "Materialen",
+    "title": "Kies je kracht",
+    "subtitle": "Nog niet zeker? Beschrijf je toepassing in je aanvraag. We helpen je met de juiste keuze.",
+    "plaTitle": "Dagelijks & Prototyping",
+    "plaText": "Hoge resolutie FDM printen met ±0.1mm industriële tolerantie voor prototypes, organizers en maatvaste kunststof modellen.",
+    "petgTitle": "Super Sterk & Hittebestendig",
+    "petgText": "PETG 3D print service voor sterke kunststof onderdelen, hittebestendige behuizingen en weerbestendige outdoor prints (UV-bestendig).",
+    "tpuTitle": "Flexibel Rubber",
+    "tpuText": "Flexibel TPU 3D printen voor rubberachtige onderdelen, schokdempers, afdichtingen en flexibele pakkingen."
+  },
+  "modelFinder": {
+    "badge": "Model Startpunt",
+    "bridgeBadge": "Optionele Stap",
+    "bridgeTitle": "Nog geen model? Bekijk eerst een paar betrouwbare bibliotheken.",
+    "bridgeSubtitle": "Gebruik dit alleen als je nog een printbaar bestand nodig hebt voordat je je offerte aanvraagt.",
+    "title": "Eerst een 3D-model nodig? Begin hier",
+    "subtitle": "Ontdek betrouwbare bibliotheken om printbare bestanden te vinden en upload daarna je favoriete model voor een offerte.",
+    "makerworld": {
+      "title": "MakerWorld",
+      "desc": "Geselecteerde ontwerpen uit de 3D-printcommunity, met focus op printkwaliteit en populaire builds.",
+      "cta": "Bekijk modellen"
+    },
+    "printables": {
+      "title": "Printables",
+      "desc": "Een grote modelcatalogus met praktische onderdelen, cosplay-bestanden, miniaturen en tools.",
+      "cta": "Zoek bestanden"
+    },
+    "thingiverse": {
+      "title": "Thingiverse",
+      "desc": "Klassiek open modelplatform met miljoenen community-uploads en remixbare projecten.",
+      "cta": "Verken bibliotheek"
+    },
+    "custom": {
+      "title": "Hulp nodig op maat?",
+      "desc": "Kun je het juiste bestand niet vinden? Beschrijf je idee en wij helpen je naar een printbaar model.",
+      "cta": "Vraag offerte aan"
+    }
+  },
+  "proof": {
+    "bridgeBadge": "Kwaliteitscheck",
+    "bridgeTitle": "Kies nu afwerking en kwaliteitsniveau.",
+    "bridgeSubtitle": "Bekijk beschikbare materialen en recente prints om de verwachtingen goed te zetten voordat je je offerte aanvraagt."
+  },
+  "process": {
+    "eyebrow": "Werkwijze",
+    "title": "Hoe Het Werkt",
+    "subtitle": "Eenvoudig en transparant, van 3D-bestand naar fysiek eindresultaat.",
+    "step1Title": "1. Model Uploaden",
+    "step1Desc": "Upload eenvoudig je STL-, 3MF- of CAD-bestand en selecteer het gewenste materiaal en de gewenste kleur.",
+    "step2Title": "2. Directe Prijsindicatie",
+    "step2Desc": "Krijg direct inzicht in de kosten op basis van jouw afmetingen, materiaalkeuze en infill.",
+    "step3Title": "3. Zorgvuldig Geprint",
+    "step3Desc": "We printen jouw onderdeel met zorg op goed gekalibreerde printers voor een strak en nauwkeurig resultaat.",
+    "step4Title": "4. Snelle Bezorging",
+    "step4Desc": "Veilig verpakt en binnen 2 tot 5 werkdagen geleverd via PostNL met betrouwbare track & trace.",
+    "guaranteeTitle": "Kwaliteit & Zorgvuldige Afwerking",
+    "guaranteeText": "Elke print wordt voor verzending nagelopen op printkwaliteit en afwerking. Zo ontvang je een product dat direct klaar is voor gebruik."
+  },
+  "audiences": {
+    "eyebrow": "Toepassingen",
+    "title": "3D Printen voor Iedere Toepassing",
+    "subtitle": "Van een enkel uniek onderdeel of reparatie tot functionele prototypes en kleine series.",
+    "b2cTitle": "Particulieren & Huishoudens",
+    "b2cTag": "Vanaf 1 stuk",
+    "b2cDesc": "Kapot plastic onderdeel namaken, custom gadgets, interieurdecoratie of unieke cadeaus zonder minimale ordergrootte.",
+    "hobbyTitle": "Hobbyisten, Makers & Cosplay",
+    "hobbyTag": "Creatief",
+    "hobbyDesc": "Cosplay rekwisieten, miniaturen, board game accessoires, RC onderdelen en HueForge reliëfs. Direct printen vanaf STL-bestanden.",
+    "studentsTitle": "Studenten & Onderwijs",
+    "studentsTag": "Onderwijs",
+    "studentsDesc": "Afstudeerprojecten, maquettes, prototypes en ontwerponderzoek. Snel en flexibel geholpen met praktische ondersteuning.",
+    "b2bTitle": "Bedrijven & MKB",
+    "b2bTag": "Zakelijk",
+    "b2bDesc": "Functionele prototypes, machine-onderdelen, kalibers, behuizingen en kleine series met overzichtelijke BTW-facturatie."
+  },
+  "faq": {
+    "eyebrow": "Veelgestelde Vragen",
+    "title": "Veelgestelde Vragen",
+    "subtitle": "Heldere antwoorden over bestellingen vanaf 1 stuk, studentenprojecten, materialen en facturatie.",
+    "q1": "Kunnen particulieren, studenten of hobbyisten ook 1 enkel stuk bestellen?",
+    "a1": "Ja, absoluut! Wij hanteren geen minimale bestelgrootte. Of je nu één afgebroken onderdeel nodig hebt of een maquette: iedereen kan eenvoudig bestellen.",
+    "q2": "Kunnen studenten en onderwijsinstellingen terecht voor maquettes en prototypes?",
+    "a2": "Zeker! We ondersteunen studenten en docenten regelmatig met het printen van maquettes, afstudeerprojecten en prototypes met snelle levering.",
+    "q3": "Kunnen bedrijven en organisaties bestellen met een officiële BTW-factuur?",
+    "a3": "Ja, zakelijke klanten ontvangen een overzichtelijke factuur met BTW en duidelijke specificaties voor de bedrijfsadministratie.",
+    "q4": "Wat is de gemiddelde levertijd binnen Nederland?",
+    "a4": "De meeste bestellingen worden binnen 2 tot 5 werkdagen geproduceerd en verzonden via PostNL met track & trace."
+  }
+}

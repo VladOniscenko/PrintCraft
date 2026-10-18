@@ -1,0 +1,19 @@
+{
+  "toggleRotation": "Automatisch draaien in-/uitschakelen",
+  "toggleWireframe": "Draadmodel in-/uitschakelen",
+  "toggleGrid": "Raster in-/uitschakelen",
+  "changeBgColor": "Achtergrondkleur wijzigen",
+  "resetCamera": "Camerahoek resetten",
+  "printGuidelines": "Printrichtlijnen & uitleg",
+  "expandDialog": "3D-weergave vergroten",
+  "inspect": "Inspecteren",
+  "baseDimensionsScale": "(Basis: {x} × {y} × {z} mm @ {scale}x)",
+  "boundingBox": "Afmetingen (Bounding Box)",
+  "exceedsBuildVolume": "Overschrijdt printvolume (>256 mm)",
+  "layerHeightTitle": "Laaghoogte",
+  "layerHeightDesc": "Standaard 0.20mm biedt de ideale balans tussen snelheid en afwerking. Gebruik 0.12mm voor fijne details, of 0.28mm voor snelle prototypes.",
+  "infillDensityTitle": "Vuldichtheid (Infill)",
+  "infillDensityDesc": "15%–20% is optimaal voor decoratieve modellen. Gebruik 40%+ voor sterke mechanische onderdelen.",
+  "colorMaterialTitle": "Kleur & Materiaal",
+  "colorMaterialDesc": "Live hierboven getoond op jouw 3D-model. Kleuren komen direct overeen met onze actuele filamentvoorraad."
+}
