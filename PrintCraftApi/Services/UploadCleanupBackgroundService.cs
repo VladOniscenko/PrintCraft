@@ -237,9 +237,8 @@ public class UploadCleanupBackgroundService : BackgroundService
                         o.Status == OrderStatus.ReadyToPrint ||
                         o.Status == OrderStatus.Printing ||
                         o.Status == OrderStatus.PostProcessing ||
-                        o.Status == OrderStatus.Shipped ||
-                        (!o.Status.Equals(OrderStatus.Cancelled, StringComparison.OrdinalIgnoreCase) &&
-                         !o.Status.Equals(OrderStatus.Returned, StringComparison.OrdinalIgnoreCase) &&
+                        (o.Status != OrderStatus.Cancelled &&
+                         o.Status != OrderStatus.Returned &&
                          o.CreatedAt >= DateTime.UtcNow.AddDays(-7)))
             .ToListAsync(cancellationToken);
 

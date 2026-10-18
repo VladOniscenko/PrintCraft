@@ -1703,4 +1703,25 @@ public class AdminController : ControllerBase
             System.IO.File.Delete(filePath);
         }
     }
+
+    [HttpPost("seed-defaults")]
+    public async Task<IActionResult> SeedDefaults([FromQuery] bool force = true)
+    {
+        var env = HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
+        HeroSlideSeeder.EnsureSeedAssets(env.WebRootPath, env.ContentRootPath);
+
+        var slideRes = await HeroSlideSeeder.EnsureDatabaseSeededAsync(_db, force);
+        var emailRes = await EmailTemplateSeeder.EnsureDatabaseSeededAsync(_db, force);
+        var filRes = await FilamentSeeder.EnsureDatabaseSeededAsync(_db, force);
+
+        return Ok(new
+        {
+            message = "All database defaults seeded successfully.",
+            forceReload = force,
+            heroSlides = slideRes,
+            emailTemplates = emailRes,
+            filaments = filRes
+        });
+    }
 }
+

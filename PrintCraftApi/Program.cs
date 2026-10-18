@@ -27,6 +27,14 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 });
 QuestPDF.Settings.License = LicenseType.Community;
 
+var isSeedOnly = args.Any(a => a is "--seed" or "--seed-only" or "seed")
+                 || string.Equals(Environment.GetEnvironmentVariable("RUN_SEEDER"), "true", StringComparison.OrdinalIgnoreCase)
+                 || string.Equals(Environment.GetEnvironmentVariable("SEED_ONLY"), "true", StringComparison.OrdinalIgnoreCase);
+
+var forceReload = args.Any(a => a is "--force" or "-f" or "--reset" or "--overwrite")
+                  || string.Equals(Environment.GetEnvironmentVariable("SEED_FORCE_RELOAD"), "true", StringComparison.OrdinalIgnoreCase)
+                  || string.Equals(Environment.GetEnvironmentVariable("FORCE_SEED"), "true", StringComparison.OrdinalIgnoreCase);
+
 // --- SERVICES ---
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrWhiteSpace(connectionString))
@@ -56,9 +64,16 @@ builder.Services.AddHttpClient();
 
 // Discord Webhooks (Background Queue + Direct Service)
 builder.Services.AddSingleton<DiscordWebhookService>();
-builder.Services.AddSingleton<IBackgroundWebhookQueue, BackgroundWebhookQueue>();
-builder.Services.AddHostedService<BackgroundWebhookWorker>();
-builder.Services.AddSingleton<IDiscordWebhookService, QueuedDiscordWebhookService>();
+if (!isSeedOnly)
+{
+    builder.Services.AddSingleton<IBackgroundWebhookQueue, BackgroundWebhookQueue>();
+    builder.Services.AddHostedService<BackgroundWebhookWorker>();
+    builder.Services.AddSingleton<IDiscordWebhookService, QueuedDiscordWebhookService>();
+}
+else
+{
+    builder.Services.AddSingleton<IDiscordWebhookService, DiscordWebhookService>();
+}
 
 builder.Services.AddScoped<IQuoteDraftService, QuoteDraftService>();
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
@@ -66,19 +81,29 @@ builder.Services.Configure<InvoiceOptions>(builder.Configuration.GetSection("Inv
 
 // SMTP Email (Background Queue + Gmail SMTP Sender)
 builder.Services.AddTransient<GmailSmtpEmailService>();
-builder.Services.AddSingleton<IBackgroundEmailQueue, BackgroundEmailQueue>();
-builder.Services.AddHostedService<BackgroundEmailWorker>();
-builder.Services.AddSingleton<IEmailService, QueuedEmailService>();
+if (!isSeedOnly)
+{
+    builder.Services.AddSingleton<IBackgroundEmailQueue, BackgroundEmailQueue>();
+    builder.Services.AddHostedService<BackgroundEmailWorker>();
+    builder.Services.AddSingleton<IEmailService, QueuedEmailService>();
 
-// Visitor Tracking (Background Queue + Batch Persistence Worker)
-builder.Services.AddSingleton<IVisitorTrackingQueue, VisitorTrackingQueue>();
-builder.Services.AddHostedService<VisitorTrackingBackgroundWorker>();
+    // Visitor Tracking (Background Queue + Batch Persistence Worker)
+    builder.Services.AddSingleton<IVisitorTrackingQueue, VisitorTrackingQueue>();
+    builder.Services.AddHostedService<VisitorTrackingBackgroundWorker>();
 
-builder.Services.AddScoped<IInvoiceService, InvoiceService>();
-builder.Services.AddScoped<IPrintPricingService, PrintPricingService>();
-builder.Services.AddSingleton<IPricingQueue, PricingQueue>();
-builder.Services.AddHostedService<PricingBackgroundWorker>();
-builder.Services.AddHostedService<UploadCleanupBackgroundService>();
+    builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+    builder.Services.AddScoped<IPrintPricingService, PrintPricingService>();
+    builder.Services.AddSingleton<IPricingQueue, PricingQueue>();
+    builder.Services.AddHostedService<PricingBackgroundWorker>();
+    builder.Services.AddHostedService<UploadCleanupBackgroundService>();
+}
+else
+{
+    builder.Services.AddTransient<IEmailService, GmailSmtpEmailService>();
+    builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+    builder.Services.AddScoped<IPrintPricingService, PrintPricingService>();
+}
+
 builder.Services.AddScoped<OrderStatusStateMachine>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -223,10 +248,8 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
-var isSeedOnly = args.Any(a => a is "--seed" or "--seed-only" or "seed");
 if (isSeedOnly)
 {
-    var forceReload = args.Any(a => a is "--force" or "-f" or "--reset");
     Console.WriteLine("====================================================================");
     Console.WriteLine($"[PrintCraft Seeder] Standalone CLI execution (ForceReload: {forceReload})");
     Console.WriteLine("====================================================================");
@@ -433,9 +456,9 @@ using (var scope = app.Services.CreateScope())
     await EnsureSchemaColumnsAsync(db);
 
     HeroSlideSeeder.EnsureSeedAssets(app.Environment.WebRootPath, app.Environment.ContentRootPath);
-    await HeroSlideSeeder.EnsureDatabaseSeededAsync(db);
-    await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db);
-    await FilamentSeeder.EnsureDatabaseSeededAsync(db);
+    await HeroSlideSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+    await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+    await FilamentSeeder.EnsureDatabaseSeededAsync(db, forceReload);
 }
 
 app.Run();

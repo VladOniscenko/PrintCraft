@@ -61,12 +61,14 @@ services:
     build:
       context: .
       dockerfile: PrintCraftApi/Dockerfile
-    command: ["--seed"]
+    command: ["--seed", "--force"]
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      SEED_FORCE_RELOAD: "true"
+      SEED_ONLY: "true"
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       FrontendBaseUrl: ${FrontendBaseUrl:?FrontendBaseUrl is required}
       BackendBaseUrl: ${BackendBaseUrl:?BackendBaseUrl is required}
