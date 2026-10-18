@@ -387,6 +387,7 @@ public static class FilamentSeeder
                 match.PricePerGram = def.PricePerGram;
                 match.StockQuantity = def.StockQuantity;
                 match.Description = def.Description;
+                db.Entry(match).State = EntityState.Modified;
                 result.Updated++;
             }
         }
