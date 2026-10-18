@@ -5,7 +5,7 @@ namespace PrintCraftApi.Data;
 
 public static class EmailTemplateSeeder
 {
-  public static List<EmailTemplate> GetDefaultTemplates() => new()
+    public static List<EmailTemplate> GetDefaultTemplates() => new()
     {
         new EmailTemplate
         {
@@ -95,81 +95,81 @@ public static class EmailTemplateSeeder
         }
     };
 
-  public static void Seed(ModelBuilder modelBuilder)
-  {
-    modelBuilder.Entity<EmailTemplate>().HasData(GetDefaultTemplates());
-  }
-
-  /// <summary>
-  /// Ensures database has default email templates if the table is empty or missing templates.
-  /// </summary>
-  public static async Task<SeederResult> EnsureDatabaseSeededAsync(PrintCraftDb db, bool forceReload = false)
-  {
-    var defaults = GetDefaultTemplates();
-    var existing = await db.EmailTemplates.ToListAsync();
-    var result = new SeederResult { TotalBefore = existing.Count };
-
-    if (existing.Count == 0)
+    public static void Seed(ModelBuilder modelBuilder)
     {
-      await db.EmailTemplates.AddRangeAsync(defaults);
-      await db.SaveChangesAsync();
-      result.Inserted = defaults.Count;
-      result.TotalAfter = defaults.Count;
-      return result;
+        modelBuilder.Entity<EmailTemplate>().HasData(GetDefaultTemplates());
     }
 
-    foreach (var def in defaults)
+    /// <summary>
+    /// Ensures database has default email templates if the table is empty or missing templates.
+    /// </summary>
+    public static async Task<SeederResult> EnsureDatabaseSeededAsync(PrintCraftDb db, bool forceReload = false)
     {
-      var matches = existing
-          .Where(t => t.Id == def.Id || string.Equals(t.TemplateName.Trim(), def.TemplateName.Trim(), StringComparison.OrdinalIgnoreCase))
-          .ToList();
+        var defaults = GetDefaultTemplates();
+        var existing = await db.EmailTemplates.ToListAsync();
+        var result = new SeederResult { TotalBefore = existing.Count };
 
-      if (matches.Count == 0)
-      {
-        await db.EmailTemplates.AddAsync(def);
-        result.Inserted++;
-      }
-      else
-      {
-        foreach (var match in matches)
+        if (existing.Count == 0)
         {
-          if (forceReload
-              || !string.Equals(match.Subject, def.Subject, StringComparison.Ordinal)
-              || !string.Equals(match.Body, def.Body, StringComparison.Ordinal)
-              || match.Body.Contains("3D CAD / Slicing Preview")
-              || match.Body.Contains("&euro;{{Price}}")
-              || match.Body.Contains("&euro;{{Amount}}")
-              || match.Body.Contains("precision pricing"))
-          {
-            match.TemplateName = def.TemplateName;
-            match.Subject = def.Subject;
-            match.Body = def.Body;
-            db.Entry(match).State = EntityState.Modified;
-            result.Updated++;
-          }
+            await db.EmailTemplates.AddRangeAsync(defaults);
+            await db.SaveChangesAsync();
+            result.Inserted = defaults.Count;
+            result.TotalAfter = defaults.Count;
+            return result;
         }
-      }
+
+        foreach (var def in defaults)
+        {
+            var matches = existing
+                .Where(t => t.Id == def.Id || string.Equals(t.TemplateName.Trim(), def.TemplateName.Trim(), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (matches.Count == 0)
+            {
+                await db.EmailTemplates.AddAsync(def);
+                result.Inserted++;
+            }
+            else
+            {
+                foreach (var match in matches)
+                {
+                    if (forceReload
+                        || !string.Equals(match.Subject, def.Subject, StringComparison.Ordinal)
+                        || !string.Equals(match.Body, def.Body, StringComparison.Ordinal)
+                        || match.Body.Contains("3D CAD / Slicing Preview")
+                        || match.Body.Contains("&euro;{{Price}}")
+                        || match.Body.Contains("&euro;{{Amount}}")
+                        || match.Body.Contains("precision pricing"))
+                    {
+                        match.TemplateName = def.TemplateName;
+                        match.Subject = def.Subject;
+                        match.Body = def.Body;
+                        db.Entry(match).State = EntityState.Modified;
+                        result.Updated++;
+                    }
+                }
+            }
+        }
+
+        if (result.Inserted > 0 || result.Updated > 0)
+        {
+            await db.SaveChangesAsync();
+        }
+
+        result.TotalAfter = await db.EmailTemplates.CountAsync();
+        return result;
     }
 
-    if (result.Inserted > 0 || result.Updated > 0)
+    private static string BuildCardHtmlTemplate(
+        string badgeText,
+        string heading,
+        string introParagraph,
+        string ctaText,
+        string ctaUrlPlaceholder = "{{OrderUrl}}",
+        bool show3dRender = true,
+        string? detailBoxHtml = null)
     {
-      await db.SaveChangesAsync();
-    }
-
-    result.TotalAfter = await db.EmailTemplates.CountAsync();
-    return result;
-  }
-
-  private static string BuildCardHtmlTemplate(
-      string badgeText,
-      string heading,
-      string introParagraph,
-      string ctaText,
-      string ctaUrlPlaceholder = "{{OrderUrl}}",
-      bool show3dRender = true,
-      string? detailBoxHtml = null)
-  {
-    var renderBlock = show3dRender ? $$$"""
+        var renderBlock = show3dRender ? $$$"""
           <!-- 3D Render Viewport Container -->
           <tr>
             <td class="mobile-p-20" style="padding: 16px 40px 24px 40px;">
@@ -194,7 +194,7 @@ public static class EmailTemplateSeeder
         """ : "";
 
 
-    var detailBlock = !string.IsNullOrWhiteSpace(detailBoxHtml) ? $$$"""
+        var detailBlock = !string.IsNullOrWhiteSpace(detailBoxHtml) ? $$$"""
           <!-- Extra Details Box -->
           <tr>
             <td class="mobile-p-20" style="padding: 0 40px 16px 40px;">
@@ -209,7 +209,7 @@ public static class EmailTemplateSeeder
           </tr>
         """ : "";
 
-    return $$$"""
+        return $$$"""
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
         <head>
@@ -320,5 +320,5 @@ public static class EmailTemplateSeeder
         </body>
         </html>
         """;
-  }
+    }
 }
