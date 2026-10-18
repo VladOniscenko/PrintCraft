@@ -261,6 +261,66 @@ public class OrderItemChangeRequestTests
         Assert.Equal("scale_or_size", customerDto.Items[0].ActiveChangeRequest.ReasonCategory);
     }
 
+    [Fact]
+    public async Task StateMachine_ReviseQuote_TransitionsAwaitingPaymentToQuoteRequested()
+    {
+        await using var db = CreateDbContext();
+        var order = new Order
+        {
+            Id = Guid.NewGuid(),
+            FullName = "Jane Doe",
+            AddressLine1 = "Street 1",
+            City = "Amsterdam",
+            PostalCode = "1011AA",
+            PhoneNumber = "0612345678",
+            Status = OrderStatus.AwaitingPayment,
+            IsPaid = false,
+            QuoteConfirmedAt = DateTime.UtcNow,
+            QuoteExpiresAt = DateTime.UtcNow.AddDays(7),
+        };
+        db.Orders.Add(order);
+        await db.SaveChangesAsync();
+
+        var stateMachine = new OrderStatusStateMachine(db);
+        var result = await stateMachine.TryTransitionAsync(order, new StatusTransitionRequest
+        {
+            TargetStatus = OrderStatus.QuoteRequested
+        });
+
+        Assert.True(result.Success);
+        Assert.Equal(OrderStatus.QuoteRequested, order.Status);
+        Assert.Null(order.QuoteConfirmedAt);
+        Assert.Null(order.QuoteExpiresAt);
+    }
+
+    [Fact]
+    public async Task StateMachine_ReviseQuote_FailsWhenOrderAlreadyPaid()
+    {
+        await using var db = CreateDbContext();
+        var order = new Order
+        {
+            Id = Guid.NewGuid(),
+            FullName = "Jane Doe",
+            AddressLine1 = "Street 1",
+            City = "Amsterdam",
+            PostalCode = "1011AA",
+            PhoneNumber = "0612345678",
+            Status = OrderStatus.AwaitingPayment,
+            IsPaid = true
+        };
+        db.Orders.Add(order);
+        await db.SaveChangesAsync();
+
+        var stateMachine = new OrderStatusStateMachine(db);
+        var result = await stateMachine.TryTransitionAsync(order, new StatusTransitionRequest
+        {
+            TargetStatus = OrderStatus.QuoteRequested
+        });
+
+        Assert.False(result.Success);
+        Assert.Contains("already been marked as paid", result.ErrorMessage);
+    }
+
     private sealed class NoopEmailService : IEmailService
     {
         public Task SendResetPasswordEmailAsync(string toEmail, string toName, string resetLink) => Task.CompletedTask;

@@ -161,6 +161,7 @@ public sealed class OrderStatusStateMachine
         // ── Primary Workflow Transitions ─────────────────────────────────
         return target switch
         {
+            OrderStatus.QuoteRequested  => TransitionToQuoteRequested(order, current),
             OrderStatus.AwaitingPayment => await TransitionToAwaitingPaymentAsync(order, current),
             OrderStatus.ReadyToPrint    => TransitionToReadyToPrint(order, request, current),
             OrderStatus.Printing        => TransitionToPrinting(order, request, current),
@@ -173,6 +174,28 @@ public sealed class OrderStatusStateMachine
     // ══════════════════════════════════════════════════════════════════════
     //  Primary Workflow Gate Methods
     // ══════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// AwaitingPayment (or OnHold/ExpiredQuote) → QuoteRequested (Revise Quote or Resume)
+    /// Allows the admin to move an unpaid order back to QuoteRequested to revise pricing, parameters, or 3D files.
+    /// </summary>
+    private static TransitionResult TransitionToQuoteRequested(Order order, string current)
+    {
+        if (!IsAllowedPredecessor(current,
+            OrderStatus.AwaitingPayment, OrderStatus.OnHold, "expired_quote"))
+            return TransitionResult.Fail(
+                $"Cannot move to Quote Requested from '{current}'. " +
+                "Order must be in Awaiting Payment, On Hold, or Expired Quote.");
+
+        if (order.IsPaid)
+            return TransitionResult.Fail(
+                "Cannot revise quote because the order has already been marked as paid.");
+
+        order.Status = OrderStatus.QuoteRequested;
+        QuoteLifecycle.ClearQuoteWindow(order);
+        order.UpdatedAt = DateTime.UtcNow;
+        return TransitionResult.Ok();
+    }
 
     /// <summary>
     /// QuoteRequested → AwaitingPayment
