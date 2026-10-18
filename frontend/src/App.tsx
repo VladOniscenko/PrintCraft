@@ -44,10 +44,7 @@ const Quote = lazyWithI18n(
   () => import("./components/Quote.tsx"),
   ["quote", "viewer3d", "filamentPainting", "modelViewer"],
 );
-const Signup = lazyWithI18n(
-  () => import("./components/Signup.tsx"),
-  ["signup"],
-);
+const Signup = lazyWithI18n(() => import("./components/Signup.tsx"), ["signup"]);
 const FAQ = lazyWithI18n(() => import("./components/FAQ.tsx"), ["faq"]);
 const Orders = lazyWithI18n(
   () => import("./components/user/Orders.tsx"),
@@ -154,11 +151,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
   const { lang } = useParams<{ lang?: string }>();
   const preferred = resolveLanguage(lang || localStorage.getItem("language"));
-  return token ? (
-    <>{children}</>
-  ) : (
-    <Navigate to={`/${preferred}/login`} replace />
-  );
+  return token ? <>{children}</> : <Navigate to={`/${preferred}/login`} replace />;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
@@ -204,15 +197,9 @@ function AuthSessionGuard() {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
             invalidateAuthCache();
-            const stored =
-              typeof window !== "undefined"
-                ? localStorage.getItem("language")
-                : null;
+            const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
             const preferred = resolveLanguage(stored);
-            navigate(`/${preferred}/login`, {
-              replace: true,
-              state: { from: locationRef.current },
-            });
+            navigate(`/${preferred}/login`, { replace: true, state: { from: locationRef.current } });
           }
         }
       }
@@ -221,9 +208,7 @@ function AuthSessionGuard() {
     void validateSession();
 
     const handleFocus = () => {
-      const lastCheck = Number(
-        sessionStorage.getItem("last_auth_check") || "0",
-      );
+      const lastCheck = Number(sessionStorage.getItem("last_auth_check") || "0");
       if (Date.now() - lastCheck > 5 * 60 * 1000) {
         sessionStorage.setItem("last_auth_check", String(Date.now()));
         void validateSession();
@@ -240,6 +225,7 @@ function AuthSessionGuard() {
   return null;
 }
 
+
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -249,21 +235,17 @@ function ScrollToTop() {
 }
 
 function RootLanguageRedirect() {
-  const stored =
-    typeof window !== "undefined" ? localStorage.getItem("language") : null;
+  const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
   const preferred = resolveLanguage(stored);
   return <Navigate to={`/${preferred}`} replace />;
 }
 
 function LegacyPathRedirect({ target }: { target?: string } = {}) {
   const location = useLocation();
-  const stored =
-    typeof window !== "undefined" ? localStorage.getItem("language") : null;
+  const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
   const preferred = resolveLanguage(stored);
   const targetPath = target ?? location.pathname;
-  const cleanTarget = targetPath.startsWith("/")
-    ? targetPath
-    : `/${targetPath}`;
+  const cleanTarget = targetPath.startsWith("/") ? targetPath : `/${targetPath}`;
   return (
     <Navigate
       to={`/${preferred}${cleanTarget === "/" ? "" : cleanTarget}${location.search}${location.hash}`}
@@ -275,8 +257,7 @@ function LegacyPathRedirect({ target }: { target?: string } = {}) {
 function LegacyCityRedirect() {
   const { city } = useParams<{ city: string }>();
   const location = useLocation();
-  const stored =
-    typeof window !== "undefined" ? localStorage.getItem("language") : null;
+  const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
   const preferred = resolveLanguage(stored);
   return (
     <Navigate
@@ -289,8 +270,7 @@ function LegacyCityRedirect() {
 function LegacyApplicationRedirect() {
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
-  const stored =
-    typeof window !== "undefined" ? localStorage.getItem("language") : null;
+  const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
   const preferred = resolveLanguage(stored);
   return (
     <Navigate
@@ -326,14 +306,8 @@ export default function App() {
           {/* Naked / Legacy Route Redirects (automatically redirect to active/preferred language) */}
           <Route path="/" element={<RootLanguageRedirect />} />
           <Route path="/faq" element={<LegacyPathRedirect target="/faq" />} />
-          <Route
-            path="/checkout"
-            element={<LegacyPathRedirect target="/checkout" />}
-          />
-          <Route
-            path="/quote"
-            element={<LegacyPathRedirect target="/checkout" />}
-          />
+          <Route path="/checkout" element={<LegacyPathRedirect target="/checkout" />} />
+          <Route path="/quote" element={<LegacyPathRedirect target="/checkout" />} />
           <Route
             path="/3d-print-service/:city"
             element={<LegacyCityRedirect />}
@@ -342,30 +316,15 @@ export default function App() {
             path="/oplossingen/:slug"
             element={<LegacyApplicationRedirect />}
           />
-          <Route
-            path="/privacy"
-            element={<LegacyPathRedirect target="/privacy" />}
-          />
-          <Route
-            path="/terms"
-            element={<LegacyPathRedirect target="/terms" />}
-          />
-          <Route
-            path="/refunds"
-            element={<LegacyPathRedirect target="/refunds" />}
-          />
+          <Route path="/privacy" element={<LegacyPathRedirect target="/privacy" />} />
+          <Route path="/terms" element={<LegacyPathRedirect target="/terms" />} />
+          <Route path="/refunds" element={<LegacyPathRedirect target="/refunds" />} />
           <Route
             path="/shipping-policy"
             element={<LegacyPathRedirect target="/shipping-policy" />}
           />
-          <Route
-            path="/login"
-            element={<LegacyPathRedirect target="/login" />}
-          />
-          <Route
-            path="/signup"
-            element={<LegacyPathRedirect target="/signup" />}
-          />
+          <Route path="/login" element={<LegacyPathRedirect target="/login" />} />
+          <Route path="/signup" element={<LegacyPathRedirect target="/signup" />} />
           <Route
             path="/forgot-password"
             element={<LegacyPathRedirect target="/forgot-password" />}
@@ -374,19 +333,13 @@ export default function App() {
             path="/reset-password"
             element={<LegacyPathRedirect target="/reset-password" />}
           />
+          <Route path="/orders" element={<LegacyPathRedirect target="/orders" />} />
+          <Route path="/profile" element={<LegacyPathRedirect target="/profile" />} />
           <Route
-            path="/orders"
-            element={<LegacyPathRedirect target="/orders" />}
+            path="/orders/:id"
+            element={<LegacyPathRedirect />}
           />
-          <Route
-            path="/profile"
-            element={<LegacyPathRedirect target="/profile" />}
-          />
-          <Route path="/orders/:id" element={<LegacyPathRedirect />} />
-          <Route
-            path="/admin"
-            element={<LegacyPathRedirect target="/admin" />}
-          />
+          <Route path="/admin" element={<LegacyPathRedirect target="/admin" />} />
           <Route path="/admin/*" element={<LegacyPathRedirect />} />
 
           {/* Localized Routes: /:lang/... */}
@@ -394,23 +347,14 @@ export default function App() {
             <Route index element={<Home />} />
             <Route path="faq" element={<FAQ />} />
             <Route path="faq/:slug" element={<ApplicationLandingPage />} />
-            <Route
-              path="oplossingen/:slug"
-              element={<LegacyApplicationRedirect />}
-            />
-            <Route
-              path="3d-print-service/:city"
-              element={<CityLandingPage />}
-            />
+            <Route path="oplossingen/:slug" element={<LegacyApplicationRedirect />} />
+            <Route path="3d-print-service/:city" element={<CityLandingPage />} />
             <Route path="privacy" element={<PrivacyPolicy />} />
             <Route path="terms" element={<TermsOfService />} />
             <Route path="refunds" element={<RefundPolicy />} />
             <Route path="shipping-policy" element={<ShippingPolicy />} />
 
-            <Route
-              path="quote"
-              element={<Navigate to="../checkout" replace />}
-            />
+            <Route path="quote" element={<Navigate to="../checkout" replace />} />
             <Route path="checkout" element={<Quote />} />
 
             <Route path="login" element={<Login />} />

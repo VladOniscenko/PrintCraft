@@ -49,7 +49,10 @@ export const CORE_NAMESPACES: TranslationNamespace[] = [
 ];
 
 // In-memory store typed with canonical TranslationSchema for full compile-time autocomplete
-export const translationsStore: Record<SupportedLanguage, TranslationSchema> = {
+export const translationsStore: Record<
+  SupportedLanguage,
+  TranslationSchema
+> = {
   en: {
     ...enRoot,
     common: enCommon,
@@ -140,9 +143,9 @@ export async function loadNamespace(
         mod && "default" in mod && mod.default
           ? (mod.default as Record<string, unknown>)
           : (mod as Record<string, unknown>);
-      (translationsStore[lang] as unknown as Record<string, unknown>)[
-        namespace
-      ] = data;
+      (
+        translationsStore[lang] as unknown as Record<string, unknown>
+      )[namespace] = data;
       notifyListeners();
     })
     .catch((err: unknown) => {
