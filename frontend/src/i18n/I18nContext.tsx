@@ -82,7 +82,7 @@ function getNestedTranslation(
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [, setVersion] = useState(0);
+  const [version, setVersion] = useState(0);
 
   // Re-render when newly loaded namespaces arrive
   useEffect(() => {
@@ -182,7 +182,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
       return value;
     },
-    [language],
+    [language, version],
   );
 
   const value = useMemo(
@@ -202,6 +202,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       localizePath,
       loadNamespacesForLanguage,
       checkNamespaceLoaded,
+      version,
     ],
   );
 

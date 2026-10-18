@@ -204,13 +204,15 @@ export function buildFaqJsonLd(
   const tSource = translations[language] || translations[defaultLanguage];
   const faqSource = tSource.faq;
   const faqItems: Array<{ q: string; a: string }> = [];
-  for (let i = 1; i <= 20; i++) {
-    const qKey = `q${i}` as keyof typeof faqSource;
-    const aKey = `a${i}` as keyof typeof faqSource;
-    const question = faqSource[qKey];
-    const answer = faqSource[aKey];
-    if (typeof question === "string" && typeof answer === "string") {
-      faqItems.push({ q: question, a: answer });
+  if (faqSource) {
+    for (let i = 1; i <= 20; i++) {
+      const qKey = `q${i}` as keyof typeof faqSource;
+      const aKey = `a${i}` as keyof typeof faqSource;
+      const question = faqSource[qKey];
+      const answer = faqSource[aKey];
+      if (typeof question === "string" && typeof answer === "string") {
+        faqItems.push({ q: question, a: answer });
+      }
     }
   }
 
