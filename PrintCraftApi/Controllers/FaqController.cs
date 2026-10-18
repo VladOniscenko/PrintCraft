@@ -27,6 +27,7 @@ public class FaqController : ControllerBase
     /// Gets FAQ items. By default returns only active items sorted by SortOrder.
     /// Use ?all=true to retrieve all items including inactive ones for administration.
     /// </summary>
+    // Permission: Public Read
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] bool? all, [FromQuery] string? category, CancellationToken cancellationToken = default)
@@ -64,6 +65,7 @@ public class FaqController : ControllerBase
     /// <summary>
     /// Gets a single FAQ item by ID.
     /// </summary>
+    // Permission: Public Read
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken = default)
@@ -79,8 +81,9 @@ public class FaqController : ControllerBase
     /// <summary>
     /// Creates a new FAQ item.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Create([FromBody] FaqItem item, CancellationToken cancellationToken = default)
     {
         if (item.Question == null || item.Question.Count == 0 || item.Question.Values.All(string.IsNullOrWhiteSpace))
@@ -116,8 +119,9 @@ public class FaqController : ControllerBase
     /// <summary>
     /// Updates an existing FAQ item.
     /// </summary>
+    // Permission: Admin Only
     [HttpPut("{id:guid}")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Update(Guid id, [FromBody] FaqItem request, CancellationToken cancellationToken = default)
     {
         var item = await _db.FaqItems.FirstOrDefaultAsync(f => f.Id == id, cancellationToken);
@@ -154,8 +158,9 @@ public class FaqController : ControllerBase
     /// <summary>
     /// Deletes an FAQ item.
     /// </summary>
+    // Permission: Admin Only
     [HttpDelete("{id:guid}")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
         var item = await _db.FaqItems.FirstOrDefaultAsync(f => f.Id == id, cancellationToken);
@@ -174,8 +179,9 @@ public class FaqController : ControllerBase
     /// <summary>
     /// Reseeds default FAQ items.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost("seed")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Seed([FromQuery] bool forceReload = false)
     {
         var result = await FaqItemSeeder.EnsureDatabaseSeededAsync(_db, forceReload);

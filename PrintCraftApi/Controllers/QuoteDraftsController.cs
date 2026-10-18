@@ -14,6 +14,7 @@ public sealed class QuoteDraftsController : ControllerBase
 
     public QuoteDraftsController(IQuoteDraftService drafts) => _drafts = drafts;
 
+    // Permission: Public Mutate (Whitelisted: Anonymous Quote Draft)
     [HttpPost]
     [AllowAnonymous]
     public async Task<IActionResult> Create([FromBody] CreateQuoteDraftRequest request, CancellationToken cancellationToken)
@@ -37,6 +38,7 @@ public sealed class QuoteDraftsController : ControllerBase
         return Ok(result);
     }
 
+    // Permission: Authenticated User
     [HttpPost("redeem")]
     [Authorize]
     public async Task<IActionResult> Redeem([FromBody] RedeemQuoteDraftRequest request, CancellationToken cancellationToken)

@@ -110,6 +110,7 @@ public class EmailTemplatesController : ControllerBase
     /// <summary>
     /// Gets all email templates.
     /// </summary>
+    // Permission: Admin Only
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] string? language = null, CancellationToken cancellationToken = default)
     {
@@ -142,6 +143,7 @@ public class EmailTemplatesController : ControllerBase
     /// <summary>
     /// Gets a single email template by ID.
     /// </summary>
+    // Permission: Admin Only
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken = default)
     {
@@ -169,6 +171,7 @@ public class EmailTemplatesController : ControllerBase
     /// <summary>
     /// Creates a new custom email template.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateEmailTemplateRequest request, CancellationToken cancellationToken = default)
     {
@@ -226,6 +229,7 @@ public class EmailTemplatesController : ControllerBase
     /// <summary>
     /// Updates an existing email template.
     /// </summary>
+    // Permission: Admin Only
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateEmailTemplateRequest request, CancellationToken cancellationToken = default)
     {
@@ -288,6 +292,7 @@ public class EmailTemplatesController : ControllerBase
     /// <summary>
     /// Deletes a custom email template.
     /// </summary>
+    // Permission: Admin Only
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
@@ -308,6 +313,7 @@ public class EmailTemplatesController : ControllerBase
     /// <summary>
     /// Previews a stored email template with mock data.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost("{id:guid}/preview")]
     public async Task<IActionResult> PreviewById(Guid id, [FromBody] Dictionary<string, string>? customVars, CancellationToken cancellationToken = default)
     {
@@ -334,6 +340,7 @@ public class EmailTemplatesController : ControllerBase
     /// <summary>
     /// Previews raw subject and body HTML in real-time before saving.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost("preview-raw")]
     public IActionResult PreviewRaw([FromBody] PreviewRawTemplateRequest request)
     {
@@ -353,6 +360,7 @@ public class EmailTemplatesController : ControllerBase
     /// <summary>
     /// Sends a test email of the specified template to an admin recipient.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost("{id:guid}/send-test")]
     public async Task<IActionResult> SendTest(Guid id, [FromBody] SendTestEmailRequest request, CancellationToken cancellationToken = default)
     {
@@ -387,6 +395,7 @@ public class EmailTemplatesController : ControllerBase
     /// <summary>
     /// Resets all email templates back to system seeder defaults.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost("reset-defaults")]
     public async Task<IActionResult> ResetDefaults()
     {

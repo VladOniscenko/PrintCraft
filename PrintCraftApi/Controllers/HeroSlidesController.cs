@@ -29,6 +29,7 @@ public class HeroSlidesController : ControllerBase
     /// <summary>
     /// Public endpoint returning active slides sorted by SortOrder.
     /// </summary>
+    // Permission: Public Read
     [HttpGet("active")]
     [AllowAnonymous]
     public async Task<IActionResult> GetActive(CancellationToken cancellationToken = default)
@@ -53,6 +54,7 @@ public class HeroSlidesController : ControllerBase
     /// Public endpoint returning slides sorted by SortOrder.
     /// Supports ?activeOnly=true/false and ?all=true
     /// </summary>
+    // Permission: Public Read
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] bool? activeOnly, [FromQuery] bool? all, CancellationToken cancellationToken = default)
@@ -75,6 +77,7 @@ public class HeroSlidesController : ControllerBase
     /// <summary>
     /// Gets a single hero slide by Id.
     /// </summary>
+    // Permission: Public Read
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken = default)
@@ -94,8 +97,9 @@ public class HeroSlidesController : ControllerBase
     /// <summary>
     /// Creates a new hero slide.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Create([FromBody] HeroSlide slide, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(slide.Title))
@@ -143,8 +147,9 @@ public class HeroSlidesController : ControllerBase
     /// <summary>
     /// Updates an existing hero slide.
     /// </summary>
+    // Permission: Admin Only
     [HttpPut("{id:guid}")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Update(Guid id, [FromBody] HeroSlide request, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(request.Title))
@@ -191,8 +196,9 @@ public class HeroSlidesController : ControllerBase
     /// <summary>
     /// Deletes a hero slide.
     /// </summary>
+    // Permission: Admin Only
     [HttpDelete("{id:guid}")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
         var existing = await _db.HeroSlides.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
@@ -211,8 +217,9 @@ public class HeroSlidesController : ControllerBase
     /// <summary>
     /// Reseeds default hero slides and ensures all seed files exist on disk.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost("seed-defaults")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> SeedDefaults(CancellationToken cancellationToken = default)
     {
         HeroSlideSeeder.EnsureSeedAssets(_env?.WebRootPath, _env?.ContentRootPath);
@@ -243,10 +250,11 @@ public class HeroSlidesController : ControllerBase
     /// <summary>
     /// Uploads a media file (3D model or image) specifically for hero slides.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost("upload")]
     [RequestSizeLimit(50 * 1024 * 1024)]
     [RequestFormLimits(MultipartBodyLengthLimit = 50 * 1024 * 1024)]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Upload([FromForm] IFormFile? file)
     {
         if (file == null || file.Length == 0)
@@ -323,8 +331,9 @@ public class HeroSlidesController : ControllerBase
     /// <summary>
     /// Lists all candidate files (3D models and images) available in uploads.
     /// </summary>
+    // Permission: Admin Only
     [HttpGet("files")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public IActionResult GetAvailableFiles()
     {
         var webRoot = _env?.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");

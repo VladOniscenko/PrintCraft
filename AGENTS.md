@@ -60,3 +60,52 @@ This single command runs three required stages in sequence:
 
 If any check fails, resolve the missing keys or unlocalized text before completing your task.
 
+---
+
+# Backend API Security: Authorization & Role-Based Access Control (RBAC)
+
+This repository enforces strict authorization and Role-Based Access Control across all backend API controllers and endpoints. Any unprotected mutating endpoint or missing permission tier will be rejected by automated tests.
+
+---
+
+## 1. Mandatory Security Rules for AI Agents and Developers
+
+1. **Secure by Default (Least Privilege)**
+   - Always apply the most restrictive authentication and authorization middleware to new endpoints by default.
+   - Never create a public `POST`, `PUT`, `PATCH`, or `DELETE` endpoint unless explicitly instructed and whitelisted.
+   - Controllers should specify controller-level `[Authorize]` or `[Authorize(Roles = "admin")]` whenever possible.
+
+2. **Global vs. Local State Check**
+   - Before generating an endpoint, identify the resource scope:
+     - **Global/System-Level Resources** (e.g., FAQs, Solution Topics, Cities, Hero Slides, Filaments, System Templates, Admin Analytics): Automatically wrap all mutating operations (and sensitive administrative reads) in Admin-only authorization (`[Authorize(Roles = "admin")]`).
+     - **User/Local-Level Resources** (e.g., Orders, Shipping Addresses, Change Requests, Payments): Apply `[Authorize]` and enforce strict ownership checks.
+     - **Public Storefront Reads** (e.g., browsing active FAQs, published cities, active hero slides, filament catalog): Apply explicit `[AllowAnonymous]` with `// Permission: Public Read`.
+
+3. **Strict Resource Ownership**
+   - When generating endpoints that standard users can access (such as orders, user addresses, or revision submissions), automatically implement strict ownership validation.
+   - Always extract the authenticated user ID (`User.FindFirstValue(ClaimTypes.NameIdentifier)`) and verify that `resource.UserId == userId` (or `isAdmin`) before returning data or allowing any mutation. Never rely solely on client-supplied IDs.
+
+4. **Mandatory Access Declarations**
+   - Every action method across all controllers must have a clear comment explicitly stating the intended permission level directly above the method / HTTP attribute:
+     - `// Permission: Admin Only`
+     - `// Permission: User (Own Resource)`
+     - `// Permission: Authenticated User`
+     - `// Permission: Public Read`
+     - `// Permission: Public Mutate (Whitelisted: <Reason>)`
+
+---
+
+## 2. Backend Security Verification Workflow
+
+Whenever backend endpoints are added or modified, you **must** run:
+
+```bash
+dotnet test PrintCraftApi.Tests/PrintCraftApi.Tests.csproj
+```
+
+The automated reflection suite (`PrintCraftApi.Tests/ApiAuthorizationTests.cs`) verifies:
+1. Zero unapproved public mutating (`POST`, `PUT`, `PATCH`, `DELETE`) endpoints across all controllers.
+2. System resource controllers (`CitiesController`, `FaqController`, `FaqTopicsController`, `HeroSlidesController`, `FilamentsController`, `EmailTemplatesController`, `AdminController`) enforce `[Authorize(Roles = "admin")]` on all mutating operations.
+3. Class-level admin protection on administrative controllers (`AdminController`, `EmailTemplatesController`).
+
+

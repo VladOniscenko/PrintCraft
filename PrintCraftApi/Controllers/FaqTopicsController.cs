@@ -28,6 +28,7 @@ public class FaqTopicsController : ControllerBase
     /// Gets FAQ topics / solutions. By default returns active topics ordered by SortOrder.
     /// Use ?all=true to retrieve all topics for administration.
     /// </summary>
+    // Permission: Public Read
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] bool? all, CancellationToken cancellationToken = default)
@@ -60,6 +61,7 @@ public class FaqTopicsController : ControllerBase
     /// <summary>
     /// Gets a single FAQ topic by its URL slug (e.g. "vervangende-onderdelen-printen") or GUID.
     /// </summary>
+    // Permission: Public Read
     [HttpGet("{slugOrId}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetBySlugOrId(string slugOrId, CancellationToken cancellationToken = default)
@@ -85,8 +87,9 @@ public class FaqTopicsController : ControllerBase
     /// <summary>
     /// Creates a new FAQ topic / solution landing page.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Create([FromBody] FaqTopic topic, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(topic.Slug))
@@ -137,8 +140,9 @@ public class FaqTopicsController : ControllerBase
     /// <summary>
     /// Updates an existing FAQ topic.
     /// </summary>
+    // Permission: Admin Only
     [HttpPut("{id:guid}")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Update(Guid id, [FromBody] FaqTopic request, CancellationToken cancellationToken = default)
     {
         var topic = await _db.FaqTopics.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
@@ -189,8 +193,9 @@ public class FaqTopicsController : ControllerBase
     /// <summary>
     /// Deletes an FAQ topic.
     /// </summary>
+    // Permission: Admin Only
     [HttpDelete("{id:guid}")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
         var topic = await _db.FaqTopics.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
@@ -209,8 +214,9 @@ public class FaqTopicsController : ControllerBase
     /// <summary>
     /// Reseeds default FAQ topics.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost("seed")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Seed([FromQuery] bool forceReload = false)
     {
         var result = await FaqTopicSeeder.EnsureDatabaseSeededAsync(_db, forceReload);

@@ -35,6 +35,7 @@ public class OrderChangeRequestsController : ControllerBase
     /// <summary>
     /// Customer submits updated description and replacement file for a requested change.
     /// </summary>
+    // Permission: User (Own Resource)
     [HttpPost("api/orders/{orderId:guid}/items/{itemId:guid}/change-requests/{requestId:guid}/submit")]
     [Authorize]
     public async Task<IActionResult> SubmitRevision(
@@ -141,6 +142,7 @@ public class OrderChangeRequestsController : ControllerBase
     /// <summary>
     /// Customer fetches all revision change requests for a given item.
     /// </summary>
+    // Permission: User (Own Resource)
     [HttpGet("api/orders/{orderId:guid}/items/{itemId:guid}/change-requests")]
     [Authorize]
     public async Task<IActionResult> GetCustomerChangeRequests(
@@ -176,6 +178,7 @@ public class OrderChangeRequestsController : ControllerBase
     /// <summary>
     /// Admin creates a change request for an order item (e.g. broken model, thin walls, scale).
     /// </summary>
+    // Permission: Admin Only
     [HttpPost("api/admin/orders/{orderId:guid}/items/{itemId:guid}/change-requests")]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> CreateChangeRequest(
@@ -279,6 +282,7 @@ public class OrderChangeRequestsController : ControllerBase
     /// <summary>
     /// Admin resolves / accepts the customer revision.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost("api/admin/orders/{orderId:guid}/items/{itemId:guid}/change-requests/{requestId:guid}/resolve")]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> ResolveChangeRequest(
@@ -337,6 +341,7 @@ public class OrderChangeRequestsController : ControllerBase
     /// <summary>
     /// Admin fetches all revision change requests for an order item.
     /// </summary>
+    // Permission: Admin Only
     [HttpGet("api/admin/orders/{orderId:guid}/items/{itemId:guid}/change-requests")]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> GetAdminChangeRequests(

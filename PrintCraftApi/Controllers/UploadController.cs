@@ -88,6 +88,7 @@ public class UploadController : ControllerBase
         _db = db;
     }
 
+    // Permission: Public Mutate (Whitelisted: Customer File Upload with Owner Key)
     [HttpPost]
     [RequestSizeLimit(MaxUploadBytes)]
     [RequestFormLimits(MultipartBodyLengthLimit = MaxUploadBytes)]
@@ -146,6 +147,7 @@ public class UploadController : ControllerBase
         return Ok(new { url = $"/uploads/{safeFileName}" });
     }
 
+    // Permission: Admin Only
     [HttpGet("models")]
     [Authorize(Roles = "admin")]
     [EnableRateLimiting("AuthBurst")]
@@ -246,6 +248,7 @@ public class UploadController : ControllerBase
         return Ok(files);
     }
 
+    // Permission: Admin Only
     [HttpPost("models/cleanup")]
     [Authorize(Roles = "admin")]
     [EnableRateLimiting("AuthBurst")]
@@ -389,6 +392,7 @@ public class UploadController : ControllerBase
         });
     }
 
+    // Permission: Admin Only
     [HttpDelete("models")]
     [Authorize(Roles = "admin")]
     [EnableRateLimiting("AuthBurst")]
@@ -448,6 +452,7 @@ public class UploadController : ControllerBase
         return Ok(new { message = "File deleted." });
     }
 
+    // Permission: Public Mutate (Whitelisted: Own Temp Upload Deletion)
     [HttpDelete("temp")]
     [AllowAnonymous]
     [EnableRateLimiting("UploadLimit")]

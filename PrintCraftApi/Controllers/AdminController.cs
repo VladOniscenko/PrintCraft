@@ -146,6 +146,8 @@ public class AdminController : ControllerBase
         order.QuotedPrice = total > 0 ? total : null;
     }
 
+    // Permission: Admin Only
+
     [HttpPost("orders/{orderId:guid}/items/{itemId:guid}/calculate-price")]
     public async Task<IActionResult> CalculateItemPrice([FromRoute] Guid orderId, [FromRoute] Guid itemId, [FromServices] IPrintPricingService pricingService)
     {
@@ -217,6 +219,8 @@ public class AdminController : ControllerBase
         return Ok(item);
     }
 
+    // Permission: Admin Only
+
     [HttpPost("orders/{orderId:guid}/calculate-price")]
     public async Task<IActionResult> CalculateAllItemsPrice([FromRoute] Guid orderId, [FromServices] IPrintPricingService pricingService)
     {
@@ -278,6 +282,8 @@ public class AdminController : ControllerBase
 
         return Ok(order);
     }
+
+    // Permission: Admin Only
 
     [HttpPost("orders/{id:guid}/process-quote")]
     public async Task<IActionResult> ProcessFullQuote([FromRoute] Guid id, [FromBody] ProcessFullQuoteRequest payload)
@@ -351,6 +357,8 @@ public class AdminController : ControllerBase
         return Ok(order);
     }
 
+    // Permission: Admin Only
+
     [HttpPut("orders/{id:guid}/paid")]
     public async Task<IActionResult> MarkPaid([FromRoute] Guid id)
     {
@@ -385,6 +393,9 @@ public class AdminController : ControllerBase
     }
 
 
+    // Permission: Admin Only
+
+
     [HttpGet("summary")]
     public async Task<IActionResult> GetSummary(CancellationToken cancellationToken = default)
     {
@@ -399,6 +410,8 @@ public class AdminController : ControllerBase
             pendingOrders
         });
     }
+
+    // Permission: Admin Only
 
     [HttpGet("orders/{id:guid}/invoice")]
     public async Task<IActionResult> DownloadInvoice([FromRoute] Guid id, [FromQuery] string? language = "en", CancellationToken cancellationToken = default)
@@ -417,6 +430,8 @@ public class AdminController : ControllerBase
         var pdf = _invoiceService.Generate(order, customer, language);
         return File(pdf, "application/pdf", $"invoice-{order.Id:N}.pdf");
     }
+
+    // Permission: Admin Only
 
     [HttpGet("analytics/visits")]
     public async Task<IActionResult> GetVisitAnalytics()
@@ -588,6 +603,8 @@ public class AdminController : ControllerBase
         });
     }
 
+    // Permission: Admin Only
+
     [HttpGet("payments")]
     public async Task<IActionResult> GetPayments(
         [FromQuery] Guid? orderId,
@@ -675,6 +692,8 @@ public class AdminController : ControllerBase
         return Ok(new { results, totalCount, page, pageSize });
     }
 
+    // Permission: Admin Only
+
     [HttpGet("orders")]
     public async Task<IActionResult> GetOrders(
         [FromQuery] string? search,
@@ -742,6 +761,8 @@ public class AdminController : ControllerBase
         return Ok(new { results, totalCount, page, pageSize });
     }
 
+    // Permission: Admin Only
+
     [HttpGet("orders/{id:guid}")]
     public async Task<IActionResult> GetOrderById([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
@@ -776,6 +797,8 @@ public class AdminController : ControllerBase
         return Ok(dto);
     }
 
+    // Permission: Admin Only
+
     [HttpGet("orders/{id:guid}/communications")]
     public async Task<IActionResult> GetOrderCommunications([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
@@ -791,6 +814,8 @@ public class AdminController : ControllerBase
         return Ok(entries);
     }
 
+    // Permission: Admin Only
+
     [HttpGet("orders/{id:guid}/status-history")]
     public async Task<IActionResult> GetOrderStatusHistory([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
@@ -805,6 +830,8 @@ public class AdminController : ControllerBase
 
         return Ok(entries);
     }
+
+    // Permission: Admin Only
 
     [HttpGet("orders/{id:guid}/notes")]
     public async Task<IActionResult> GetOrderNotes([FromRoute] Guid id, [FromQuery] string? visibility, CancellationToken cancellationToken = default)
@@ -833,6 +860,8 @@ public class AdminController : ControllerBase
         return Ok(notes);
     }
 
+    // Permission: Admin Only
+
     [HttpGet("orders/{id:guid}/payments")]
     public async Task<IActionResult> GetOrderPayments([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
@@ -847,6 +876,8 @@ public class AdminController : ControllerBase
 
         return Ok(payments);
     }
+
+    // Permission: Admin Only
 
     [HttpPatch("orders/{id:guid}/status")]
     public async Task<IActionResult> UpdateOrderStatus(
@@ -909,6 +940,8 @@ public class AdminController : ControllerBase
         });
     }
 
+    // Permission: Admin Only
+
     [HttpPatch("orders/{id:guid}/production")]
     public async Task<IActionResult> UpdateProductionAssignment(
         [FromRoute] Guid id,
@@ -960,6 +993,8 @@ public class AdminController : ControllerBase
         return Ok(order);
     }
 
+    // Permission: Admin Only
+
     [HttpPatch("orders/{id:guid}/customer")]
     public async Task<IActionResult> UpdateOrderCustomer([FromRoute] Guid id, [FromBody] UpdateOrderCustomerRequest payload)
     {
@@ -978,6 +1013,8 @@ public class AdminController : ControllerBase
         await LogAdminActionAsync(order, "Updated customer shipping details");
         return Ok(order);
     }
+
+    // Permission: Admin Only
 
     [HttpDelete("orders/{id:guid}")]
     public async Task<IActionResult> DeleteOrder([FromRoute] Guid id)
@@ -1016,6 +1053,8 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
+    // Permission: Admin Only
+
     [HttpGet("users")]
     public async Task<IActionResult> GetUsers([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
     {
@@ -1038,6 +1077,8 @@ public class AdminController : ControllerBase
             .ToListAsync(cancellationToken);
         return Ok(new { results, totalCount, page, pageSize });
     }
+
+    // Permission: Admin Only
 
     [HttpGet("users/{id:guid}")]
     public async Task<IActionResult> GetUserById([FromRoute] Guid id, CancellationToken cancellationToken = default)
@@ -1071,6 +1112,9 @@ public class AdminController : ControllerBase
             payments = orders.SelectMany(o => o.Payments).OrderByDescending(p => p.CreatedAt)
         });
     }
+
+
+    // Permission: Admin Only
 
 
     [HttpPut("users/{id:guid}")]
@@ -1108,6 +1152,8 @@ public class AdminController : ControllerBase
         return Ok(new AdminUserDto(user.Id, user.Name, user.Email, user.Role));
     }
 
+    // Permission: Admin Only
+
     [HttpDelete("users/{id:guid}")]
     public async Task<IActionResult> DeleteUser([FromRoute] Guid id)
     {
@@ -1119,6 +1165,8 @@ public class AdminController : ControllerBase
 
         return NoContent();
     }
+
+    // Permission: Admin Only
 
     [HttpPut("orders/{id:guid}/items/{itemId:guid}")]
     public async Task<IActionResult> UpdateOrderItem([FromRoute] Guid id, [FromRoute] Guid itemId, [FromBody] UpdateItemRequest payload)
@@ -1153,6 +1201,8 @@ public class AdminController : ControllerBase
         return Ok(order);
     }
 
+    // Permission: Admin Only
+
     [HttpPatch("orders/{id:guid}/service-fee")] // PATCH for partial update
     public async Task<IActionResult> UpdateFeePrice([FromRoute] Guid id, [FromBody] FeePriceRequest payload)
     {
@@ -1174,6 +1224,8 @@ public class AdminController : ControllerBase
         await LogAdminActionAsync(order, $"Updated service fee to {order.ServiceFeePrice:F2}");
         return Ok(order);
     }
+
+    // Permission: Admin Only
 
     [HttpPatch("orders/{id:guid}/delivery-price")] // PATCH for partial update
     public async Task<IActionResult> UpdateDeliveryPrice([FromRoute] Guid id, [FromBody] DeliveryPriceRequest payload)
@@ -1197,6 +1249,8 @@ public class AdminController : ControllerBase
         return Ok(order);
     }
 
+    // Permission: Admin Only
+
     [HttpPatch("orders/{id:guid}/order-discount")]
     public async Task<IActionResult> UpdateOrderDiscount([FromRoute] Guid id, [FromBody] OrderDiscountRequest payload)
     {
@@ -1219,6 +1273,8 @@ public class AdminController : ControllerBase
         return Ok(order);
     }
 
+    // Permission: Admin Only
+
     [HttpPatch("orders/{id:guid}/tracking")]
     public async Task<IActionResult> UpdateTracking([FromRoute] Guid id, [FromBody] TrackingRequest payload)
     {
@@ -1237,6 +1293,8 @@ public class AdminController : ControllerBase
         await LogAdminActionAsync(order, "Updated tracking information");
         return Ok(order);
     }
+
+    // Permission: Admin Only
 
     [HttpPost("orders/{id:guid}/notes")]
     public async Task<IActionResult> AddOrderNote([FromRoute] Guid id, [FromBody] CreateOrderNoteRequest payload)
@@ -1267,6 +1325,8 @@ public class AdminController : ControllerBase
 
         return Ok(note);
     }
+
+    // Permission: Admin Only
 
     [HttpDelete("orders/{id:guid}/notes/{noteId}")]
     public async Task<IActionResult> DeleteOrderNote([FromRoute] Guid id, [FromRoute] string noteId)
@@ -1309,6 +1369,8 @@ public class AdminController : ControllerBase
 
         return NoContent();
     }
+
+    // Permission: Admin Only
 
     [HttpPost("orders/{id:guid}/email")]
     public async Task<IActionResult> SendOrderEmail([FromRoute] Guid id, [FromBody] SendOrderEmailRequest payload)
@@ -1710,6 +1772,8 @@ public class AdminController : ControllerBase
             System.IO.File.Delete(filePath);
         }
     }
+
+    // Permission: Admin Only
 
     [HttpPost("seed-defaults")]
     public async Task<IActionResult> SeedDefaults([FromQuery] bool force = true)

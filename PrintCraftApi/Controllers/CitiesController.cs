@@ -27,6 +27,7 @@ public class CitiesController : ControllerBase
     /// Gets cities. By default returns active cities ordered by SortOrder then Name.
     /// Use ?all=true to retrieve all cities for administration.
     /// </summary>
+    // Permission: Public Read
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] bool? all, [FromQuery] string? province, CancellationToken cancellationToken = default)
@@ -64,6 +65,7 @@ public class CitiesController : ControllerBase
     /// <summary>
     /// Gets a single city by its URL slug (e.g. "amsterdam") or GUID.
     /// </summary>
+    // Permission: Public Read
     [HttpGet("{slugOrId}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetBySlugOrId(string slugOrId, CancellationToken cancellationToken = default)
@@ -89,8 +91,9 @@ public class CitiesController : ControllerBase
     /// <summary>
     /// Creates a new city.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Create([FromBody] City city, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(city.Slug))
@@ -130,8 +133,9 @@ public class CitiesController : ControllerBase
     /// <summary>
     /// Updates an existing city.
     /// </summary>
+    // Permission: Admin Only
     [HttpPut("{id:guid}")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Update(Guid id, [FromBody] City request, CancellationToken cancellationToken = default)
     {
         var city = await _db.Cities.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
@@ -171,8 +175,9 @@ public class CitiesController : ControllerBase
     /// <summary>
     /// Deletes a city.
     /// </summary>
+    // Permission: Admin Only
     [HttpDelete("{id:guid}")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
         var city = await _db.Cities.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
@@ -191,8 +196,9 @@ public class CitiesController : ControllerBase
     /// <summary>
     /// Reseeds default cities.
     /// </summary>
+    // Permission: Admin Only
     [HttpPost("seed")]
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Seed([FromQuery] bool forceReload = false)
     {
         var result = await CitySeeder.EnsureDatabaseSeededAsync(_db, forceReload);

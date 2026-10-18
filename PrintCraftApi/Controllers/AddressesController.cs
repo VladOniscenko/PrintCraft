@@ -20,6 +20,7 @@ public class AddressesController : ControllerBase
         _db = db;
     }
 
+    // Permission: User (Own Resource)
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -51,6 +52,7 @@ public class AddressesController : ControllerBase
         return Ok(addresses);
     }
 
+    // Permission: User (Own Resource)
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] UpsertUserAddressRequest request)
     {
@@ -66,6 +68,7 @@ public class AddressesController : ControllerBase
         return Ok(ToDto(address));
     }
 
+    // Permission: User (Own Resource)
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpsertUserAddressRequest request)
     {
@@ -96,6 +99,7 @@ public class AddressesController : ControllerBase
         return Ok(ToDto(address));
     }
 
+    // Permission: User (Own Resource)
     [HttpPut("{id:guid}/default")]
     public async Task<IActionResult> SetDefault([FromRoute] Guid id)
     {
@@ -110,6 +114,7 @@ public class AddressesController : ControllerBase
         return Ok(ToDto(address));
     }
 
+    // Permission: User (Own Resource)
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid id)
     {

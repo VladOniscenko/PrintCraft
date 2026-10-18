@@ -23,6 +23,7 @@ public class AnalyticsController : ControllerBase
         _trackingQueue = trackingQueue;
     }
 
+    // Permission: Public Mutate (Whitelisted: Anonymous & Authenticated Visit Telemetry)
     [AllowAnonymous]
     [HttpPost("visit")]
     public async Task<IActionResult> TrackVisit([FromBody] TrackVisitRequest? request)

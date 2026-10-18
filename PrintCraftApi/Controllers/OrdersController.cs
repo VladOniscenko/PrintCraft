@@ -60,6 +60,7 @@ public class OrdersController : ControllerBase
 
 
 
+    // Permission: User (Own Resource)
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
     {
@@ -89,6 +90,7 @@ public class OrdersController : ControllerBase
         return Ok(orders.Select(MapOrderForCustomer));
     }
 
+    // Permission: User (Own Resource)
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
@@ -116,6 +118,7 @@ public class OrdersController : ControllerBase
         return order != null ? Ok(MapOrderForCustomer(order)) : NotFound(new { message = "Order not found or access denied." });
     }
 
+    // Permission: User (Own Resource)
     [HttpGet("{id:guid}/status")]
     public async Task<IActionResult> GetOrderStatus([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
@@ -141,6 +144,7 @@ public class OrdersController : ControllerBase
         });
     }
 
+    // Permission: User (Own Resource)
     [HttpGet("{id:guid}/payments")]
     public async Task<IActionResult> GetPayments([FromRoute] Guid id, CancellationToken cancellationToken = default)
     {
@@ -165,6 +169,7 @@ public class OrdersController : ControllerBase
         return Ok(payments);
     }
 
+    // Permission: Public Mutate (Whitelisted: Guest & Customer Checkout)
     [HttpPost("quote")]
     [AllowAnonymous]
     [EnableRateLimiting("QuoteLimit")]
@@ -568,6 +573,7 @@ public class OrdersController : ControllerBase
         return value;
     }
 
+    // Permission: User (Own Resource)
     [HttpPut("{id:guid}/shipping")]
     public async Task<IActionResult> SaveQuoteShipping([FromRoute] Guid id, [FromBody] SaveQuoteShippingRequest request)
     {
@@ -619,6 +625,7 @@ public class OrdersController : ControllerBase
         return Ok(MapOrderForCustomer(order));
     }
 
+    // Permission: User (Own Resource)
     [HttpPut("{id:guid}/cancel")]
     public async Task<IActionResult> CancelOrder([FromRoute] Guid id, [FromServices] OrderStatusStateMachine? stateMachine = null)
     {
@@ -665,6 +672,7 @@ public class OrdersController : ControllerBase
         return Ok(new { message = "Order cancelled.", orderId = id });
     }
 
+    // Permission: User (Own Resource)
     [HttpPost("{id:guid}/request-new-quote")]
     public async Task<IActionResult> RequestNewQuote([FromRoute] Guid id)
     {
@@ -717,6 +725,7 @@ public class OrdersController : ControllerBase
         return Ok(MapOrderForCustomer(order));
     }
 
+    // Permission: User (Own Resource)
     [HttpPost("{id:guid}/manual-payment-notification")]
     [EnableRateLimiting("AuthBurst")]
     public async Task<IActionResult> NotifyManualPayment([FromRoute] Guid id, [FromBody] ManualPaymentNotificationRequest request)

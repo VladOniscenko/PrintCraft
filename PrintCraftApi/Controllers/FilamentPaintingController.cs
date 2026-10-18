@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PrintCraftApi.Data;
@@ -77,7 +78,10 @@ public class FilamentPaintingController : ControllerBase
     /// Dual-Flow Endpoint: Path B - Filament Painting Generation.
     /// Converts a 2D image and TD-based filament palette into layer swaps, 3D heightmap, and print preview.
     /// </summary>
+    // Permission: Public Mutate (Whitelisted: 2D-to-3D Image Generation Tool)
     [HttpPost("/api/3d-generate-painting")]
+    [AllowAnonymous]
+    [EnableRateLimiting("UploadLimit")]
     [RequestSizeLimit(52_428_800)]
     [RequestFormLimits(MultipartBodyLengthLimit = 52_428_800)]
     public async Task<IActionResult> GeneratePainting(

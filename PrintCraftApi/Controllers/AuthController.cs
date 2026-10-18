@@ -34,7 +34,9 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
+    // Permission: Public Mutate (Whitelisted: User Registration)
     [HttpPost("register")]
+    [AllowAnonymous]
     [EnableRateLimiting("AuthBurst")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest req, CancellationToken cancellationToken = default)
     {
@@ -70,7 +72,9 @@ public class AuthController : ControllerBase
         return Ok(new { message = "User registered!" });
     }
 
+    // Permission: Public Mutate (Whitelisted: User Authentication)
     [HttpPost("login")]
+    [AllowAnonymous]
     [EnableRateLimiting("AuthBurst")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req, CancellationToken cancellationToken = default)
     {
@@ -108,6 +112,7 @@ public class AuthController : ControllerBase
         });
     }
 
+    // Permission: Authenticated User
     [HttpGet("me")]
     [Authorize]
     public async Task<IActionResult> GetMe(CancellationToken cancellationToken = default)
@@ -121,6 +126,7 @@ public class AuthController : ControllerBase
             : NotFound();
     }
 
+    // Permission: Authenticated User
     [HttpPut("me/language")]
     [Authorize]
     public async Task<IActionResult> UpdatePreferredLanguage([FromBody] UpdateLanguagePreferenceRequest req, CancellationToken cancellationToken = default)
@@ -142,7 +148,9 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Language preference updated.", preferredLanguage = lang });
     }
 
+    // Permission: Public Mutate (Whitelisted: Forgot Password)
     [HttpPost("forgot-password")]
+    [AllowAnonymous]
     [EnableRateLimiting("AuthBurst")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest req)
     {
@@ -171,6 +179,7 @@ public class AuthController : ControllerBase
         return Ok(new { message = "If the account exists, a reset email has been sent." });
     }
 
+    // Permission: Authenticated User
     [HttpPut("change-password")]
     [EnableRateLimiting("AuthBurst")]
     [Authorize]
@@ -197,7 +206,9 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Password has been updated." });
     }
 
+    // Permission: Public Mutate (Whitelisted: Reset Password with Verified Token)
     [HttpPost("reset-password")]
+    [AllowAnonymous]
     [EnableRateLimiting("AuthBurst")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest req)
     {

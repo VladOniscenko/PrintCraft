@@ -32,7 +32,9 @@ public class FilamentsController : ControllerBase
         _cache = cache;
     }
 
+    // Permission: Public Read
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
     {
         if (_cache != null && _cache.TryGetValue(FilamentsCacheKey, out List<Filament>? cached) && cached != null)
@@ -48,6 +50,7 @@ public class FilamentsController : ControllerBase
         return Ok(filaments);
     }
 
+    // Permission: Admin Only
     [HttpPost]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> Create([FromBody] Filament filament, CancellationToken cancellationToken = default)
@@ -64,6 +67,7 @@ public class FilamentsController : ControllerBase
         return CreatedAtAction(nameof(GetAll), new { id = filament.Id }, filament);
     }
 
+    // Permission: Admin Only
     [HttpPut("{id:guid}")]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateFilamentRequest request, CancellationToken cancellationToken = default)
@@ -89,6 +93,7 @@ public class FilamentsController : ControllerBase
         return Ok(filament);
     }
 
+    // Permission: Admin Only
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)

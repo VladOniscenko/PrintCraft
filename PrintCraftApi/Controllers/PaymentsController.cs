@@ -27,6 +27,7 @@ public class PaymentsController : ControllerBase
         _logger = logger;
     }
 
+    // Permission: User (Own Resource)
     [HttpPost("orders/{orderId:guid}/create")]
     [Authorize]
     [EnableRateLimiting("CheckoutLimit")]
