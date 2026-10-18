@@ -498,35 +498,47 @@ app.Run();
 
 static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
 {
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"PaymentFlow\" character varying(32) NOT NULL DEFAULT 'bank_transfer';");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"EstimatedPrintTime\" text NULL;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"FilamentUsedGrams\" double precision NULL;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"ScaleFactor\" double precision NOT NULL DEFAULT 1.0;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"InfillPercent\" integer NOT NULL DEFAULT 20;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PrintQuality\" character varying(64) NOT NULL DEFAULT 'Standard (0.20mm)';");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"SupportsNeeded\" boolean NOT NULL DEFAULT FALSE;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PlateCost\" double precision NOT NULL DEFAULT 2.0;");
+    static async Task SafeExecAsync(PrintCraftDb dbContext, string sql, string desc)
+    {
+        try
+        {
+            await dbContext.Database.ExecuteSqlRawAsync(sql);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PrintCraft DB Schema] Note on '{desc}': {ex.Message}");
+        }
+    }
 
-    // Epic 8: State machine production fields
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedPrinter\" text NULL;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedMaterial\" text NULL;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"GCodeFinalized\" boolean NOT NULL DEFAULT FALSE;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"HoldReason\" text NULL;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"FlaggedForRefundReview\" boolean NOT NULL DEFAULT FALSE;");
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"PaymentFlow\" character varying(32) NOT NULL DEFAULT 'bank_transfer';", "Orders.PaymentFlow");
+    await SafeExecAsync(db, "ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"EstimatedPrintTime\" text NULL;", "OrderItems.EstimatedPrintTime");
+    await SafeExecAsync(db, "ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"FilamentUsedGrams\" double precision NULL;", "OrderItems.FilamentUsedGrams");
+    await SafeExecAsync(db, "ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"ScaleFactor\" double precision NOT NULL DEFAULT 1.0;", "OrderItems.ScaleFactor");
+    await SafeExecAsync(db, "ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"InfillPercent\" integer NOT NULL DEFAULT 20;", "OrderItems.InfillPercent");
+    await SafeExecAsync(db, "ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PrintQuality\" character varying(64) NOT NULL DEFAULT 'Standard (0.20mm)';", "OrderItems.PrintQuality");
+    await SafeExecAsync(db, "ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"SupportsNeeded\" boolean NOT NULL DEFAULT FALSE;", "OrderItems.SupportsNeeded");
+    await SafeExecAsync(db, "ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PlateCost\" double precision NOT NULL DEFAULT 2.0;", "OrderItems.PlateCost");
+
+    // State machine production fields
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedPrinter\" text NULL;", "Orders.AssignedPrinter");
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedMaterial\" text NULL;", "Orders.AssignedMaterial");
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"GCodeFinalized\" boolean NOT NULL DEFAULT FALSE;", "Orders.GCodeFinalized");
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"HoldReason\" text NULL;", "Orders.HoldReason");
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"FlaggedForRefundReview\" boolean NOT NULL DEFAULT FALSE;", "Orders.FlaggedForRefundReview");
 
     // Multilingual preferences & templates
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"Language\" text NOT NULL DEFAULT 'en';");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"PreferredLanguage\" text NOT NULL DEFAULT 'en';");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"EmailTemplates\" ADD COLUMN IF NOT EXISTS \"Language\" text NOT NULL DEFAULT 'en';");
-    await db.Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS \"IX_EmailTemplates_TemplateName_Language\" ON \"EmailTemplates\" (\"TemplateName\", \"Language\");");
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"Language\" text NOT NULL DEFAULT 'en';", "Orders.Language");
+    await SafeExecAsync(db, "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"PreferredLanguage\" text NOT NULL DEFAULT 'en';", "Users.PreferredLanguage");
+    await SafeExecAsync(db, "ALTER TABLE \"EmailTemplates\" ADD COLUMN IF NOT EXISTS \"Language\" text NOT NULL DEFAULT 'en';", "EmailTemplates.Language");
+    await SafeExecAsync(db, "CREATE INDEX IF NOT EXISTS \"IX_EmailTemplates_TemplateName_Language\" ON \"EmailTemplates\" (\"TemplateName\", \"Language\");", "IX_EmailTemplates_TemplateName_Language");
 
     // Multilingual Hero Slides columns
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"Titles\" text NULL;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"Subtexts\" text NULL;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"PriceTexts\" text NULL;");
-    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"InstructionTooltips\" text NULL;");
+    await SafeExecAsync(db, "ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"Titles\" text NULL DEFAULT '{}';", "HeroSlides.Titles");
+    await SafeExecAsync(db, "ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"Subtexts\" text NULL DEFAULT '{}';", "HeroSlides.Subtexts");
+    await SafeExecAsync(db, "ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"PriceTexts\" text NULL DEFAULT '{}';", "HeroSlides.PriceTexts");
+    await SafeExecAsync(db, "ALTER TABLE \"HeroSlides\" ADD COLUMN IF NOT EXISTS \"InstructionTooltips\" text NULL DEFAULT '{}';", "HeroSlides.InstructionTooltips");
 
-    await db.Database.ExecuteSqlRawAsync(@"
+    await SafeExecAsync(db, @"
         CREATE TABLE IF NOT EXISTS ""OrderItemChangeRequests"" (
             ""Id"" uuid NOT NULL PRIMARY KEY,
             ""OrderItemId"" uuid NOT NULL,
@@ -551,7 +563,9 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
         );
         CREATE INDEX IF NOT EXISTS ""IX_OrderItemChangeRequests_OrderItemId_Status"" ON ""OrderItemChangeRequests""(""OrderItemId"", ""Status"");
         CREATE INDEX IF NOT EXISTS ""IX_OrderItemChangeRequests_OrderId_RequestedAt"" ON ""OrderItemChangeRequests""(""OrderId"", ""RequestedAt"");
+    ", "OrderItemChangeRequests table");
 
+    await SafeExecAsync(db, @"
         CREATE TABLE IF NOT EXISTS ""Cities"" (
             ""Id"" uuid NOT NULL PRIMARY KEY,
             ""Slug"" text NOT NULL,
@@ -566,7 +580,9 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
         );
         CREATE UNIQUE INDEX IF NOT EXISTS ""IX_Cities_Slug"" ON ""Cities"" (""Slug"");
         CREATE INDEX IF NOT EXISTS ""IX_Cities_Province_IsActive"" ON ""Cities"" (""Province"", ""IsActive"");
+    ", "Cities table");
 
+    await SafeExecAsync(db, @"
         CREATE TABLE IF NOT EXISTS ""FaqItems"" (
             ""Id"" uuid NOT NULL PRIMARY KEY,
             ""Question"" text NOT NULL,
@@ -578,7 +594,9 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
             ""UpdatedAt"" timestamp with time zone NOT NULL DEFAULT NOW()
         );
         CREATE INDEX IF NOT EXISTS ""IX_FaqItems_Category_IsActive_SortOrder"" ON ""FaqItems"" (""Category"", ""IsActive"", ""SortOrder"");
+    ", "FaqItems table");
 
+    await SafeExecAsync(db, @"
         CREATE TABLE IF NOT EXISTS ""FaqTopics"" (
             ""Id"" uuid NOT NULL PRIMARY KEY,
             ""Slug"" text NOT NULL,
@@ -603,10 +621,8 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
             ""UpdatedAt"" timestamp with time zone NOT NULL DEFAULT NOW()
         );
         CREATE UNIQUE INDEX IF NOT EXISTS ""IX_FaqTopics_Slug"" ON ""FaqTopics"" (""Slug"");
-    ");
+    ", "FaqTopics table");
 }
-
-app.Run();
 
 static void LoadDotEnv(params string[] candidatePaths)
 {

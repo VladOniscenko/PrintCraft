@@ -202,8 +202,8 @@ export function buildFaqJsonLd(
   language: SupportedLanguage,
 ): SchemaGraph {
   const inLang = htmlLangMap[language] || language;
-  const tSource = translations[language] || translations[defaultLanguage];
-  const faqSource = tSource?.faq || translations[defaultLanguage]?.faq;
+  const tSource = translations[language] || translations[defaultLanguage] || translations.en;
+  const faqSource = tSource?.faq || translations[defaultLanguage]?.faq || translations.en?.faq || {};
   const faqItems: Array<{ q: string; a: string }> = [];
   if (faqSource) {
     for (let i = 1; i <= 20; i++) {

@@ -92,11 +92,11 @@ public static class EmailTemplateSeeder
             BadgeTextColor = "#334155",
             Subjects = new()
             {
-                ["en"] = "Reset your PrintCraft password",
-                ["nl"] = "Stel je PrintCraft wachtwoord opnieuw in",
-                ["tr"] = "PrintCraft şifrenizi sıfırlayın",
-                ["ru"] = "Сбросьте пароль PrintCraft",
-                ["ar"] = "إعادة تعيين كلمة مرور PrintCraft الخاصة بك"
+                ["en"] = "Reset your Print My 3D password",
+                ["nl"] = "Stel je Print My 3D wachtwoord opnieuw in",
+                ["tr"] = "Print My 3D şifrenizi sıfırlayın",
+                ["ru"] = "Сбросьте пароль Print My 3D",
+                ["ar"] = "إعادة تعيين كلمة مرور Print My 3D الخاصة بك"
             },
             BadgeTexts = new()
             {
@@ -421,7 +421,7 @@ public static class EmailTemplateSeeder
         if (def == null) return (string.Empty, string.Empty);
 
         var subject = GetDictText(def.Subjects, lang, $"Notification: {templateName}");
-        var badgeText = GetDictText(def.BadgeTexts, lang, "PrintCraft Notification");
+        var badgeText = GetDictText(def.BadgeTexts, lang, "Print My 3D Notification");
         var heading = GetDictText(def.Headings, lang, "Order Update");
         var introParagraph = GetDictText(def.IntroParagraphs, lang);
         var ctaText = GetDictText(def.CtaTexts, lang, "View Details &rarr;");
@@ -600,6 +600,27 @@ public static class EmailTemplateSeeder
                         result.Updated++;
                     }
                 }
+            }
+        }
+
+        // Sanitize any remaining legacy brand name in existing templates
+        foreach (var t in existing)
+        {
+            var updated = false;
+            if (!string.IsNullOrEmpty(t.Subject) && t.Subject.Contains("PrintCraft"))
+            {
+                t.Subject = t.Subject.Replace("PrintCraft", "Print My 3D");
+                updated = true;
+            }
+            if (!string.IsNullOrEmpty(t.Body) && t.Body.Contains("PrintCraft"))
+            {
+                t.Body = t.Body.Replace("PrintCraft", "Print My 3D");
+                updated = true;
+            }
+            if (updated)
+            {
+                db.Entry(t).State = EntityState.Modified;
+                result.Updated++;
             }
         }
 

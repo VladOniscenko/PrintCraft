@@ -11,8 +11,8 @@ namespace PrintCraftApi.Services;
 
 public sealed class EmailOptions
 {
-    public string SenderName { get; set; } = "PrintCraft";
-    public string SenderEmail { get; set; } = "noreply@printcraft.local";
+    public string SenderName { get; set; } = "Print My 3D";
+    public string SenderEmail { get; set; } = "noreply@printmy3d.work";
     public string SmtpHost { get; set; } = string.Empty;
     public int SmtpPort { get; set; } = 587;
     public string Username { get; set; } = string.Empty;
@@ -294,7 +294,7 @@ public sealed class GmailSmtpEmailService : IEmailService
     public Task SendCustomEmailAsync(string toEmail, string toName, string subject, string body)
     {
         var safeSubject = string.IsNullOrWhiteSpace(subject)
-            ? "PrintCraft"
+            ? "Print My 3D"
             : subject.Trim();
 
         var safeBody = string.IsNullOrWhiteSpace(body)

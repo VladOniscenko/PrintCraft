@@ -175,6 +175,11 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
         value = getNestedTranslation(translations.en, key);
       }
 
+      // Fallback to Dutch (default canonical language) if still missing
+      if (!value && language !== "nl") {
+        value = getNestedTranslation(translations.nl, key);
+      }
+
       if (!value) {
         return `🔴 [${key}]`;
       }

@@ -18,12 +18,18 @@ public class HeroSlidesController : ControllerBase
     private readonly PrintCraftDb _db;
     private readonly IWebHostEnvironment? _env;
     private readonly IMemoryCache? _cache;
+    private readonly ILogger<HeroSlidesController>? _logger;
 
-    public HeroSlidesController(PrintCraftDb db, IWebHostEnvironment? env = null, IMemoryCache? cache = null)
+    public HeroSlidesController(
+        PrintCraftDb db,
+        IWebHostEnvironment? env = null,
+        IMemoryCache? cache = null,
+        ILogger<HeroSlidesController>? logger = null)
     {
         _db = db;
         _env = env;
         _cache = cache;
+        _logger = logger;
     }
 
     /// <summary>
@@ -39,15 +45,27 @@ public class HeroSlidesController : ControllerBase
             return Ok(cached);
         }
 
-        var activeSlides = await _db.HeroSlides
-            .AsNoTracking()
-            .Where(s => s.IsActive)
-            .OrderBy(s => s.SortOrder)
-            .ThenBy(s => s.CreatedAt)
-            .ToListAsync(cancellationToken);
+        try
+        {
+            var activeSlides = await _db.HeroSlides
+                .AsNoTracking()
+                .Where(s => s.IsActive)
+                .OrderBy(s => s.SortOrder)
+                .ThenBy(s => s.CreatedAt)
+                .ToListAsync(cancellationToken);
 
-        _cache?.Set(ActiveSlidesCacheKey, activeSlides, CacheDuration);
-        return Ok(activeSlides);
+            _cache?.Set(ActiveSlidesCacheKey, activeSlides, CacheDuration);
+            return Ok(activeSlides);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to retrieve active hero slides from database, falling back to default seed slides.");
+            var fallback = HeroSlideSeeder.GetDefaultSlides()
+                .Where(s => s.IsActive)
+                .OrderBy(s => s.SortOrder)
+                .ToList();
+            return Ok(fallback);
+        }
     }
 
     /// <summary>
@@ -59,19 +77,32 @@ public class HeroSlidesController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] bool? activeOnly, [FromQuery] bool? all, CancellationToken cancellationToken = default)
     {
-        var query = _db.HeroSlides.AsNoTracking();
-
-        if (activeOnly == true || (all != true && activeOnly != false))
+        try
         {
-            query = query.Where(s => s.IsActive);
+            var query = _db.HeroSlides.AsNoTracking();
+
+            if (activeOnly == true || (all != true && activeOnly != false))
+            {
+                query = query.Where(s => s.IsActive);
+            }
+
+            var slides = await query
+                .OrderBy(s => s.SortOrder)
+                .ThenBy(s => s.CreatedAt)
+                .ToListAsync(cancellationToken);
+
+            return Ok(slides);
         }
-
-        var slides = await query
-            .OrderBy(s => s.SortOrder)
-            .ThenBy(s => s.CreatedAt)
-            .ToListAsync(cancellationToken);
-
-        return Ok(slides);
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to retrieve hero slides from database, falling back to default seed slides.");
+            var fallback = HeroSlideSeeder.GetDefaultSlides();
+            if (activeOnly == true || (all != true && activeOnly != false))
+            {
+                fallback = fallback.Where(s => s.IsActive).ToList();
+            }
+            return Ok(fallback.OrderBy(s => s.SortOrder).ToList());
+        }
     }
 
     /// <summary>
@@ -82,16 +113,28 @@ public class HeroSlidesController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken = default)
     {
-        var slide = await _db.HeroSlides
-            .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
-
-        if (slide is null)
+        try
         {
+            var slide = await _db.HeroSlides
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+
+            if (slide is null)
+            {
+                var fallback = HeroSlideSeeder.GetDefaultSlides().FirstOrDefault(s => s.Id == id);
+                if (fallback != null) return Ok(fallback);
+                return NotFound(new { message = "Hero slide not found." });
+            }
+
+            return Ok(slide);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to retrieve hero slide {Id} from database, checking seed fallback.", id);
+            var fallback = HeroSlideSeeder.GetDefaultSlides().FirstOrDefault(s => s.Id == id);
+            if (fallback != null) return Ok(fallback);
             return NotFound(new { message = "Hero slide not found." });
         }
-
-        return Ok(slide);
     }
 
     /// <summary>
