@@ -18,6 +18,8 @@ public sealed class EmailOptions
     public string Username { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public bool EnableSsl { get; set; } = true;
+    public string BaseUrl { get; set; } = "https://printmy3d.work";
+    public string LogoUrl { get; set; } = "https://printmy3d.work/favicon.svg";
 }
 
 public interface IEmailService
@@ -77,7 +79,8 @@ public sealed class GmailSmtpEmailService : IEmailService
         var variables = new Dictionary<string, string>
         {
             { "CustomerName", WebUtility.HtmlEncode(toName) },
-            { "ResetLink", resetLink }
+            { "ResetLink", resetLink },
+            { "LogoUrl", _options.LogoUrl }
         };
 
         var (subject, body) = await GetTemplateAsync("ResetPassword", variables);
@@ -86,10 +89,15 @@ public sealed class GmailSmtpEmailService : IEmailService
 
     public async Task SendQuoteRequestedEmailAsync(string toEmail, string toName, Guid orderId)
     {
+        var shortOrderId = GetShortOrderId(orderId);
         var variables = new Dictionary<string, string>
         {
             { "CustomerName", WebUtility.HtmlEncode(toName) },
-            { "OrderId", orderId.ToString() }
+            { "OrderId", shortOrderId },
+            { "ShortOrderId", shortOrderId },
+            { "OrderUrl", BuildOrderUrl(orderId) },
+            { "RenderedImageUrl", await GetRenderedImageUrlAsync(orderId) },
+            { "LogoUrl", _options.LogoUrl }
         };
 
         var (subject, body) = await GetTemplateAsync("QuoteRequested", variables);
@@ -98,12 +106,17 @@ public sealed class GmailSmtpEmailService : IEmailService
 
     public async Task SendQuoteConfirmationEmailAsync(string toEmail, string toName, Guid orderId, decimal price, string? quoteMessage)
     {
+        var shortOrderId = GetShortOrderId(orderId);
         var variables = new Dictionary<string, string>
         {
             { "CustomerName", WebUtility.HtmlEncode(toName) },
-            { "OrderId", orderId.ToString() },
+            { "OrderId", shortOrderId },
+            { "ShortOrderId", shortOrderId },
             { "Price", price.ToString("F2") },
-            { "QuoteMessage", quoteMessage ?? "" }
+            { "QuoteMessage", quoteMessage ?? "" },
+            { "OrderUrl", BuildOrderUrl(orderId) },
+            { "RenderedImageUrl", await GetRenderedImageUrlAsync(orderId) },
+            { "LogoUrl", _options.LogoUrl }
         };
 
         var (subject, body) = await GetTemplateAsync("QuoteConfirmation", variables);
@@ -112,13 +125,18 @@ public sealed class GmailSmtpEmailService : IEmailService
 
     public async Task SendQuoteConfirmationBankTransferEmailAsync(string toEmail, string toName, Guid orderId, decimal price, string? quoteMessage, string paymentReference)
     {
+        var shortOrderId = GetShortOrderId(orderId);
         var variables = new Dictionary<string, string>
         {
             { "CustomerName", WebUtility.HtmlEncode(toName) },
-            { "OrderId", orderId.ToString() },
+            { "OrderId", shortOrderId },
+            { "ShortOrderId", shortOrderId },
             { "Price", price.ToString("F2") },
             { "QuoteMessage", quoteMessage ?? "" },
-            { "PaymentReference", paymentReference }
+            { "PaymentReference", paymentReference },
+            { "OrderUrl", BuildOrderUrl(orderId) },
+            { "RenderedImageUrl", await GetRenderedImageUrlAsync(orderId) },
+            { "LogoUrl", _options.LogoUrl }
         };
 
         var (subject, body) = await GetTemplateAsync("QuoteConfirmationBankTransfer", variables);
@@ -127,12 +145,17 @@ public sealed class GmailSmtpEmailService : IEmailService
 
     public async Task SendOrderSentTrackingEmailAsync(string toEmail, string toName, Guid orderId, string trackingCode, string? trackingUrl)
     {
+        var shortOrderId = GetShortOrderId(orderId);
         var variables = new Dictionary<string, string>
         {
             { "CustomerName", WebUtility.HtmlEncode(toName) },
-            { "OrderId", orderId.ToString() },
+            { "OrderId", shortOrderId },
+            { "ShortOrderId", shortOrderId },
             { "TrackingCode", trackingCode },
-            { "TrackingUrl", trackingUrl ?? "" }
+            { "TrackingUrl", trackingUrl ?? "" },
+            { "OrderUrl", BuildOrderUrl(orderId) },
+            { "RenderedImageUrl", await GetRenderedImageUrlAsync(orderId) },
+            { "LogoUrl", _options.LogoUrl }
         };
 
         var (subject, body) = await GetTemplateAsync("OrderSentTracking", variables);
@@ -141,11 +164,16 @@ public sealed class GmailSmtpEmailService : IEmailService
 
     public async Task SendOrderPaidEmailAsync(string toEmail, string toName, Guid orderId, decimal amount)
     {
+        var shortOrderId = GetShortOrderId(orderId);
         var variables = new Dictionary<string, string>
         {
             { "CustomerName", WebUtility.HtmlEncode(toName) },
-            { "OrderId", orderId.ToString() },
-            { "Amount", amount.ToString("F2") }
+            { "OrderId", shortOrderId },
+            { "ShortOrderId", shortOrderId },
+            { "Amount", amount.ToString("F2") },
+            { "OrderUrl", BuildOrderUrl(orderId) },
+            { "RenderedImageUrl", await GetRenderedImageUrlAsync(orderId) },
+            { "LogoUrl", _options.LogoUrl }
         };
 
         var (subject, body) = await GetTemplateAsync("OrderPaid", variables);
@@ -163,6 +191,39 @@ public sealed class GmailSmtpEmailService : IEmailService
             : body.Trim();
 
         return SendTextEmailAsync(toEmail, safeSubject, safeBody);
+    }
+
+    private static string GetShortOrderId(Guid orderId) =>
+        orderId.ToString("N")[..8].ToUpperInvariant();
+
+    private string BuildOrderUrl(Guid orderId) =>
+        $"{_options.BaseUrl.TrimEnd('/')}/orders/{orderId}";
+
+    private async Task<string> GetRenderedImageUrlAsync(Guid orderId)
+    {
+        try
+        {
+            var item = await _db.OrderItems
+                .AsNoTracking()
+                .Where(i => i.OrderId == orderId && !string.IsNullOrEmpty(i.ImageUrl))
+                .FirstOrDefaultAsync();
+
+            if (!string.IsNullOrEmpty(item?.ImageUrl))
+            {
+                var img = item.ImageUrl.Trim();
+                if (img.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || img.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                {
+                    return img;
+                }
+                return $"{_options.BaseUrl.TrimEnd('/')}/{img.TrimStart('/')}";
+            }
+        }
+        catch
+        {
+            // Gracefully ignore database lookup failure
+        }
+
+        return $"{_options.BaseUrl.TrimEnd('/')}/uploads/hero/materials.svg";
     }
 
     private async Task SendTextEmailAsync(string toEmail, string subject, string body)
@@ -194,11 +255,15 @@ public sealed class GmailSmtpEmailService : IEmailService
         smtpUser = smtpUser.Trim();
         smtpPassword = new string(smtpPassword.Where(c => !char.IsWhiteSpace(c)).ToArray());
 
+        var isHtml = body.Contains("<html", StringComparison.OrdinalIgnoreCase)
+                  || body.Contains("<table", StringComparison.OrdinalIgnoreCase)
+                  || body.Contains("<div", StringComparison.OrdinalIgnoreCase);
+
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(_options.SenderName, _options.SenderEmail));
         message.To.Add(MailboxAddress.Parse(toEmail));
         message.Subject = subject;
-        message.Body = new TextPart("plain")
+        message.Body = new TextPart(isHtml ? "html" : "plain")
         {
             Text = body
         };
