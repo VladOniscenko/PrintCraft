@@ -169,6 +169,33 @@ public class EmailTemplatesControllerTests
     }
 
     [Fact]
+    public async Task Update_UpdatesExistingTemplateSuccessfully()
+    {
+        using var db = CreateDbContext();
+        var controller = CreateController(db);
+
+        var templateId = Guid.Parse("00000000-0000-0000-0000-000000000006"); // OrderPaid
+        var req = new EmailTemplatesController.UpdateEmailTemplateRequest
+        {
+            TemplateName = "OrderPaid",
+            Subject = "Updated Subject for OrderPaid",
+            Body = "<p>Updated body content without prices</p>"
+        };
+
+        var result = await controller.Update(templateId, req);
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var dto = Assert.IsType<EmailTemplatesController.EmailTemplateDto>(ok.Value);
+
+        Assert.Equal("Updated Subject for OrderPaid", dto.Subject);
+        Assert.Equal("<p>Updated body content without prices</p>", dto.Body);
+        Assert.True(dto.IsSystemTemplate);
+
+        var updatedInDb = await db.EmailTemplates.FindAsync(templateId);
+        Assert.NotNull(updatedInDb);
+        Assert.Equal("Updated Subject for OrderPaid", updatedInDb.Subject);
+    }
+
+    [Fact]
     public void SeededDefaultTemplates_DoNotContainPricesOrSlicingPreviewHeader()
     {
         var defaults = EmailTemplateSeeder.GetDefaultTemplates();

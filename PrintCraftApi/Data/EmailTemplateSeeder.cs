@@ -17,8 +17,7 @@ public static class EmailTemplateSeeder
                 heading: "Reset Your Password",
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, we received a request to reset your password. Click the button below to choose a new password. If you did not request this, you can safely ignore this email.",
                 ctaText: "Reset My Password &rarr;",
-                ctaUrlPlaceholder: "{{ResetLink}}",
-                show3dRender: false
+                ctaUrlPlaceholder: "{{ResetLink}}"
             )
         },
         new EmailTemplate
@@ -31,8 +30,7 @@ public static class EmailTemplateSeeder
                 heading: "Your 3D Files Are In Review",
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, we received your quote request for order #<strong>{{ShortOrderId}}</strong>. Our engineering team is reviewing your files, analyzing print geometry, and preparing your custom quote.",
                 ctaText: "Check Order Status &rarr;",
-                ctaUrlPlaceholder: "{{OrderUrl}}",
-                show3dRender: true
+                ctaUrlPlaceholder: "{{OrderUrl}}"
             )
         },
         new EmailTemplate
@@ -46,7 +44,6 @@ public static class EmailTemplateSeeder
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Please log in to your portal to review the specifications and securely complete payment.",
                 ctaText: "Review Quote &amp; Pay &rarr;",
                 ctaUrlPlaceholder: "{{OrderUrl}}",
-                show3dRender: true,
                 detailBoxHtml: "{{QuoteMessage}}"
             )
         },
@@ -61,7 +58,6 @@ public static class EmailTemplateSeeder
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Payment Reference: <strong style=\"color: #133827; font-family: monospace;\">{{PaymentReference}}</strong>. Please review the quote and bank transfer instructions in your customer portal.",
                 ctaText: "View Transfer Instructions &rarr;",
                 ctaUrlPlaceholder: "{{OrderUrl}}",
-                show3dRender: true,
                 detailBoxHtml: "{{QuoteMessage}}"
             )
         },
@@ -75,8 +71,7 @@ public static class EmailTemplateSeeder
                 heading: "Your 3D Part Has Shipped!",
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, your order #<strong>{{ShortOrderId}}</strong> has been dispatched via PostNL! Tracking Number: <strong style=\"color: #133827; font-family: monospace;\">{{TrackingCode}}</strong>.",
                 ctaText: "Track Your Shipment &rarr;",
-                ctaUrlPlaceholder: "{{OrderUrl}}",
-                show3dRender: true
+                ctaUrlPlaceholder: "{{OrderUrl}}"
             )
         },
         new EmailTemplate
@@ -89,8 +84,7 @@ public static class EmailTemplateSeeder
                 heading: "Payment Received — Print Queued!",
                 introParagraph: "Hi <strong>{{CustomerName}}</strong>, we successfully received your payment for order #<strong>{{ShortOrderId}}</strong>. Your 3D models have been scheduled for printing.",
                 ctaText: "View Order Progress &rarr;",
-                ctaUrlPlaceholder: "{{OrderUrl}}",
-                show3dRender: true
+                ctaUrlPlaceholder: "{{OrderUrl}}"
             )
         }
     };

@@ -177,8 +177,9 @@ public class EmailTemplatesController : ControllerBase
         if (string.IsNullOrWhiteSpace(cleanBody))
             return BadRequest(new { message = "Body HTML is required." });
 
+        var lowerName = cleanName.ToLower();
         var exists = await _db.EmailTemplates.AnyAsync(
-            t => string.Equals(t.TemplateName, cleanName, StringComparison.OrdinalIgnoreCase),
+            t => t.TemplateName.ToLower() == lowerName,
             cancellationToken);
 
         if (exists)
@@ -240,8 +241,9 @@ public class EmailTemplatesController : ControllerBase
             return BadRequest(new { message = "Cannot rename a core system template identifier." });
         }
 
+        var lowerName = cleanName.ToLower();
         var duplicateName = await _db.EmailTemplates.AnyAsync(
-            t => t.Id != id && string.Equals(t.TemplateName, cleanName, StringComparison.OrdinalIgnoreCase),
+            t => t.Id != id && t.TemplateName.ToLower() == lowerName,
             cancellationToken);
 
         if (duplicateName)
