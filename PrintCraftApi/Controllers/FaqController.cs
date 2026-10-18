@@ -54,6 +54,11 @@ public class FaqController : ControllerBase
             .ThenBy(f => f.CreatedAt)
             .ToListAsync(cancellationToken);
 
+        foreach (var item in items)
+        {
+            HydrateFaqTranslations(item);
+        }
+
         if (all != true && string.IsNullOrEmpty(category))
         {
             _cache?.Set(FaqCacheKey, items, CacheDuration);
@@ -75,6 +80,7 @@ public class FaqController : ControllerBase
         {
             return NotFound(new { message = "FAQ item not found." });
         }
+        HydrateFaqTranslations(item);
         return Ok(item);
     }
 
@@ -187,5 +193,36 @@ public class FaqController : ControllerBase
         var result = await FaqItemSeeder.EnsureDatabaseSeededAsync(_db, forceReload);
         _cache?.Remove(FaqCacheKey);
         return Ok(result);
+    }
+
+    private static readonly Lazy<List<FaqItem>> DefaultFaqs = new(FaqItemSeeder.GetDefaultFaqItems);
+
+    private static void HydrateFaqTranslations(FaqItem target)
+    {
+        var def = DefaultFaqs.Value.FirstOrDefault(d => d.Id == target.Id);
+        if (def == null) return;
+
+        target.Question = MergeDict(target.Question, def.Question);
+        target.Answer = MergeDict(target.Answer, def.Answer);
+    }
+
+    private static Dictionary<string, string> MergeDict(Dictionary<string, string>? target, Dictionary<string, string>? fallback)
+    {
+        var result = target == null
+            ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            : new Dictionary<string, string>(target, StringComparer.OrdinalIgnoreCase);
+
+        if (fallback != null)
+        {
+            foreach (var (k, v) in fallback)
+            {
+                if (!result.TryGetValue(k, out var val) || string.IsNullOrWhiteSpace(val))
+                {
+                    result[k] = v;
+                }
+            }
+        }
+
+        return result;
     }
 }

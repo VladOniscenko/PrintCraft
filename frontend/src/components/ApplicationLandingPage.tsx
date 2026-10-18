@@ -24,11 +24,6 @@ import { dutchCities, getCityName } from "../config/dutchCities";
 import { businessInfo } from "../config/businessInfo";
 import { getFaqTopic, getCachedFaqTopic } from "../services/api";
 import type { FaqTopic } from "../types/faq";
-import {
-  getLocalizedText,
-  getLocalizedList,
-  getLocalizedFaqs,
-} from "../utils/i18nHelpers";
 
 interface ApplicationLandingPageProps {
   appSlug?: string;
@@ -69,29 +64,57 @@ export default function ApplicationLandingPage({
     return <NotFound />;
   }
 
-  const appName = dynamicTopic
-    ? getLocalizedText(dynamicTopic.names, language, activeSlug)
-    : (fallbackApp ? getApplicationName(fallbackApp, language) : "");
-  const heroBadge = dynamicTopic
-    ? getLocalizedText(dynamicTopic.badge, language)
-    : (fallbackApp ? getLocalizedText(fallbackApp.badge, language) : "");
-  const heroTitle = dynamicTopic
-    ? getLocalizedText(dynamicTopic.heroTitle, language)
-    : (fallbackApp ? getLocalizedText(fallbackApp.heroTitle, language) : "");
-  const heroSubtitle = dynamicTopic
-    ? getLocalizedText(dynamicTopic.heroSubtitle, language)
-    : (fallbackApp ? getLocalizedText(fallbackApp.heroSubtitle, language) : "");
-  const description = dynamicTopic
-    ? getLocalizedText(dynamicTopic.description, language)
-    : (fallbackApp ? getLocalizedText(fallbackApp.description, language) : "");
-  const benefits = dynamicTopic
-    ? getLocalizedList(dynamicTopic.benefits, language)
-    : (fallbackApp ? getLocalizedList(fallbackApp.benefits, language) : []);
-  const faqs = dynamicTopic
-    ? getLocalizedFaqs(dynamicTopic.faqs, language)
-    : (fallbackApp ? getLocalizedFaqs(fallbackApp.faqs, language) : []);
-  const leadTime = dynamicTopic?.leadTime || fallbackApp?.leadTime || "2-5 werkdagen";
-  const precision = dynamicTopic?.precision || fallbackApp?.precision || "±0.1 mm";
+  const resolveText = (
+    dynDict?: Record<string, string> | null,
+    fbDict?: Record<string, string> | null,
+    fb = ""
+  ): string => {
+    if (dynDict && dynDict[language]?.trim()) return dynDict[language].trim();
+    if (fbDict && fbDict[language]?.trim()) return fbDict[language].trim();
+    if (dynDict && dynDict["en"]?.trim()) return dynDict["en"].trim();
+    if (fbDict && fbDict["en"]?.trim()) return fbDict["en"].trim();
+    if (dynDict && dynDict["nl"]?.trim()) return dynDict["nl"].trim();
+    if (fbDict && fbDict["nl"]?.trim()) return fbDict["nl"].trim();
+    return fb;
+  };
+
+  const resolveList = (
+    dynDict?: Record<string, string[]> | null,
+    fbDict?: Record<string, string[]> | null,
+    fb: string[] = []
+  ): string[] => {
+    if (dynDict && Array.isArray(dynDict[language]) && dynDict[language].length > 0) return dynDict[language];
+    if (fbDict && Array.isArray(fbDict[language]) && fbDict[language].length > 0) return fbDict[language];
+    if (dynDict && Array.isArray(dynDict["en"]) && dynDict["en"].length > 0) return dynDict["en"];
+    if (fbDict && Array.isArray(fbDict["en"]) && fbDict["en"].length > 0) return fbDict["en"];
+    if (dynDict && Array.isArray(dynDict["nl"]) && dynDict["nl"].length > 0) return dynDict["nl"];
+    if (fbDict && Array.isArray(fbDict["nl"]) && fbDict["nl"].length > 0) return fbDict["nl"];
+    return fb;
+  };
+
+  const resolveFaqs = (
+    dynDict?: Record<string, { q: string; a: string }[]> | null,
+    fbDict?: Record<string, { q: string; a: string }[]> | null,
+    fb: { q: string; a: string }[] = []
+  ): { q: string; a: string }[] => {
+    if (dynDict && Array.isArray(dynDict[language]) && dynDict[language].length > 0) return dynDict[language];
+    if (fbDict && Array.isArray(fbDict[language]) && fbDict[language].length > 0) return fbDict[language];
+    if (dynDict && Array.isArray(dynDict["en"]) && dynDict["en"].length > 0) return dynDict["en"];
+    if (fbDict && Array.isArray(fbDict["en"]) && fbDict["en"].length > 0) return fbDict["en"];
+    if (dynDict && Array.isArray(dynDict["nl"]) && dynDict["nl"].length > 0) return dynDict["nl"];
+    if (fbDict && Array.isArray(fbDict["nl"]) && fbDict["nl"].length > 0) return fbDict["nl"];
+    return fb;
+  };
+
+  const appName = resolveText(dynamicTopic?.names, fallbackApp?.names, activeSlug);
+  const heroBadge = resolveText(dynamicTopic?.badge, fallbackApp?.badge);
+  const heroTitle = resolveText(dynamicTopic?.heroTitle, fallbackApp?.heroTitle);
+  const heroSubtitle = resolveText(dynamicTopic?.heroSubtitle, fallbackApp?.heroSubtitle);
+  const description = resolveText(dynamicTopic?.description, fallbackApp?.description);
+  const benefits = resolveList(dynamicTopic?.benefits, fallbackApp?.benefits);
+  const faqs = resolveFaqs(dynamicTopic?.faqs, fallbackApp?.faqs);
+  const leadTime = t("hero.leadTimeBadge");
+  const precision = t("hero.precisionBadge");
   const recommendedMaterials = dynamicTopic?.recommendedMaterials || fallbackApp?.recommendedMaterials || ["PETG", "TPU", "PLA"];
 
   const localizedCountry =
@@ -199,7 +222,7 @@ export default function ApplicationLandingPage({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 space-y-4">
               <p className="text-xs font-bold uppercase tracking-widest text-emerald-600">
-                {t("cityPage.capabilitiesEyebrow")}
+                {t("home.solutions.eyebrow")}
               </p>
               <h2 className="text-2xl sm:text-3xl font-black text-[#11241f] leading-snug">
                 {appName}

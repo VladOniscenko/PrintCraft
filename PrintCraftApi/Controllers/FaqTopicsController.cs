@@ -50,6 +50,11 @@ public class FaqTopicsController : ControllerBase
             .ThenBy(t => t.CreatedAt)
             .ToListAsync(cancellationToken);
 
+        foreach (var topic in topics)
+        {
+            HydrateTopicTranslations(topic);
+        }
+
         if (all != true)
         {
             _cache?.Set(TopicsCacheKey, topics, CacheDuration);
@@ -80,6 +85,8 @@ public class FaqTopicsController : ControllerBase
         {
             return NotFound(new { message = $"FAQ topic '{slugOrId}' not found." });
         }
+
+        HydrateTopicTranslations(topic);
 
         return Ok(topic);
     }
@@ -222,5 +229,71 @@ public class FaqTopicsController : ControllerBase
         var result = await FaqTopicSeeder.EnsureDatabaseSeededAsync(_db, forceReload);
         _cache?.Remove(TopicsCacheKey);
         return Ok(result);
+    }
+
+    private static readonly Lazy<List<FaqTopic>> DefaultTopics = new(FaqTopicSeeder.GetDefaultTopics);
+
+    private static void HydrateTopicTranslations(FaqTopic target)
+    {
+        var def = DefaultTopics.Value.FirstOrDefault(d =>
+            d.Id == target.Id ||
+            string.Equals(d.Slug, target.Slug, StringComparison.OrdinalIgnoreCase) ||
+            (!string.IsNullOrEmpty(d.Key) && string.Equals(d.Key, target.Key, StringComparison.OrdinalIgnoreCase)));
+
+        if (def == null) return;
+
+        target.Names = MergeDict(target.Names, def.Names);
+        target.Tagline = MergeDict(target.Tagline, def.Tagline);
+        target.Badge = MergeDict(target.Badge, def.Badge);
+        target.HeroTitle = MergeDict(target.HeroTitle, def.HeroTitle);
+        target.HeroSubtitle = MergeDict(target.HeroSubtitle, def.HeroSubtitle);
+        target.Description = MergeDict(target.Description, def.Description);
+        target.MetaTitle = MergeDict(target.MetaTitle, def.MetaTitle);
+        target.MetaDescription = MergeDict(target.MetaDescription, def.MetaDescription);
+        target.MetaKeywords = MergeDict(target.MetaKeywords, def.MetaKeywords);
+
+        if (def.Benefits != null)
+        {
+            target.Benefits ??= new(StringComparer.OrdinalIgnoreCase);
+            foreach (var (k, v) in def.Benefits)
+            {
+                if (!target.Benefits.TryGetValue(k, out var list) || list == null || list.Count == 0)
+                {
+                    target.Benefits[k] = v;
+                }
+            }
+        }
+
+        if (def.Faqs != null)
+        {
+            target.Faqs ??= new(StringComparer.OrdinalIgnoreCase);
+            foreach (var (k, v) in def.Faqs)
+            {
+                if (!target.Faqs.TryGetValue(k, out var list) || list == null || list.Count == 0)
+                {
+                    target.Faqs[k] = v;
+                }
+            }
+        }
+    }
+
+    private static Dictionary<string, string> MergeDict(Dictionary<string, string>? target, Dictionary<string, string>? fallback)
+    {
+        var result = target == null
+            ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            : new Dictionary<string, string>(target, StringComparer.OrdinalIgnoreCase);
+
+        if (fallback != null)
+        {
+            foreach (var (k, v) in fallback)
+            {
+                if (!result.TryGetValue(k, out var val) || string.IsNullOrWhiteSpace(val))
+                {
+                    result[k] = v;
+                }
+            }
+        }
+
+        return result;
     }
 }

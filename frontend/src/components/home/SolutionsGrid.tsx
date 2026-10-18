@@ -62,11 +62,11 @@ export default function SolutionsGrid() {
                 <div className="pt-3 border-t border-[#edf4f1] space-y-1.5 text-xs text-[#526a63]">
                   <div className="flex items-center gap-2">
                     <Timer size={14} className="text-emerald-600 shrink-0" />
-                    <span>{app.leadTime}</span>
+                    <span>{t("hero.leadTimeBadge")}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <ShieldCheck size={14} className="text-emerald-600 shrink-0" />
-                    <span>{app.precision}</span>
+                    <span>{t("hero.precisionBadge")}</span>
                   </div>
                 </div>
               </div>
