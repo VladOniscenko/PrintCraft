@@ -201,7 +201,7 @@ function MediaSelectorModal({
       onClose();
     } catch (err: any) {
       console.error(err);
-      notifyError(err?.response?.data?.message || "Failed to upload file.");
+      notifyError(err?.response?.data?.message || t("admin.heroSlides.uploadFailed"));
     } finally {
       setUploading(false);
       if (e.target) e.target.value = "";
@@ -663,8 +663,7 @@ export default function AdminHeroSlides() {
     } catch (err: any) {
       console.error(err);
       notifyError(
-        err?.response?.data?.message ||
-          "Failed to seed default slides and assets.",
+        err?.response?.data?.message || t("admin.heroSlides.seedFailed"),
       );
     } finally {
       setIsReseeding(false);

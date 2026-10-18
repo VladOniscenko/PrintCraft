@@ -40,6 +40,8 @@
     "confirmDelete": "Bu tanıtım slaytını silmek istediğinizden emin misiniz?",
     "confirmSeed": "Bu işlem sunucuda varsayılan tanıtım slaytlarının ve 3D STL dosyalarının (kablo tutucu, dino, materyaller) bulunmasını sağlayacaktır. Devam edilsin mi?",
     "seedSuccess": "Varsayılan slaytlar ve 3D STL varlıkları başarıyla yüklendi!",
+    "seedFailed": "Varsayılan slaytlar ve varlıklar yüklenemedi.",
+    "uploadFailed": "Dosya yükleme başarısız oldu.",
     "updateSuccess": "Hero slaytı başarıyla güncellendi.",
     "updateFailed": "Hero slaytı güncellenemedi.",
     "deleteSuccess": "Hero slaytı silindi.",

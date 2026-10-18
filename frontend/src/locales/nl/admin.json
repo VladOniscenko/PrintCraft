@@ -40,6 +40,8 @@
     "confirmDelete": "Weet je zeker dat je deze promotionele slide wilt verwijderen?",
     "confirmSeed": "Dit zorgt ervoor dat de standaard promotionele slides en 3D STL-bestanden (kabelhouder, dino, materialen) op de server staan. Doorgaan?",
     "seedSuccess": "Standaard slides en 3D STL-bestanden succesvol geladen!",
+    "seedFailed": "Kan standaard slides en 3D-bestanden niet herstellen.",
+    "uploadFailed": "Bestand uploaden is mislukt.",
     "updateSuccess": "Hero slide succesvol bijgewerkt.",
     "updateFailed": "Bijwerken van hero slide mislukt.",
     "deleteSuccess": "Hero slide verwijderd.",

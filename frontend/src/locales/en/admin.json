@@ -40,6 +40,8 @@
     "confirmDelete": "Are you sure you want to delete this promotional slide?",
     "confirmSeed": "This will ensure default promotional slides and 3D STL files (cable-holder, dino, materials) exist on the server. Proceed?",
     "seedSuccess": "Default slides and 3D STL assets seeded successfully!",
+    "seedFailed": "Failed to seed default slides and assets.",
+    "uploadFailed": "Failed to upload file.",
     "updateSuccess": "Hero slide updated successfully.",
     "updateFailed": "Failed to update hero slide.",
     "deleteSuccess": "Hero slide deleted.",

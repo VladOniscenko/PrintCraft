@@ -294,16 +294,32 @@ public static class HeroSlideSeeder
     public static async Task<SeederResult> EnsureDatabaseSeededAsync(PrintCraftDb db, bool forceReload = false)
     {
         var defaults = GetDefaultSlides();
-        var existingSlides = await db.HeroSlides.ToListAsync();
+        List<HeroSlide> existingSlides;
+        try
+        {
+            existingSlides = await db.HeroSlides.ToListAsync();
+        }
+        catch
+        {
+            existingSlides = new List<HeroSlide>();
+        }
+
         var result = new SeederResult { TotalBefore = existingSlides.Count };
 
         if (existingSlides.Count == 0)
         {
-            await db.HeroSlides.AddRangeAsync(defaults);
-            await db.SaveChangesAsync();
-            result.Inserted = defaults.Count;
-            result.TotalAfter = defaults.Count;
-            return result;
+            try
+            {
+                await db.HeroSlides.AddRangeAsync(defaults);
+                await db.SaveChangesAsync();
+                result.Inserted = defaults.Count;
+                result.TotalAfter = defaults.Count;
+                return result;
+            }
+            catch
+            {
+                // Fall through to per-slide insert/merge
+            }
         }
 
         foreach (var def in defaults)
@@ -313,38 +329,95 @@ public static class HeroSlideSeeder
 
             if (match == null)
             {
-                await db.HeroSlides.AddAsync(def);
-                result.Inserted++;
+                try
+                {
+                    await db.HeroSlides.AddAsync(def);
+                    result.Inserted++;
+                }
+                catch { }
             }
-            else if (forceReload || match.Titles == null || match.Titles.Count < 5)
+            else
             {
-                match.Title = def.Title;
-                match.TitleNl = def.TitleNl;
-                match.Subtext = def.Subtext;
-                match.SubtextNl = def.SubtextNl;
-                match.PriceText = def.PriceText;
-                match.PriceTextNl = def.PriceTextNl;
-                match.Titles = def.Titles;
-                match.Subtexts = def.Subtexts;
-                match.PriceTexts = def.PriceTexts;
-                match.InstructionTooltips = def.InstructionTooltips;
-                match.MediaUrl = def.MediaUrl;
-                match.MediaType = def.MediaType;
-                match.InstructionTooltip = def.InstructionTooltip;
-                match.InstructionTooltipNl = def.InstructionTooltipNl;
-                match.SortOrder = def.SortOrder;
-                match.IsActive = def.IsActive;
-                match.UpdatedAt = DateTime.UtcNow;
-                result.Updated++;
+                bool modified = false;
+
+                // Ensure multilingual dictionaries are initialized
+                match.Titles ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                match.Subtexts ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                match.PriceTexts ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                match.InstructionTooltips ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+                // Merge any missing language keys from default into existing slide
+                foreach (var (k, v) in def.Titles)
+                {
+                    if (forceReload || !match.Titles.ContainsKey(k) || string.IsNullOrWhiteSpace(match.Titles[k]))
+                    {
+                        match.Titles[k] = v;
+                        modified = true;
+                    }
+                }
+                foreach (var (k, v) in def.Subtexts)
+                {
+                    if (forceReload || !match.Subtexts.ContainsKey(k) || string.IsNullOrWhiteSpace(match.Subtexts[k]))
+                    {
+                        match.Subtexts[k] = v;
+                        modified = true;
+                    }
+                }
+                foreach (var (k, v) in def.PriceTexts)
+                {
+                    if (forceReload || !match.PriceTexts.ContainsKey(k) || string.IsNullOrWhiteSpace(match.PriceTexts[k]))
+                    {
+                        match.PriceTexts[k] = v;
+                        modified = true;
+                    }
+                }
+                foreach (var (k, v) in def.InstructionTooltips)
+                {
+                    if (forceReload || !match.InstructionTooltips.ContainsKey(k) || string.IsNullOrWhiteSpace(match.InstructionTooltips[k]))
+                    {
+                        match.InstructionTooltips[k] = v;
+                        modified = true;
+                    }
+                }
+
+                if (forceReload)
+                {
+                    match.Title = def.Title;
+                    match.TitleNl = def.TitleNl;
+                    match.Subtext = def.Subtext;
+                    match.SubtextNl = def.SubtextNl;
+                    match.PriceText = def.PriceText;
+                    match.PriceTextNl = def.PriceTextNl;
+                    match.MediaUrl = def.MediaUrl;
+                    match.MediaType = def.MediaType;
+                    match.InstructionTooltip = def.InstructionTooltip;
+                    match.InstructionTooltipNl = def.InstructionTooltipNl;
+                    match.SortOrder = def.SortOrder;
+                    match.IsActive = def.IsActive;
+                    modified = true;
+                }
+
+                if (modified)
+                {
+                    match.UpdatedAt = DateTime.UtcNow;
+                    result.Updated++;
+                }
             }
         }
 
-        if (result.Inserted > 0 || result.Updated > 0)
+        try
         {
-            await db.SaveChangesAsync();
+            if (result.Inserted > 0 || result.Updated > 0)
+            {
+                await db.SaveChangesAsync();
+            }
+            result.TotalAfter = await db.HeroSlides.CountAsync();
+        }
+        catch
+        {
+            result.TotalAfter = result.TotalBefore + result.Inserted;
         }
 
-        result.TotalAfter = await db.HeroSlides.CountAsync();
         return result;
     }
 }

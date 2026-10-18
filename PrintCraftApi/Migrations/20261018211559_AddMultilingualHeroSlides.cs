@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -13,36 +13,13 @@ namespace PrintCraftApi.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "VisitEvents");
-
-            migrationBuilder.AddColumn<string>(
-                name: "InstructionTooltips",
-                table: "HeroSlides",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "PriceTexts",
-                table: "HeroSlides",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Subtexts",
-                table: "HeroSlides",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Titles",
-                table: "HeroSlides",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
+            migrationBuilder.Sql(@"
+                DROP TABLE IF EXISTS ""VisitEvents"" CASCADE;
+                ALTER TABLE ""HeroSlides"" ADD COLUMN IF NOT EXISTS ""InstructionTooltips"" text NOT NULL DEFAULT '{}';
+                ALTER TABLE ""HeroSlides"" ADD COLUMN IF NOT EXISTS ""PriceTexts"" text NOT NULL DEFAULT '{}';
+                ALTER TABLE ""HeroSlides"" ADD COLUMN IF NOT EXISTS ""Subtexts"" text NOT NULL DEFAULT '{}';
+                ALTER TABLE ""HeroSlides"" ADD COLUMN IF NOT EXISTS ""Titles"" text NOT NULL DEFAULT '{}';
+            ");
 
             migrationBuilder.UpdateData(
                 table: "EmailTemplates",
@@ -275,21 +252,12 @@ namespace PrintCraftApi.Migrations
                 keyColumn: "Id",
                 keyValue: new Guid("00000000-0000-0000-0000-000000000046"));
 
-            migrationBuilder.DropColumn(
-                name: "InstructionTooltips",
-                table: "HeroSlides");
-
-            migrationBuilder.DropColumn(
-                name: "PriceTexts",
-                table: "HeroSlides");
-
-            migrationBuilder.DropColumn(
-                name: "Subtexts",
-                table: "HeroSlides");
-
-            migrationBuilder.DropColumn(
-                name: "Titles",
-                table: "HeroSlides");
+            migrationBuilder.Sql(@"
+                ALTER TABLE ""HeroSlides"" DROP COLUMN IF EXISTS ""InstructionTooltips"";
+                ALTER TABLE ""HeroSlides"" DROP COLUMN IF EXISTS ""PriceTexts"";
+                ALTER TABLE ""HeroSlides"" DROP COLUMN IF EXISTS ""Subtexts"";
+                ALTER TABLE ""HeroSlides"" DROP COLUMN IF EXISTS ""Titles"";
+            ");
 
             migrationBuilder.CreateTable(
                 name: "VisitEvents",
