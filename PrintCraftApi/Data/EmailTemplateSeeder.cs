@@ -381,7 +381,10 @@ public static class EmailTemplateSeeder
                         || match.Body.Contains("3D viewer")
                         || match.Body.Contains("&euro;{{Price}}")
                         || match.Body.Contains("&euro;{{Amount}}")
-                        || match.Body.Contains("precision pricing"))
+                        || match.Body.Contains("precision pricing")
+                        || match.Body.Contains("padding-bottom: 8px;")
+                        || match.Body.Contains("<!-- Hero Icon Section -->\n          <tr>")
+                        || match.Body.Contains("<!-- Hero Icon Section -->\r\n          <tr>"))
                     {
                         match.TemplateName = def.TemplateName;
                         match.Language = def.Language;
@@ -435,11 +438,7 @@ public static class EmailTemplateSeeder
 
         var iconBlock = !string.IsNullOrWhiteSpace(heroIconHtml) ? $$$"""
           <!-- Hero Icon Section -->
-          <tr>
-            <td align="center" style="padding-bottom: 8px;">
-              {{{heroIconHtml}}}
-            </td>
-          </tr>
+          {{{heroIconHtml}}}
         """ : "";
 
         var highlightBlock = !string.IsNullOrWhiteSpace(highlightBoxHtml) ? $$$"""
@@ -520,7 +519,7 @@ public static class EmailTemplateSeeder
         else if (showDirectLink)
         {
             ctaFooterMarkup = $$$"""
-              <p style="margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;">
+              <p style="margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8; text-align: center;">
                 {{{directLinkText}}} <a href="{{{ctaUrlPlaceholder}}}" target="_blank" style="color: #0f766e; text-decoration: underline; word-break: break-all;">{{{ctaUrlPlaceholder}}}</a>
               </p>
             """;
@@ -577,21 +576,21 @@ public static class EmailTemplateSeeder
 
                   <!-- Status Badge & Greeting Section -->
                   <tr>
-                    <td class="mobile-p-20 mobile-pt-24" style="padding: 32px 40px 16px 40px; text-align: center;">
+                    <td class="mobile-p-20 mobile-pt-24" align="center" style="padding: 32px 40px 16px 40px; text-align: center;">
                       {{{iconBlock}}}
                       <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto 16px auto;">
                         <tr>
-                          <td style="background-color: {{{badgeBg}}}; border: 1px solid {{{badgeBorder}}}; border-radius: 9999px; padding: 6px 16px; text-align: center;">
+                          <td align="center" style="background-color: {{{badgeBg}}}; border: 1px solid {{{badgeBorder}}}; border-radius: 9999px; padding: 6px 16px; text-align: center;">
                             <span style="font-size: 12px; font-weight: 700; color: {{{badgeTextColor}}}; text-transform: uppercase; letter-spacing: 0.8px;">
                               {{{badgeText}}}
                             </span>
                           </td>
                         </tr>
                       </table>
-                      <h1 style="margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">
+                      <h1 style="margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; text-align: center;">
                         {{{heading}}}
                       </h1>
-                      <p style="margin: 0; font-size: 15px; line-height: 24px; color: #475569;">
+                      <p style="margin: 0; font-size: 15px; line-height: 24px; color: #475569; text-align: center;">
                         {{{introParagraph}}}
                       </p>
                     </td>
@@ -603,7 +602,7 @@ public static class EmailTemplateSeeder
 
                   <!-- Action Area (CTA) -->
                   <tr>
-                    <td class="mobile-p-20" style="padding: 12px 40px 32px 40px; text-align: center;">
+                    <td class="mobile-p-20" align="center" style="padding: 12px 40px 32px 40px; text-align: center;">
                       {{{ctaButtonMarkup}}}
                       {{{ctaFooterMarkup}}}
                     </td>
@@ -611,7 +610,7 @@ public static class EmailTemplateSeeder
 
                   <!-- Footer -->
                   <tr>
-                    <td style="padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
+                    <td align="center" style="padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
                       <p style="margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;">
                         {{{footerQuestions}}}
                       </p>

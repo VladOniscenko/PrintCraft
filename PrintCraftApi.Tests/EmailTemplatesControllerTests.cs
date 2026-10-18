@@ -238,5 +238,91 @@ public class EmailTemplatesControllerTests
         Assert.DoesNotContain("&euro;", updated.Body);
         Assert.DoesNotContain("{{Price}}", updated.Body);
     }
+
+    [Fact]
+    public void OrderPaid_Template_HasValidTableNestingAndCenteredLayout()
+    {
+        var defaults = EmailTemplateSeeder.GetDefaultTemplates();
+        var orderPaidTemplates = defaults.Where(t => t.TemplateName == "OrderPaid").ToList();
+
+        Assert.Equal(2, orderPaidTemplates.Count); // EN and NL
+
+        foreach (var template in orderPaidTemplates)
+        {
+            // Must not contain rogue tr tag inside td
+            Assert.DoesNotContain("padding-bottom: 8px;", template.Body);
+            Assert.DoesNotContain("<!-- Hero Icon Section -->\n          <tr>", template.Body);
+            Assert.DoesNotContain("<!-- Hero Icon Section -->\r\n          <tr>", template.Body);
+
+            // Must have centered styling
+            Assert.Contains("text-align: center;", template.Body);
+            Assert.Contains("align=\"center\"", template.Body);
+            Assert.Contains("font-size: 28px;", template.Body); // checkmark icon
+            Assert.Contains("&#10003;", template.Body);
+        }
+    }
+
+    [Fact]
+    public async Task EnsureDatabaseSeeded_AutomaticallyUpgradesCorruptedOrderPaidTemplate()
+    {
+        var options = new DbContextOptionsBuilder<PrintCraftDb>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
+            .Options;
+        using var db = new PrintCraftDb(options);
+
+        // Seed broken OrderPaid template with invalid nested tr inside td
+        var brokenId = Guid.Parse("00000000-0000-0000-0000-000000000016");
+        var brokenTemplate = new EmailTemplate
+        {
+            Id = brokenId,
+            TemplateName = "OrderPaid",
+            Language = "nl",
+            Subject = "Betaling bevestigd voor bestelling #{{ShortOrderId}}",
+            Body = """
+            <table>
+              <tr>
+                <td style="padding: 32px 40px; text-align: center;">
+                  <!-- Hero Icon Section -->
+                  <tr>
+                    <td align="center" style="padding-bottom: 8px;">
+                      <span>&#10003;</span>
+                    </td>
+                  </tr>
+                  <h1>Betaling Ontvangen</h1>
+                </td>
+              </tr>
+            </table>
+            """
+        };
+        await db.EmailTemplates.AddAsync(brokenTemplate);
+        await db.SaveChangesAsync();
+
+        var result = await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db, forceReload: false);
+
+        Assert.True(result.Updated > 0);
+        var updated = await db.EmailTemplates.FirstAsync(t => t.Id == brokenId);
+        Assert.DoesNotContain("padding-bottom: 8px;", updated.Body);
+        Assert.Contains("Betaling Ontvangen — Print Ingewilligd!", updated.Body);
+        Assert.Contains("text-align: center;", updated.Body);
+    }
+
+    [Fact]
+    public async Task PreviewById_ForDutchOrderPaid_RendersExpectedSubjectAndCenteredBody()
+    {
+        using var db = CreateDbContext();
+        var controller = CreateController(db);
+
+        var dutchId = Guid.Parse("00000000-0000-0000-0000-000000000016");
+        var result = await controller.PreviewById(dutchId, null);
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var val = Assert.IsType<EmailTemplatesController.PreviewTemplateResponse>(ok.Value);
+
+        Assert.Equal("Betaling bevestigd voor bestelling #E4A8F201", val.Subject);
+        Assert.Contains("Alex Maker", val.HtmlBody);
+        Assert.Contains("E4A8F201", val.HtmlBody);
+        Assert.Contains("Betaling Ontvangen — Print Ingewilligd!", val.HtmlBody);
+        Assert.DoesNotContain("padding-bottom: 8px;", val.HtmlBody);
+        Assert.Contains("text-align: center;", val.HtmlBody);
+    }
 }
 
