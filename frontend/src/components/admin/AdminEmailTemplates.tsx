@@ -41,7 +41,6 @@ const COMMON_PLACEHOLDERS = [
   "PaymentReference",
   "TrackingCode",
   "TrackingUrl",
-  "RenderedImageUrl",
   "LogoUrl",
   "ResetLink",
 ] as const;

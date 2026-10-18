@@ -32,7 +32,6 @@ public class EmailTemplatesController : ControllerBase
         { "OrderId", "E4A8F201" },
         { "ShortOrderId", "E4A8F201" },
         { "OrderUrl", "https://printmy3d.work/orders/00000000-0000-0000-0000-000000000001" },
-        { "RenderedImageUrl", "https://printmy3d.work/uploads/hero/materials.svg" },
         { "LogoUrl", "https://printmy3d.work/favicon.svg" },
         { "ResetLink", "https://printmy3d.work/reset-password?token=sample-reset-token-xyz" },
         { "Price", "29.95" },

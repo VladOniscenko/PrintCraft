@@ -131,6 +131,9 @@ public static class EmailTemplateSeeder
                         || !string.Equals(match.Subject, def.Subject, StringComparison.Ordinal)
                         || !string.Equals(match.Body, def.Body, StringComparison.Ordinal)
                         || match.Body.Contains("3D CAD / Slicing Preview")
+                        || match.Body.Contains("RenderedImageUrl")
+                        || match.Body.Contains("3D Render")
+                        || match.Body.Contains("3D viewer")
                         || match.Body.Contains("&euro;{{Price}}")
                         || match.Body.Contains("&euro;{{Amount}}")
                         || match.Body.Contains("precision pricing"))
@@ -160,34 +163,8 @@ public static class EmailTemplateSeeder
         string introParagraph,
         string ctaText,
         string ctaUrlPlaceholder = "{{OrderUrl}}",
-        bool show3dRender = true,
         string? detailBoxHtml = null)
     {
-        var renderBlock = show3dRender ? $$$"""
-          <!-- 3D Render Viewport Container -->
-          <tr>
-            <td class="mobile-p-20" style="padding: 16px 40px 24px 40px;">
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%); border-radius: 12px; border: 1px solid #334155; box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 12px 24px -6px rgba(15, 23, 42, 0.3); overflow: hidden;">
-                <tr>
-                  <td align="center" style="padding: 28px 20px 28px 20px;">
-                    <a href="{{OrderUrl}}" target="_blank" style="text-decoration: none; display: block;">
-                      <img class="hero-image" src="{{RenderedImageUrl}}" alt="3D Render Preview for order #{{ShortOrderId}}" width="440" style="display: block; max-width: 100%; height: auto; max-height: 280px; object-fit: contain; margin: 0 auto; filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.45));" />
-                    </a>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="background-color: rgba(15, 23, 42, 0.7); padding: 10px 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); text-align: center;">
-                    <span style="font-size: 12px; color: #94a3b8;">
-                      Order Ref: <strong style="color: #f8fafc; font-family: monospace;">#{{ShortOrderId}}</strong> &bull; Click to inspect in 3D viewer
-                    </span>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        """ : "";
-
-
         var detailBlock = !string.IsNullOrWhiteSpace(detailBoxHtml) ? $$$"""
           <!-- Extra Details Box -->
           <tr>
@@ -229,7 +206,6 @@ public static class EmailTemplateSeeder
               .email-container { width: 100% !important; max-width: 100% !important; }
               .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }
               .mobile-pt-24 { padding-top: 24px !important; }
-              .hero-image { max-height: 220px !important; }
               .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }
             }
           </style>
@@ -269,8 +245,6 @@ public static class EmailTemplateSeeder
                       </p>
                     </td>
                   </tr>
-
-                  {{{renderBlock}}}
 
                   {{{detailBlock}}}
 
