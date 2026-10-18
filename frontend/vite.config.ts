@@ -44,7 +44,7 @@ const publicIndexableRoutes = [
     changefreq: "monthly",
   })),
   ...seoApplications.map((app) => ({
-    subPath: `/oplossingen/${app.slug}`,
+    subPath: `/faq/${app.slug}`,
     priority: "0.85",
     changefreq: "weekly",
   })),

@@ -22,6 +22,7 @@ import {
 } from "../../utils/orderStatus";
 import { useNotify } from "../../context/NotifyContext";
 import { useI18n } from "../../i18n/I18nContext";
+import { languageFlagMap, resolveLanguage } from "../../i18n/translations";
 import api from "../../services/api";
 
 interface AdminOrderHeaderProps {
@@ -51,6 +52,8 @@ export default function AdminOrderHeader({
     order.customer?.fullName ||
     order.fullName ||
     t("admin.orderDetail.header.customer");
+  const rawLang = order.customer?.preferredLanguage || order.language;
+  const customerLang = resolveLanguage(rawLang);
   const createdDate = new Date(order.createdAt).toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
@@ -179,6 +182,13 @@ export default function AdminOrderHeader({
                 <User size={14} className="text-slate-400" />
                 <span className="truncate max-w-[140px] sm:max-w-[200px]">
                   {customerName}
+                </span>
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200"
+                  title={t("admin.orderDetail.header.languagePreference", { lang: customerLang.toUpperCase() })}
+                >
+                  <span>{languageFlagMap[customerLang] || "🌐"}</span>
+                  <span>{customerLang.toUpperCase()}</span>
                 </span>
               </div>
 

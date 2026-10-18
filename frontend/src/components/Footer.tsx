@@ -29,7 +29,7 @@ export default function Footer() {
             {seoApplications.map((app) => (
               <li key={app.slug}>
                 <Link
-                  to={localizePath(`/oplossingen/${app.slug}`)}
+                  to={localizePath(`/faq/${app.slug}`)}
                   className="hover:text-[#0f766e] transition-colors inline-flex items-center gap-1.5"
                 >
                   <ArrowRight size={12} className="text-emerald-600 shrink-0" />

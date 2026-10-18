@@ -301,6 +301,8 @@ public class OrdersController : ControllerBase
             }
         }
 
+        var clientLang = string.Equals(request.Language?.Trim(), "nl", StringComparison.OrdinalIgnoreCase) ? "nl" : "en";
+
         if (!isAuthenticated && user == null)
         {
             user = new User
@@ -309,6 +311,7 @@ public class OrdersController : ControllerBase
                 Email = guestEmail!,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N")),
                 Role = "customer",
+                PreferredLanguage = clientLang
             };
 
             _db.Users.Add(user);
@@ -320,10 +323,15 @@ public class OrdersController : ControllerBase
             userId = user.Id;
         }
 
+        var orderLanguage = !string.IsNullOrWhiteSpace(request.Language)
+            ? clientLang
+            : (user?.PreferredLanguage ?? "en");
+
         var order = new Order
         {
             Id = Guid.NewGuid(),
             UserId = userId,
+            Language = orderLanguage,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Status = OrderStatus.QuoteRequested,
@@ -915,7 +923,8 @@ public record QuoteRequest(
     string ShippingCity,
     string ShippingPostalCode,
     bool AgreementAccepted = false,
-    string? AgreementVersion = null
+    string? AgreementVersion = null,
+    string? Language = null
 );
 
 public record QuoteItemRequest(

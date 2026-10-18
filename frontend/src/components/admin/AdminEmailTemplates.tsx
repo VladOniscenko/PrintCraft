@@ -31,6 +31,12 @@ import {
 import type { EmailTemplate } from "../../types";
 import { useNotify } from "../../context/NotifyContext";
 import { useI18n } from "../../i18n/I18nContext";
+import {
+  languageFlagMap,
+  resolveLanguage,
+  supportedLanguages,
+  type SupportedLanguage,
+} from "../../i18n/translations";
 
 const COMMON_PLACEHOLDERS = [
   "CustomerName",
@@ -45,6 +51,14 @@ const COMMON_PLACEHOLDERS = [
   "ResetLink",
 ] as const;
 
+const languageBadgeKeyMap: Record<
+  SupportedLanguage,
+  "admin.emailTemplates.englishBadge" | "admin.emailTemplates.dutchBadge"
+> = {
+  en: "admin.emailTemplates.englishBadge",
+  nl: "admin.emailTemplates.dutchBadge",
+};
+
 export default function AdminEmailTemplates() {
   const { t } = useI18n();
   const { notifyError, notifySuccess } = useNotify();
@@ -53,11 +67,13 @@ export default function AdminEmailTemplates() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<"all" | "system" | "custom">("all");
+  const [filterLanguage, setFilterLanguage] = useState<"all" | SupportedLanguage>("all");
 
   // Edit / Create modal state
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
   const [formName, setFormName] = useState("");
+  const [formLanguage, setFormLanguage] = useState<SupportedLanguage>("en");
   const [formSubject, setFormSubject] = useState("");
   const [formBody, setFormBody] = useState("");
   const [editorTab, setEditorTab] = useState<"code" | "preview" | "split">("split");
@@ -113,6 +129,7 @@ export default function AdminEmailTemplates() {
     return templates.filter((t) => {
       if (filterType === "system" && !t.isSystemTemplate) return false;
       if (filterType === "custom" && t.isSystemTemplate) return false;
+      if (filterLanguage !== "all" && resolveLanguage(t.language) !== filterLanguage) return false;
 
       if (!q) return true;
       return (
@@ -121,7 +138,7 @@ export default function AdminEmailTemplates() {
         t.body.toLowerCase().includes(q)
       );
     });
-  }, [templates, search, filterType]);
+  }, [templates, search, filterType, filterLanguage]);
 
   const counts = useMemo(() => {
     const system = templates.filter((t) => t.isSystemTemplate).length;
@@ -156,6 +173,7 @@ export default function AdminEmailTemplates() {
   const handleOpenCreate = () => {
     setEditingTemplate(null);
     setFormName("");
+    setFormLanguage("en");
     setFormSubject("");
     setFormBody(
       '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n</head>\n<body style="font-family: sans-serif; background-color: #f8fafc; padding: 24px;">\n  <table width="100%" cellpadding="0" cellspacing="0">\n    <tr>\n      <td align="center">\n        <table width="600" style="background: #ffffff; border-radius: 12px; padding: 32px; border: 1px solid #e2e8f0;">\n          <tr>\n            <td>\n              <h1 style="color: #133827; margin: 0 0 16px;">Hello {{CustomerName}},</h1>\n              <p style="color: #475569; font-size: 15px; line-height: 24px;">Your order #<strong>{{ShortOrderId}}</strong> update...</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>'
@@ -167,6 +185,7 @@ export default function AdminEmailTemplates() {
   const handleOpenEdit = (template: EmailTemplate) => {
     setEditingTemplate(template);
     setFormName(template.templateName);
+    setFormLanguage(resolveLanguage(template.language));
     setFormSubject(template.subject);
     setFormBody(template.body);
     setEditorTab("split");
@@ -214,6 +233,7 @@ export default function AdminEmailTemplates() {
       if (editingTemplate) {
         await updateEmailTemplate(editingTemplate.id, {
           templateName: formName.trim(),
+          language: formLanguage,
           subject: formSubject.trim(),
           body: formBody.trim(),
         });
@@ -221,6 +241,7 @@ export default function AdminEmailTemplates() {
       } else {
         await createEmailTemplate({
           templateName: formName.trim(),
+          language: formLanguage,
           subject: formSubject.trim(),
           body: formBody.trim(),
         });
@@ -366,39 +387,70 @@ export default function AdminEmailTemplates() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setFilterType("all")}
-                className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
-                  filterType === "all"
-                    ? "bg-teal-700 text-white shadow-sm"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {t("admin.emailTemplates.allFilter", { count: counts.all })}
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterType("system")}
-                className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
-                  filterType === "system"
-                    ? "bg-emerald-700 text-white shadow-sm"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {t("admin.emailTemplates.systemFilter", { count: counts.system })}
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterType("custom")}
-                className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
-                  filterType === "custom"
-                    ? "bg-blue-700 text-white shadow-sm"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {t("admin.emailTemplates.customFilter", { count: counts.custom })}
-              </button>
+              <div className="flex flex-wrap items-center gap-1.5 border-b pb-2 md:border-b-0 md:border-r md:pb-0 md:pr-2 border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => setFilterLanguage("all")}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                    filterLanguage === "all"
+                      ? "bg-teal-700 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {t("admin.emailTemplates.allLanguages")}
+                </button>
+                {supportedLanguages.map((lang) => (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => setFilterLanguage(lang)}
+                    className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                      filterLanguage === lang
+                        ? "bg-teal-700 text-white shadow-sm"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    <span>{languageFlagMap[lang]}</span>
+                    <span>{t(languageBadgeKeyMap[lang])}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setFilterType("all")}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                    filterType === "all"
+                      ? "bg-teal-700 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {t("admin.emailTemplates.allFilter", { count: counts.all })}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterType("system")}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                    filterType === "system"
+                      ? "bg-emerald-700 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {t("admin.emailTemplates.systemFilter", { count: counts.system })}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterType("custom")}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                    filterType === "custom"
+                      ? "bg-blue-700 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {t("admin.emailTemplates.customFilter", { count: counts.custom })}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -445,24 +497,30 @@ export default function AdminEmailTemplates() {
                 className="flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition duration-200"
               >
                 <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
                         <Mail size={18} />
                       </div>
-                      <h3 className="font-bold text-gray-900 text-sm tracking-tight truncate max-w-[190px]">
+                      <h3 className="font-bold text-gray-900 text-sm tracking-tight truncate max-w-[170px]">
                         {item.templateName}
                       </h3>
                     </div>
-                    {item.isSystemTemplate ? (
-                      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-emerald-800">
-                        {t("admin.emailTemplates.systemBadge")}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-700 border border-slate-200">
+                        <span>{languageFlagMap[resolveLanguage(item.language)]}</span>
+                        <span>{resolveLanguage(item.language).toUpperCase()}</span>
                       </span>
-                    ) : (
-                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-blue-800">
-                        {t("admin.emailTemplates.customBadge")}
-                      </span>
-                    )}
+                      {item.isSystemTemplate ? (
+                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold tracking-wide text-emerald-800">
+                          {t("admin.emailTemplates.systemBadge")}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-bold tracking-wide text-blue-800">
+                          {t("admin.emailTemplates.customBadge")}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div>
@@ -620,7 +678,7 @@ export default function AdminEmailTemplates() {
             {/* Modal Body */}
             <form onSubmit={handleSave} className="flex flex-col flex-1 overflow-hidden">
               <div className="p-6 space-y-4 border-b bg-white">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Template Name */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">
@@ -642,6 +700,34 @@ export default function AdminEmailTemplates() {
                     <p className="mt-1 text-[11px] text-gray-400">
                       {t("admin.emailTemplates.nameHelp")}
                     </p>
+                  </div>
+
+                  {/* Language */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">
+                      {t("admin.emailTemplates.languageLabel")}
+                    </label>
+                    <div className="flex items-center gap-2">
+                      {supportedLanguages.map((lang) => {
+                        const isSelected = formLanguage === lang;
+                        return (
+                          <button
+                            key={lang}
+                            type="button"
+                            disabled={editingTemplate?.isSystemTemplate}
+                            onClick={() => setFormLanguage(lang)}
+                            className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition ${
+                              isSelected
+                                ? "border-teal-600 bg-teal-50 text-teal-800 ring-1 ring-teal-600"
+                                : "border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
+                            } ${editingTemplate?.isSystemTemplate ? "cursor-not-allowed opacity-75" : ""}`}
+                          >
+                            <span>{languageFlagMap[lang]}</span>
+                            <span>{t(languageBadgeKeyMap[lang])}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Subject Line */}

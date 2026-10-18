@@ -21,10 +21,10 @@
 
 ## Kernoplossingen & Diensten
 
-- [Vervangende Onderdelen Printen](https://printmy3d.work/nl/oplossingen/vervangende-onderdelen-printen): Is er een plastic onderdeel van een apparaat, machine, oldtimer of gereedschap afgebroken? Wij reproduceren niet meer leverbare onderdelen in slijtvast PETG of rubberachtig TPU.
-- [Elektronica Behuizingen op Maat](https://printmy3d.work/nl/oplossingen/elektronica-behuizingen-op-maat): Perfect passende behuizingen voor printplaten (PCB), Raspberry Pi, ESP32, sensoren en industriële IoT-hardware met snap-fit deksels en schroefdraadinzetstukken.
-- [Mallen, Kalibers & Jigs Fixtures](https://printmy3d.work/nl/oplossingen/mallen-kalibers-jigs-fixtures): Versnel je assemblage- en inspectieprocessen met op maat gemaakte kalibers, montagemallen, gereedschapshouders en boorsjablonen binnen 2 tot 5 werkdagen.
-- [Rapid Prototyping Kunststof](https://printmy3d.work/nl/oplossingen/rapid-prototyping-kunststof): Zet je CAD- of STEP-model direct om in een tastbaar, functioneel prototype. Valideer ergonomie, passing en sterkte binnen 2 tot 5 werkdagen vóór kostbare serieproductie.
+- [Vervangende Onderdelen Printen](https://printmy3d.work/nl/faq/vervangende-onderdelen-printen): Is er een plastic onderdeel van een apparaat, machine, oldtimer of gereedschap afgebroken? Wij reproduceren niet meer leverbare onderdelen in slijtvast PETG of rubberachtig TPU.
+- [Elektronica Behuizingen op Maat](https://printmy3d.work/nl/faq/elektronica-behuizingen-op-maat): Perfect passende behuizingen voor printplaten (PCB), Raspberry Pi, ESP32, sensoren en industriële IoT-hardware met snap-fit deksels en schroefdraadinzetstukken.
+- [Mallen, Kalibers & Jigs Fixtures](https://printmy3d.work/nl/faq/mallen-kalibers-jigs-fixtures): Versnel je assemblage- en inspectieprocessen met op maat gemaakte kalibers, montagemallen, gereedschapshouders en boorsjablonen binnen 2 tot 5 werkdagen.
+- [Rapid Prototyping Kunststof](https://printmy3d.work/nl/faq/rapid-prototyping-kunststof): Zet je CAD- of STEP-model direct om in een tastbaar, functioneel prototype. Valideer ergonomie, passing en sterkte binnen 2 tot 5 werkdagen vóór kostbare serieproductie.
 
 ## Materialen & Specificaties
 

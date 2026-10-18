@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   CheckCircle2,
@@ -22,6 +22,13 @@ import {
 } from "../config/seoApplications";
 import { dutchCities, getCityName } from "../config/dutchCities";
 import { businessInfo } from "../config/businessInfo";
+import { getFaqTopic } from "../services/api";
+import type { FaqTopic } from "../types/faq";
+import {
+  getLocalizedText,
+  getLocalizedList,
+  getLocalizedFaqs,
+} from "../utils/i18nHelpers";
 
 interface ApplicationLandingPageProps {
   appSlug?: string;
@@ -35,20 +42,56 @@ export default function ApplicationLandingPage({
   const { language, t, localizePath } = useI18n();
 
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [dynamicTopic, setDynamicTopic] = useState<FaqTopic | null>(null);
 
-  const app = getSeoApplicationBySlug(activeSlug);
+  useEffect(() => {
+    if (!activeSlug) return;
+    let isMounted = true;
+    getFaqTopic(activeSlug)
+      .then((res) => {
+        if (isMounted && res) {
+          setDynamicTopic(res);
+        }
+      })
+      .catch(() => {
+        // Fallback to static config
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [activeSlug]);
 
-  if (!app) {
+  const fallbackApp = getSeoApplicationBySlug(activeSlug);
+
+  if (!dynamicTopic && !fallbackApp) {
     return <NotFound />;
   }
 
-  const appName = getApplicationName(app, language);
-  const heroBadge = app.badge[language] || app.badge.nl;
-  const heroTitle = app.heroTitle[language] || app.heroTitle.nl;
-  const heroSubtitle = app.heroSubtitle[language] || app.heroSubtitle.nl;
-  const description = app.description[language] || app.description.nl;
-  const benefits = app.benefits[language] || app.benefits.nl || [];
-  const faqs = app.faqs[language] || app.faqs.nl || [];
+  const appName = dynamicTopic
+    ? getLocalizedText(dynamicTopic.names, language, activeSlug)
+    : (fallbackApp ? getApplicationName(fallbackApp, language) : "");
+  const heroBadge = dynamicTopic
+    ? getLocalizedText(dynamicTopic.badge, language)
+    : (fallbackApp ? getLocalizedText(fallbackApp.badge, language) : "");
+  const heroTitle = dynamicTopic
+    ? getLocalizedText(dynamicTopic.heroTitle, language)
+    : (fallbackApp ? getLocalizedText(fallbackApp.heroTitle, language) : "");
+  const heroSubtitle = dynamicTopic
+    ? getLocalizedText(dynamicTopic.heroSubtitle, language)
+    : (fallbackApp ? getLocalizedText(fallbackApp.heroSubtitle, language) : "");
+  const description = dynamicTopic
+    ? getLocalizedText(dynamicTopic.description, language)
+    : (fallbackApp ? getLocalizedText(fallbackApp.description, language) : "");
+  const benefits = dynamicTopic
+    ? getLocalizedList(dynamicTopic.benefits, language)
+    : (fallbackApp ? getLocalizedList(fallbackApp.benefits, language) : []);
+  const faqs = dynamicTopic
+    ? getLocalizedFaqs(dynamicTopic.faqs, language)
+    : (fallbackApp ? getLocalizedFaqs(fallbackApp.faqs, language) : []);
+  const leadTime = dynamicTopic?.leadTime || fallbackApp?.leadTime || "2-5 werkdagen";
+  const precision = dynamicTopic?.precision || fallbackApp?.precision || "±0.1 mm";
+  const recommendedMaterials = dynamicTopic?.recommendedMaterials || fallbackApp?.recommendedMaterials || ["PETG", "TPU", "PLA"];
+
   const localizedCountry =
     businessInfo.address.countryName[language] ||
     businessInfo.address.countryName.nl;
@@ -57,7 +100,7 @@ export default function ApplicationLandingPage({
     setOpenFaqIndex(openFaqIndex === index ? null : index);
   };
 
-  const otherApps = seoApplications.filter((a) => a.slug !== app.slug);
+  const otherApps = seoApplications.filter((a) => a.slug !== activeSlug);
   const featuredCities = dutchCities.slice(0, 10);
 
   const materialOptions = [
@@ -122,7 +165,7 @@ export default function ApplicationLandingPage({
               </div>
               <div>
                 <p className="text-xs text-emerald-200/80 font-medium">{t("hero.fastTurnaround")}</p>
-                <p className="text-sm font-bold text-white">{app.leadTime}</p>
+                <p className="text-sm font-bold text-white">{leadTime}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -131,7 +174,7 @@ export default function ApplicationLandingPage({
               </div>
               <div>
                 <p className="text-xs text-emerald-200/80 font-medium">{t("hero.highQuality")}</p>
-                <p className="text-sm font-bold text-white">{app.precision}</p>
+                <p className="text-sm font-bold text-white">{precision}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -140,7 +183,7 @@ export default function ApplicationLandingPage({
               </div>
               <div>
                 <p className="text-xs text-emerald-200/80 font-medium">{t("home.materials.eyebrow")}</p>
-                <p className="text-sm font-bold text-white">{app.recommendedMaterials.join(", ")}</p>
+                <p className="text-sm font-bold text-white">{recommendedMaterials.join(", ")}</p>
               </div>
             </div>
           </div>
@@ -290,7 +333,7 @@ export default function ApplicationLandingPage({
             {otherApps.map((other) => (
               <Link
                 key={other.slug}
-                to={localizePath(`/oplossingen/${other.slug}`)}
+                to={localizePath(`/faq/${other.slug}`)}
                 className="p-4 rounded-xl border border-[#d6e5df] hover:border-emerald-400 bg-white hover:bg-[#f6fbf9] transition-all text-sm font-semibold text-[#203630] flex items-center justify-between"
               >
                 <span>{getApplicationName(other, language)}</span>

@@ -97,8 +97,8 @@ public class SeederTests
         var result = await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db);
 
         Assert.Equal(0, result.TotalBefore);
-        Assert.Equal(6, result.Inserted);
-        Assert.Equal(6, result.TotalAfter);
+        Assert.Equal(12, result.Inserted);
+        Assert.Equal(12, result.TotalAfter);
 
         var templates = await db.EmailTemplates.ToListAsync();
         Assert.Contains(templates, t => t.TemplateName == "QuoteRequested");
@@ -122,5 +122,96 @@ public class SeederTests
 
         var slides = await db.HeroSlides.ToListAsync();
         Assert.Equal(4, slides.Count);
+    }
+
+    [Fact]
+    public async Task FaqItemSeeder_Seeds16FaqItems_WhenTableIsEmpty()
+    {
+        using var db = CreateDbContext();
+
+        var result = await FaqItemSeeder.EnsureDatabaseSeededAsync(db);
+
+        Assert.Equal(0, result.TotalBefore);
+        Assert.Equal(16, result.Inserted);
+        Assert.Equal(16, result.TotalAfter);
+
+        var faqs = await db.FaqItems.ToListAsync();
+        Assert.Equal(16, faqs.Count);
+        Assert.All(faqs, f =>
+        {
+            Assert.True(f.Question.ContainsKey("nl") && !string.IsNullOrWhiteSpace(f.Question["nl"]));
+            Assert.True(f.Question.ContainsKey("en") && !string.IsNullOrWhiteSpace(f.Question["en"]));
+            Assert.True(f.Answer.ContainsKey("nl") && !string.IsNullOrWhiteSpace(f.Answer["nl"]));
+            Assert.True(f.Answer.ContainsKey("en") && !string.IsNullOrWhiteSpace(f.Answer["en"]));
+        });
+
+        // Calling again does not duplicate
+        var second = await FaqItemSeeder.EnsureDatabaseSeededAsync(db);
+        Assert.Equal(16, second.TotalBefore);
+        Assert.Equal(0, second.Inserted);
+        Assert.Equal(16, second.TotalAfter);
+    }
+
+    [Fact]
+    public async Task FaqTopicSeeder_Seeds4Topics_WhenTableIsEmpty()
+    {
+        using var db = CreateDbContext();
+
+        var result = await FaqTopicSeeder.EnsureDatabaseSeededAsync(db);
+
+        Assert.Equal(0, result.TotalBefore);
+        Assert.Equal(4, result.Inserted);
+        Assert.Equal(4, result.TotalAfter);
+
+        var topics = await db.FaqTopics.ToListAsync();
+        Assert.Equal(4, topics.Count);
+        Assert.Contains(topics, t => t.Slug == "vervangende-onderdelen-printen");
+        Assert.Contains(topics, t => t.Slug == "elektronica-behuizingen-op-maat");
+        Assert.Contains(topics, t => t.Slug == "mallen-kalibers-jigs-fixtures");
+        Assert.Contains(topics, t => t.Slug == "rapid-prototyping-kunststof");
+
+        // Verify multilingual fields exist
+        foreach (var t in topics)
+        {
+            Assert.True(t.Names.ContainsKey("nl") && !string.IsNullOrWhiteSpace(t.Names["nl"]));
+            Assert.True(t.Names.ContainsKey("en") && !string.IsNullOrWhiteSpace(t.Names["en"]));
+            Assert.True(t.Benefits.ContainsKey("nl") && t.Benefits["nl"].Count > 0);
+            Assert.True(t.Faqs.ContainsKey("nl") && t.Faqs["nl"].Count > 0);
+        }
+
+        // Calling again does not duplicate
+        var second = await FaqTopicSeeder.EnsureDatabaseSeededAsync(db);
+        Assert.Equal(0, second.Inserted);
+        Assert.Equal(4, second.TotalAfter);
+    }
+
+    [Fact]
+    public async Task CitySeeder_Seeds28Cities_WhenTableIsEmpty()
+    {
+        using var db = CreateDbContext();
+
+        var result = await CitySeeder.EnsureDatabaseSeededAsync(db);
+
+        Assert.Equal(0, result.TotalBefore);
+        Assert.Equal(28, result.Inserted);
+        Assert.Equal(28, result.TotalAfter);
+
+        var cities = await db.Cities.ToListAsync();
+        Assert.Equal(28, cities.Count);
+        Assert.Contains(cities, c => c.Slug == "amsterdam");
+        Assert.Contains(cities, c => c.Slug == "rotterdam");
+        Assert.Contains(cities, c => c.Slug == "den-haag");
+
+        var denHaag = cities.First(c => c.Slug == "den-haag");
+        Assert.Equal("Den Haag", denHaag.Names["nl"]);
+        Assert.Equal("The Hague", denHaag.Names["en"]);
+        Assert.Equal("Zuid-Holland", denHaag.Province);
+        Assert.NotNull(denHaag.Latitude);
+        Assert.NotNull(denHaag.Longitude);
+
+        // Calling again does not duplicate
+        var second = await CitySeeder.EnsureDatabaseSeededAsync(db);
+        Assert.Equal(0, second.Inserted);
+        Assert.Equal(28, second.TotalAfter);
     }
 }

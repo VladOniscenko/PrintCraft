@@ -55,12 +55,14 @@ public class AuthController : ControllerBase
         if (await _db.Users.AnyAsync(u => u.Email == email, cancellationToken))
             return BadRequest(new { message = "Email already exists." });
 
+        var lang = string.Equals(req.PreferredLanguage?.Trim(), "nl", StringComparison.OrdinalIgnoreCase) ? "nl" : "en";
         var user = new User
         {
             Name = name,
             Email = normalizedEmail,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
-            Role = "customer"
+            Role = "customer",
+            PreferredLanguage = lang
         };
 
         _db.Users.Add(user);
@@ -102,7 +104,7 @@ public class AuthController : ControllerBase
         return Ok(new
         {
             token = tokenHandler.WriteToken(token),
-            user = new { user.Id, user.Name, user.Email, user.Role }
+            user = new { user.Id, user.Name, user.Email, user.Role, preferredLanguage = user.PreferredLanguage ?? "en" }
         });
     }
 
@@ -115,8 +117,29 @@ public class AuthController : ControllerBase
 
         var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId), cancellationToken);
         return user != null
-            ? Ok(new { user.Id, user.Name, user.Email, user.Role })
+            ? Ok(new { user.Id, user.Name, user.Email, user.Role, preferredLanguage = user.PreferredLanguage ?? "en" })
             : NotFound();
+    }
+
+    [HttpPut("me/language")]
+    [Authorize]
+    public async Task<IActionResult> UpdatePreferredLanguage([FromBody] UpdateLanguagePreferenceRequest req, CancellationToken cancellationToken = default)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null) return Unauthorized(new { message = "Unauthorized." });
+
+        if (!Guid.TryParse(userId, out var userGuid))
+            return Unauthorized(new { message = "Unauthorized." });
+
+        var user = await _db.Users.FindAsync(new object?[] { userGuid }, cancellationToken);
+        if (user == null)
+            return NotFound(new { message = "User not found." });
+
+        var lang = string.Equals(req.Language?.Trim(), "nl", StringComparison.OrdinalIgnoreCase) ? "nl" : "en";
+        user.PreferredLanguage = lang;
+        await _db.SaveChangesAsync(cancellationToken);
+
+        return Ok(new { message = "Language preference updated.", preferredLanguage = lang });
     }
 
     [HttpPost("forgot-password")]
@@ -284,8 +307,9 @@ public class AuthController : ControllerBase
     }
 }
 
-public record RegisterRequest(string Name, string Email, string Password);
+public record RegisterRequest(string Name, string Email, string Password, string? PreferredLanguage = null);
 public record LoginRequest(string Email, string Password);
 public record ForgotPasswordRequest(string Email);
 public record ResetPasswordRequest(string Token, string NewPassword);
 public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
+public record UpdateLanguagePreferenceRequest(string Language);

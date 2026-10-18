@@ -59,7 +59,7 @@ public class EmailTemplatesControllerTests
         var ok = Assert.IsType<OkObjectResult>(result);
         var templates = Assert.IsAssignableFrom<List<EmailTemplatesController.EmailTemplateDto>>(ok.Value);
 
-        Assert.Equal(6, templates.Count);
+        Assert.Equal(12, templates.Count);
         Assert.All(templates, t => Assert.True(t.IsSystemTemplate));
         Assert.Contains(templates, t => t.TemplateName == "QuoteRequested" && t.DetectedPlaceholders.Contains("ShortOrderId"));
     }

@@ -1,15 +1,40 @@
-// src/components/FAQ.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import { ChevronDown, ChevronUp, Mail, MessageCircleQuestion } from "lucide-react";
 import { useI18n } from "../i18n/I18nContext";
 import Footer from "./Footer";
 import { Link } from "react-router-dom";
 import { businessInfo } from "../config/businessInfo";
+import { getFaqItems } from "../services/api";
+import type { FaqItem } from "../types/faq";
+import { getLocalizedText } from "../utils/i18nHelpers";
 
 export default function FAQ() {
-  const { t, localizePath } = useI18n();
-  const faqData = [
+  const { t, language, localizePath } = useI18n();
+  const [dynamicItems, setDynamicItems] = useState<FaqItem[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    getFaqItems()
+      .then((res) => {
+        if (isMounted && Array.isArray(res) && res.length > 0) {
+          const activeOnly = res
+            .filter((item: FaqItem) => item.isActive)
+            .sort((a: FaqItem, b: FaqItem) => a.sortOrder - b.sortOrder);
+          if (activeOnly.length > 0) {
+            setDynamicItems(activeOnly);
+          }
+        }
+      })
+      .catch(() => {
+        // Keep fallback
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const fallbackData = [
     { question: t("faq.q1"), answer: t("faq.a1") },
     { question: t("faq.q2"), answer: t("faq.a2") },
     { question: t("faq.q3"), answer: t("faq.a3") },
@@ -27,6 +52,13 @@ export default function FAQ() {
     { question: t("faq.q15"), answer: t("faq.a15") },
     { question: t("faq.q16"), answer: t("faq.a16") },
   ];
+
+  const faqData = dynamicItems.length > 0
+    ? dynamicItems.map((item) => ({
+        question: getLocalizedText(item.question, language),
+        answer: getLocalizedText(item.answer, language),
+      }))
+    : fallbackData;
 
   // Keeps track of which question is currently open
   const [openIndex, setOpenIndex] = useState<number | null>(0);

@@ -8,7 +8,7 @@ namespace PrintCraftApi.Services;
 /// </summary>
 public static class OrderDetailsMapper
 {
-    public static OrderDetailsDto MapToDetailsDto(Order order, string customerEmail)
+    public static OrderDetailsDto MapToDetailsDto(Order order, string customerEmail, string? preferredLanguage = null)
     {
         var normalizedStatus = OrderStatus.Normalize(order.Status);
         var files = ExtractFiles(order);
@@ -21,10 +21,14 @@ public static class OrderDetailsMapper
         var subtotal = order.SubtotalAmount;
         var discount = order.DiscountAmount;
         var finalTotal = order.QuotedPrice ?? order.FinalTotalAmount;
+        var resolvedLanguage = !string.IsNullOrWhiteSpace(preferredLanguage)
+            ? preferredLanguage
+            : (!string.IsNullOrWhiteSpace(order.Language) ? order.Language : "en");
 
         return new OrderDetailsDto
         {
             Id = order.Id,
+            Language = !string.IsNullOrWhiteSpace(order.Language) ? order.Language : resolvedLanguage,
             Status = order.Status,
             NormalizedStatus = normalizedStatus,
             IsPaid = order.IsPaid,
@@ -45,6 +49,7 @@ public static class OrderDetailsMapper
                 AddressLine2 = order.AddressLine2,
                 City = order.City,
                 PostalCode = order.PostalCode,
+                PreferredLanguage = resolvedLanguage,
             },
 
             FullName = order.FullName,

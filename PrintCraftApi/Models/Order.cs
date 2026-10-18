@@ -34,6 +34,7 @@ public class Order
     public bool AgreementAccepted { get; set; }
     public string? AgreementVersion { get; set; }
     public DateTime? AgreementAcceptedAt { get; set; }
+    public string Language { get; set; } = "en";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

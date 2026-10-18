@@ -43,7 +43,7 @@
 ## 3. Uitgebreide Oplossingen & Diensten
 
 ### Vervangende Onderdelen Printen
-- URL: https://printmy3d.work/nl/oplossingen/vervangende-onderdelen-printen
+- URL: https://printmy3d.work/nl/faq/vervangende-onderdelen-printen
 - Badge: Reverse Engineering & Spare Parts
 - Tagline: Kapot plastic onderdeel namaken of reserveonderdelen 3D-printen
 - Doorlooptijd: 2-5 werkdagen / business days
@@ -72,7 +72,7 @@ Voorkom het vervangen van complete apparaten door één enkel defect onderdeel. 
 ---
 
 ### Elektronica Behuizingen op Maat
-- URL: https://printmy3d.work/nl/oplossingen/elektronica-behuizingen-op-maat
+- URL: https://printmy3d.work/nl/faq/elektronica-behuizingen-op-maat
 - Badge: Custom Enclosures & Mounts
 - Tagline: Maatwerk PCB casings, sensor mounts en DIN-rail behuizingen
 - Doorlooptijd: 2-5 werkdagen / business days
@@ -98,7 +98,7 @@ Standaard behuizingen passen zelden exact. Met 3D-printen produceren we op maat 
 ---
 
 ### Mallen, Kalibers & Jigs Fixtures
-- URL: https://printmy3d.work/nl/oplossingen/mallen-kalibers-jigs-fixtures
+- URL: https://printmy3d.work/nl/faq/mallen-kalibers-jigs-fixtures
 - Badge: Tooling, Jigs & Fixtures
 - Tagline: Productiegereedschap, montagemallen en boorkalibers voor werkplaats en fabriek
 - Doorlooptijd: 2-5 werkdagen / business days
@@ -124,7 +124,7 @@ Traditioneel frezen van productiemallen vergt vaak weken aan doorlooptijd. Met o
 ---
 
 ### Rapid Prototyping Kunststof
-- URL: https://printmy3d.work/nl/oplossingen/rapid-prototyping-kunststof
+- URL: https://printmy3d.work/nl/faq/rapid-prototyping-kunststof
 - Badge: Engineering & Prototyping
 - Tagline: Functionele prototypes, CAD/STEP validatie en nulserie pre-productie
 - Doorlooptijd: 2-5 werkdagen / business days

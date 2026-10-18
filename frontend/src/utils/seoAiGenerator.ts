@@ -102,7 +102,7 @@ export function generateAiCatalog(originUrl: string = businessInfo.website): Ard
       identifier: `urn:air:${domain}:service:${app.key}`,
       displayName: app.names.nl,
       type: "text/html",
-      url: `${origin}/nl/oplossingen/${app.slug}`,
+      url: `${origin}/nl/faq/${app.slug}`,
       description: app.description.nl,
       representativeQueries: [
         app.tagline.nl,
@@ -219,7 +219,7 @@ export function generateLlmsTxt(originUrl: string = businessInfo.website): strin
   const solutionLinks = seoApplications
     .map(
       (app) =>
-        `- [${app.names.nl}](${origin}/nl/oplossingen/${app.slug}): ${app.heroSubtitle.nl}`,
+        `- [${app.names.nl}](${origin}/nl/faq/${app.slug}): ${app.heroSubtitle.nl}`,
     )
     .join("\n");
 
@@ -299,7 +299,7 @@ export function generateLlmsFullTxt(originUrl: string = businessInfo.website): s
         .join("\n\n");
 
       return `### ${app.names.nl}
-- URL: ${origin}/nl/oplossingen/${app.slug}
+- URL: ${origin}/nl/faq/${app.slug}
 - Badge: ${app.badge.nl}
 - Tagline: ${app.tagline.nl}
 - Doorlooptijd: ${app.leadTime}

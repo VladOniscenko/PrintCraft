@@ -15,6 +15,7 @@ export interface Order {
     | "failed"
     | "cancelled";
   orderType: "quote" | "online";
+  language?: string;
   paymentFlow?: "bank_transfer";
   fullName: string;
   addressLine1: string;
@@ -155,6 +156,7 @@ export interface OrderCustomerDetails {
   addressLine2?: string | null;
   city: string;
   postalCode: string;
+  preferredLanguage?: string;
 }
 
 export interface OrderFileAsset {
@@ -241,6 +243,7 @@ export interface OrderDetailsDto {
   id: string;
   status: string;
   normalizedStatus: string;
+  language?: string;
   isPaid: boolean;
   holdReason?: string | null;
   flaggedForRefundReview?: boolean;

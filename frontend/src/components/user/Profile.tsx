@@ -12,17 +12,27 @@ import {
   Trash2,
   Star,
   Shield,
+  Globe,
+  Check,
 } from "lucide-react";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 import api from "../../services/api";
 import { useI18n } from "../../i18n/I18nContext";
+import {
+  supportedLanguages,
+  languageFlagMap,
+  languageLabelMap,
+  resolveLanguage,
+  type SupportedLanguage,
+} from "../../i18n/translations";
 import { useNotify } from "../../context/NotifyContext";
 
 export interface UserData {
   id: string;
   name: string;
   email: string;
+  preferredLanguage?: string;
 }
 
 export interface AddressData {
@@ -49,17 +59,20 @@ const emptyAddress: AddressData = {
 };
 
 export default function Profile() {
-  const { t } = useI18n();
+  const { t, language, setLanguage } = useI18n();
   const { notifySuccess, notifyError } = useNotify(); // Using your global notification context
 
   const [loading, setLoading] = useState(true);
   const [savingAddress, setSavingAddress] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
+  const [savingLanguage, setSavingLanguage] = useState(false);
+  const [activePrefLang, setActivePrefLang] = useState<SupportedLanguage>(language);
 
   const [userData, setUserData] = useState<UserData>({
     id: "",
     name: "",
     email: "",
+    preferredLanguage: language,
   });
 
   const [addresses, setAddresses] = useState<AddressData[]>([]);
@@ -77,11 +90,16 @@ export default function Profile() {
     try {
       // 1. Fetch User Data
       const userResponse = await api.get("/auth/me");
+      const prefLang = resolveLanguage(
+        userResponse.data?.preferredLanguage || language,
+      );
       setUserData({
         id: userResponse.data.id,
         name: userResponse.data.name,
         email: userResponse.data.email,
+        preferredLanguage: prefLang,
       });
+      setActivePrefLang(prefLang);
 
       // 2. Fetch All Addresses
       const addressesResponse = await api.get("/me/addresses");
@@ -90,6 +108,24 @@ export default function Profile() {
       console.error("Failed to fetch profile", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLanguageChange = async (newLang: SupportedLanguage) => {
+    if (newLang === activePrefLang && newLang === language) return;
+    setSavingLanguage(true);
+    try {
+      await api.put("/auth/me/language", { language: newLang });
+      setActivePrefLang(newLang);
+      setUserData((prev) => ({ ...prev, preferredLanguage: newLang }));
+      setLanguage(newLang);
+      notifySuccess(t("profile.languageUpdated"));
+    } catch (error: any) {
+      const backendMessage = error?.response?.data?.message;
+      notifyError(backendMessage || t("profile.languageUpdateError"));
+      console.error(error);
+    } finally {
+      setSavingLanguage(false);
     }
   };
 
@@ -512,11 +548,84 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Right Column: Password Change */}
-            <div className="lg:col-span-1">
+            {/* Right Column: Preferences & Password Change */}
+            <div className="lg:col-span-1 space-y-8">
+              {/* Language Preferences Card */}
+              <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
+                <div className="p-8 border-b border-gray-100 bg-gray-50/50 flex items-center gap-3">
+                  <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                    <Globe size={20} className="text-emerald-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900">
+                      {t("profile.preferences")}
+                    </h2>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {t("profile.languagePreferenceDescription")}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-8 space-y-4">
+                  <span className="text-sm font-bold text-gray-700 block">
+                    {t("profile.languagePreference")}
+                  </span>
+
+                  <div className="grid grid-cols-1 gap-3">
+                    {supportedLanguages.map((code) => {
+                      const isSelected = activePrefLang === code;
+                      return (
+                        <button
+                          key={code}
+                          type="button"
+                          onClick={() => handleLanguageChange(code)}
+                          disabled={savingLanguage}
+                          className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left ${
+                            isSelected
+                              ? "border-emerald-600 bg-emerald-50/50 shadow-sm ring-1 ring-emerald-600/30"
+                              : "border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 bg-white"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl leading-none" role="img" aria-hidden="true">
+                              {languageFlagMap[code]}
+                            </span>
+                            <div>
+                              <p
+                                className={`text-sm font-bold ${
+                                  isSelected ? "text-emerald-950" : "text-gray-900"
+                                }`}
+                              >
+                                {languageLabelMap[code]}
+                              </p>
+                              <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                                {code}
+                              </span>
+                            </div>
+                          </div>
+                          {isSelected && (
+                            <span className="h-6 w-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+                              <Check size={14} className="stroke-[3]" />
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {savingLanguage && (
+                    <div className="flex items-center gap-2 text-xs text-emerald-700 font-medium pt-1">
+                      <Loader2 size={14} className="animate-spin" />
+                      <span>{t("common.loading")}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Password Change Form */}
               <form
                 onSubmit={handleUpdatePassword}
-                className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden sticky top-6"
+                className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden"
               >
                 <div className="p-8 border-b border-gray-100 bg-gray-50/50 flex items-center gap-3">
                   <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-100">

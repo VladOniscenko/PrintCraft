@@ -55,11 +55,93 @@ public sealed class GmailSmtpEmailService : IEmailService
         _db = db;
     }
 
-    private async Task<(string Subject, string Body)> GetTemplateAsync(string templateName, Dictionary<string, string> variables)
+    internal async Task<string> ResolveLanguageForOrderAsync(Guid orderId)
     {
+        try
+        {
+            var order = await _db.Orders
+                .AsNoTracking()
+                .Select(o => new { o.Id, o.Language, o.UserId })
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order != null)
+            {
+                if (order.UserId.HasValue)
+                {
+                    var userLang = await _db.Users
+                        .AsNoTracking()
+                        .Where(u => u.Id == order.UserId.Value)
+                        .Select(u => u.PreferredLanguage)
+                        .FirstOrDefaultAsync();
+
+                    if (!string.IsNullOrWhiteSpace(userLang))
+                        return NormalizeLanguage(userLang);
+                }
+
+                if (!string.IsNullOrWhiteSpace(order.Language))
+                    return NormalizeLanguage(order.Language);
+            }
+        }
+        catch
+        {
+            // Gracefully ignore and fallback
+        }
+
+        return "en";
+    }
+
+    internal async Task<string> ResolveLanguageForUserEmailAsync(string email)
+    {
+        try
+        {
+            var cleanEmail = (email ?? "").Trim().ToLowerInvariant();
+            var userLang = await _db.Users
+                .AsNoTracking()
+                .Where(u => u.Email == cleanEmail)
+                .Select(u => u.PreferredLanguage)
+                .FirstOrDefaultAsync();
+
+            if (!string.IsNullOrWhiteSpace(userLang))
+                return NormalizeLanguage(userLang);
+        }
+        catch
+        {
+            // Gracefully ignore and fallback
+        }
+
+        return "en";
+    }
+
+    internal static string NormalizeLanguage(string? lang)
+    {
+        var clean = (lang ?? "en").Trim().ToLowerInvariant();
+        return clean is "nl" ? "nl" : "en";
+    }
+
+    internal async Task<(string Subject, string Body)> GetTemplateAsync(string templateName, Dictionary<string, string> variables, string language = "en")
+    {
+        var targetLang = NormalizeLanguage(language);
+
+        // 1. Try target language match
         var template = await _db.EmailTemplates
             .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.TemplateName == templateName);
+            .FirstOrDefaultAsync(t => t.TemplateName == templateName && t.Language == targetLang);
+
+        // 2. Fallback to English if target not found
+        if (template == null && targetLang != "en")
+        {
+            template = await _db.EmailTemplates
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.TemplateName == templateName && t.Language == "en");
+        }
+
+        // 3. Fallback to legacy row without language specified
+        if (template == null)
+        {
+            template = await _db.EmailTemplates
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.TemplateName == templateName);
+        }
 
         var subject = template?.Subject ?? $"Notification: {templateName}";
         var body = template?.Body ?? "No template found.";
@@ -83,7 +165,8 @@ public sealed class GmailSmtpEmailService : IEmailService
             { "LogoUrl", _options.LogoUrl }
         };
 
-        var (subject, body) = await GetTemplateAsync("ResetPassword", variables);
+        var lang = await ResolveLanguageForUserEmailAsync(toEmail);
+        var (subject, body) = await GetTemplateAsync("ResetPassword", variables, lang);
         await SendTextEmailAsync(toEmail, subject, body);
     }
 
@@ -100,7 +183,8 @@ public sealed class GmailSmtpEmailService : IEmailService
             { "LogoUrl", _options.LogoUrl }
         };
 
-        var (subject, body) = await GetTemplateAsync("QuoteRequested", variables);
+        var lang = await ResolveLanguageForOrderAsync(orderId);
+        var (subject, body) = await GetTemplateAsync("QuoteRequested", variables, lang);
         await SendTextEmailAsync(toEmail, subject, body);
     }
 
@@ -119,7 +203,8 @@ public sealed class GmailSmtpEmailService : IEmailService
             { "LogoUrl", _options.LogoUrl }
         };
 
-        var (subject, body) = await GetTemplateAsync("QuoteConfirmation", variables);
+        var lang = await ResolveLanguageForOrderAsync(orderId);
+        var (subject, body) = await GetTemplateAsync("QuoteConfirmation", variables, lang);
         await SendTextEmailAsync(toEmail, subject, body);
     }
 
@@ -139,7 +224,8 @@ public sealed class GmailSmtpEmailService : IEmailService
             { "LogoUrl", _options.LogoUrl }
         };
 
-        var (subject, body) = await GetTemplateAsync("QuoteConfirmationBankTransfer", variables);
+        var lang = await ResolveLanguageForOrderAsync(orderId);
+        var (subject, body) = await GetTemplateAsync("QuoteConfirmationBankTransfer", variables, lang);
         await SendTextEmailAsync(toEmail, subject, body);
     }
 
@@ -158,7 +244,8 @@ public sealed class GmailSmtpEmailService : IEmailService
             { "LogoUrl", _options.LogoUrl }
         };
 
-        var (subject, body) = await GetTemplateAsync("OrderSentTracking", variables);
+        var lang = await ResolveLanguageForOrderAsync(orderId);
+        var (subject, body) = await GetTemplateAsync("OrderSentTracking", variables, lang);
         await SendTextEmailAsync(toEmail, subject, body);
     }
 
@@ -176,7 +263,8 @@ public sealed class GmailSmtpEmailService : IEmailService
             { "LogoUrl", _options.LogoUrl }
         };
 
-        var (subject, body) = await GetTemplateAsync("OrderPaid", variables);
+        var lang = await ResolveLanguageForOrderAsync(orderId);
+        var (subject, body) = await GetTemplateAsync("OrderPaid", variables, lang);
         await SendTextEmailAsync(toEmail, subject, body);
     }
 

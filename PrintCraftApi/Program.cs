@@ -296,9 +296,21 @@ if (isSeedOnly)
         var emailRes = await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db, forceReload);
         Console.WriteLine($"[PrintCraft Seeder] -> Email Templates: {emailRes.TotalBefore} before | +{emailRes.Inserted} inserted | {emailRes.Updated} updated | {emailRes.TotalAfter} total");
 
-        Console.WriteLine("[PrintCraft Seeder] Step 4/4: Seeding Standard Filaments (PLA & PETG)...");
+        Console.WriteLine("[PrintCraft Seeder] Step 4/7: Seeding Standard Filaments (PLA & PETG)...");
         var filRes = await FilamentSeeder.EnsureDatabaseSeededAsync(db, forceReload);
         Console.WriteLine($"[PrintCraft Seeder] -> Filaments: {filRes.TotalBefore} before | +{filRes.Inserted} inserted | {filRes.Updated} updated | {filRes.TotalAfter} total");
+
+        Console.WriteLine("[PrintCraft Seeder] Step 5/7: Seeding FAQ Items...");
+        var faqRes = await FaqItemSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        Console.WriteLine($"[PrintCraft Seeder] -> FAQ Items: {faqRes.TotalBefore} before | +{faqRes.Inserted} inserted | {faqRes.Updated} updated | {faqRes.TotalAfter} total");
+
+        Console.WriteLine("[PrintCraft Seeder] Step 6/7: Seeding FAQ Topics & Solutions...");
+        var topicRes = await FaqTopicSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        Console.WriteLine($"[PrintCraft Seeder] -> FAQ Topics: {topicRes.TotalBefore} before | +{topicRes.Inserted} inserted | {topicRes.Updated} updated | {topicRes.TotalAfter} total");
+
+        Console.WriteLine("[PrintCraft Seeder] Step 7/7: Seeding Dutch & Regional Cities...");
+        var cityRes = await CitySeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        Console.WriteLine($"[PrintCraft Seeder] -> Cities: {cityRes.TotalBefore} before | +{cityRes.Inserted} inserted | {cityRes.Updated} updated | {cityRes.TotalAfter} total");
 
         Console.WriteLine("====================================================================");
         Console.WriteLine("[PrintCraft Seeder] Standalone seeding completed successfully! Exiting.");
@@ -459,6 +471,9 @@ using (var scope = app.Services.CreateScope())
     await HeroSlideSeeder.EnsureDatabaseSeededAsync(db, forceReload);
     await EmailTemplateSeeder.EnsureDatabaseSeededAsync(db, forceReload);
     await FilamentSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+    await FaqItemSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+    await FaqTopicSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+    await CitySeeder.EnsureDatabaseSeededAsync(db, forceReload);
 }
 
 app.Run();
@@ -480,6 +495,12 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
     await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"GCodeFinalized\" boolean NOT NULL DEFAULT FALSE;");
     await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"HoldReason\" text NULL;");
     await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"FlaggedForRefundReview\" boolean NOT NULL DEFAULT FALSE;");
+
+    // Multilingual preferences & templates
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"Language\" text NOT NULL DEFAULT 'en';");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"PreferredLanguage\" text NOT NULL DEFAULT 'en';");
+    await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"EmailTemplates\" ADD COLUMN IF NOT EXISTS \"Language\" text NOT NULL DEFAULT 'en';");
+    await db.Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS \"IX_EmailTemplates_TemplateName_Language\" ON \"EmailTemplates\" (\"TemplateName\", \"Language\");");
 
     await db.Database.ExecuteSqlRawAsync(@"
         CREATE TABLE IF NOT EXISTS ""OrderItemChangeRequests"" (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import {
   ArrowRight,
@@ -17,6 +17,9 @@ import Footer from "./Footer";
 import NotFound from "./NotFound";
 import { useI18n } from "../i18n/I18nContext";
 import { dutchCities, getDutchCityBySlug, getCityName } from "../config/dutchCities";
+import { getCity } from "../services/api";
+import type { ManagedCity } from "../types/city";
+import { getLocalizedText } from "../utils/i18nHelpers";
 
 interface CityLandingPageProps {
   citySlug?: string;
@@ -27,6 +30,7 @@ export default function CityLandingPage({ citySlug: propSlug }: CityLandingPageP
   const location = useLocation();
   const { t, language, localizePath } = useI18n();
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [dynamicCity, setDynamicCity] = useState<ManagedCity | null>(null);
 
   // Robust slug extraction (prop -> params -> path parsing)
   let slug = propSlug || params.city;
@@ -38,14 +42,34 @@ export default function CityLandingPage({ citySlug: propSlug }: CityLandingPageP
     }
   }
 
-  const city = slug ? getDutchCityBySlug(slug) : undefined;
+  useEffect(() => {
+    if (!slug) return;
+    let isMounted = true;
+    getCity(slug)
+      .then((res) => {
+        if (isMounted && res) {
+          setDynamicCity(res);
+        }
+      })
+      .catch(() => {
+        // Fallback to static config
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [slug]);
 
-  if (!city) {
+  const fallbackCity = slug ? getDutchCityBySlug(slug) : undefined;
+
+  if (!dynamicCity && !fallbackCity) {
     return <NotFound />;
   }
 
-  const cityName = getCityName(city, language);
-  const otherCities = dutchCities.filter((c) => c.slug !== city.slug);
+  const cityName = dynamicCity
+    ? getLocalizedText(dynamicCity.names, language, dynamicCity.slug)
+    : (fallbackCity ? getCityName(fallbackCity, language) : "");
+  const activeSlug = dynamicCity?.slug || fallbackCity?.slug || "";
+  const otherCities = dutchCities.filter((c) => c.slug !== activeSlug);
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);

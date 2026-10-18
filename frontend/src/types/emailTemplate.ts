@@ -1,6 +1,7 @@
 export interface EmailTemplate {
   id: string;
   templateName: string;
+  language?: string;
   subject: string;
   body: string;
   isSystemTemplate?: boolean;

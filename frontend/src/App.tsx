@@ -66,6 +66,8 @@ const AdminHeroSlides = lazy(
 const AdminEmailTemplates = lazy(
   () => import("./components/admin/AdminEmailTemplates.tsx"),
 );
+const AdminFaq = lazy(() => import("./components/admin/AdminFaq.tsx"));
+const AdminCities = lazy(() => import("./components/admin/AdminCities.tsx"));
 const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy.tsx"));
 const TermsOfService = lazy(() => import("./components/TermsOfService.tsx"));
 const RefundPolicy = lazy(() => import("./components/RefundPolicy.tsx"));
@@ -262,7 +264,7 @@ function LegacyApplicationRedirect() {
   const preferred = resolveLanguage(stored);
   return (
     <Navigate
-      to={`/${preferred}/oplossingen/${slug || ""}${location.search}${location.hash}`}
+      to={`/${preferred}/faq/${slug || ""}${location.search}${location.hash}`}
       replace
     />
   );
@@ -335,8 +337,9 @@ export default function App() {
           <Route path="/:lang" element={<LanguageRouteGuard />}>
             <Route index element={<Home />} />
             <Route path="faq" element={<FAQ />} />
+            <Route path="faq/:slug" element={<ApplicationLandingPage />} />
+            <Route path="oplossingen/:slug" element={<LegacyApplicationRedirect />} />
             <Route path="3d-print-service/:city" element={<CityLandingPage />} />
-            <Route path="oplossingen/:slug" element={<ApplicationLandingPage />} />
             <Route path="privacy" element={<PrivacyPolicy />} />
             <Route path="terms" element={<TermsOfService />} />
             <Route path="refunds" element={<RefundPolicy />} />
@@ -460,6 +463,22 @@ export default function App() {
               element={
                 <AdminRoute>
                   <AdminEmailTemplates />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/faq"
+              element={
+                <AdminRoute>
+                  <AdminFaq />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/cities"
+              element={
+                <AdminRoute>
+                  <AdminCities />
                 </AdminRoute>
               }
             />

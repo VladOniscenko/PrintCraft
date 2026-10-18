@@ -18,6 +18,7 @@ public static class EmailTemplateSeeder
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
             TemplateName = "ResetPassword",
+            Language = "en",
             Subject = "Reset your PrintCraft password",
             Body = BuildCardHtmlTemplate(
                 badgeText: "Security &bull; Account",
@@ -37,6 +38,7 @@ public static class EmailTemplateSeeder
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
             TemplateName = "QuoteRequested",
+            Language = "en",
             Subject = "We received your quote request (Order #{{ShortOrderId}})",
             Body = BuildCardHtmlTemplate(
                 badgeText: "Quote Received &bull; #{{ShortOrderId}}",
@@ -54,6 +56,7 @@ public static class EmailTemplateSeeder
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
             TemplateName = "QuoteConfirmation",
+            Language = "en",
             Subject = "Your quote for order #{{ShortOrderId}} is ready",
             Body = BuildCardHtmlTemplate(
                 badgeText: "Quote Ready &bull; #{{ShortOrderId}}",
@@ -71,6 +74,7 @@ public static class EmailTemplateSeeder
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000004"),
             TemplateName = "QuoteConfirmationBankTransfer",
+            Language = "en",
             Subject = "Your quote for order #{{ShortOrderId}} is ready for review",
             Body = BuildCardHtmlTemplate(
                 badgeText: "Bank Transfer &bull; #{{ShortOrderId}}",
@@ -102,6 +106,7 @@ public static class EmailTemplateSeeder
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000005"),
             TemplateName = "OrderSentTracking",
+            Language = "en",
             Subject = "Your order #{{ShortOrderId}} has shipped",
             Body = BuildCardHtmlTemplate(
                 badgeText: "Shipped &bull; #{{ShortOrderId}}",
@@ -132,6 +137,7 @@ public static class EmailTemplateSeeder
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000006"),
             TemplateName = "OrderPaid",
+            Language = "en",
             Subject = "Payment confirmed for order #{{ShortOrderId}}",
             Body = BuildCardHtmlTemplate(
                 badgeText: "Payment Received &bull; #{{ShortOrderId}}",
@@ -151,6 +157,178 @@ public static class EmailTemplateSeeder
                     </tr>
                   </table>
                 """
+            )
+        },
+
+        // Dutch (NL) Translations
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000011"),
+            TemplateName = "ResetPassword",
+            Language = "nl",
+            Subject = "Stel je PrintCraft wachtwoord opnieuw in",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Beveiliging &bull; Account",
+                heading: "Wachtwoord Opnieuw Instellen",
+                introParagraph: "Hallo <strong>{{CustomerName}}</strong>, we hebben een verzoek ontvangen om je wachtwoord opnieuw in te stellen. Klik op de onderstaande knop om een nieuw wachtwoord te kiezen. Als je dit niet hebt aangevraagd, kun je deze e-mail veilig negeren.",
+                ctaText: "Wachtwoord Opnieuw Instellen &rarr;",
+                ctaUrlPlaceholder: "{{ResetLink}}",
+                badgeBg: "#f8fafc",
+                badgeBorder: "#e2e8f0",
+                badgeTextColor: "#334155",
+                ctaStyle: CtaButtonStyle.MassiveSecurity,
+                showDirectLink: false,
+                ctaSubtitle: "Deze link voor het opnieuw instellen van je wachtwoord verloopt over 2 uur. Als je dit niet hebt aangevraagd, is er geen actie vereist.",
+                footerQuestions: "Vragen over je account of wachtwoord?",
+                footerContact: "Neem contact op met ons team via",
+                footerCompany: "&copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL"
+            )
+        },
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000012"),
+            TemplateName = "QuoteRequested",
+            Language = "nl",
+            Subject = "We hebben je offerteaanvraag ontvangen (Bestelling #{{ShortOrderId}})",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Offerte Ontvangen &bull; #{{ShortOrderId}}",
+                heading: "Je 3D-bestanden worden beoordeeld",
+                introParagraph: "Hallo <strong>{{CustomerName}}</strong>, we hebben je offerteaanvraag ontvangen voor bestelling #<strong>{{ShortOrderId}}</strong>. Ons engineeringteam beoordeelt je bestanden, analyseert de printgeometrie en stelt je offerte op maat samen.",
+                ctaText: "Bestelstatus Bekijken &rarr;",
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                badgeBg: "#f1f5f9",
+                badgeBorder: "#cbd5e1",
+                badgeTextColor: "#475569",
+                ctaStyle: CtaButtonStyle.Ghost,
+                directLinkText: "Directe link:",
+                footerQuestions: "Vragen over je 3D-print of bestelspecificaties?",
+                footerContact: "Neem contact op met ons engineeringteam via",
+                footerCompany: "&copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL"
+            )
+        },
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000013"),
+            TemplateName = "QuoteConfirmation",
+            Language = "nl",
+            Subject = "Je offerte voor bestelling #{{ShortOrderId}} is gereed",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Offerte Gereed &bull; #{{ShortOrderId}}",
+                heading: "Je Offerte is Gereed",
+                introParagraph: "Hallo <strong>{{CustomerName}}</strong>, goed nieuws! Je offerte voor bestelling #<strong>{{ShortOrderId}}</strong> is gereed. Log in op je portaal om de specificaties te bekijken en de betaling veilig te voltooien.",
+                ctaText: "Offerte Bekijken &amp; Betalen &rarr;",
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                badgeBg: "#ecfdf5",
+                badgeBorder: "#a7f3d0",
+                badgeTextColor: "#047857",
+                detailBoxTitle: "Opmerking van het engineeringteam",
+                detailBoxHtml: "{{QuoteMessage}}",
+                directLinkText: "Directe link:",
+                footerQuestions: "Vragen over je 3D-print of bestelspecificaties?",
+                footerContact: "Neem contact op met ons engineeringteam via",
+                footerCompany: "&copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL"
+            )
+        },
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000014"),
+            TemplateName = "QuoteConfirmationBankTransfer",
+            Language = "nl",
+            Subject = "Je offerte voor bestelling #{{ShortOrderId}} is gereed voor beoordeling",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Bankoverschrijving &bull; #{{ShortOrderId}}",
+                heading: "Je Offerte is Gereed voor Beoordeling",
+                introParagraph: "Hallo <strong>{{CustomerName}}</strong>, goed nieuws! Je offerte voor bestelling #<strong>{{ShortOrderId}}</strong> is gereed. Betalingskenmerk: <strong style=\"color: #133827; font-family: monospace;\">{{PaymentReference}}</strong>. Bekijk de offerte en overschrijvingsinstructies in je klantportaal.",
+                ctaText: "Overschrijvingsinstructies Bekijken &rarr;",
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                badgeBg: "#fffbeb",
+                badgeBorder: "#fde68a",
+                badgeTextColor: "#b45309",
+                highlightBoxHtml: """
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ecfdf5; border-radius: 10px; border: 2px solid #059669; text-align: center; padding: 18px 20px;">
+                    <tr>
+                      <td align="center">
+                        <div style="font-size: 11px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;">
+                          Betalingskenmerk (Vermelden bij overschrijving)
+                        </div>
+                        <div style="font-size: 22px; font-weight: 800; color: #133827; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 2px;">
+                          {{PaymentReference}}
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                """,
+                detailBoxTitle: "Opmerking van het engineeringteam",
+                detailBoxHtml: "{{QuoteMessage}}",
+                directLinkText: "Directe link:",
+                footerQuestions: "Vragen over je 3D-print of bestelspecificaties?",
+                footerContact: "Neem contact op met ons engineeringteam via",
+                footerCompany: "&copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL"
+            )
+        },
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000015"),
+            TemplateName = "OrderSentTracking",
+            Language = "nl",
+            Subject = "Je bestelling #{{ShortOrderId}} is verzonden",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Verzonden &bull; #{{ShortOrderId}}",
+                heading: "Je 3D-print is Verzonden!",
+                introParagraph: "Hallo <strong>{{CustomerName}}</strong>, je bestelling #<strong>{{ShortOrderId}}</strong> is verzonden via PostNL! Track & Trace code: <strong style=\"color: #133827; font-family: monospace;\">{{TrackingCode}}</strong>.",
+                ctaText: "Volg Je Zending &rarr;",
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                badgeBg: "#eff6ff",
+                badgeBorder: "#bfdbfe",
+                badgeTextColor: "#1d4ed8",
+                highlightBoxHtml: """
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border-radius: 10px; border: 1.5px dashed #cbd5e1; text-align: center; padding: 18px 20px;">
+                    <tr>
+                      <td align="center">
+                        <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;">
+                          PostNL Track & Trace Nummer
+                        </div>
+                        <div style="font-size: 22px; font-weight: 800; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 2px;">
+                          {{TrackingCode}}
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                """,
+                directLinkText: "Directe link:",
+                footerQuestions: "Vragen over je 3D-print of bestelspecificaties?",
+                footerContact: "Neem contact op met ons engineeringteam via",
+                footerCompany: "&copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL"
+            )
+        },
+        new EmailTemplate
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000016"),
+            TemplateName = "OrderPaid",
+            Language = "nl",
+            Subject = "Betaling bevestigd voor bestelling #{{ShortOrderId}}",
+            Body = BuildCardHtmlTemplate(
+                badgeText: "Betaling Ontvangen &bull; #{{ShortOrderId}}",
+                heading: "Betaling Ontvangen — Print Ingewilligd!",
+                introParagraph: "Hallo <strong>{{CustomerName}}</strong>, we hebben je betaling voor bestelling #<strong>{{ShortOrderId}}</strong> succesvol ontvangen. Je 3D-modellen zijn ingepland voor productie.",
+                ctaText: "Voortgang Bekijken &rarr;",
+                ctaUrlPlaceholder: "{{OrderUrl}}",
+                badgeBg: "#ecfdf5",
+                badgeBorder: "#a7f3d0",
+                badgeTextColor: "#047857",
+                heroIconHtml: """
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto 12px auto;">
+                    <tr>
+                      <td align="center" style="width: 56px; height: 56px; background-color: #ecfdf5; border: 2px solid #a7f3d0; border-radius: 50%; text-align: center; vertical-align: middle;">
+                        <span style="font-size: 28px; line-height: 56px; color: #059669; font-weight: bold; display: block;">&#10003;</span>
+                      </td>
+                    </tr>
+                  </table>
+                """,
+                directLinkText: "Directe link:",
+                footerQuestions: "Vragen over je 3D-print of bestelspecificaties?",
+                footerContact: "Neem contact op met ons engineeringteam via",
+                footerCompany: "&copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL"
             )
         }
     };
@@ -181,7 +359,7 @@ public static class EmailTemplateSeeder
         foreach (var def in defaults)
         {
             var matches = existing
-                .Where(t => t.Id == def.Id || string.Equals(t.TemplateName.Trim(), def.TemplateName.Trim(), StringComparison.OrdinalIgnoreCase))
+                .Where(t => t.Id == def.Id || (string.Equals(t.TemplateName.Trim(), def.TemplateName.Trim(), StringComparison.OrdinalIgnoreCase) && string.Equals(t.Language?.Trim() ?? "en", def.Language.Trim(), StringComparison.OrdinalIgnoreCase)))
                 .ToList();
 
             if (matches.Count == 0)
@@ -196,6 +374,7 @@ public static class EmailTemplateSeeder
                     if (forceReload
                         || !string.Equals(match.Subject, def.Subject, StringComparison.Ordinal)
                         || !string.Equals(match.Body, def.Body, StringComparison.Ordinal)
+                        || !string.Equals(match.Language, def.Language, StringComparison.OrdinalIgnoreCase)
                         || match.Body.Contains("3D CAD / Slicing Preview")
                         || match.Body.Contains("RenderedImageUrl")
                         || match.Body.Contains("3D Render")
@@ -205,6 +384,7 @@ public static class EmailTemplateSeeder
                         || match.Body.Contains("precision pricing"))
                     {
                         match.TemplateName = def.TemplateName;
+                        match.Language = def.Language;
                         match.Subject = def.Subject;
                         match.Body = def.Body;
                         db.Entry(match).State = EntityState.Modified;
@@ -237,11 +417,21 @@ public static class EmailTemplateSeeder
         string? detailBoxHtml = null,
         CtaButtonStyle ctaStyle = CtaButtonStyle.Primary,
         bool showDirectLink = true,
-        string? ctaSubtitle = null)
+        string? ctaSubtitle = null,
+        string? detailBoxTitle = null,
+        string? directLinkText = null,
+        string? footerQuestions = null,
+        string? footerContact = null,
+        string? footerCompany = null)
     {
         badgeBg ??= "#ecfdf5";
         badgeBorder ??= "#a7f3d0";
         badgeTextColor ??= "#047857";
+        detailBoxTitle ??= "Engineering Team Note";
+        directLinkText ??= "Direct link:";
+        footerQuestions ??= "Questions about your 3D print or order specifications?";
+        footerContact ??= "Reach out to our engineering team at";
+        footerCompany ??= "&copy; Print My 3D &bull; Precision Additive Manufacturing &bull; Rotterdam, NL";
 
         var iconBlock = !string.IsNullOrWhiteSpace(heroIconHtml) ? $$$"""
           <!-- Hero Icon Section -->
@@ -269,7 +459,7 @@ public static class EmailTemplateSeeder
                 <tr>
                   <td>
                     <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;">
-                      Engineering Team Note
+                      {{{detailBoxTitle}}}
                     </div>
                     <div style="font-size: 14px; line-height: 22px; color: #334155; font-style: italic;">
                       {{{detailBoxHtml}}}
@@ -331,7 +521,7 @@ public static class EmailTemplateSeeder
         {
             ctaFooterMarkup = $$$"""
               <p style="margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;">
-                Direct link: <a href="{{{ctaUrlPlaceholder}}}" target="_blank" style="color: #0f766e; text-decoration: underline; word-break: break-all;">{{{ctaUrlPlaceholder}}}</a>
+                {{{directLinkText}}} <a href="{{{ctaUrlPlaceholder}}}" target="_blank" style="color: #0f766e; text-decoration: underline; word-break: break-all;">{{{ctaUrlPlaceholder}}}</a>
               </p>
             """;
         }
@@ -423,13 +613,13 @@ public static class EmailTemplateSeeder
                   <tr>
                     <td style="padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
                       <p style="margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;">
-                        Questions about your 3D print or order specifications?
+                        {{{footerQuestions}}}
                       </p>
                       <p style="margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;">
-                        Reach out to our engineering team at <a href="mailto:info@printmy3d.work" style="color: #0f766e; text-decoration: none; font-weight: 600;">info@printmy3d.work</a>.
+                        {{{footerContact}}} <a href="mailto:info@printmy3d.work" style="color: #0f766e; text-decoration: none; font-weight: 600;">info@printmy3d.work</a>.
                       </p>
                       <p style="margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;">
-                        &copy; Print My 3D &bull; Precision Additive Manufacturing &bull; Rotterdam, NL
+                        {{{footerCompany}}}
                       </p>
                     </td>
                   </tr>

@@ -73,7 +73,7 @@ export default function SolutionsGrid() {
 
               <div className="pt-5 mt-4">
                 <Link
-                  to={localizePath(`/oplossingen/${app.slug}`)}
+                  to={localizePath(`/faq/${app.slug}`)}
                   className="w-full site-btn-soft py-2.5 rounded-xl font-bold text-xs inline-flex items-center justify-center gap-2 group-hover:bg-emerald-700 group-hover:text-white transition-all shadow-sm"
                   aria-label={t("home.solutions.viewSpecific", {
                     name: getApplicationName(app, language),

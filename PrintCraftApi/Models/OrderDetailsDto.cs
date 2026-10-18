@@ -10,6 +10,7 @@ public class OrderDetailsDto
     public Guid Id { get; set; }
     public string Status { get; set; } = string.Empty;
     public string NormalizedStatus { get; set; } = string.Empty;
+    public string Language { get; set; } = "en";
     public bool IsPaid { get; set; }
     public string? HoldReason { get; set; }
     public bool FlaggedForRefundReview { get; set; }
@@ -79,6 +80,7 @@ public class OrderCustomerDetailsDto
     public string? AddressLine2 { get; set; }
     public string City { get; set; } = string.Empty;
     public string PostalCode { get; set; } = string.Empty;
+    public string PreferredLanguage { get; set; } = "en";
 }
 
 public class AdminOrderItemDto

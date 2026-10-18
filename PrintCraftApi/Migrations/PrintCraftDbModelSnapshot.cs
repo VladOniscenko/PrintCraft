@@ -120,6 +120,52 @@ namespace PrintCraftApi.Migrations
                     b.ToTable("OrderItemAttachments");
                 });
 
+            modelBuilder.Entity("PrintCraftApi.Models.City", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Names")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Province")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.HasIndex("IsActive", "SortOrder");
+
+                    b.ToTable("Cities");
+                });
+
             modelBuilder.Entity("PrintCraftApi.Models.EmailTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -127,6 +173,10 @@ namespace PrintCraftApi.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Language")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -146,45 +196,227 @@ namespace PrintCraftApi.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000001"),
-                            Body = "Hi {{CustomerName}},\n\nWe received a request to reset your password.\n\nReset link:\n{{ResetLink}}\n\nIf you did not request this, you can ignore this email.\n\n- PrintCraft",
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Reset Your Password</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{ResetLink}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n              \n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Security &bull; Account\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Reset Your Password\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hi <strong>{{CustomerName}}</strong>, we received a request to reset your password. Click the button below to choose a new password. If you did not request this, you can safely ignore this email.\n              </p>\n            </td>\n          </tr>\n\n          \n\n          \n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width: 440px; margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);\">\n        <a href=\"{{ResetLink}}\" target=\"_blank\" style=\"display: block; padding: 18px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37; text-align: center;\">\n          Reset My Password &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8; text-align: center;\">\n    This password reset link expires in 2 hours. If you did not request this, you can safely ignore this email.\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Questions about your 3D print or order specifications?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Reach out to our engineering team at <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precision Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "en",
                             Subject = "Reset your PrintCraft password",
                             TemplateName = "ResetPassword"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000002"),
-                            Body = "Hi {{CustomerName}},\n\nWe got your quote request (Order: {{OrderId}}).\n\nOur team will review your files and send pricing soon. You can check the status of your request anytime in your portal.\n\n- PrintCraft",
-                            Subject = "We received your quote request",
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Your 3D Files Are In Review</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n              \n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Quote Received &bull; #{{ShortOrderId}}\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Your 3D Files Are In Review\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hi <strong>{{CustomerName}}</strong>, we received your quote request for order #<strong>{{ShortOrderId}}</strong>. Our engineering team is reviewing your files, analyzing print geometry, and preparing your custom quote.\n              </p>\n            </td>\n          </tr>\n\n          \n\n          \n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #ffffff; border: 1.5px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);\">\n        <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"display: inline-block; padding: 14px 32px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; font-weight: 600; color: #334155; text-decoration: none; border-radius: 10px; letter-spacing: 0.2px;\">\n          Check Order Status &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;\">\n    Direct link: <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"color: #0f766e; text-decoration: underline; word-break: break-all;\">{{OrderUrl}}</a>\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Questions about your 3D print or order specifications?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Reach out to our engineering team at <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precision Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "en",
+                            Subject = "We received your quote request (Order #{{ShortOrderId}})",
                             TemplateName = "QuoteRequested"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000003"),
-                            Body = "Hi {{CustomerName}},\n\nGood news! Your quote for order {{OrderId}} is ready.\n\nPlease log in to your PrintCraft portal to view the price, read any notes from our team, and securely complete your payment.\n\n- PrintCraft",
-                            Subject = "Your quote is ready",
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Your Quote is Ready</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n              \n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #047857; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Quote Ready &bull; #{{ShortOrderId}}\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Your Quote is Ready\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Please log in to your portal to review the specifications and securely complete payment.\n              </p>\n            </td>\n          </tr>\n\n          \n\n            <!-- Extra Details / Engineering Note Box -->\n  <tr>\n    <td class=\"mobile-p-20\" style=\"padding: 0 40px 20px 40px;\">\n      <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f8fafc; border-radius: 8px; border-left: 4px solid #133827; padding: 14px 18px;\">\n        <tr>\n          <td>\n            <div style=\"font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;\">\n              Engineering Team Note\n            </div>\n            <div style=\"font-size: 14px; line-height: 22px; color: #334155; font-style: italic;\">\n              {{QuoteMessage}}\n            </div>\n          </td>\n        </tr>\n      </table>\n    </td>\n  </tr>\n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);\">\n        <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"display: inline-block; padding: 16px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37;\">\n          Review Quote &amp; Pay &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;\">\n    Direct link: <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"color: #0f766e; text-decoration: underline; word-break: break-all;\">{{OrderUrl}}</a>\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Questions about your 3D print or order specifications?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Reach out to our engineering team at <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precision Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "en",
+                            Subject = "Your quote for order #{{ShortOrderId}} is ready",
                             TemplateName = "QuoteConfirmation"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000004"),
-                            Body = "Hi {{CustomerName}},\n\nGood news! Your quote for order {{OrderId}} is ready.\n\nPlease log in to your PrintCraft portal to review the quote and get the bank transfer instructions to complete your payment.\n\nOnce your transfer is received, we will start production.\n\n- PrintCraft",
-                            Subject = "Your quote is ready for review",
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Your Quote is Ready for Review</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n              \n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #b45309; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Bank Transfer &bull; #{{ShortOrderId}}\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Your Quote is Ready for Review\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hi <strong>{{CustomerName}}</strong>, good news! Your quote for order #<strong>{{ShortOrderId}}</strong> is ready. Payment Reference: <strong style=\"color: #133827; font-family: monospace;\">{{PaymentReference}}</strong>. Please review the quote and bank transfer instructions in your customer portal.\n              </p>\n            </td>\n          </tr>\n\n            <!-- Highlight Callout Box -->\n  <tr>\n    <td class=\"mobile-p-20\" style=\"padding: 4px 40px 20px 40px;\">\n        <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #ecfdf5; border-radius: 10px; border: 2px solid #059669; text-align: center; padding: 18px 20px;\">\n    <tr>\n      <td align=\"center\">\n        <div style=\"font-size: 11px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;\">\n          Payment Reference (Include with Transfer)\n        </div>\n        <div style=\"font-size: 22px; font-weight: 800; color: #133827; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 2px;\">\n          {{PaymentReference}}\n        </div>\n      </td>\n    </tr>\n  </table>\n    </td>\n  </tr>\n\n            <!-- Extra Details / Engineering Note Box -->\n  <tr>\n    <td class=\"mobile-p-20\" style=\"padding: 0 40px 20px 40px;\">\n      <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f8fafc; border-radius: 8px; border-left: 4px solid #133827; padding: 14px 18px;\">\n        <tr>\n          <td>\n            <div style=\"font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;\">\n              Engineering Team Note\n            </div>\n            <div style=\"font-size: 14px; line-height: 22px; color: #334155; font-style: italic;\">\n              {{QuoteMessage}}\n            </div>\n          </td>\n        </tr>\n      </table>\n    </td>\n  </tr>\n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);\">\n        <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"display: inline-block; padding: 16px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37;\">\n          View Transfer Instructions &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;\">\n    Direct link: <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"color: #0f766e; text-decoration: underline; word-break: break-all;\">{{OrderUrl}}</a>\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Questions about your 3D print or order specifications?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Reach out to our engineering team at <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precision Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "en",
+                            Subject = "Your quote for order #{{ShortOrderId}} is ready for review",
                             TemplateName = "QuoteConfirmationBankTransfer"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000005"),
-                            Body = "Hi {{CustomerName}},\n\nYour order ({{OrderId}}) has been shipped!\n\nPlease log in to your PrintCraft portal to view your tracking number and shipping details.\n\nThanks for choosing PrintCraft.\n\n- PrintCraft",
-                            Subject = "Your order has shipped",
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Your 3D Part Has Shipped!</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n              \n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #1d4ed8; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Shipped &bull; #{{ShortOrderId}}\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Your 3D Part Has Shipped!\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hi <strong>{{CustomerName}}</strong>, your order #<strong>{{ShortOrderId}}</strong> has been dispatched via PostNL! Tracking Number: <strong style=\"color: #133827; font-family: monospace;\">{{TrackingCode}}</strong>.\n              </p>\n            </td>\n          </tr>\n\n            <!-- Highlight Callout Box -->\n  <tr>\n    <td class=\"mobile-p-20\" style=\"padding: 4px 40px 20px 40px;\">\n        <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f8fafc; border-radius: 10px; border: 1.5px dashed #cbd5e1; text-align: center; padding: 18px 20px;\">\n    <tr>\n      <td align=\"center\">\n        <div style=\"font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;\">\n          PostNL Tracking Number\n        </div>\n        <div style=\"font-size: 22px; font-weight: 800; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 2px;\">\n          {{TrackingCode}}\n        </div>\n      </td>\n    </tr>\n  </table>\n    </td>\n  </tr>\n\n          \n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);\">\n        <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"display: inline-block; padding: 16px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37;\">\n          Track Your Shipment &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;\">\n    Direct link: <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"color: #0f766e; text-decoration: underline; word-break: break-all;\">{{OrderUrl}}</a>\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Questions about your 3D print or order specifications?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Reach out to our engineering team at <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precision Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "en",
+                            Subject = "Your order #{{ShortOrderId}} has shipped",
                             TemplateName = "OrderSentTracking"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000006"),
-                            Body = "Hi {{CustomerName}},\n\nWe successfully received your payment for order {{OrderId}}.\n\nYour order is now confirmed and moving into production. You can track its progress at any time in your portal.\n\n- PrintCraft",
-                            Subject = "Payment received",
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Payment Received — Print Queued!</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n                <!-- Hero Icon Section -->\n  <tr>\n    <td align=\"center\" style=\"padding-bottom: 8px;\">\n        <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 12px auto;\">\n    <tr>\n      <td align=\"center\" style=\"width: 56px; height: 56px; background-color: #ecfdf5; border: 2px solid #a7f3d0; border-radius: 50%; text-align: center; vertical-align: middle;\">\n        <span style=\"font-size: 28px; line-height: 56px; color: #059669; font-weight: bold; display: block;\">&#10003;</span>\n      </td>\n    </tr>\n  </table>\n    </td>\n  </tr>\n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #047857; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Payment Received &bull; #{{ShortOrderId}}\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Payment Received — Print Queued!\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hi <strong>{{CustomerName}}</strong>, we successfully received your payment for order #<strong>{{ShortOrderId}}</strong>. Your 3D models have been scheduled for printing.\n              </p>\n            </td>\n          </tr>\n\n          \n\n          \n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);\">\n        <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"display: inline-block; padding: 16px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37;\">\n          View Order Progress &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;\">\n    Direct link: <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"color: #0f766e; text-decoration: underline; word-break: break-all;\">{{OrderUrl}}</a>\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Questions about your 3D print or order specifications?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Reach out to our engineering team at <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precision Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "en",
+                            Subject = "Payment confirmed for order #{{ShortOrderId}}",
+                            TemplateName = "OrderPaid"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000011"),
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Wachtwoord Opnieuw Instellen</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{ResetLink}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n              \n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Beveiliging &bull; Account\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Wachtwoord Opnieuw Instellen\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hallo <strong>{{CustomerName}}</strong>, we hebben een verzoek ontvangen om je wachtwoord opnieuw in te stellen. Klik op de onderstaande knop om een nieuw wachtwoord te kiezen. Als je dit niet hebt aangevraagd, kun je deze e-mail veilig negeren.\n              </p>\n            </td>\n          </tr>\n\n          \n\n          \n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width: 440px; margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);\">\n        <a href=\"{{ResetLink}}\" target=\"_blank\" style=\"display: block; padding: 18px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37; text-align: center;\">\n          Wachtwoord Opnieuw Instellen &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8; text-align: center;\">\n    Deze link voor het opnieuw instellen van je wachtwoord verloopt over 2 uur. Als je dit niet hebt aangevraagd, is er geen actie vereist.\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Vragen over je account of wachtwoord?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Neem contact op met ons team via <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "nl",
+                            Subject = "Stel je PrintCraft wachtwoord opnieuw in",
+                            TemplateName = "ResetPassword"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000012"),
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Je 3D-bestanden worden beoordeeld</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n              \n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Offerte Ontvangen &bull; #{{ShortOrderId}}\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Je 3D-bestanden worden beoordeeld\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hallo <strong>{{CustomerName}}</strong>, we hebben je offerteaanvraag ontvangen voor bestelling #<strong>{{ShortOrderId}}</strong>. Ons engineeringteam beoordeelt je bestanden, analyseert de printgeometrie en stelt je offerte op maat samen.\n              </p>\n            </td>\n          </tr>\n\n          \n\n          \n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #ffffff; border: 1.5px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);\">\n        <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"display: inline-block; padding: 14px 32px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; font-weight: 600; color: #334155; text-decoration: none; border-radius: 10px; letter-spacing: 0.2px;\">\n          Bestelstatus Bekijken &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;\">\n    Directe link: <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"color: #0f766e; text-decoration: underline; word-break: break-all;\">{{OrderUrl}}</a>\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Vragen over je 3D-print of bestelspecificaties?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Neem contact op met ons engineeringteam via <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "nl",
+                            Subject = "We hebben je offerteaanvraag ontvangen (Bestelling #{{ShortOrderId}})",
+                            TemplateName = "QuoteRequested"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000013"),
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Je Offerte is Gereed</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n              \n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #047857; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Offerte Gereed &bull; #{{ShortOrderId}}\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Je Offerte is Gereed\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hallo <strong>{{CustomerName}}</strong>, goed nieuws! Je offerte voor bestelling #<strong>{{ShortOrderId}}</strong> is gereed. Log in op je portaal om de specificaties te bekijken en de betaling veilig te voltooien.\n              </p>\n            </td>\n          </tr>\n\n          \n\n            <!-- Extra Details / Engineering Note Box -->\n  <tr>\n    <td class=\"mobile-p-20\" style=\"padding: 0 40px 20px 40px;\">\n      <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f8fafc; border-radius: 8px; border-left: 4px solid #133827; padding: 14px 18px;\">\n        <tr>\n          <td>\n            <div style=\"font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;\">\n              Opmerking van het engineeringteam\n            </div>\n            <div style=\"font-size: 14px; line-height: 22px; color: #334155; font-style: italic;\">\n              {{QuoteMessage}}\n            </div>\n          </td>\n        </tr>\n      </table>\n    </td>\n  </tr>\n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);\">\n        <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"display: inline-block; padding: 16px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37;\">\n          Offerte Bekijken &amp; Betalen &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;\">\n    Directe link: <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"color: #0f766e; text-decoration: underline; word-break: break-all;\">{{OrderUrl}}</a>\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Vragen over je 3D-print of bestelspecificaties?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Neem contact op met ons engineeringteam via <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "nl",
+                            Subject = "Je offerte voor bestelling #{{ShortOrderId}} is gereed",
+                            TemplateName = "QuoteConfirmation"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000014"),
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Je Offerte is Gereed voor Beoordeling</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n              \n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #b45309; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Bankoverschrijving &bull; #{{ShortOrderId}}\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Je Offerte is Gereed voor Beoordeling\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hallo <strong>{{CustomerName}}</strong>, goed nieuws! Je offerte voor bestelling #<strong>{{ShortOrderId}}</strong> is gereed. Betalingskenmerk: <strong style=\"color: #133827; font-family: monospace;\">{{PaymentReference}}</strong>. Bekijk de offerte en overschrijvingsinstructies in je klantportaal.\n              </p>\n            </td>\n          </tr>\n\n            <!-- Highlight Callout Box -->\n  <tr>\n    <td class=\"mobile-p-20\" style=\"padding: 4px 40px 20px 40px;\">\n        <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #ecfdf5; border-radius: 10px; border: 2px solid #059669; text-align: center; padding: 18px 20px;\">\n    <tr>\n      <td align=\"center\">\n        <div style=\"font-size: 11px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;\">\n          Betalingskenmerk (Vermelden bij overschrijving)\n        </div>\n        <div style=\"font-size: 22px; font-weight: 800; color: #133827; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 2px;\">\n          {{PaymentReference}}\n        </div>\n      </td>\n    </tr>\n  </table>\n    </td>\n  </tr>\n\n            <!-- Extra Details / Engineering Note Box -->\n  <tr>\n    <td class=\"mobile-p-20\" style=\"padding: 0 40px 20px 40px;\">\n      <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f8fafc; border-radius: 8px; border-left: 4px solid #133827; padding: 14px 18px;\">\n        <tr>\n          <td>\n            <div style=\"font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;\">\n              Opmerking van het engineeringteam\n            </div>\n            <div style=\"font-size: 14px; line-height: 22px; color: #334155; font-style: italic;\">\n              {{QuoteMessage}}\n            </div>\n          </td>\n        </tr>\n      </table>\n    </td>\n  </tr>\n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);\">\n        <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"display: inline-block; padding: 16px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37;\">\n          Overschrijvingsinstructies Bekijken &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;\">\n    Directe link: <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"color: #0f766e; text-decoration: underline; word-break: break-all;\">{{OrderUrl}}</a>\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Vragen over je 3D-print of bestelspecificaties?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Neem contact op met ons engineeringteam via <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "nl",
+                            Subject = "Je offerte voor bestelling #{{ShortOrderId}} is gereed voor beoordeling",
+                            TemplateName = "QuoteConfirmationBankTransfer"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000015"),
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Je 3D-print is Verzonden!</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n              \n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #1d4ed8; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Verzonden &bull; #{{ShortOrderId}}\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Je 3D-print is Verzonden!\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hallo <strong>{{CustomerName}}</strong>, je bestelling #<strong>{{ShortOrderId}}</strong> is verzonden via PostNL! Track & Trace code: <strong style=\"color: #133827; font-family: monospace;\">{{TrackingCode}}</strong>.\n              </p>\n            </td>\n          </tr>\n\n            <!-- Highlight Callout Box -->\n  <tr>\n    <td class=\"mobile-p-20\" style=\"padding: 4px 40px 20px 40px;\">\n        <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f8fafc; border-radius: 10px; border: 1.5px dashed #cbd5e1; text-align: center; padding: 18px 20px;\">\n    <tr>\n      <td align=\"center\">\n        <div style=\"font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;\">\n          PostNL Track & Trace Nummer\n        </div>\n        <div style=\"font-size: 22px; font-weight: 800; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 2px;\">\n          {{TrackingCode}}\n        </div>\n      </td>\n    </tr>\n  </table>\n    </td>\n  </tr>\n\n          \n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);\">\n        <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"display: inline-block; padding: 16px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37;\">\n          Volg Je Zending &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;\">\n    Directe link: <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"color: #0f766e; text-decoration: underline; word-break: break-all;\">{{OrderUrl}}</a>\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Vragen over je 3D-print of bestelspecificaties?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Neem contact op met ons engineeringteam via <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "nl",
+                            Subject = "Je bestelling #{{ShortOrderId}} is verzonden",
+                            TemplateName = "OrderSentTracking"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000016"),
+                            Body = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\">\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"x-apple-disable-message-reformatting\" />\n  <title>Betaling Ontvangen — Print Ingewilligd!</title>\n  <!--[if mso]>\n  <noscript>\n    <xml>\n      <o:OfficeDocumentSettings>\n        <o:PixelsPerInch>96</o:PixelsPerInch>\n      </o:OfficeDocumentSettings>\n    </xml>\n  </noscript>\n  <![endif]-->\n  <style type=\"text/css\">\n    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }\n    body { margin: 0; padding: 0; width: 100% !important; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }\n    @media only screen and (max-width: 620px) {\n      .email-container { width: 100% !important; max-width: 100% !important; }\n      .mobile-p-20 { padding-left: 20px !important; padding-right: 20px !important; }\n      .mobile-pt-24 { padding-top: 24px !important; }\n      .meta-column { display: block !important; width: 100% !important; padding-bottom: 12px !important; }\n    }\n  </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b;\">\n  <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background-color: #f1f5f9; table-layout: fixed;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 16px 40px 16px;\">\n        <table role=\"presentation\" class=\"email-container\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); overflow: hidden;\">\n          \n          <!-- Brand Header with Logo -->\n          <tr>\n            <td align=\"center\" style=\"padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9;\">\n              <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"text-decoration: none; display: inline-block;\">\n                <img src=\"{{LogoUrl}}\" alt=\"Print My 3D\" width=\"160\" height=\"42\" style=\"display: block; max-width: 180px; height: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; color: #133827; letter-spacing: -0.5px;\" />\n              </a>\n            </td>\n          </tr>\n\n          <!-- Status Badge & Greeting Section -->\n          <tr>\n            <td class=\"mobile-p-20 mobile-pt-24\" style=\"padding: 32px 40px 16px 40px; text-align: center;\">\n                <!-- Hero Icon Section -->\n  <tr>\n    <td align=\"center\" style=\"padding-bottom: 8px;\">\n        <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 12px auto;\">\n    <tr>\n      <td align=\"center\" style=\"width: 56px; height: 56px; background-color: #ecfdf5; border: 2px solid #a7f3d0; border-radius: 50%; text-align: center; vertical-align: middle;\">\n        <span style=\"font-size: 28px; line-height: 56px; color: #059669; font-weight: bold; display: block;\">&#10003;</span>\n      </td>\n    </tr>\n  </table>\n    </td>\n  </tr>\n              <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto 16px auto;\">\n                <tr>\n                  <td style=\"background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 9999px; padding: 6px 16px; text-align: center;\">\n                    <span style=\"font-size: 12px; font-weight: 700; color: #047857; text-transform: uppercase; letter-spacing: 0.8px;\">\n                      Betaling Ontvangen &bull; #{{ShortOrderId}}\n                    </span>\n                  </td>\n                </tr>\n              </table>\n              <h1 style=\"margin: 0 0 12px 0; font-size: 24px; line-height: 32px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;\">\n                Betaling Ontvangen — Print Ingewilligd!\n              </h1>\n              <p style=\"margin: 0; font-size: 15px; line-height: 24px; color: #475569;\">\n                Hallo <strong>{{CustomerName}}</strong>, we hebben je betaling voor bestelling #<strong>{{ShortOrderId}}</strong> succesvol ontvangen. Je 3D-modellen zijn ingepland voor productie.\n              </p>\n            </td>\n          </tr>\n\n          \n\n          \n\n          <!-- Action Area (CTA) -->\n          <tr>\n            <td class=\"mobile-p-20\" style=\"padding: 12px 40px 32px 40px; text-align: center;\">\n                <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"margin: 0 auto;\">\n    <tr>\n      <td align=\"center\" style=\"border-radius: 10px; background-color: #133827; box-shadow: 0 4px 14px rgba(19, 56, 39, 0.35);\">\n        <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"display: inline-block; padding: 16px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 10px; letter-spacing: 0.3px; border: 1px solid #1c4f37;\">\n          Voortgang Bekijken &rarr;\n        </a>\n      </td>\n    </tr>\n  </table>\n                <p style=\"margin: 14px 0 0 0; font-size: 12px; line-height: 18px; color: #94a3b8;\">\n    Directe link: <a href=\"{{OrderUrl}}\" target=\"_blank\" style=\"color: #0f766e; text-decoration: underline; word-break: break-all;\">{{OrderUrl}}</a>\n  </p>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;\">\n              <p style=\"margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #475569;\">\n                Vragen over je 3D-print of bestelspecificaties?\n              </p>\n              <p style=\"margin: 0 0 14px 0; font-size: 12px; color: #64748b; line-height: 18px;\">\n                Neem contact op met ons engineeringteam via <a href=\"mailto:info@printmy3d.work\" style=\"color: #0f766e; text-decoration: none; font-weight: 600;\">info@printmy3d.work</a>.\n              </p>\n              <p style=\"margin: 0; font-size: 11px; color: #94a3b8; line-height: 16px;\">\n                &copy; Print My 3D &bull; Precisie Additive Manufacturing &bull; Rotterdam, NL\n              </p>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+                            Language = "nl",
+                            Subject = "Betaling bevestigd voor bestelling #{{ShortOrderId}}",
                             TemplateName = "OrderPaid"
                         });
+                });
+
+            modelBuilder.Entity("PrintCraftApi.Models.FaqItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive", "SortOrder");
+
+                    b.ToTable("FaqItems");
+                });
+
+            modelBuilder.Entity("PrintCraftApi.Models.FaqTopic", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Badge")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Benefits")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Faqs")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("HeroSubtitle")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("HeroTitle")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Key")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LeadTime")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MetaDescription")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MetaKeywords")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MetaTitle")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Names")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Precision")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RecommendedMaterials")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Tagline")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.HasIndex("IsActive", "SortOrder");
+
+                    b.ToTable("FaqTopics");
                 });
 
             modelBuilder.Entity("PrintCraftApi.Models.Filament", b =>
@@ -220,6 +452,338 @@ namespace PrintCraftApi.Migrations
                     b.HasIndex("Material", "Color");
 
                     b.ToTable("Filaments");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000201"),
+                            Color = "Beige",
+                            Description = "Standard beige PLA for architectural models and natural aesthetic prints.",
+                            Material = "PLA",
+                            Name = "PLA Beige",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000202"),
+                            Color = "Black",
+                            Description = "Standard baseline PLA in black for general prototypes and display models.",
+                            Material = "PLA",
+                            Name = "PLA Black",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 5000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000203"),
+                            Color = "Blue",
+                            Description = "Standard primary blue PLA with bright color saturation for everyday 3D prints.",
+                            Material = "PLA",
+                            Name = "PLA Blue",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 3000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000204"),
+                            Color = "Brown",
+                            Description = "Standard brown PLA, optimal for earth-toned models, wood-look parts, and figurines.",
+                            Material = "PLA",
+                            Name = "PLA Brown",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000205"),
+                            Color = "Clear",
+                            Description = "Natural translucent clear PLA for light diffusion and semi-transparent models.",
+                            Material = "PLA",
+                            Name = "PLA Clear",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2500
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000206"),
+                            Color = "Green",
+                            Description = "Standard primary green PLA, great for outdoor accessories, plant holders, and decorative prints.",
+                            Material = "PLA",
+                            Name = "PLA Green",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2500
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000207"),
+                            Color = "Grey",
+                            Description = "Standard neutral grey PLA, perfect for technical prototypes and dimensional fit checks.",
+                            Material = "PLA",
+                            Name = "PLA Grey",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 4000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000208"),
+                            Color = "Light Blue",
+                            Description = "Standard light blue PLA with clean contrast and sharp overhang bridging capabilities.",
+                            Material = "PLA",
+                            Name = "PLA Light Blue",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000209"),
+                            Color = "Multicolor",
+                            Description = "Multi-color gradient PLA for artistic prints, vases, and decorative pieces.",
+                            Material = "PLA",
+                            Name = "PLA Multicolor",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000210"),
+                            Color = "Navy",
+                            Description = "Standard deep navy blue PLA for professional, high-contrast parts.",
+                            Material = "PLA",
+                            Name = "PLA Navy",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2500
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000211"),
+                            Color = "Orange",
+                            Description = "Standard bright orange PLA, popular for high-visibility markers and accents.",
+                            Material = "PLA",
+                            Name = "PLA Orange",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2500
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000212"),
+                            Color = "Pink",
+                            Description = "Standard pink PLA, great for toys, customized gifts, and artistic models.",
+                            Material = "PLA",
+                            Name = "PLA Pink",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000213"),
+                            Color = "Purple",
+                            Description = "Standard vibrant purple PLA for figurines, tokens, and creative designs.",
+                            Material = "PLA",
+                            Name = "PLA Purple",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000214"),
+                            Color = "Red",
+                            Description = "Standard primary red PLA offering bold color saturation for mechanical and display parts.",
+                            Material = "PLA",
+                            Name = "PLA Red",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 3000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000215"),
+                            Color = "Teal",
+                            Description = "Standard teal PLA, combining cyan and green tones for modern decorative prints.",
+                            Material = "PLA",
+                            Name = "PLA Teal",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000216"),
+                            Color = "White",
+                            Description = "Standard clean white PLA, perfect for painting, architectural mockups, and display pieces.",
+                            Material = "PLA",
+                            Name = "PLA White",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 5000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000217"),
+                            Color = "Yellow",
+                            Description = "Standard bright yellow PLA with high opacity for signs, visual models, and accents.",
+                            Material = "PLA",
+                            Name = "PLA Yellow",
+                            PricePerGram = 0.04m,
+                            StockQuantity = 2500
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000218"),
+                            Color = "Beige",
+                            Description = "Specialty beige PETG offering high impact resistance and thermal stability for functional parts.",
+                            Material = "PETG",
+                            Name = "PETG Beige",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 2000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000219"),
+                            Color = "Black",
+                            Description = "Universal baseline black PETG. Tough, UV-resistant, and heat-tolerant up to 75°C.",
+                            Material = "PETG",
+                            Name = "PETG Black",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 5000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000220"),
+                            Color = "Blue",
+                            Description = "Standard blue PETG designed for durable outdoor gear, brackets, and protective casings.",
+                            Material = "PETG",
+                            Name = "PETG Blue",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 3000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000221"),
+                            Color = "Brown",
+                            Description = "Standard brown PETG for functional outdoor mounts and mechanical fittings.",
+                            Material = "PETG",
+                            Name = "PETG Brown",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 1500
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000222"),
+                            Color = "Clear",
+                            Description = "Transparent clear PETG with superior layer adhesion for fluid tanks, light diffusers, and covers.",
+                            Material = "PETG",
+                            Name = "PETG Clear",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 4000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000223"),
+                            Color = "Green",
+                            Description = "Standard green PETG with high ductility, excellent for functional mechanical parts and clips.",
+                            Material = "PETG",
+                            Name = "PETG Green",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 2000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000224"),
+                            Color = "Grey",
+                            Description = "Universal baseline grey PETG with high tensile strength for workshop fixtures and machinery jigs.",
+                            Material = "PETG",
+                            Name = "PETG Grey",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 4000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000225"),
+                            Color = "Light Blue",
+                            Description = "Standard light blue PETG offering weather resistance and high impact strength.",
+                            Material = "PETG",
+                            Name = "PETG Light Blue",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 2000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000226"),
+                            Color = "Navy",
+                            Description = "Deep navy PETG with chemical resistance for automotive trim and industrial housings.",
+                            Material = "PETG",
+                            Name = "PETG Navy",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 2500
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000227"),
+                            Color = "Orange",
+                            Description = "Rugged orange PETG with excellent fatigue resistance for utility brackets and outdoor mounts.",
+                            Material = "PETG",
+                            Name = "PETG Orange",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 2500
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000228"),
+                            Color = "Pink",
+                            Description = "Standard pink PETG combining high impact resistance with vibrant color.",
+                            Material = "PETG",
+                            Name = "PETG Pink",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 1500
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000229"),
+                            Color = "Purple",
+                            Description = "Standard purple PETG for durable consumer products and impact-resistant casings.",
+                            Material = "PETG",
+                            Name = "PETG Purple",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 1500
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000230"),
+                            Color = "Red",
+                            Description = "Standard impact-proof red PETG for heavy-duty automotive brackets and utility levers.",
+                            Material = "PETG",
+                            Name = "PETG Red",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 3000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000231"),
+                            Color = "Teal",
+                            Description = "Specialty teal PETG for durable consumer product prototypes and waterproof enclosures.",
+                            Material = "PETG",
+                            Name = "PETG Teal",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 2000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000232"),
+                            Color = "White",
+                            Description = "Universal baseline white PETG for weather-proof outdoor brackets and sensor enclosures.",
+                            Material = "PETG",
+                            Name = "PETG White",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 5000
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000233"),
+                            Color = "Yellow",
+                            Description = "Heavy-duty safety yellow PETG engineered for high visibility, wear resistance, and outdoor longevity.",
+                            Material = "PETG",
+                            Name = "PETG Yellow",
+                            PricePerGram = 0.05m,
+                            StockQuantity = 2500
+                        });
                 });
 
             modelBuilder.Entity("PrintCraftApi.Models.HeroSlide", b =>
@@ -443,6 +1007,10 @@ namespace PrintCraftApi.Migrations
                     b.Property<bool>("IsPaid")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<decimal>("OrderDiscountAmount")
                         .HasColumnType("numeric");
 
@@ -542,6 +1110,75 @@ namespace PrintCraftApi.Migrations
                     b.HasIndex("OrderId", "SentAt");
 
                     b.ToTable("OrderCommunications");
+                });
+
+            modelBuilder.Entity("PrintCraftApi.Models.OrderItemChangeRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AdminNotes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomerNotes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrderItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PreviousFileName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PreviousFileUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReasonCategory")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RequestedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("RequiresNewFile")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ResolutionNotes")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ResolvedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SubmittedFileName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubmittedFileUrl")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId", "RequestedAt");
+
+                    b.HasIndex("OrderItemId", "Status");
+
+                    b.ToTable("OrderItemChangeRequests");
                 });
 
             modelBuilder.Entity("PrintCraftApi.Models.OrderNote", b =>
@@ -752,6 +1389,10 @@ namespace PrintCraftApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PreferredLanguage")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
@@ -903,6 +1544,25 @@ namespace PrintCraftApi.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PrintCraftApi.Models.OrderItemChangeRequest", b =>
+                {
+                    b.HasOne("PrintCraftApi.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OrderItem", "OrderItem")
+                        .WithMany("ChangeRequests")
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("OrderItem");
+                });
+
             modelBuilder.Entity("PrintCraftApi.Models.OrderNote", b =>
                 {
                     b.HasOne("PrintCraftApi.Models.Order", "Order")
@@ -948,6 +1608,8 @@ namespace PrintCraftApi.Migrations
             modelBuilder.Entity("OrderItem", b =>
                 {
                     b.Navigation("Attachments");
+
+                    b.Navigation("ChangeRequests");
                 });
 
             modelBuilder.Entity("PrintCraftApi.Models.Order", b =>

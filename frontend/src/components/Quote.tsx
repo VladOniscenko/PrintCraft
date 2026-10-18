@@ -274,7 +274,7 @@ interface SavedAddress {
 }
 
 export default function Quote() {
-  const { t, localizePath } = useI18n();
+  const { t, localizePath, language } = useI18n();
   const { notifyError, notifySuccess } = useNotify();
   const navigate = useNavigate();
 
@@ -493,6 +493,7 @@ export default function Quote() {
         name: normalizedName,
         email: normalizedEmail,
         password: password,
+        preferredLanguage: language,
       });
 
       // 2. Automatically log the user in
@@ -1779,6 +1780,7 @@ export default function Quote() {
         shippingPostalCode: shippingDetails.postalCode,
         agreementAccepted,
         agreementVersion: "2026-09-23",
+        language,
       };
 
       if (!isLoggedIn) {

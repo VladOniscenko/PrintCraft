@@ -59,7 +59,7 @@
       "identifier": "urn:air:printmy3d.work:service:replacementParts",
       "displayName": "Vervangende Onderdelen Printen",
       "type": "text/html",
-      "url": "https://printmy3d.work/nl/oplossingen/vervangende-onderdelen-printen",
+      "url": "https://printmy3d.work/nl/faq/vervangende-onderdelen-printen",
       "description": "Voorkom het vervangen van complete apparaten door één enkel defect onderdeel. Met 3D-printen en reverse engineering maken we exacte replica's van gebroken kunststof tandwielen, behuizingsklemmen, handgrepen en industriële reserveonderdelen.",
       "representativeQueries": [
         "Kapot plastic onderdeel namaken of reserveonderdelen 3D-printen",
@@ -72,7 +72,7 @@
       "identifier": "urn:air:printmy3d.work:service:enclosures",
       "displayName": "Elektronica Behuizingen op Maat",
       "type": "text/html",
-      "url": "https://printmy3d.work/nl/oplossingen/elektronica-behuizingen-op-maat",
+      "url": "https://printmy3d.work/nl/faq/elektronica-behuizingen-op-maat",
       "description": "Standaard behuizingen passen zelden exact. Met 3D-printen produceren we op maat gemaakte behuizingen inclusief kabeldoorvoeren, display-uitsparingen, ventilatiesleuven en montagelippen in vlamvertragende of hittebestendige materialen.",
       "representativeQueries": [
         "Maatwerk PCB casings, sensor mounts en DIN-rail behuizingen",
@@ -85,7 +85,7 @@
       "identifier": "urn:air:printmy3d.work:service:jigsFixtures",
       "displayName": "Mallen, Kalibers & Jigs Fixtures",
       "type": "text/html",
-      "url": "https://printmy3d.work/nl/oplossingen/mallen-kalibers-jigs-fixtures",
+      "url": "https://printmy3d.work/nl/faq/mallen-kalibers-jigs-fixtures",
       "description": "Traditioneel frezen van productiemallen vergt vaak weken aan doorlooptijd. Met onze industriële 3D-print service produceren we direct slijtvaste mallen, laskalibers en montagesjablonen in PETG met ±0.1mm nauwkeurigheid.",
       "representativeQueries": [
         "Productiegereedschap, montagemallen en boorkalibers voor werkplaats en fabriek",
@@ -98,7 +98,7 @@
       "identifier": "urn:air:printmy3d.work:service:prototyping",
       "displayName": "Rapid Prototyping Kunststof",
       "type": "text/html",
-      "url": "https://printmy3d.work/nl/oplossingen/rapid-prototyping-kunststof",
+      "url": "https://printmy3d.work/nl/faq/rapid-prototyping-kunststof",
       "description": "Van eerste vormstudie tot mechanisch geteste nulserie: onze FDM rapid prototyping service ondersteunt ingenieursbureaus, startup hardware-ontwikkelaars en machinebouwers met snelle iteraties en zakelijke facturatie.",
       "representativeQueries": [
         "Functionele prototypes, CAD/STEP validatie en nulserie pre-productie",

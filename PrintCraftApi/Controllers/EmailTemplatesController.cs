@@ -62,6 +62,7 @@ public class EmailTemplatesController : ControllerBase
     public sealed class CreateEmailTemplateRequest
     {
         public string TemplateName { get; set; } = string.Empty;
+        public string Language { get; set; } = "en";
         public string Subject { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
     }
@@ -69,6 +70,7 @@ public class EmailTemplatesController : ControllerBase
     public sealed class UpdateEmailTemplateRequest
     {
         public string TemplateName { get; set; } = string.Empty;
+        public string Language { get; set; } = "en";
         public string Subject { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
     }
@@ -98,6 +100,7 @@ public class EmailTemplatesController : ControllerBase
     {
         public Guid Id { get; set; }
         public string TemplateName { get; set; } = string.Empty;
+        public string Language { get; set; } = "en";
         public string Subject { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
         public bool IsSystemTemplate { get; set; }
@@ -108,17 +111,25 @@ public class EmailTemplatesController : ControllerBase
     /// Gets all email templates.
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetAll([FromQuery] string? language = null, CancellationToken cancellationToken = default)
     {
-        var templates = await _db.EmailTemplates
-            .AsNoTracking()
+        var query = _db.EmailTemplates.AsNoTracking().AsQueryable();
+        if (!string.IsNullOrWhiteSpace(language))
+        {
+            var cleanLang = language.Trim().ToLowerInvariant();
+            query = query.Where(t => t.Language == cleanLang);
+        }
+
+        var templates = await query
             .OrderBy(t => t.TemplateName)
+            .ThenBy(t => t.Language)
             .ToListAsync(cancellationToken);
 
         var dtos = templates.Select(t => new EmailTemplateDto
         {
             Id = t.Id,
             TemplateName = t.TemplateName,
+            Language = t.Language,
             Subject = t.Subject,
             Body = t.Body,
             IsSystemTemplate = SystemTemplateNames.Contains(t.TemplateName),
@@ -145,6 +156,7 @@ public class EmailTemplatesController : ControllerBase
         {
             Id = template.Id,
             TemplateName = template.TemplateName,
+            Language = template.Language,
             Subject = template.Subject,
             Body = template.Body,
             IsSystemTemplate = SystemTemplateNames.Contains(template.TemplateName),
@@ -163,6 +175,7 @@ public class EmailTemplatesController : ControllerBase
         var cleanName = (request.TemplateName ?? "").Trim();
         var cleanSubject = (request.Subject ?? "").Trim();
         var cleanBody = (request.Body ?? "").Trim();
+        var lang = string.Equals(request.Language?.Trim(), "nl", StringComparison.OrdinalIgnoreCase) ? "nl" : "en";
 
         if (string.IsNullOrWhiteSpace(cleanName))
             return BadRequest(new { message = "Template name is required." });
@@ -178,16 +191,17 @@ public class EmailTemplatesController : ControllerBase
 
         var lowerName = cleanName.ToLower();
         var exists = await _db.EmailTemplates.AnyAsync(
-            t => t.TemplateName.ToLower() == lowerName,
+            t => t.TemplateName.ToLower() == lowerName && t.Language == lang,
             cancellationToken);
 
         if (exists)
-            return BadRequest(new { message = $"A template with name '{cleanName}' already exists." });
+            return BadRequest(new { message = $"A template with name '{cleanName}' and language '{lang}' already exists." });
 
         var template = new EmailTemplate
         {
             Id = Guid.NewGuid(),
             TemplateName = cleanName,
+            Language = lang,
             Subject = cleanSubject,
             Body = cleanBody
         };
@@ -199,6 +213,7 @@ public class EmailTemplatesController : ControllerBase
         {
             Id = template.Id,
             TemplateName = template.TemplateName,
+            Language = template.Language,
             Subject = template.Subject,
             Body = template.Body,
             IsSystemTemplate = SystemTemplateNames.Contains(template.TemplateName),
@@ -221,6 +236,7 @@ public class EmailTemplatesController : ControllerBase
         var cleanName = (request.TemplateName ?? "").Trim();
         var cleanSubject = (request.Subject ?? "").Trim();
         var cleanBody = (request.Body ?? "").Trim();
+        var lang = string.Equals(request.Language?.Trim(), "nl", StringComparison.OrdinalIgnoreCase) ? "nl" : "en";
 
         if (string.IsNullOrWhiteSpace(cleanName))
             return BadRequest(new { message = "Template name is required." });
@@ -242,13 +258,14 @@ public class EmailTemplatesController : ControllerBase
 
         var lowerName = cleanName.ToLower();
         var duplicateName = await _db.EmailTemplates.AnyAsync(
-            t => t.Id != id && t.TemplateName.ToLower() == lowerName,
+            t => t.Id != id && t.TemplateName.ToLower() == lowerName && t.Language == lang,
             cancellationToken);
 
         if (duplicateName)
-            return BadRequest(new { message = $"A template with name '{cleanName}' already exists." });
+            return BadRequest(new { message = $"A template with name '{cleanName}' and language '{lang}' already exists." });
 
         template.TemplateName = cleanName;
+        template.Language = lang;
         template.Subject = cleanSubject;
         template.Body = cleanBody;
 
@@ -258,6 +275,7 @@ public class EmailTemplatesController : ControllerBase
         {
             Id = template.Id,
             TemplateName = template.TemplateName,
+            Language = template.Language,
             Subject = template.Subject,
             Body = template.Body,
             IsSystemTemplate = isSystemTemplate,

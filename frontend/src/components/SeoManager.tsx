@@ -106,10 +106,9 @@ function upsertJsonLd(
   }
 
   let schemaGraph;
-  const appMatch = matchPath(
-    { path: "/oplossingen/:slug", end: true },
-    unlocalizedPath,
-  );
+  const appMatch =
+    matchPath({ path: "/faq/:slug", end: true }, unlocalizedPath) ||
+    matchPath({ path: "/oplossingen/:slug", end: true }, unlocalizedPath);
   const cityMatch = matchPath(
     { path: "/3d-print-service/:city", end: true },
     unlocalizedPath,
@@ -200,10 +199,9 @@ export function getRouteSeo(
   unlocalizedPath: string,
   lang: SupportedLanguage,
 ): RouteSeo {
-  const appMatch = matchPath(
-    { path: "/oplossingen/:slug", end: true },
-    unlocalizedPath,
-  );
+  const appMatch =
+    matchPath({ path: "/faq/:slug", end: true }, unlocalizedPath) ||
+    matchPath({ path: "/oplossingen/:slug", end: true }, unlocalizedPath);
   if (appMatch?.params.slug) {
     const app = getSeoApplicationBySlug(appMatch.params.slug);
     if (app) {
@@ -423,6 +421,8 @@ export default function SeoManager() {
 
     const knownDynamicPatterns = [
       "/3d-print-service/:city",
+      "/faq/:slug",
+      "/oplossingen/:slug",
       "/orders/:id",
       "/admin/orders/:id",
       "/admin/models/view/:fileName",
@@ -450,6 +450,22 @@ export default function SeoManager() {
     const isAdmin = unlocalizedPath.startsWith("/admin");
     const isOrderDetail = unlocalizedPath.startsWith("/orders/");
 
+    let topicSeo: RouteSeo | null = null;
+    const topicMatch =
+      matchPath({ path: "/faq/:slug", end: true }, unlocalizedPath) ||
+      matchPath({ path: "/oplossingen/:slug", end: true }, unlocalizedPath);
+    if (topicMatch?.params.slug) {
+      const app = getSeoApplicationBySlug(topicMatch.params.slug);
+      if (app) {
+        topicSeo = {
+          title: app.metaTitle[activeLang] || app.metaTitle.nl,
+          description: app.metaDescription[activeLang] || app.metaDescription.nl,
+          keywords: app.metaKeywords[activeLang] || app.metaKeywords.nl,
+          index: true,
+        };
+      }
+    }
+
     let citySeo: RouteSeo | null = null;
     const cityMatch = matchPath(
       { path: "/3d-print-service/:city", end: true },
@@ -473,18 +489,20 @@ export default function SeoManager() {
 
     const routeSeo: RouteSeo = !isKnownRoute
       ? notFoundSeo
-      : cityMatch
-        ? (citySeo || notFoundSeo)
-        : isAdmin
-          ? (seoByRoute[unlocalizedPath] || {
-              title: `${t("breadcrumb.admin")} | ${businessInfo.name}`,
-              description: `${t("breadcrumb.admin")} ${businessInfo.name}`,
-              keywords: "admin",
-              index: false,
-            })
-          : isOrderDetail
-            ? { ...seoByRoute["/orders"], index: false }
-            : seoByRoute[unlocalizedPath] || notFoundSeo;
+      : topicMatch
+        ? (topicSeo || notFoundSeo)
+        : cityMatch
+          ? (citySeo || notFoundSeo)
+          : isAdmin
+            ? (seoByRoute[unlocalizedPath] || {
+                title: `${t("breadcrumb.admin")} | ${businessInfo.name}`,
+                description: `${t("breadcrumb.admin")} ${businessInfo.name}`,
+                keywords: "admin",
+                index: false,
+              })
+            : isOrderDetail
+              ? { ...seoByRoute["/orders"], index: false }
+              : seoByRoute[unlocalizedPath] || notFoundSeo;
 
     // Document language sync
     document.documentElement.lang = htmlLangMap[activeLang] || activeLang;

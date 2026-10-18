@@ -765,7 +765,14 @@ public class AdminController : ControllerBase
         var recipient = await ResolveOrderEmailRecipientAsync(order);
         var email = recipient?.Email ?? string.Empty;
 
-        var dto = OrderDetailsMapper.MapToDetailsDto(order, email);
+        string? preferredLanguage = null;
+        if (order.UserId.HasValue)
+        {
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == order.UserId.Value, cancellationToken);
+            preferredLanguage = user?.PreferredLanguage;
+        }
+
+        var dto = OrderDetailsMapper.MapToDetailsDto(order, email, preferredLanguage);
         return Ok(dto);
     }
 

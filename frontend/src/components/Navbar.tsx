@@ -123,7 +123,7 @@ const Navbar = () => {
             type="button"
             onClick={() => setSolutionsOpen(!solutionsOpen)}
             className={`rounded-lg px-3 py-2 transition-colors inline-flex items-center gap-1 ${
-              pathname.includes("/oplossingen/")
+              pathname.includes("/faq/") && pathname.replace(/\/$/, "") !== localizePath("/faq")
                 ? "bg-[#ecf6f2] text-[#0f766e]"
                 : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
             }`}
@@ -141,7 +141,7 @@ const Navbar = () => {
                 {seoApplications.map((app) => (
                   <Link
                     key={app.slug}
-                    to={localizePath(`/oplossingen/${app.slug}`)}
+                    to={localizePath(`/faq/${app.slug}`)}
                     onClick={() => setSolutionsOpen(false)}
                     className="block p-2.5 rounded-xl hover:bg-[#f3faf7] transition-all group"
                   >
@@ -301,7 +301,7 @@ const Navbar = () => {
               type="button"
               onClick={() => setMobileSolutionsOpen(!mobileSolutionsOpen)}
               className={`w-full flex items-center justify-between font-medium py-2 px-2 rounded-lg ${
-                pathname.includes("/oplossingen/")
+                pathname.includes("/faq/") && pathname !== localizePath("/faq")
                   ? "bg-[#ecf6f2] text-[#0f766e]"
                   : "text-[#3d534c]"
               }`}
@@ -317,7 +317,7 @@ const Navbar = () => {
                 {seoApplications.map((app) => (
                   <Link
                     key={app.slug}
-                    to={localizePath(`/oplossingen/${app.slug}`)}
+                    to={localizePath(`/faq/${app.slug}`)}
                     className="block py-1.5 px-2.5 rounded-lg text-sm text-[#445b54] hover:bg-[#ecf6f2] hover:text-[#0f766e]"
                     onClick={() => {
                       setIsOpen(false);

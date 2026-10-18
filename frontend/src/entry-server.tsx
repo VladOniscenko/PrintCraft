@@ -61,14 +61,17 @@ export function renderPage(url: string): RenderResult {
     } else {
       PageComponent = Home;
     }
-  } else if (unlocalizedPath.startsWith("/oplossingen/")) {
-    const slug = unlocalizedPath.replace("/oplossingen/", "").split("/")[0];
+  } else if (unlocalizedPath.startsWith("/faq/") || unlocalizedPath.startsWith("/oplossingen/")) {
+    const slug = unlocalizedPath
+      .replace("/faq/", "")
+      .replace("/oplossingen/", "")
+      .split("/")[0];
     appObj = getSeoApplicationBySlug(slug);
     if (appObj) {
       const targetSlug = appObj.slug;
       PageComponent = () => <ApplicationLandingPage appSlug={targetSlug} />;
     } else {
-      PageComponent = Home;
+      PageComponent = FAQ;
     }
   } else {
     switch (unlocalizedPath) {

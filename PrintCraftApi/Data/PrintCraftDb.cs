@@ -24,6 +24,9 @@ public class PrintCraftDb : DbContext
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
     public DbSet<HeroSlide> HeroSlides => Set<HeroSlide>();
     public DbSet<OrderItemChangeRequest> OrderItemChangeRequests => Set<OrderItemChangeRequest>();
+    public DbSet<FaqItem> FaqItems => Set<FaqItem>();
+    public DbSet<FaqTopic> FaqTopics => Set<FaqTopic>();
+    public DbSet<City> Cities => Set<City>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -162,6 +165,38 @@ public class PrintCraftDb : DbContext
 
         modelBuilder.Entity<HeroSlide>()
             .HasIndex(s => new { s.IsActive, s.SortOrder });
+
+        modelBuilder.Entity<FaqItem>(entity =>
+        {
+            entity.HasIndex(e => new { e.IsActive, e.SortOrder });
+            entity.Property(e => e.Question).HasJsonConversion();
+            entity.Property(e => e.Answer).HasJsonConversion();
+        });
+
+        modelBuilder.Entity<FaqTopic>(entity =>
+        {
+            entity.HasIndex(e => e.Slug).IsUnique();
+            entity.HasIndex(e => new { e.IsActive, e.SortOrder });
+            entity.Property(e => e.Names).HasJsonConversion();
+            entity.Property(e => e.Tagline).HasJsonConversion();
+            entity.Property(e => e.Badge).HasJsonConversion();
+            entity.Property(e => e.HeroTitle).HasJsonConversion();
+            entity.Property(e => e.HeroSubtitle).HasJsonConversion();
+            entity.Property(e => e.Description).HasJsonConversion();
+            entity.Property(e => e.Benefits).HasJsonConversion();
+            entity.Property(e => e.RecommendedMaterials).HasJsonConversion();
+            entity.Property(e => e.MetaTitle).HasJsonConversion();
+            entity.Property(e => e.MetaDescription).HasJsonConversion();
+            entity.Property(e => e.MetaKeywords).HasJsonConversion();
+            entity.Property(e => e.Faqs).HasJsonConversion();
+        });
+
+        modelBuilder.Entity<City>(entity =>
+        {
+            entity.HasIndex(e => e.Slug).IsUnique();
+            entity.HasIndex(e => new { e.IsActive, e.SortOrder });
+            entity.Property(e => e.Names).HasJsonConversion();
+        });
 
         EmailTemplateSeeder.Seed(modelBuilder);
         HeroSlideSeeder.Seed(modelBuilder);

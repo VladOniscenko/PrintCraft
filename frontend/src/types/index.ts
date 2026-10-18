@@ -5,3 +5,5 @@ export * from "./user";
 export * from "./ui";
 export * from "./hero";
 export * from "./emailTemplate";
+export * from "./faq";
+export * from "./city";
