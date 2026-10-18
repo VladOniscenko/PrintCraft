@@ -127,4 +127,70 @@ export async function seedDefaultHeroSlides() {
   return Array.isArray(res.data) ? res.data : [];
 }
 
+export async function getEmailTemplates() {
+  const res = await api.get("/email-templates");
+  return Array.isArray(res.data) ? res.data : [];
+}
+
+export async function getEmailTemplate(id: string) {
+  const res = await api.get(`/email-templates/${id}`);
+  return res.data;
+}
+
+export async function createEmailTemplate(data: {
+  templateName: string;
+  subject: string;
+  body: string;
+}) {
+  const res = await api.post("/email-templates", data);
+  return res.data;
+}
+
+export async function updateEmailTemplate(
+  id: string,
+  data: { templateName: string; subject: string; body: string },
+) {
+  const res = await api.put(`/email-templates/${id}`, data);
+  return res.data;
+}
+
+export async function deleteEmailTemplate(id: string) {
+  const res = await api.delete(`/email-templates/${id}`);
+  return res.data;
+}
+
+export async function previewEmailTemplate(
+  id: string,
+  customVars?: Record<string, string>,
+) {
+  const res = await api.post(`/email-templates/${id}/preview`, customVars || {});
+  return res.data;
+}
+
+export async function previewRawEmailTemplate(data: {
+  subject: string;
+  body: string;
+  variables?: Record<string, string>;
+}) {
+  const res = await api.post("/email-templates/preview-raw", data);
+  return res.data;
+}
+
+export async function sendTestEmailTemplate(
+  id: string,
+  recipientEmail: string,
+  variables?: Record<string, string>,
+) {
+  const res = await api.post(`/email-templates/${id}/send-test`, {
+    recipientEmail,
+    variables,
+  });
+  return res.data;
+}
+
+export async function resetDefaultEmailTemplates() {
+  const res = await api.post("/email-templates/reset-defaults");
+  return res.data;
+}
+
 export default api;
