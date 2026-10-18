@@ -7,11 +7,23 @@ export const businessInfo = {
   address: {
     locality: "Rotterdam",
     countryCode: "NL",
-    countryName: { en: "Netherlands", nl: "Nederland" },
+    countryName: {
+      en: "Netherlands",
+      nl: "Nederland",
+      tr: "Hollanda",
+      ru: "Нидерланды",
+      ar: "هولندا",
+    },
   },
   openingHours: {
     days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-    dayLabels: { en: "Mon - Fri", nl: "Ma - Vr" },
+    dayLabels: {
+      en: "Mon - Fri",
+      nl: "Ma - Vr",
+      tr: "Pzt - Cum",
+      ru: "Пн - Пт",
+      ar: "الإثنين - الجمعة",
+    },
     opens: "09:00",
     closes: "18:00",
   },

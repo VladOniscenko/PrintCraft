@@ -20,20 +20,24 @@ function flattenKeys(obj, prefix = "") {
 function loadLocale(lang) {
   const dir = path.join(process.cwd(), "src", "locales", lang);
   if (!fs.existsSync(dir)) {
-    throw new Error(`Locale directory missing: ${dir}`);
+    return { all: {}, files: [], exists: false };
   }
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
   const all = {};
   for (const f of files) {
     const ns = f.replace(".json", "");
-    const data = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
-    if (ns === "root") {
-      Object.assign(all, data);
-    } else {
-      all[ns] = data;
+    try {
+      const data = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+      if (ns === "root") {
+        Object.assign(all, data);
+      } else {
+        all[ns] = data;
+      }
+    } catch (err) {
+      console.error(`Error parsing JSON in ${path.join(dir, f)}:`, err.message);
     }
   }
-  return { all, files };
+  return { all, files, exists: true };
 }
 
 function getSourceFiles(dir) {
@@ -62,7 +66,7 @@ function getSourceFiles(dir) {
   return results;
 }
 
-function checkCodeUsages(enKeys, nlKeys) {
+function checkCodeUsages(enKeys, localeMaps) {
   const files = getSourceFiles(path.join(process.cwd(), "src"));
   const errors = [];
   const tRegex = /\bt\(\s*["']([^"']+)["']/g;
@@ -94,13 +98,15 @@ function checkCodeUsages(enKeys, nlKeys) {
             message: `Key "${key}" used in code is missing from canonical locale 'en'`,
           });
         }
-        if (!nlKeys.has(key)) {
-          errors.push({
-            file: relPath,
-            line: lineIdx + 1,
-            key,
-            message: `Key "${key}" used in code is missing from locale 'nl'`,
-          });
+        for (const [lang, map] of Object.entries(localeMaps)) {
+          if (!map.has(key)) {
+            errors.push({
+              file: relPath,
+              line: lineIdx + 1,
+              key,
+              message: `Key "${key}" used in code is missing from locale '${lang}'`,
+            });
+          }
         }
       }
     }
@@ -112,73 +118,91 @@ function checkCodeUsages(enKeys, nlKeys) {
 function main() {
   console.log("🔍 Validating modular translation JSON files and key usage...");
 
-  const { all: enTranslations, files: enFiles } = loadLocale("en");
-  const { all: nlTranslations, files: nlFiles } = loadLocale("nl");
+  const { all: enTranslations, files: enFiles, exists: enExists } = loadLocale("en");
+  if (!enExists) {
+    console.error("Canonical locale 'en' directory is missing!");
+    process.exit(1);
+  }
 
+  const enFileSet = new Set(enFiles);
+  const enMap = flattenKeys(enTranslations);
+
+  const targetLocales = ["nl", "tr", "ru", "ar"];
+  const targetMaps = {};
   const errors = [];
 
-  // 1. File parity between locales
-  const enFileSet = new Set(enFiles);
-  const nlFileSet = new Set(nlFiles);
-
-  for (const f of enFileSet) {
-    if (!nlFileSet.has(f)) {
+  for (const lang of targetLocales) {
+    const { all: langTranslations, files: langFiles, exists } = loadLocale(lang);
+    if (!exists) {
       errors.push({
-        type: "MISSING_LOCALE_FILE",
-        locale: "nl",
-        message: `Locale 'nl' is missing file '${f}' present in canonical 'en'`,
+        type: "MISSING_LOCALE_DIR",
+        locale: lang,
+        message: `Locale directory 'src/locales/${lang}' is missing`,
       });
+      continue;
     }
-  }
-  for (const f of nlFileSet) {
-    if (!enFileSet.has(f)) {
-      errors.push({
-        type: "EXTRA_LOCALE_FILE",
-        locale: "nl",
-        message: `Locale 'nl' has unexpected file '${f}' not present in canonical 'en'`,
-      });
-    }
-  }
 
-  const enMap = flattenKeys(enTranslations);
-  const nlMap = flattenKeys(nlTranslations);
+    const langFileSet = new Set(langFiles);
+    const langMap = flattenKeys(langTranslations);
+    targetMaps[lang] = langMap;
 
-  // 2. Missing keys in NL compared to canonical EN
-  for (const [key, val] of enMap) {
-    if (!nlMap.has(key)) {
-      errors.push({
-        type: "MISSING_IN_LOCALE",
-        locale: "nl",
-        key,
-        message: `Missing key in 'nl': "${key}"`,
-      });
-    } else {
-      const nlVal = nlMap.get(key);
-      if (typeof nlVal !== "string" || nlVal.trim() === "") {
+    // 1. File parity between locales
+    for (const f of enFileSet) {
+      if (!langFileSet.has(f)) {
         errors.push({
-          type: "EMPTY_TRANSLATION",
-          locale: "nl",
+          type: "MISSING_LOCALE_FILE",
+          locale: lang,
+          message: `Locale '${lang}' is missing file '${f}' present in canonical 'en'`,
+        });
+      }
+    }
+    for (const f of langFileSet) {
+      if (!enFileSet.has(f)) {
+        errors.push({
+          type: "EXTRA_LOCALE_FILE",
+          locale: lang,
+          message: `Locale '${lang}' has unexpected file '${f}' not present in canonical 'en'`,
+        });
+      }
+    }
+
+    // 2. Missing keys in target locale compared to canonical EN
+    for (const [key, val] of enMap) {
+      if (!langMap.has(key)) {
+        errors.push({
+          type: "MISSING_IN_LOCALE",
+          locale: lang,
           key,
-          message: `Empty translation for key in 'nl': "${key}"`,
+          message: `Missing key in '${lang}': "${key}"`,
+        });
+      } else {
+        const targetVal = langMap.get(key);
+        if (typeof targetVal !== "string" || targetVal.trim() === "") {
+          errors.push({
+            type: "EMPTY_TRANSLATION",
+            locale: lang,
+            key,
+            message: `Empty translation for key in '${lang}': "${key}"`,
+          });
+        }
+      }
+    }
+
+    // 3. Extraneous keys in target locale not in canonical EN
+    for (const [key] of langMap) {
+      if (!enMap.has(key)) {
+        errors.push({
+          type: "EXTRA_IN_LOCALE",
+          locale: lang,
+          key,
+          message: `Unknown key in '${lang}' not present in canonical 'en': "${key}"`,
         });
       }
     }
   }
 
-  // 3. Extraneous keys in NL not in canonical EN
-  for (const [key] of nlMap) {
-    if (!enMap.has(key)) {
-      errors.push({
-        type: "EXTRA_IN_LOCALE",
-        locale: "nl",
-        key,
-        message: `Unknown key in 'nl' not present in canonical 'en': "${key}"`,
-      });
-    }
-  }
-
   // 4. Keys referenced in codebase vs translations
-  const codeErrors = checkCodeUsages(enMap, nlMap);
+  const codeErrors = checkCodeUsages(enMap, targetMaps);
   for (const err of codeErrors) {
     errors.push({
       type: "MISSING_FROM_TRANSLATIONS",
@@ -191,15 +215,17 @@ function main() {
   console.log(`📊 Statistics:
   - Canonical (en) files: ${enFiles.length}
   - Canonical (en) keys:  ${enMap.size}
-  - Target (nl) files:    ${nlFiles.length}
-  - Target (nl) keys:     ${nlMap.size}
+  ${targetLocales.map((l) => `- Target (${l}) files:    ${targetMaps[l] ? targetLocales.length : 0}, keys: ${targetMaps[l]?.size || 0}`).join("\n  ")}
   - Total issues found:   ${errors.length}
 `);
 
   if (errors.length > 0) {
     console.error("❌ Internationalization validation failed:\n");
-    for (const err of errors) {
-      console.error(`  • [${err.type}] ${err.message}`);
+    for (const err of errors.slice(0, 50)) {
+      console.error(`  • [${err.type}] [${err.locale || ""}] ${err.message}`);
+    }
+    if (errors.length > 50) {
+      console.error(`  ... and ${errors.length - 50} more errors.`);
     }
     console.error(
       `\nFound ${errors.length} translation errors. Please resolve before proceeding.`,

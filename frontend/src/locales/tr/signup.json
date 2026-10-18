@@ -1,0 +1,18 @@
+{
+  "title": "Hesap oluşturun",
+  "subtitle": "3D fikirlerinizi hayata geçirmeye bugün başlayın.",
+  "success": "Hesap oluşturuldu! Giriş sayfasına yönlendiriliyorsunuz...",
+  "error": {
+    "default": "Hesap oluşturulamadı. Bu e-posta adresi zaten kullanımda olabilir."
+  },
+  "name": "Ad Soyad",
+  "namePlaceholder": "Alex Maker",
+  "email": "E-posta adresi",
+  "emailPlaceholder": "you@example.com",
+  "passwordPlaceholder": "Güçlü bir şifre oluşturun",
+  "submit": "Kayıt ol",
+  "haveAccount": "Zaten bir hesabınız var mı?",
+  "signIn": "Giriş yap",
+  "visualTitle": "Üreticilere katılın.",
+  "visualDesc": "Anında fiyat teklifi almak, favori malzemelerinizi kaydetmek ve baskı geçmişinizi takip etmek için ücretsiz bir hesap oluşturun."
+}

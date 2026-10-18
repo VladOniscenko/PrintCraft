@@ -1,0 +1,14 @@
+{
+  "title": "Projelerim",
+  "subtitle": "3D baskı taleplerinizi ve kargo durumunuzu takip edin.",
+  "loading": "Sipariş geçmişiniz yükleniyor...",
+  "none": "Henüz proje yok",
+  "noneDesc": "Mağazamızdan özel fiyat teklifi almak için 3D tasarımlarınızı yükleyin.",
+  "start": "Yeni Proje Başlat",
+  "model": "Model",
+  "models": "Modeller",
+  "shippingTo": "Teslimat adresi",
+  "manage": "Projeyi Yönet",
+  "project": "Proje",
+  "placedOn": "Verilme tarihi"
+}

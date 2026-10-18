@@ -1,0 +1,11 @@
+{
+  "title": "Şifremi unuttum",
+  "subtitle": "Hesap e-posta adresinizi girin, size bir sıfırlama bağlantısı gönderelim.",
+  "successMessage": "Hesap mevcutsa, sıfırlama e-postası gönderildi.",
+  "errorMessage": "Şu anda sıfırlama e-postası gönderilemedi.",
+  "emailPlaceholder": "you@example.com",
+  "emailLabel": "E-posta adresi",
+  "submitButton": "Sıfırlama e-postası gönder",
+  "rememberPassword": "Şifrenizi hatırladınız mı?",
+  "signIn": "Giriş yap"
+}

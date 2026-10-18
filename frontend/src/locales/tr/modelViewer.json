@@ -1,0 +1,11 @@
+{
+  "title": "3D Model Görüntüleyici",
+  "backToOrder": "Siparişe geri dön",
+  "download": "Dosyayı indir",
+  "loading": "Önizleme yükleniyor...",
+  "notFound": "Bu sipariş kalemi için model bulunamadı.",
+  "orderItem": "Sipariş kalemi",
+  "unnamed": "İsimsiz model",
+  "previewUnavailable": "Bu dosya türü için önizleme kullanılamıyor.",
+  "previewUnavailableHint": "Dosyayı indirip bir CAD görüntüleyicide açabilirsiniz."
+}

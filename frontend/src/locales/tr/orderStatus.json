@@ -1,0 +1,23 @@
+{
+  "quote_requested": "Fiyat Teklifi İstendi",
+  "unknown": "Bilinmiyor",
+  "awaiting_payment": "Ödeme Bekleniyor",
+  "ready_to_print": "Baskıya Hazır",
+  "printing": "Basılıyor",
+  "post_processing": "Ardıl İşlem",
+  "shipped": "Kargoya Verildi",
+  "on_hold": "Beklemede",
+  "cancelled": "İptal Edildi",
+  "returned": "İade Edildi",
+  "pendingQuote": "Fiyat Teklifi Bekleniyor",
+  "pending_quote": "Fiyat Teklifi Bekleniyor",
+  "quoted": "Fiyat Teklifi Verildi",
+  "expiredQuote": "Süresi Dolan Teklif",
+  "pendingPayment": "Ödeme Bekleniyor",
+  "pending_payment": "Ödeme Bekleniyor",
+  "completed": "Tamamlandı",
+  "sent": "Gönderildi",
+  "delivered": "Teslim Edildi",
+  "paid": "Ödendi",
+  "failed": "Başarısız"
+}

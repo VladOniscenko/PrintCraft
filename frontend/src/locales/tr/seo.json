@@ -1,0 +1,69 @@
+{
+  "default": {
+    "title": "Hollanda 3D Baskı Hizmeti | Print My 3D",
+    "description": "Hollanda'da profesyonel 3D baskı hizmeti. Anında özel fiyat teklifi almak için 3D dosyalarınızı yükleyin. Rotterdam merkezli, ülke genelinde hızlı takipli teslimat.",
+    "keywords": "hollanda 3d baskı hizmeti, hollanda 3d baskı, rotterdam 3d baskı hizmeti, rotterdam 3d baskı, stl baskı, hızlı prototipleme hollanda, özel 3d baskı"
+  },
+  "home": {
+    "title": "Hollanda 3D Baskı Hizmeti | Print My 3D",
+    "description": "Hollanda'da profesyonel 3D baskı hizmeti. Anında özel fiyat teklifi almak için 3D dosyalarınızı yükleyin. Rotterdam merkezli, ülke genelinde hızlı takipli teslimat.",
+    "keywords": "hollanda 3d baskı hizmeti, hollanda 3d baskı, rotterdam 3d baskı hizmeti, rotterdam 3d baskı, stl baskı, hızlı prototipleme hollanda, özel 3d baskı"
+  },
+  "gallery": {
+    "title": "3D Baskı Model Galerisi | Print My 3D",
+    "description": "3D yazdırılabilir tasarımlara göz atın veya Thingiverse, Printables ve MakerWorld modellerini gönderin. Hollanda genelinde teslim edilen özel 3D baskılar.",
+    "keywords": "3D model baskısı, 3D baskı galerisi, Thingiverse model baskısı, Printables 3D baskı, MakerWorld sipariş, özel 3D baskı Hollanda"
+  },
+  "materials": {
+    "title": "3D Baskı Malzemeleri: PETG, Esnek TPU ve PLA | Print My 3D",
+    "description": "Prototipler ve fonksiyonel bileşenler için yüksek kaliteli filamentler: dayanıklı PETG, esnek TPU kauçuk ve hassas PLA.",
+    "keywords": "3D baskı malzemeleri, PETG bileşenler, esnek TPU, PLA baskı, 3D baskı filamentleri Hollanda"
+  },
+  "faq": {
+    "title": "3D Baskı SSS | Print My 3D",
+    "description": "3D baskı hakkında sık sorulan soruların yanıtları: malzemeler, dosya formatları, fiyatlandırma, teslimat süreleri ve kargo.",
+    "keywords": "3D baskı SSS, 3D baskı malzemeleri, STL dosya yükleme, teslimat süresi, Hollanda teslimat"
+  },
+  "privacy": {
+    "title": "Gizlilik Politikası | Print My 3D",
+    "description": "Print My 3D Gizlilik Politikası. GDPR kapsamında kişisel verileri ve yüklenen 3D dosyaları nasıl koruyor ve işliyoruz.",
+    "keywords": "gizlilik politikası, KVKK, GDPR, veri koruma"
+  },
+  "terms": {
+    "title": "Kullanım Koşulları | Print My 3D",
+    "description": "3D baskı hizmetleri, fiyat teklifleri, siparişler ve özel üretim için Print My 3D Kullanım Koşulları.",
+    "keywords": "kullanım koşulları, genel şartlar, 3D baskı koşulları"
+  },
+  "refunds": {
+    "title": "İade ve Geri Ödeme Politikası | Print My 3D",
+    "description": "Kalite garantimiz, kusurlu baskılar için yeniden baskı ve özel siparişlerdeki iade politikamız hakkında bilgiler.",
+    "keywords": "iade politikası, para iadesi, 3D baskı garantisi"
+  },
+  "shippingPolicy": {
+    "title": "Kargo Politikası ve Teslimat Süreleri | Print My 3D",
+    "description": "Print My 3D için kargo bilgileri. Hollanda genelinde 2-5 iş günü içinde hızlı teslimat.",
+    "keywords": "kargo politikası, teslimat süreleri, Hollanda 3D baskı teslimatı"
+  },
+  "notFound": {
+    "title": "Sayfa Bulunamadı | Print My 3D",
+    "description": "İstenen sayfa bulunamadı. 3D baskı hizmetleri için Print My 3D ana sayfasına dönün.",
+    "keywords": "404, bulunamadı"
+  },
+  "schema": {
+    "siteDescription": "Rotterdam'da profesyonel 3D baskı hizmeti. Hızlı teslimat ile PLA, PETG ve esnek TPU malzemelerinde özel FDM baskılar.",
+    "catalogName": "3D Baskı Hizmetleri",
+    "fdmServiceName": "Özel FDM 3D Baskı",
+    "fdmServiceDesc": "PLA, PETG ve TPU malzemelerinde fonksiyonel parçalar, prototipler ve özel modeller için yüksek hassasiyetli FDM 3D baskı.",
+    "hueforgeServiceName": "HueForge Filament Boyama (3D Kabartma Sanatı)",
+    "hueforgeServiceDesc": "Optik katman harmanlama kullanarak 2D görsellerden çok renkli kabartma 3D sanat baskısı.",
+    "replacementServiceName": "Yedek Parçalar ve Onarımlar",
+    "replacementServiceDesc": "Üretimi durdurulmuş veya kırılmış plastik bileşenlerin, klipslerin ve braketlerin yeniden üretimi ve basımı.",
+    "prototypingServiceName": "Hızlı Prototipleme ve Özel Modeller",
+    "prototypingServiceDesc": "Hızlı teslimatlı fonksiyonel prototipler, öğrenci proje montajları ve tasarım doğrulama.",
+    "toolingServiceName": "Özel Takımlar, Mastarlar ve Aparatlar",
+    "toolingServiceDesc": "Montaj aparatları, delme kılavuzları, muayene mastarları ve dayanıklı atölye bileşenlerinin üretimi.",
+    "batchServiceName": "Küçük Seri Üretim (10–500+ adet)",
+    "batchServiceDesc": "Şeffaf kurumsal faturalandırma ile düşük adetli üretim serileri.",
+    "cityServiceTemplate": "{city} Bölgesinde 3D Baskı Hizmeti"
+  }
+}

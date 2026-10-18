@@ -1,0 +1,13 @@
+{
+  "tokenMissing": "Sıfırlama belirteci eksik.",
+  "passwordTooShort": "Şifre en az 8 karakter olmalıdır.",
+  "passwordsMismatch": "Şifreler eşleşmiyor.",
+  "resetFailed": "Şifre sıfırlanamadı.",
+  "title": "Şifreyi sıfırla",
+  "subtitle": "Hesabınız için yeni bir şifre oluşturun.",
+  "passwordPlaceholder": "En az 8 karakter",
+  "confirmPlaceholder": "Şifreyi tekrar girin",
+  "submitButton": "Şifreyi sıfırla",
+  "successMessage": "Şifre başarıyla güncellendi.",
+  "goToLogin": "Girişe git"
+}

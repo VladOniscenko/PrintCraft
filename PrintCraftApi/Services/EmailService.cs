@@ -112,10 +112,16 @@ public sealed class GmailSmtpEmailService : IEmailService
         return "en";
     }
 
+    private static readonly HashSet<string> SupportedLanguages = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "nl", "en", "tr", "ru", "ar"
+    };
+
     internal static string NormalizeLanguage(string? lang)
     {
-        var clean = (lang ?? "en").Trim().ToLowerInvariant();
-        return clean is "nl" ? "nl" : "en";
+        if (string.IsNullOrWhiteSpace(lang)) return "en";
+        var clean = lang.Trim().ToLowerInvariant();
+        return SupportedLanguages.Contains(clean) ? clean : "en";
     }
 
     internal async Task<(string Subject, string Body)> GetTemplateAsync(string templateName, Dictionary<string, string> variables, string language = "en")

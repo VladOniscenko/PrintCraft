@@ -1,0 +1,19 @@
+{
+  "welcome": "Tekrar hoş geldiniz",
+  "subtitle": "Hesabınıza erişmek için lütfen bilgilerinizi girin.",
+  "error": {
+    "invalid": "Geçersiz e-posta veya şifre. Lütfen tekrar deneyin."
+  },
+  "email": "E-posta adresi",
+  "password": "Şifre",
+  "remember": "Beni hatırla",
+  "forgot": "Şifrenizi mi unuttunuz?",
+  "signIn": "Giriş yap",
+  "noAccount": "Hesabınız yok mu?",
+  "signUpFree": "Ücretsiz kayıt olun",
+  "visualTitle1": "Dijital fikirlerinizi",
+  "visualTitle2": "gerçek dünyaya taşıyın.",
+  "visualDesc": "Siparişlerinizi takip etmek, yeni tasarımlar yüklemek ve özel 3D baskı projelerinizi yönetmek için giriş yapın.",
+  "emailPlaceholder": "you@example.com",
+  "passwordPlaceholder": "••••••••"
+}

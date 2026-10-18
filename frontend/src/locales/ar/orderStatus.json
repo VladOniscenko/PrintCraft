@@ -1,0 +1,23 @@
+{
+  "quote_requested": "طُلب عرض السعر",
+  "unknown": "غير معروف",
+  "awaiting_payment": "بانتظار الدفع",
+  "ready_to_print": "جاهز للطباعة",
+  "printing": "جارٍ الطباعة",
+  "post_processing": "معالجة لاحقة",
+  "shipped": "تم الشحن",
+  "on_hold": "معلق",
+  "cancelled": "ملغى",
+  "returned": "مرتجع",
+  "pendingQuote": "عرض السعر قيد الانتظار",
+  "pending_quote": "عرض السعر قيد الانتظار",
+  "quoted": "تم تسعيره",
+  "expiredQuote": "عرض سعر منتهي الصلاحية",
+  "pendingPayment": "في انتظار الدفع",
+  "pending_payment": "في انتظار الدفع",
+  "completed": "مكتمل",
+  "sent": "تم الإرسال",
+  "delivered": "تم التسليم",
+  "paid": "تم الدفع",
+  "failed": "فشل"
+}

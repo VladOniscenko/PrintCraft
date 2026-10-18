@@ -47,6 +47,18 @@ public class EmailTemplatesController : ControllerBase
     private readonly EmailOptions _emailOptions;
     private readonly ILogger<EmailTemplatesController> _logger;
 
+    private static readonly HashSet<string> SupportedLanguages = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "nl", "en", "tr", "ru", "ar"
+    };
+
+    private static string NormalizeLanguage(string? lang)
+    {
+        if (string.IsNullOrWhiteSpace(lang)) return "en";
+        var trimmed = lang.Trim().ToLowerInvariant();
+        return SupportedLanguages.Contains(trimmed) ? trimmed : "en";
+    }
+
     public EmailTemplatesController(
         PrintCraftDb db,
         IEmailService emailService,
@@ -178,7 +190,7 @@ public class EmailTemplatesController : ControllerBase
         var cleanName = (request.TemplateName ?? "").Trim();
         var cleanSubject = (request.Subject ?? "").Trim();
         var cleanBody = (request.Body ?? "").Trim();
-        var lang = string.Equals(request.Language?.Trim(), "nl", StringComparison.OrdinalIgnoreCase) ? "nl" : "en";
+        var lang = NormalizeLanguage(request.Language);
 
         if (string.IsNullOrWhiteSpace(cleanName))
             return BadRequest(new { message = "Template name is required." });
@@ -240,7 +252,7 @@ public class EmailTemplatesController : ControllerBase
         var cleanName = (request.TemplateName ?? "").Trim();
         var cleanSubject = (request.Subject ?? "").Trim();
         var cleanBody = (request.Body ?? "").Trim();
-        var lang = string.Equals(request.Language?.Trim(), "nl", StringComparison.OrdinalIgnoreCase) ? "nl" : "en";
+        var lang = NormalizeLanguage(request.Language);
 
         if (string.IsNullOrWhiteSpace(cleanName))
             return BadRequest(new { message = "Template name is required." });

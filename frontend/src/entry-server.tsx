@@ -8,6 +8,7 @@ import {
   htmlLangMap,
   ogLocaleMap,
   resolveLanguage,
+  getLanguageDirection,
   type SupportedLanguage,
 } from "./i18n/translations";
 import { translationsStore } from "./i18n/loader";
@@ -65,6 +66,7 @@ export type RenderResult = {
   html: string;
   headTags: string;
   langAttr: string;
+  dirAttr: string;
 };
 
 export function renderPage(url: string): RenderResult {
@@ -221,5 +223,6 @@ export function renderPage(url: string): RenderResult {
     html: appHtml,
     headTags,
     langAttr: htmlLangMap[activeLang] || activeLang,
+    dirAttr: getLanguageDirection(activeLang),
   };
 }

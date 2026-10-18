@@ -1,0 +1,143 @@
+{
+  "footer": "© 2026 Print My 3D. Tüm hakları saklıdır.",
+  "solutions": {
+    "eyebrow": "Özel 3D Baskı",
+    "title": "Ticari ve Mühendislik Çözümleri",
+    "subtitle": "Fonksiyonel prototiplerden ve yedek parçalardan özel elektronik kutularına ve fabrika takımlarına kadar. Hassas teknik özelliklere göre üretilmiştir.",
+    "viewSolution": "Çözümü görüntüle",
+    "viewSpecific": "{name} keşfedin",
+    "learnMore": "Daha fazla bilgi edinin"
+  },
+  "quickQuote": {
+    "fileMode": "Bir dosyam var",
+    "ideaMode": "Bir fikrim var",
+    "dropTitle": "3D dosyanızı buraya bırakın",
+    "dropHint": "veya bir STL, OBJ, 3MF ya da STEP dosyası seçmek için tıklayın",
+    "descriptionPlaceholder": "Ne yaptırmak istediğinizi, nasıl kullanacağınızı ve en çok neyin önemli olduğunu anlatın...",
+    "saving": "Talep kaydediliyor...",
+    "startRequest": "Talebinizi başlatın",
+    "continue": "Talebe devam et",
+    "almostReady": "Neredeyse hazır",
+    "preserved": "Giriş yaparken talebiniz kayıtlı kalır.",
+    "name": "İsim",
+    "email": "E-posta adresi",
+    "password": "Şifre (en az 8 karakter)",
+    "loginContinue": "Giriş yap ve devam et",
+    "registerContinue": "Hesap oluştur ve devam et",
+    "switchRegister": "Henüz hesabınız yok mu? Kayıt olun",
+    "switchLogin": "Zaten hesabınız var mı? Giriş yapın",
+    "descriptionTooShort": "Projenizi en az 10 karakterle açıklayın.",
+    "saveFailed": "Talebiniz kaydedilemedi. Lütfen tekrar deneyin.",
+    "uploadFailed": "Yükleme başarısız oldu. Dosyayı kontrol edip tekrar deneyin.",
+    "loginFailed": "Giriş yapılamadı.",
+    "registerFailed": "Kayıt başarısız oldu.",
+    "removeFile": "Dosyayı kaldır",
+    "close": "Kapat",
+    "descriptionFile": "Proje açıklaması",
+    "pla": "Günlük kullanım",
+    "petg": "Ekstra güçlü",
+    "tpu": "Esnek"
+  },
+  "showcase": {
+    "eyebrow": "Print My 3D stüdyosu",
+    "title": "Sizin için neler yapabiliriz",
+    "subtitle": "İlk fikirden her gün performans gösteren bir parçaya kadar. Siz yönü belirleyin, biz somutlaştıralım.",
+    "partTitle": "Yedek parçalar ve onarımlar",
+    "partTag": "Yüksek hassasiyet",
+    "prototypeTitle": "Hızlı prototipleme ve mühendislik",
+    "prototypeTag": "Hızlı yinelemeler",
+    "caseTitle": "Elektronik kutuları ve montaj aparatları",
+    "caseTag": "PETG ve TPU",
+    "detailTitle": "HueForge 3D kabartma sanatı ve modeller",
+    "detailTag": "Çok renkli"
+  },
+  "materials": {
+    "eyebrow": "Malzemeler",
+    "title": "Gücünüzü seçin",
+    "subtitle": "Henüz emin değil misiniz? Kullanım alanınızı açıklayın, seçmenize yardımcı olalım.",
+    "plaTitle": "Günlük Kullanım ve Prototipleme",
+    "plaText": "Hızlı prototipleme, düzenleyiciler ve boyutsal olarak hassas modeller için ±0.1mm toleranslı yüksek hassasiyetli FDM baskı.",
+    "petgTitle": "Ekstra Güçlü ve Isıya Dayanıklı",
+    "petgText": "Yüksek mukavemetli fonksiyonel parçalar, ısıya dayanıklı kutular ve UV ışınlarına dayanıklı dış mekan baskıları için PETG 3D baskı hizmeti.",
+    "tpuTitle": "Esnek Kauçuk",
+    "tpuText": "Kauçuk benzeri parçalar, amortisörler, koruyucu muhafazalar ve özel contalar için esnek TPU 3D baskı hizmeti."
+  },
+  "modelFinder": {
+    "badge": "Model Başlangıcı",
+    "bridgeBadge": "İsteğe Bağlı Adım",
+    "bridgeTitle": "Henüz modeliniz yok mu? Önce birkaç güvenilir kitaplığa göz atabilirsiniz.",
+    "bridgeSubtitle": "Bunu yalnızca fiyat teklifi istemeden önce yazdırılabilir bir dosyaya ihtiyacınız varsa kullanın.",
+    "title": "Önce bir 3D modele mi ihtiyacınız var? Buradan başlayın",
+    "subtitle": "Yazdırılabilir dosyalar bulmak için güvenilir kitaplıkları keşfedin, ardından teklif istemek için beğendiğiniz modeli yükleyin.",
+    "makerworld": {
+      "title": "MakerWorld",
+      "desc": "Yazıcı dostu kaliteye ve trend yapılara göre düzenlenmiş, 3D baskı topluluğundan seçilmiş tasarımlar.",
+      "cta": "Modellere göz atın"
+    },
+    "printables": {
+      "title": "Printables",
+      "desc": "Pratik parçalar, cosplay dosyaları, minyatürler ve ev aletleri içeren devasa bir model kataloğu.",
+      "cta": "Dosyaları bulun"
+    },
+    "thingiverse": {
+      "title": "Thingiverse",
+      "desc": "Milyonlarca topluluk yüklemesi ve yeniden düzenlemeye hazır projeler içeren klasik açık model platformu.",
+      "cta": "Kitaplığı keşfedin"
+    },
+    "custom": {
+      "title": "Özel yardıma mı ihtiyacınız var?",
+      "desc": "Doğru dosyayı bulamıyorsanız, fikrinizi açıklayın; onu yazdırılabilir bir modele dönüştürmenize yardımcı olalım.",
+      "cta": "Fiyat teklifi isteyin"
+    }
+  },
+  "proof": {
+    "bridgeBadge": "Kalite Kontrolü",
+    "bridgeTitle": "Şimdi yüzey kaplamasını ve kalite seviyesini seçin.",
+    "bridgeSubtitle": "Fiyat teklifinizi istemeden önce beklentilerinizi belirlemek için mevcut malzemeleri ve son baskıları inceleyin."
+  },
+  "process": {
+    "eyebrow": "İş Akışı",
+    "title": "Nasıl Çalışır?",
+    "subtitle": "3D modelden fiziksel ürüne, basit ve şeffaf.",
+    "step1Title": "1. Modeli Yükleyin",
+    "step1Desc": "STL, 3MF veya CAD dosyanızı yükleyin; tercih ettiğiniz malzeme ve rengi seçin.",
+    "step2Title": "2. Anında Fiyatlandırma",
+    "step2Desc": "Boyutlara, malzeme seçimine ve dolgu ayarlarına göre net, anında fiyatlandırma alın.",
+    "step3Title": "3. Hassas Baskı",
+    "step3Desc": "Temiz ve doğru bir sonuç için parçalarınızı kalibre edilmiş yazıcılarda özenle basıyoruz.",
+    "step4Title": "4. Hızlı Teslimat",
+    "step4Desc": "Özenle paketlenir ve PostNL takip numarası ile 2 ila 5 iş günü içinde teslim edilir.",
+    "guaranteeTitle": "Güvenilir Kalite ve Özenli Son İşlem",
+    "guaranteeText": "Her baskı gönderilmeden önce yüzey kalitesi ve uyum açısından incelenir, kutudan çıktığı anda kullanıma hazırdır."
+  },
+  "audiences": {
+    "eyebrow": "Uygulamalar",
+    "title": "Her İhtiyaç İçin 3D Baskı",
+    "subtitle": "Tekil yedek parçalardan ve yaratıcı projelerden prototiplere ve küçük serilere kadar.",
+    "b2cTitle": "Tüketiciler ve Ev",
+    "b2cTag": "1 parçadan itibaren",
+    "b2cDesc": "Minimum sipariş şartı olmadan kırık ev aleti yedek parçaları, özel aygıtlar, ev tamiratları veya kişiselleştirilmiş hediyeler.",
+    "hobbyTitle": "Hobi Severler, Üreticiler ve Cosplay",
+    "hobbyTag": "Yaratıcı",
+    "hobbyDesc": "Cosplay aksesuarları, masaüstü minyatürleri, kutu oyunu aksesuarları, RC parçaları ve HueForge kabartma sanatı. Doğrudan STL dosyalarından baskı.",
+    "studentsTitle": "Öğrenciler ve Eğitim",
+    "studentsTag": "Eğitim",
+    "studentsDesc": "Akademik projeler için hızlı geri dönüş süresine sahip ölçekli modeller, tez baskıları ve prototipler.",
+    "b2bTitle": "İşletmeler ve KOBİ'ler",
+    "b2bTag": "Ticari",
+    "b2bDesc": "Ayrıntılı KDV faturalandırması ile fonksiyonel prototipler, özel kutular, fikstürler ve küçük üretim serileri."
+  },
+  "faq": {
+    "eyebrow": "Sıkça Sorulan Sorular",
+    "title": "Sıkça Sorulan Sorular",
+    "subtitle": "Tekli siparişler, öğrenci projeleri, malzemeler ve faturalandırma ile ilgili net yanıtlar.",
+    "q1": "Minimum sipariş miktarı olmadan tek bir parça sipariş edebilir miyim?",
+    "a1": "Evet, kesinlikle! Minimum sipariş büyüklüğümüz yoktur. Tek parça baskılar her zaman memnuniyetle karşılanır.",
+    "q2": "Öğrenciler ve eğitim kurumları model sipariş edebilir mi?",
+    "a2": "Evet! Öğrencilerin ve eğitimcilerin ölçekli modelleri, prototipleri ve mezuniyet projelerini hızlı geri dönüş süresiyle basmalarına düzenli olarak yardımcı oluyoruz.",
+    "q3": "İşletmeler resmi KDV faturası ile sipariş verebilir mi?",
+    "a3": "Evet, kurumsal müşteriler kolay muhasebe için net ve ayrıntılı bir KDV faturası alırlar.",
+    "q4": "Tipik geri dönüş ve teslimat süresi nedir?",
+    "a4": "Çoğu sipariş Hollanda genelinde takipli PostNL teslimatı kullanılarak 2 ila 5 iş günü içinde basılır ve gönderilir."
+  }
+}

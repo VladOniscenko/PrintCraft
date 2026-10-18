@@ -1,0 +1,53 @@
+{
+  "updated": "Son güncelleme: 27 Mart 2026",
+  "contact": {
+    "title": "Hukuki İletişim",
+    "body": "Hukuki veya gizlilikle ilgili sorularınız için info@printmy3d.work adresine e-posta gönderebilirsiniz. 5 iş günü içinde yanıt vermeyi hedefliyoruz."
+  },
+  "privacy": {
+    "title": "Gizlilik Politikası",
+    "section1Title": "Hangi verileri topluyoruz?",
+    "section1Body": "Hizmetimizi yürütmek için gerekli verileri topluyoruz: hesap bilgileri, iletişim bilgileri, teslimat adresi, ödeme durumu ve yüklenen model dosyaları.",
+    "section2Title": "Verilerinizi nasıl kullanıyoruz?",
+    "section2Body": "Verilerinizi fiyat teklifi hesaplama, üretim planlaması, kargo, müşteri desteği, dolandırıcılık önleme ve operasyonel iletişim için kullanıyoruz. Kişisel verileri satmıyoruz.",
+    "section3Title": "Veri saklama",
+    "section3Body": "Sipariş ve fatura kayıtları muhasebe ve yasal yükümlülüklerin gerektirdiği süre boyunca saklanır. Zorunlu olmayan veriler doğrulanmış talep üzerine silinebilir.",
+    "section4Title": "Haklarınız",
+    "section4Body": "Yasal saklama gereksinimlerine tabi olmak kaydıyla kişisel verilerinize erişim, düzeltme, silme veya dışa aktarma talebinde bulunabilirsiniz."
+  },
+  "terms": {
+    "title": "Kullanım Koşulları",
+    "section1Title": "Hizmet kapsamı",
+    "section1Body": "Dosyaları göndererek bu dosyaların sahibi olduğunuzu veya bunları kullanmaya yetkili olduğunuzu, yasaları ya da üçüncü taraf haklarını ihlal etmediğini onaylamış olursunuz.",
+    "section2Title": "Fiyat teklifleri ve siparişler",
+    "section2Body": "Fiyat teklifleri model boyutu, adet, malzeme seçimi, baskı karmaşıklığı ve yüzey işleme gereksinimlerine dayalı özel tahminlerdir. Üretim yalnızca açık onay ve teyit edilmiş ödemeden sonra başlar.",
+    "pricingDisclaimerTitle": "Fiyatlar ve teklif geçerliliği",
+    "pricingDisclaimerBody": "Web sitesinde gösterilen gösterge niteliğindeki fiyatlar yalnızca rehberlik amaçlıdır. Boyut, adet, geometri, destek kullanımı, ardıl işlem ve teslimat yöntemi gerçek maliyeti etkileyebileceğinden nihai fiyat talebe göre değişiklik gösterebilir. Görüntülenen fiyatlar ve taslak teklifler bağlayıcı değildir; haklar yalnızca Print My 3D tarafından yazılı teklif onayından sonra doğar.",
+    "section3Title": "Sorumluluğun sınırlandırılması",
+    "section3Body": "Müşteriler, yüklenen tasarımların işlevsel uygunluğu ve güvenliğinden sorumludur. Sorumluluğumuz, yasal olarak izin verilen durumlarda ilgili siparişin değeri ile sınırlıdır.",
+    "section4Title": "Uygulanacak hukuk",
+    "section4Body": "Bu koşullar Hollanda yasalarına tabidir. Zorunlu tüketici kanunları aksini belirtmedikçe, uyuşmazlıklar Hollanda'daki yetkili mahkeme tarafından çözülür."
+  },
+  "refunds": {
+    "title": "İade Politikası",
+    "section1Title": "Hasarlı veya kusurlu ürünler",
+    "section1Body": "Bir ürün hasarlı ulaşırsa veya büyük üretim kusurları içeriyorsa, fotoğraflarla birlikte 3 gün içinde bizimle iletişime geçin. Durumu değerlendirip uygun olduğunda yeniden baskı veya para iadesi sunacağız.",
+    "section2Title": "Kişiye özel üretilen ürünler",
+    "section2Body": "Her baskı talep üzerine üretildiğinden ve genellikle boyut ile adet bakımından benzersiz olduğundan, onaylanmış özel siparişler bariz bir üretim hatası olmadığı sürece genel olarak iade edilemez.",
+    "section3Title": "İptal",
+    "section3Body": "Fiyat teklifleri üretim başlamadan önce iptal edilebilir. Üretim başladıktan sonra iptal genellikle mümkün değildir.",
+    "section4Title": "İstisnalar",
+    "section4Body": "Renk farklılıkları, küçük yüzey izleri veya normal 3D baskı toleransları dahilindeki boyutsal sapmalar kusur olarak kabul edilmez."
+  },
+  "shipping": {
+    "title": "Kargo Politikası",
+    "section1Title": "İşlem süresi",
+    "section1Body": "Siparişlerin çoğu iş kuyruğuna, karmaşıklığa, malzeme mevcudiyetine ve sipariş edilen adede bağlı olarak 2 ila 5 iş günü içinde üretilir ve sevkiyata hazırlanır.",
+    "section2Title": "Teslimat alanı",
+    "section2Body": "Tüm Hollanda genelinde teslimat yapıyoruz. Sabit fiyatlı ödeme ürünleri için kargo ücretleri ödeme sırasında gösterilir. Teklife dayalı siparişlerde teslimat maliyetleri teklife dahil edilir veya belirtilir ve paket boyutuna, ağırlığına, adedine ve varış yerine göre değişebilir.",
+    "section3Title": "Kargo takibi",
+    "section3Body": "Mevcut olduğunda, teslimat sürecini takip edebilmeniz için gönderimden sonra takip bilgileri paylaşılır.",
+    "section4Title": "Gecikmeler ve risk",
+    "section4Body": "Kargo şirketinden kaynaklanan gecikmeler kontrolümüz dışında gerçekleşebilir. Zorunlu tüketici kanunları aksini öngörmedikçe, risk teslimat anında devredilir."
+  }
+}

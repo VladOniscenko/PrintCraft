@@ -291,13 +291,19 @@ export default defineConfig(({ mode }) => {
 
           const formatHtml = (
             template: string,
-            renderResult: { html: string; headTags: string; langAttr: string },
+            renderResult: {
+              html: string;
+              headTags: string;
+              langAttr: string;
+              dirAttr?: string;
+            },
             isRoot: boolean,
           ) => {
             let pageHtml = template;
+            const dir = renderResult.dirAttr || "ltr";
             pageHtml = pageHtml.replace(
               /<html\s+lang="[^"]*"/,
-              `<html lang="${renderResult.langAttr}"`,
+              `<html lang="${renderResult.langAttr}" dir="${dir}"`,
             );
 
             const headStart = "<!--seo-meta-start-->";

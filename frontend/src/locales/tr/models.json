@@ -1,0 +1,33 @@
+{
+  "title": "Dosyalar",
+  "subtitle": "Ürünlerde ve siparişlerde kullanılan yüklenmiş 3D dosyalarına ve referans görsellere göz atın.",
+  "refresh": "Yenile",
+  "searchPlaceholder": "Dosya adı veya uzantısına göre ara",
+  "count": "Görünür dosyalar",
+  "loading": "Dosyalar yükleniyor...",
+  "empty": "Dosya bulunamadı.",
+  "open": "Aç",
+  "order": "Sipariş",
+  "view3d": "Dosyayı görüntüle",
+  "viewImage": "Görseli görüntüle",
+  "delete": "Sil",
+  "deleting": "Siliniyor...",
+  "backToFiles": "Dosyalara geri dön",
+  "deleteConfirm": "Bu dosya silinsin mi? Bu işlem geri alınamaz.",
+  "deleteFailed": "Dosya silinemedi.",
+  "cleanupOrphans": "Artıkları Temizle",
+  "cleanupRunning": "Temizleniyor...",
+  "cleanupConfirm": "Tüm artık dosyalar (ürünlere veya siparişlere bağlı olmayanlar) silinsin mi?",
+  "cleanupNone": "Artık dosya bulunamadı.",
+  "cleanupDone": "Temizleme tamamlandı. {count} dosya silindi.",
+  "cleanupFailed": "Artık dosyalar temizlenemedi.",
+  "deleteBlocked": "Silinemiyor: dosya bir ürüne veya siparişe bağlı.",
+  "loadFailed": "Dosyalar yüklenemedi.",
+  "table": {
+    "file": "Dosya",
+    "type": "Tür",
+    "size": "Boyut",
+    "updated": "Güncellendi",
+    "action": "İşlem"
+  }
+}

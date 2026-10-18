@@ -13,6 +13,8 @@ import {
   isSupportedLanguage,
   resolveLanguage,
   defaultLanguage,
+  htmlLangMap,
+  getLanguageDirection,
   type SupportedLanguage,
   type TranslationKey,
   type TranslationNamespace,
@@ -110,6 +112,14 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(STORAGE_KEY, urlLang);
     }
   }, [urlLang]);
+
+  // Dynamically update html lang and dir (LTR/RTL) attributes
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = htmlLangMap[language] || language;
+      document.documentElement.dir = getLanguageDirection(language);
+    }
+  }, [language]);
 
   const setLanguage = useCallback(
     (nextLanguage: SupportedLanguage) => {

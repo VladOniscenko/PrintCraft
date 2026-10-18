@@ -1,0 +1,19 @@
+{
+  "error": {
+    "fullNameRequired": "Ad soyad zorunludur",
+    "fullNameLength": "Ad soyad 2-100 karakter arasında olmalıdır",
+    "fullNameInvalid": "Ad soyad desteklenmeyen karakterler içeriyor",
+    "phoneRequired": "Telefon numarası zorunludur",
+    "phoneInvalid": "Telefon numarası biçimi geçersiz",
+    "phoneLength": "Telefon numarası 7-15 basamak içermelidir",
+    "addressRequired": "Adres zorunludur",
+    "addressLength": "Adres 5-120 karakter arasında olmalıdır",
+    "addressInvalid": "Adres desteklenmeyen karakterler içeriyor",
+    "cityRequired": "Şehir zorunludur",
+    "cityLength": "Şehir 2-80 karakter arasında olmalıdır",
+    "cityInvalid": "Şehir desteklenmeyen karakterler içeriyor",
+    "postalRequired": "Posta kodu zorunludur",
+    "postalLength": "Posta kodu 3-12 karakter arasında olmalıdır",
+    "postalInvalid": "Posta kodu biçimi geçersiz"
+  }
+}

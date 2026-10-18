@@ -1,0 +1,23 @@
+{
+  "quote_requested": "Запрошен расчет",
+  "unknown": "Неизвестно",
+  "awaiting_payment": "Ожидает оплаты",
+  "ready_to_print": "Готов к печати",
+  "printing": "Печатается",
+  "post_processing": "Постобработка",
+  "shipped": "Отправлен",
+  "on_hold": "Приостановлен",
+  "cancelled": "Отменен",
+  "returned": "Возвращен",
+  "pendingQuote": "Ожидает расчета",
+  "pending_quote": "Ожидает расчета",
+  "quoted": "Стоимость рассчитана",
+  "expiredQuote": "Расчет устарел",
+  "pendingPayment": "Ожидает оплаты",
+  "pending_payment": "Ожидает оплаты",
+  "completed": "Завершен",
+  "sent": "Отправлен",
+  "delivered": "Доставлен",
+  "paid": "Оплачен",
+  "failed": "Ошибка"
+}

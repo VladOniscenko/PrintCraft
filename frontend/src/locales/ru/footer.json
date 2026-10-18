@@ -1,0 +1,23 @@
+{
+  "companyName": "Print My 3D",
+  "tagline": "Профессиональные услуги 3D-печати прототипов, деталей и индивидуальных проектов по всей территории Нидерландов.",
+  "solutions": "Решения",
+  "standardsTitle": "Стандарты и логистика",
+  "postnl": "Бизнес-доставка PostNL",
+  "consortium3mf": "Стандарты 3MF Consortium",
+  "thingiverse": "Платформа Thingiverse",
+  "makerworld": "Модели MakerWorld",
+  "citiesTitle": "Услуги 3D-печати по городам",
+  "cityServiceLink": "3D-печать {city}",
+  "contact": "Контакты",
+  "location": "Локация",
+  "locationValue": "Роттердам, Нидерланды",
+  "hours": "Часы работы",
+  "hoursValue": "Пн - Пт, 09:00 - 18:00",
+  "privacy": "Политика конфиденциальности",
+  "terms": "Условия обслуживания",
+  "refunds": "Политика возврата средств",
+  "shippingPolicy": "Условия доставки",
+  "faq": "База знаний и частые вопросы",
+  "copyright": "© 2026 Print My 3D. Все права защищены."
+}

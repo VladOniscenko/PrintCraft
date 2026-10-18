@@ -22,6 +22,18 @@ public class AuthController : ControllerBase
     private readonly IEmailService _emailService;
     private readonly ILogger<AuthController> _logger;
 
+    private static readonly HashSet<string> SupportedLanguages = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "nl", "en", "tr", "ru", "ar"
+    };
+
+    private static string NormalizeLanguage(string? lang)
+    {
+        if (string.IsNullOrWhiteSpace(lang)) return "en";
+        var trimmed = lang.Trim().ToLowerInvariant();
+        return SupportedLanguages.Contains(trimmed) ? trimmed : "en";
+    }
+
     public AuthController(
         PrintCraftDb db,
         IConfiguration configuration,
@@ -57,7 +69,7 @@ public class AuthController : ControllerBase
         if (await _db.Users.AnyAsync(u => u.Email == email, cancellationToken))
             return BadRequest(new { message = "Email already exists." });
 
-        var lang = string.Equals(req.PreferredLanguage?.Trim(), "nl", StringComparison.OrdinalIgnoreCase) ? "nl" : "en";
+        var lang = NormalizeLanguage(req.PreferredLanguage);
         var user = new User
         {
             Name = name,
@@ -141,7 +153,7 @@ public class AuthController : ControllerBase
         if (user == null)
             return NotFound(new { message = "User not found." });
 
-        var lang = string.Equals(req.Language?.Trim(), "nl", StringComparison.OrdinalIgnoreCase) ? "nl" : "en";
+        var lang = NormalizeLanguage(req.Language);
         user.PreferredLanguage = lang;
         await _db.SaveChangesAsync(cancellationToken);
 

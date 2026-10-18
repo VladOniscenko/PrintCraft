@@ -1,0 +1,9 @@
+{
+  "confirmCleanup": "Kullanılmayan dosyaları temizlemek istediğinizden emin misiniz? Yalnızca iptal edilmiş, tamamlanmış veya iade edilmiş siparişlerle ilişkili dosyalar (ve artık yüklemeler) silinecektir. Aktif sipariş dosyaları ve ana sayfa slayt medyaları kesinlikle korunur.",
+  "cleanupTooltip": "İptal edilen, tamamlanan ve iade edilen siparişlerdeki dosyaları güvenle temizleyin",
+  "cleaning": "Temizleniyor...",
+  "cleanup": "Temizle",
+  "cleanupSuccess": "Temizleme tamamlandı: {count} dosya silindi ({freed} alan kazanıldı).",
+  "noEligibleFiles": "Temizlenecek uygun dosya bulunamadı.",
+  "cleanupFailed": "Dosyalar temizlenemedi."
+}

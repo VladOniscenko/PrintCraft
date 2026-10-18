@@ -1,0 +1,19 @@
+{
+  "toggleRotation": "Otomatik Döndürmeyi Aç/Kapat",
+  "toggleWireframe": "Tel Çerçeve Görünümünü Aç/Kapat",
+  "toggleGrid": "Zemin Izgarasını Aç/Kapat",
+  "changeBgColor": "Arka Plan Rengini Değiştir",
+  "resetCamera": "Kamera Görünümünü Sıfırla",
+  "printGuidelines": "Baskı Yönergeleri ve İpuçları",
+  "expandDialog": "3D Penceresini Genişlet",
+  "inspect": "İncele",
+  "baseDimensionsScale": "(Temel: {x} × {y} × {z} mm @ {scale}x)",
+  "boundingBox": "Sınırlayıcı Kutu Boyutları",
+  "exceedsBuildVolume": "Baskı hacmini aşıyor (>256 mm)",
+  "layerHeightTitle": "Katman Yüksekliği",
+  "layerHeightDesc": "Standart 0.20 mm, hız ve yüzey kalitesi arasında ideal bir denge sunar. İnce detaylar/minyatürler için 0.12 mm, hızlı prototipler için 0.28 mm kullanın.",
+  "infillDensityTitle": "Dolgu Yoğunluğu",
+  "infillDensityDesc": "%15–%20 görsel ve dekoratif parçalar için idealdir. Mekanik braketler ve yük taşıyan parçalar için %40+ kullanın.",
+  "colorMaterialTitle": "Renk ve Malzeme",
+  "colorMaterialDesc": "Yukarıda 3D geometriniz üzerinde canlı olarak önizlenir. Renkler doğrudan malzeme envanterimizdeki stokta bulunan makaralarla eşleşir."
+}

@@ -53,10 +53,17 @@ const COMMON_PLACEHOLDERS = [
 
 const languageBadgeKeyMap: Record<
   SupportedLanguage,
-  "admin.emailTemplates.englishBadge" | "admin.emailTemplates.dutchBadge"
+  | "admin.emailTemplates.englishBadge"
+  | "admin.emailTemplates.dutchBadge"
+  | "admin.emailTemplates.turkishBadge"
+  | "admin.emailTemplates.russianBadge"
+  | "admin.emailTemplates.arabicBadge"
 > = {
   en: "admin.emailTemplates.englishBadge",
   nl: "admin.emailTemplates.dutchBadge",
+  tr: "admin.emailTemplates.turkishBadge",
+  ru: "admin.emailTemplates.russianBadge",
+  ar: "admin.emailTemplates.arabicBadge",
 };
 
 export default function AdminEmailTemplates() {

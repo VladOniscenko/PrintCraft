@@ -10,6 +10,9 @@ export {
   languageOptions,
   languageFlagMap,
   languageLabelMap,
+  rtlLanguages,
+  isRtlLanguage,
+  getLanguageDirection,
   type SupportedLanguage,
 } from "./config";
 
