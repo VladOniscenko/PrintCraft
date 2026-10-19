@@ -1,0 +1,1 @@
+docker exec -it 3d-shop-postgres-1 psql -U admin -d printcraft
