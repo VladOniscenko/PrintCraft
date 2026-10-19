@@ -179,6 +179,10 @@ function AuthSessionGuard() {
           if (status === 401 || status === 404) {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
+            if (typeof document !== "undefined") {
+              document.documentElement.classList.remove("user-auth");
+              document.documentElement.classList.remove("user-admin");
+            }
             invalidateAuthCache();
             const stored = typeof window !== "undefined" ? localStorage.getItem("language") : null;
             const preferred = resolveLanguage(stored);

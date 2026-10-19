@@ -80,6 +80,20 @@ body {
   will-change: transform;
 }
 
+/* Instant pre-hydration auth toggles to prevent header layout shift & flicker */
+html.user-auth .nav-guest-only {
+  display: none !important;
+}
+html:not(.user-auth) .nav-auth-only {
+  display: none !important;
+}
+html.user-admin .nav-admin-only {
+  display: block !important;
+}
+html:not(.user-admin) .nav-admin-only {
+  display: none !important;
+}
+
 .site-section {
   background: rgba(255, 255, 255, 0.78);
   border: 1px solid rgba(216, 230, 223, 0.9);

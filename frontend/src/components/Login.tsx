@@ -37,6 +37,14 @@ export default function Login() {
       // 2. Save the token and user info to localStorage
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.add("user-auth");
+        if (response.data?.user?.role === "admin") {
+          document.documentElement.classList.add("user-admin");
+        } else {
+          document.documentElement.classList.remove("user-admin");
+        }
+      }
 
       // 3. Redirect to destination, checkout if draft exists, or orders/admin
       const fromPath = (location.state as any)?.from?.pathname;

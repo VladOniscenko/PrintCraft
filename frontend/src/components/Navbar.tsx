@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown, User, Package, ShieldCheck } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./logos/Logo";
 import { useI18n } from "../i18n/I18nContext";
@@ -23,28 +23,80 @@ function prefetchRoute(path: string) {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return Boolean(localStorage.getItem("token"));
+  });
+  const [userRole, setUserRole] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      return JSON.parse(localStorage.getItem("user") || "{}")?.role || null;
+    } catch {
+      return null;
+    }
+  });
+  const [userName, setUserName] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const u = JSON.parse(localStorage.getItem("user") || "{}");
+      return u?.name || u?.email || null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [solutionsOpen, setSolutionsOpen] = useState(false);
+  const [mobileSolutionsOpen, setMobileSolutionsOpen] = useState(false);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const accountDropdownRef = useRef<HTMLDivElement>(null);
+
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { t, language, setLanguage, languageOptions, localizePath } = useI18n();
 
-  // Check if user is logged in on mount and whenever the component updates or storage changes
+  // Sync auth state on mount, route changes, or cross-tab storage events
   useEffect(() => {
     const updateAuth = () => {
-      const token = localStorage.getItem("token");
-      setIsLoggedIn(!!token);
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const userStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+      const isAuth = !!token;
+      setIsLoggedIn(isAuth);
 
-      const userStr = localStorage.getItem("user");
+      if (typeof document !== "undefined") {
+        if (isAuth) {
+          document.documentElement.classList.add("user-auth");
+        } else {
+          document.documentElement.classList.remove("user-auth");
+        }
+      }
+
       if (userStr) {
         try {
           const parsed = JSON.parse(userStr);
           setUserRole(parsed?.role || null);
+          setUserName(parsed?.name || parsed?.email || null);
+          if (typeof document !== "undefined") {
+            if (parsed?.role === "admin") {
+              document.documentElement.classList.add("user-admin");
+            } else {
+              document.documentElement.classList.remove("user-admin");
+            }
+          }
         } catch {
           setUserRole(null);
+          setUserName(null);
+          if (typeof document !== "undefined") {
+            document.documentElement.classList.remove("user-admin");
+          }
         }
       } else {
         setUserRole(null);
+        setUserName(null);
+        if (typeof document !== "undefined") {
+          document.documentElement.classList.remove("user-admin");
+        }
       }
     };
 
@@ -53,25 +105,29 @@ const Navbar = () => {
     return () => window.removeEventListener("storage", updateAuth);
   }, [pathname]);
 
-  const [solutionsOpen, setSolutionsOpen] = useState(false);
-  const [mobileSolutionsOpen, setMobileSolutionsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
   // Close dropdowns on route change
   useEffect(() => {
     setSolutionsOpen(false);
+    setAccountOpen(false);
     setMobileSolutionsOpen(false);
     setIsOpen(false);
   }, [pathname]);
 
-  // Click outside to close desktop dropdown
+  // Click outside to close desktop dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(target)
       ) {
         setSolutionsOpen(false);
+      }
+      if (
+        accountDropdownRef.current &&
+        !accountDropdownRef.current.contains(target)
+      ) {
+        setAccountOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -81,8 +137,14 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    if (typeof document !== "undefined") {
+      document.documentElement.classList.remove("user-auth");
+      document.documentElement.classList.remove("user-admin");
+    }
     setIsLoggedIn(false);
     setUserRole(null);
+    setUserName(null);
+    setAccountOpen(false);
     navigate(localizePath("/"));
   };
 
@@ -97,7 +159,7 @@ const Navbar = () => {
     <nav className="site-navbar px-5 py-3.5 flex items-center justify-between">
       <Logo className="scale-[0.98]" />
 
-      {/* Desktop Links */}
+      {/* Desktop Links (Fixed & Stable to prevent CLS / jumping) */}
       <div className="hidden lg:flex items-center gap-2 text-sm font-medium text-gray-600">
         <Link
           to={localizePath("/")}
@@ -171,49 +233,6 @@ const Navbar = () => {
           {t("nav.faq")}
         </Link>
 
-        {isLoggedIn && (
-          <>
-            <Link
-              to={localizePath("/orders")}
-              onMouseEnter={() => prefetchRoute(localizePath("/orders"))}
-              onFocus={() => prefetchRoute(localizePath("/orders"))}
-              className={`rounded-lg px-3 py-2 transition-colors ${
-                isLinkActive(localizePath("/orders"))
-                  ? "bg-[#ecf6f2] text-[#0f766e]"
-                  : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
-              }`}
-            >
-              {t("nav.myOrders")}
-            </Link>
-            <Link
-              to={localizePath("/profile")}
-              onMouseEnter={() => prefetchRoute(localizePath("/profile"))}
-              onFocus={() => prefetchRoute(localizePath("/profile"))}
-              className={`rounded-lg px-3 py-2 transition-colors ${
-                isLinkActive(localizePath("/profile"))
-                  ? "bg-[#ecf6f2] text-[#0f766e]"
-                  : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
-              }`}
-            >
-              {t("nav.myProfile")}
-            </Link>
-            {userRole === "admin" && (
-              <Link
-                to={localizePath("/admin")}
-                onMouseEnter={() => prefetchRoute(localizePath("/admin"))}
-                onFocus={() => prefetchRoute(localizePath("/admin"))}
-                className={`rounded-lg px-3 py-2 transition-colors ${
-                  isLinkActive(localizePath("/admin"))
-                    ? "bg-[#ecf6f2] text-[#0f766e]"
-                    : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
-                }`}
-              >
-                {t("nav.admin")}
-              </Link>
-            )}
-          </>
-        )}
-
         <Link
           to={localizePath("/checkout")}
           onMouseEnter={() => prefetchRoute(localizePath("/checkout"))}
@@ -228,7 +247,9 @@ const Navbar = () => {
         </Link>
       </div>
 
+      {/* Right Desktop Section */}
       <div className="hidden lg:flex items-center gap-4">
+        {/* Language Switcher */}
         <div className="flex items-center gap-1 border border-[#d4e3dd] rounded-lg p-1 bg-[#f7fbf9]">
           {languageOptions.map((option) => (
             <button
@@ -245,28 +266,118 @@ const Navbar = () => {
           ))}
         </div>
 
-        {!isLoggedIn ? (
-          <>
-            <Link
-              to={localizePath("/login")}
-              onMouseEnter={() => prefetchRoute(localizePath("/login"))}
-              onFocus={() => prefetchRoute(localizePath("/login"))}
-              className="site-btn-soft"
-            >
-              {t("nav.logIn")}
-            </Link>
-          </>
-        ) : (
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleLogout}
-              className="p-2.5 text-[#647972] hover:text-red-700 hover:bg-red-50 rounded-lg transition-all"
-              title={t("nav.logOut")}
-            >
-              <LogOut size={20} />
-            </button>
-          </div>
-        )}
+        {/* Guest: Log In Button */}
+        <div className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}>
+          <Link
+            to={localizePath("/login")}
+            onMouseEnter={() => prefetchRoute(localizePath("/login"))}
+            onFocus={() => prefetchRoute(localizePath("/login"))}
+            className="site-btn-soft"
+          >
+            {t("nav.logIn")}
+          </Link>
+        </div>
+
+        {/* Authenticated: Account Dropdown Menu */}
+        <div
+          ref={accountDropdownRef}
+          className={`nav-auth-only relative ${isLoggedIn ? "block" : "hidden"}`}
+        >
+          <button
+            type="button"
+            onClick={() => setAccountOpen(!accountOpen)}
+            className={`site-btn-soft inline-flex items-center gap-1.5 ${
+              accountOpen ||
+              isLinkActive(localizePath("/orders")) ||
+              isLinkActive(localizePath("/profile")) ||
+              isLinkActive(localizePath("/admin"))
+                ? "bg-[#ecf6f2] text-[#0f766e] border-[#0f766e]"
+                : ""
+            }`}
+            aria-expanded={accountOpen}
+            aria-haspopup="true"
+          >
+            <User size={16} />
+            <span>{t("nav.account")}</span>
+            <ChevronDown
+              size={14}
+              className={`transition-transform duration-200 ${accountOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {accountOpen && (
+            <div className="absolute right-0 top-full pt-2 w-56 z-50">
+              <div className="bg-white rounded-2xl shadow-xl border border-[#d8e6df] p-2 space-y-1">
+                {userName && (
+                  <div className="px-3 py-2 text-xs font-semibold text-[#5f736d] border-b border-[#eaf2ee] truncate">
+                    {userName}
+                  </div>
+                )}
+
+                <Link
+                  to={localizePath("/orders")}
+                  onClick={() => setAccountOpen(false)}
+                  onMouseEnter={() => prefetchRoute(localizePath("/orders"))}
+                  onFocus={() => prefetchRoute(localizePath("/orders"))}
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
+                    isLinkActive(localizePath("/orders"))
+                      ? "bg-[#ecf6f2] text-[#0f766e]"
+                      : "text-[#3f554e] hover:bg-[#f3faf7] hover:text-[#0f766e]"
+                  }`}
+                >
+                  <Package size={15} />
+                  <span>{t("nav.myOrders")}</span>
+                </Link>
+
+                <Link
+                  to={localizePath("/profile")}
+                  onClick={() => setAccountOpen(false)}
+                  onMouseEnter={() => prefetchRoute(localizePath("/profile"))}
+                  onFocus={() => prefetchRoute(localizePath("/profile"))}
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
+                    isLinkActive(localizePath("/profile"))
+                      ? "bg-[#ecf6f2] text-[#0f766e]"
+                      : "text-[#3f554e] hover:bg-[#f3faf7] hover:text-[#0f766e]"
+                  }`}
+                >
+                  <User size={15} />
+                  <span>{t("nav.myProfile")}</span>
+                </Link>
+
+                {userRole === "admin" && (
+                  <Link
+                    to={localizePath("/admin")}
+                    onClick={() => setAccountOpen(false)}
+                    onMouseEnter={() => prefetchRoute(localizePath("/admin"))}
+                    onFocus={() => prefetchRoute(localizePath("/admin"))}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
+                      isLinkActive(localizePath("/admin"))
+                        ? "bg-[#ecf6f2] text-[#0f766e]"
+                        : "text-[#3f554e] hover:bg-[#f3faf7] hover:text-[#0f766e]"
+                    }`}
+                  >
+                    <ShieldCheck size={15} />
+                    <span>{t("nav.admin")}</span>
+                  </Link>
+                )}
+
+                <div className="border-t border-[#eaf2ee] my-1" />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAccountOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut size={15} />
+                  <span>{t("nav.logOut")}</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Mobile Menu Toggle */}
@@ -355,45 +466,50 @@ const Navbar = () => {
             {t("nav.instantQuote")}
           </Link>
 
+          {/* Mobile Authenticated Routes */}
           {isLoggedIn && (
-            <>
+            <div className="nav-auth-only flex flex-col gap-1 border-t border-[#deebe6] pt-2">
               <Link
                 to={localizePath("/orders")}
-                className={`font-medium py-2 px-2 rounded-lg ${
+                className={`font-medium py-2 px-2 rounded-lg flex items-center gap-2 ${
                   isLinkActive(localizePath("/orders"))
                     ? "bg-[#ecf6f2] text-[#0f766e]"
                     : "text-[#3d534c]"
                 }`}
                 onClick={() => setIsOpen(false)}
               >
-                {t("nav.myOrders")}
+                <Package size={16} />
+                <span>{t("nav.myOrders")}</span>
               </Link>
               <Link
                 to={localizePath("/profile")}
-                className={`font-medium py-2 px-2 rounded-lg ${
+                className={`font-medium py-2 px-2 rounded-lg flex items-center gap-2 ${
                   isLinkActive(localizePath("/profile"))
                     ? "bg-[#ecf6f2] text-[#0f766e]"
                     : "text-[#3d534c]"
                 }`}
                 onClick={() => setIsOpen(false)}
               >
-                {t("nav.myProfile")}
+                <User size={16} />
+                <span>{t("nav.myProfile")}</span>
               </Link>
               {userRole === "admin" && (
                 <Link
                   to={localizePath("/admin")}
-                  className={`font-medium py-2 px-2 rounded-lg ${
+                  className={`font-medium py-2 px-2 rounded-lg flex items-center gap-2 ${
                     isLinkActive(localizePath("/admin"))
                       ? "bg-[#ecf6f2] text-[#0f766e]"
                       : "text-[#3d534c]"
                   }`}
                   onClick={() => setIsOpen(false)}
                 >
-                  {t("nav.admin")}
+                  <ShieldCheck size={16} />
+                  <span>{t("nav.admin")}</span>
                 </Link>
               )}
-            </>
+            </div>
           )}
+
           <hr className="border-[#deebe6]" />
 
           <div className="flex items-center gap-2">
@@ -412,16 +528,19 @@ const Navbar = () => {
             ))}
           </div>
 
-          {!isLoggedIn ? (
+          <div className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}>
             <Link
               to={localizePath("/login")}
               onClick={() => setIsOpen(false)}
-              className="site-btn-soft w-full"
+              className="site-btn-soft w-full text-center block"
             >
               {t("nav.logIn")}
             </Link>
-          ) : (
+          </div>
+
+          <div className={`nav-auth-only ${isLoggedIn ? "block" : "hidden"}`}>
             <button
+              type="button"
               onClick={() => {
                 handleLogout();
                 setIsOpen(false);
@@ -430,7 +549,7 @@ const Navbar = () => {
             >
               <LogOut size={18} /> {t("nav.logOut")}
             </button>
-          )}
+          </div>
         </div>
       )}
     </nav>
