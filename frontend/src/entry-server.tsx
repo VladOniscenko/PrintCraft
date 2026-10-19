@@ -10,6 +10,7 @@ import {
   resolveLanguage,
   getLanguageDirection,
   type SupportedLanguage,
+  type TranslationSchema,
 } from "./i18n/translations";
 import { translationsStore } from "./i18n/loader";
 
@@ -24,11 +25,13 @@ for (const [filePath, mod] of Object.entries(allSsrLocales)) {
   if (match) {
     const [, lang, ns] = match;
     const data = (mod as { default?: unknown }).default || mod;
+    const sLang = lang as SupportedLanguage;
+    translationsStore[sLang] ??= {} as unknown as TranslationSchema;
     if (ns === "root") {
-      Object.assign(translationsStore[lang as SupportedLanguage], data);
+      Object.assign(translationsStore[sLang], data);
     } else {
       (
-        translationsStore[lang as SupportedLanguage] as unknown as Record<
+        translationsStore[sLang] as unknown as Record<
           string,
           unknown
         >

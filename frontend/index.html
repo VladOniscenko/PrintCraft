@@ -123,9 +123,15 @@
         try {
           var p = window.location.pathname;
           if (p === "/" || p === "") {
+            var supported = ["nl", "en", "tr", "ru", "ar"];
             var lang = localStorage.getItem("language");
+            if (!lang || supported.indexOf(lang) === -1) {
+              var nav = (navigator.language || "").slice(0, 2).toLowerCase();
+              lang = supported.indexOf(nav) !== -1 ? nav : "nl";
+            }
             var target =
-              (lang === "en" ? "/en" : "/nl") +
+              "/" +
+              lang +
               window.location.search +
               window.location.hash;
             window.location.replace(target);

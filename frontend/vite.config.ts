@@ -314,7 +314,10 @@ export default defineConfig(({ mode }) => {
               pageHtml = `${beforeHead}${headStart}\n    ${renderResult.headTags}\n    ${headEnd}${afterHead}`;
             }
 
-            pageHtml = pageHtml.replace("<!--app-html-->", renderResult.html);
+            pageHtml = pageHtml.replace(
+              "<!--app-html-->",
+              isRoot ? "" : renderResult.html,
+            );
 
             if (!isRoot) {
               const redirStart = "<!--root-redirect-start-->";

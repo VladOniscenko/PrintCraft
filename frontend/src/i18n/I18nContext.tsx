@@ -11,7 +11,6 @@ import {
   languageOptions,
   translations,
   isSupportedLanguage,
-  resolveLanguage,
   defaultLanguage,
   htmlLangMap,
   getLanguageDirection,
@@ -21,6 +20,8 @@ import {
 } from "./translations";
 import {
   subscribeTranslations,
+  loadLanguage,
+  isLanguageLoaded,
   loadNamespaces,
   isNamespaceLoaded,
 } from "./loader";
@@ -48,18 +49,17 @@ export function getInitialLanguage(): SupportedLanguage {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (isSupportedLanguage(stored)) return stored;
 
-  if (
-    typeof navigator !== "undefined" &&
-    navigator.language &&
-    navigator.language.startsWith("en")
-  ) {
-    return "en";
+  if (typeof navigator !== "undefined" && navigator.language) {
+    const navCode = navigator.language.slice(0, 2).toLowerCase();
+    if (isSupportedLanguage(navCode)) {
+      return navCode;
+    }
   }
   return defaultLanguage;
 }
 
 function getNestedTranslation(
-  obj: Record<string, unknown>,
+  obj: Record<string, unknown> | undefined,
   path: string,
 ): string | undefined {
   if (!obj || typeof obj !== "object") return undefined;
@@ -80,30 +80,40 @@ function getNestedTranslation(
   return typeof current === "string" ? current : undefined;
 }
 
-export function I18nProvider({ children }: { children: React.ReactNode }) {
+interface I18nProviderProps {
+  children: React.ReactNode;
+  initialLanguage?: SupportedLanguage;
+}
+
+export function I18nProvider({ children, initialLanguage }: I18nProviderProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [version, setVersion] = useState(0);
 
-  // Re-render when newly loaded namespaces arrive
+  // Re-render when newly loaded language chunks arrive
   useEffect(() => {
     return subscribeTranslations(() => {
       setVersion((v) => v + 1);
     });
   }, []);
 
-  // Extract language from URL path: /nl/... or /en/...
+  // Extract language from URL path: /nl/... or /ru/...
   const pathParts = location.pathname.split("/").filter(Boolean);
   const urlLang: SupportedLanguage | null = isSupportedLanguage(pathParts[0])
     ? pathParts[0]
     : null;
 
-  const stored =
-    typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
-  const storedLang: SupportedLanguage = resolveLanguage(stored);
+  const resolvedInitial = initialLanguage ?? getInitialLanguage();
+  const language: SupportedLanguage = urlLang ?? resolvedInitial;
 
-  // Active language prioritizes URL segment if valid, otherwise stored preference
-  const language: SupportedLanguage = urlLang ?? storedLang;
+  // Dynamically load active language chunk if not yet in memory
+  useEffect(() => {
+    if (!isLanguageLoaded(language)) {
+      void loadLanguage(language).then(() => {
+        setVersion((v) => v + 1);
+      });
+    }
+  }, [language]);
 
   // Sync localStorage whenever a valid language appears in the URL
   useEffect(() => {
@@ -124,14 +134,24 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     (nextLanguage: SupportedLanguage) => {
       localStorage.setItem(STORAGE_KEY, nextLanguage);
 
-      const parts = location.pathname.split("/").filter(Boolean);
-      if (isSupportedLanguage(parts[0])) {
-        parts[0] = nextLanguage;
+      const updateRoute = () => {
+        const parts = location.pathname.split("/").filter(Boolean);
+        if (isSupportedLanguage(parts[0])) {
+          parts[0] = nextLanguage;
+        } else {
+          parts.unshift(nextLanguage);
+        }
+        const nextPath = "/" + parts.join("/");
+        navigate(nextPath + location.search + location.hash);
+      };
+
+      if (!isLanguageLoaded(nextLanguage)) {
+        void loadLanguage(nextLanguage).then(() => {
+          updateRoute();
+        });
       } else {
-        parts.unshift(nextLanguage);
+        updateRoute();
       }
-      const nextPath = "/" + parts.join("/");
-      navigate(nextPath + location.search + location.hash);
     },
     [location.pathname, location.search, location.hash, navigate],
   );
@@ -168,15 +188,16 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
   const t = useCallback(
     (key: TranslationKey, vars?: Record<string, string | number>): string => {
-      let value = getNestedTranslation(translations[language], key);
+      const activeDict = translations[language];
+      let value = getNestedTranslation(activeDict, key);
 
-      // Fallback to English if translation is missing in current language
-      if (!value && language !== "en") {
+      // Fallback to English if translation is missing in current language and English is loaded
+      if (!value && language !== "en" && translations.en) {
         value = getNestedTranslation(translations.en, key);
       }
 
-      // Fallback to Dutch (default canonical language) if still missing
-      if (!value && language !== "nl") {
+      // Fallback to Dutch (default canonical language) if still missing and Dutch is loaded
+      if (!value && language !== "nl" && translations.nl) {
         value = getNestedTranslation(translations.nl, key);
       }
 
@@ -192,7 +213,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
       return value;
     },
-    [language],
+    [language, version],
   );
 
   const value = useMemo(

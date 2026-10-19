@@ -14,6 +14,19 @@ import {
   getApplicationName,
   type SeoApplication,
 } from "../config/seoApplications";
+import enNav from "../locales/en/nav.json";
+import enCityPage from "../locales/en/cityPage.json";
+import enSeo from "../locales/en/seo.json";
+
+function getLocaleFallback(language: SupportedLanguage) {
+  const active = translations[language] || translations[defaultLanguage];
+  return {
+    nav: active?.nav || enNav,
+    cityPage: active?.cityPage || enCityPage,
+    seo: active?.seo || enSeo,
+    faq: (active?.faq || {}) as Record<string, string>,
+  };
+}
 
 export interface SchemaGraph {
   "@context": "https://schema.org";
@@ -53,9 +66,8 @@ export function buildHomepageJsonLd(
   const origin = getValidatedOrigin(businessInfo.website);
   const inLang = htmlLangMap[language] || language;
   const ogImage = `${origin}/uploads/hero/materials.svg`;
-  const tSource = translations[language] || translations[defaultLanguage];
-  const schemaT =
-    tSource?.seo?.schema || translations[defaultLanguage]?.seo?.schema;
+  const t = getLocaleFallback(language);
+  const schemaT = t.seo.schema;
   const localizedCountry =
     businessInfo.address.countryName[language] ||
     businessInfo.address.countryName.nl;
@@ -202,13 +214,13 @@ export function buildFaqJsonLd(
   language: SupportedLanguage,
 ): SchemaGraph {
   const inLang = htmlLangMap[language] || language;
-  const tSource = translations[language] || translations[defaultLanguage] || translations.en;
-  const faqSource = tSource?.faq || translations[defaultLanguage]?.faq || translations.en?.faq || {};
+  const t = getLocaleFallback(language);
+  const faqSource = t.faq;
   const faqItems: Array<{ q: string; a: string }> = [];
   if (faqSource) {
     for (let i = 1; i <= 20; i++) {
-      const qKey = `q${i}` as keyof typeof faqSource;
-      const aKey = `a${i}` as keyof typeof faqSource;
+      const qKey = `q${i}`;
+      const aKey = `a${i}`;
       const question = faqSource[qKey];
       const answer = faqSource[aKey];
       if (typeof question === "string" && typeof answer === "string") {
@@ -235,17 +247,11 @@ export function buildFaqJsonLd(
       },
       buildBreadcrumbsJsonLd(canonicalUrl, [
         {
-          name:
-            tSource?.nav?.home ||
-            translations[defaultLanguage]?.nav?.home ||
-            "Home",
+          name: t.nav.home || "Home",
           url: `${origin}/${language}`,
         },
         {
-          name:
-            tSource?.nav?.faq ||
-            translations[defaultLanguage]?.nav?.faq ||
-            "FAQ",
+          name: t.nav.faq || "FAQ",
           url: canonicalUrl,
         },
       ]),
@@ -276,7 +282,7 @@ export function buildStandardWebPageJsonLd(
 ): SchemaGraph {
   const origin = getValidatedOrigin(businessInfo.website);
   const inLang = htmlLangMap[language] || language;
-  const tSource = translations[language] || translations[defaultLanguage];
+  const t = getLocaleFallback(language);
 
   return {
     "@context": "https://schema.org",
@@ -294,10 +300,7 @@ export function buildStandardWebPageJsonLd(
       },
       buildBreadcrumbsJsonLd(canonicalUrl, [
         {
-          name:
-            tSource?.nav?.home ||
-            translations[defaultLanguage]?.nav?.home ||
-            "Home",
+          name: t.nav.home || "Home",
           url: `${origin}/${language}`,
         },
         { name: pageTitle, url: canonicalUrl },
@@ -317,9 +320,9 @@ export function buildCityJsonLd(
   const inLang = htmlLangMap[language] || language;
   const ogImage = `${origin}/uploads/hero/materials.svg`;
   const cityName = getCityName(city, language);
-  const tSource = translations[language] || translations[defaultLanguage];
-  const cityPageT = tSource.cityPage;
-  const schemaT = tSource.seo.schema;
+  const t = getLocaleFallback(language);
+  const cityPageT = t.cityPage;
+  const schemaT = t.seo.schema;
 
   const faqItems = [
     {
@@ -427,9 +430,9 @@ export function buildCityJsonLd(
         },
       },
       buildBreadcrumbsJsonLd(canonicalUrl, [
-        { name: tSource.nav.home, url: `${origin}/${language}` },
+        { name: t.nav.home, url: `${origin}/${language}` },
         {
-          name: tSource.cityPage.badge,
+          name: t.cityPage.badge,
           url: `${origin}/${language}/#services`,
         },
         { name: cityName, url: canonicalUrl },
@@ -462,7 +465,7 @@ export function buildApplicationJsonLd(
 ): SchemaGraph {
   const origin = getValidatedOrigin(businessInfo.website);
   const inLang = htmlLangMap[language] || language;
-  const tSource = translations[language] || translations[defaultLanguage];
+  const t = getLocaleFallback(language);
   const appName = getApplicationName(app, language);
   const localizedFaqs = app.faqs[language] || app.faqs[defaultLanguage] || [];
 
@@ -496,9 +499,9 @@ export function buildApplicationJsonLd(
         },
       },
       buildBreadcrumbsJsonLd(canonicalUrl, [
-        { name: tSource.nav.home, url: `${origin}/${language}` },
+        { name: t.nav.home, url: `${origin}/${language}` },
         {
-          name: tSource.seo.schema.catalogName,
+          name: t.seo.schema.catalogName,
           url: `${origin}/${language}/#services`,
         },
         { name: appName, url: canonicalUrl },
