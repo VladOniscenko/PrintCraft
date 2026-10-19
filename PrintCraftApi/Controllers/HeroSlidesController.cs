@@ -85,6 +85,11 @@ public class HeroSlidesController : ControllerBase
                 return Ok(fallback);
             }
 
+            foreach (var slide in activeSlides)
+            {
+                HydrateSlideTranslations(slide);
+            }
+
             _cache?.Set(ActiveSlidesCacheKey, activeSlides, CacheDuration);
             return Ok(activeSlides);
         }
@@ -130,6 +135,11 @@ public class HeroSlidesController : ControllerBase
                 return Ok(defaults.OrderBy(s => s.SortOrder).ToList());
             }
 
+            foreach (var slide in slides)
+            {
+                HydrateSlideTranslations(slide);
+            }
+
             return Ok(slides);
         }
         catch (Exception ex)
@@ -167,6 +177,7 @@ public class HeroSlidesController : ControllerBase
                 return NotFound(new { message = "Hero slide not found." });
             }
 
+            HydrateSlideTranslations(slide);
             return Ok(slide);
         }
         catch (Exception ex)
@@ -554,6 +565,40 @@ public class HeroSlidesController : ControllerBase
             .ToArray();
 
         return Ok(allFiles);
+    }
+
+    private static readonly Lazy<List<HeroSlide>> DefaultSlides = new(HeroSlideSeeder.GetDefaultSlides);
+
+    private static void HydrateSlideTranslations(HeroSlide target)
+    {
+        var def = DefaultSlides.Value.FirstOrDefault(d => d.Id == target.Id)
+            ?? DefaultSlides.Value.FirstOrDefault(d => d.SortOrder == target.SortOrder);
+        if (def == null) return;
+
+        target.Titles = MergeDict(target.Titles, def.Titles);
+        target.Subtexts = MergeDict(target.Subtexts, def.Subtexts);
+        target.PriceTexts = MergeDict(target.PriceTexts, def.PriceTexts);
+        target.InstructionTooltips = MergeDict(target.InstructionTooltips, def.InstructionTooltips);
+    }
+
+    private static Dictionary<string, string> MergeDict(Dictionary<string, string>? target, Dictionary<string, string>? fallback)
+    {
+        var result = target == null
+            ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            : new Dictionary<string, string>(target, StringComparer.OrdinalIgnoreCase);
+
+        if (fallback != null)
+        {
+            foreach (var (k, v) in fallback)
+            {
+                if (!result.TryGetValue(k, out var val) || string.IsNullOrWhiteSpace(val))
+                {
+                    result[k] = v;
+                }
+            }
+        }
+
+        return result;
     }
 }
 

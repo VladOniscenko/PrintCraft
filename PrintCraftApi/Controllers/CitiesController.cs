@@ -54,6 +54,11 @@ public class CitiesController : ControllerBase
             .ThenBy(c => c.Slug)
             .ToListAsync(cancellationToken);
 
+        foreach (var city in cities)
+        {
+            HydrateCityTranslations(city);
+        }
+
         if (all != true && string.IsNullOrEmpty(province))
         {
             _cache?.Set(CitiesCacheKey, cities, CacheDuration);
@@ -85,6 +90,7 @@ public class CitiesController : ControllerBase
             return NotFound(new { message = $"City '{slugOrId}' not found." });
         }
 
+        HydrateCityTranslations(city);
         return Ok(city);
     }
 
@@ -204,5 +210,36 @@ public class CitiesController : ControllerBase
         var result = await CitySeeder.EnsureDatabaseSeededAsync(_db, forceReload);
         _cache?.Remove(CitiesCacheKey);
         return Ok(result);
+    }
+
+    private static readonly Lazy<List<City>> DefaultCities = new(CitySeeder.GetDefaultCities);
+
+    private static void HydrateCityTranslations(City target)
+    {
+        var def = DefaultCities.Value.FirstOrDefault(d => d.Id == target.Id)
+            ?? DefaultCities.Value.FirstOrDefault(d => string.Equals(d.Slug, target.Slug, StringComparison.OrdinalIgnoreCase));
+        if (def == null) return;
+
+        target.Names = MergeDict(target.Names, def.Names);
+    }
+
+    private static Dictionary<string, string> MergeDict(Dictionary<string, string>? target, Dictionary<string, string>? fallback)
+    {
+        var result = target == null
+            ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            : new Dictionary<string, string>(target, StringComparer.OrdinalIgnoreCase);
+
+        if (fallback != null)
+        {
+            foreach (var (k, v) in fallback)
+            {
+                if (!result.TryGetValue(k, out var val) || string.IsNullOrWhiteSpace(val))
+                {
+                    result[k] = v;
+                }
+            }
+        }
+
+        return result;
     }
 }
