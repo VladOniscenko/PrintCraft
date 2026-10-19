@@ -84,6 +84,15 @@ body {
 html.user-auth .nav-guest-only {
   display: none !important;
 }
+html:not(.user-auth) .nav-guest-only {
+  display: block !important;
+}
+html.user-auth .nav-auth-only {
+  display: block !important;
+}
+html.user-auth .nav-auth-only.flex {
+  display: flex !important;
+}
 html:not(.user-auth) .nav-auth-only {
   display: none !important;
 }
@@ -331,6 +340,11 @@ body:has(.admin-shell) {
 .admin-shell > * {
   position: relative;
   z-index: 1;
+}
+
+.admin-shell > .site-navbar {
+  position: sticky;
+  z-index: 50;
 }
 
 

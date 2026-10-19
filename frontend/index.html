@@ -2,6 +2,22 @@
 <html lang="nl-NL">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem("token")) {
+            document.documentElement.classList.add("user-auth");
+            var userStr = localStorage.getItem("user");
+            if (userStr) {
+              var u = JSON.parse(userStr);
+              if (u && u.role === "admin") {
+                document.documentElement.classList.add("user-admin");
+              }
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
     <!-- Preload Critical Above-The-Fold Hero Image -->
     <link
       rel="preload"
@@ -140,22 +156,6 @@
       })();
     </script>
     <!--root-redirect-end-->
-    <script>
-      (function () {
-        try {
-          if (localStorage.getItem("token")) {
-            document.documentElement.classList.add("user-auth");
-            var userStr = localStorage.getItem("user");
-            if (userStr) {
-              var u = JSON.parse(userStr);
-              if (u && u.role === "admin") {
-                document.documentElement.classList.add("user-admin");
-              }
-            }
-          }
-        } catch (e) {}
-      })();
-    </script>
     <meta name="theme-color" content="#133827" />
   </head>
   <body>

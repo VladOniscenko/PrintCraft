@@ -266,44 +266,46 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Guest: Log In Button */}
-        <div className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}>
-          <Link
-            to={localizePath("/login")}
-            onMouseEnter={() => prefetchRoute(localizePath("/login"))}
-            onFocus={() => prefetchRoute(localizePath("/login"))}
-            className="site-btn-soft"
-          >
-            {t("nav.logIn")}
-          </Link>
-        </div>
+        {/* Auth action slot with stable container */}
+        <div className="flex items-center shrink-0">
+          {/* Guest: Log In Button */}
+          <div className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}>
+            <Link
+              to={localizePath("/login")}
+              onMouseEnter={() => prefetchRoute(localizePath("/login"))}
+              onFocus={() => prefetchRoute(localizePath("/login"))}
+              className="site-btn-soft min-w-[95px] justify-center text-center"
+            >
+              {t("nav.logIn")}
+            </Link>
+          </div>
 
-        {/* Authenticated: Account Dropdown Menu */}
-        <div
-          ref={accountDropdownRef}
-          className={`nav-auth-only relative ${isLoggedIn ? "block" : "hidden"}`}
-        >
-          <button
-            type="button"
-            onClick={() => setAccountOpen(!accountOpen)}
-            className={`site-btn-soft inline-flex items-center gap-1.5 ${
-              accountOpen ||
-              isLinkActive(localizePath("/orders")) ||
-              isLinkActive(localizePath("/profile")) ||
-              isLinkActive(localizePath("/admin"))
-                ? "bg-[#ecf6f2] text-[#0f766e] border-[#0f766e]"
-                : ""
-            }`}
-            aria-expanded={accountOpen}
-            aria-haspopup="true"
+          {/* Authenticated: Account Dropdown Menu */}
+          <div
+            ref={accountDropdownRef}
+            className={`nav-auth-only relative ${isLoggedIn ? "block" : "hidden"}`}
           >
-            <User size={16} />
-            <span>{t("nav.account")}</span>
-            <ChevronDown
-              size={14}
-              className={`transition-transform duration-200 ${accountOpen ? "rotate-180" : ""}`}
-            />
-          </button>
+            <button
+              type="button"
+              onClick={() => setAccountOpen(!accountOpen)}
+              className={`site-btn-soft inline-flex items-center justify-center gap-1.5 min-w-[95px] ${
+                accountOpen ||
+                isLinkActive(localizePath("/orders")) ||
+                isLinkActive(localizePath("/profile")) ||
+                isLinkActive(localizePath("/admin"))
+                  ? "bg-[#ecf6f2] text-[#0f766e] border-[#0f766e]"
+                  : ""
+              }`}
+              aria-expanded={accountOpen}
+              aria-haspopup="true"
+            >
+              <User size={16} />
+              <span>{t("nav.account")}</span>
+              <ChevronDown
+                size={14}
+                className={`transition-transform duration-200 ${accountOpen ? "rotate-180" : ""}`}
+              />
+            </button>
 
           {accountOpen && (
             <div className="absolute right-0 top-full pt-2 w-56 z-50">
@@ -379,6 +381,7 @@ const Navbar = () => {
           )}
         </div>
       </div>
+    </div>
 
       {/* Mobile Menu Toggle */}
       <button
