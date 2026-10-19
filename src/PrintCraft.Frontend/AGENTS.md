@@ -12,13 +12,11 @@ This repository strictly enforces localization and type-safe internationalizatio
 
 2. **Always Use the Established Translation System**
    - Import `useI18n` from `src/i18n/I18nContext`:
-
      ```tsx
      import { useI18n } from "../i18n/I18nContext";
 
      const { t } = useI18n();
      ```
-
    - Use `t("namespace.key")` for static copy or `t("namespace.key", { varName: value })` for interpolated values.
    - Never concatenate translated fragments to construct sentences. Use interpolation variables in `translations.ts` instead.
    - Never use English `defaultValue` fallbacks (e.g. `t("key") || "Default"`). Translation keys must exist directly in the resource files.
@@ -50,7 +48,6 @@ npm run check:i18n
 ```
 
 This single command runs three required stages in sequence:
-
 1. `npm run check:i18n:keys`: Recursively validates that all keys in `en` and `nl` match 1:1 and scans all `src/` files for invalid key calls.
 2. `tsc -b`: Type-checks all translation keys via TypeScript leaf inference (`TranslationKey`).
 3. `npm run lint:i18n`: Runs custom AST ESLint rules (`i18n/no-hardcoded-jsx` and `i18n/no-hardcoded-ui-strings`) to ensure 0 hardcoded strings exist in JSX or UI notification APIs.
