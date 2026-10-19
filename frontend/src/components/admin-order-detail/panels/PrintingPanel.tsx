@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   CheckCircle,
-  Printer,
   Layers,
   Eye,
 } from "lucide-react";
@@ -55,30 +54,6 @@ export default function PrintingPanel({
           <CheckCircle size={16} />
           <span>{isProcessing ? t("admin.orderDetail.panels.printing.updating") : t("admin.orderDetail.panels.printing.printCompleteMoveToQC")}</span>
         </button>
-      </div>
-
-      {/* Hardware Assignment Status */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
-        <h3 className="text-sm font-semibold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
-          <Printer size={16} className="text-indigo-600" />
-          <span>{t("admin.orderDetail.panels.printing.hardwareHeading")}</span>
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span className="text-slate-400 block mb-1">{t("admin.orderDetail.panels.printing.assignedPrinter")}</span>
-            <strong className="text-sm text-slate-900 font-semibold block">
-              {order.assignedPrinter || "Prusa MK4 #1"}
-            </strong>
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span className="text-slate-400 block mb-1">{t("admin.orderDetail.panels.printing.loadedMaterial")}</span>
-            <strong className="text-sm text-slate-900 font-semibold block">
-              {order.assignedMaterial || "PLA Basic Black"}
-            </strong>
-          </div>
-        </div>
       </div>
 
       {/* Sliced Items on Plate */}

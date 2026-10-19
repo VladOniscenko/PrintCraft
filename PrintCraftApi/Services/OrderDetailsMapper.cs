@@ -34,8 +34,6 @@ public static class OrderDetailsMapper
             IsPaid = order.IsPaid,
             HoldReason = order.HoldReason,
             FlaggedForRefundReview = order.FlaggedForRefundReview,
-            AssignedPrinter = order.AssignedPrinter,
-            AssignedMaterial = order.AssignedMaterial,
             GCodeFinalized = order.GCodeFinalized,
             AllowedTransitions = allowedTransitions,
 

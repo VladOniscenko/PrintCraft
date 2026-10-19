@@ -24,6 +24,7 @@ const adminNavLinks = [
   { labelKey: "admin.nav.emailTemplates", to: "/admin/email-templates" },
   { labelKey: "admin.nav.faq", to: "/admin/faq" },
   { labelKey: "admin.nav.cities", to: "/admin/cities" },
+  { labelKey: "admin.nav.policies", to: "/admin/policies" },
 ] as const;
 
 export default function AdminBreadcrumb({

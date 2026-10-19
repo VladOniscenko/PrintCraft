@@ -95,12 +95,6 @@ public sealed class StatusTransitionRequest
     /// <summary>Required when transitioning to OnHold. Admin must provide a reason.</summary>
     public string? HoldReason { get; init; }
 
-    /// <summary>Required for ReadyToPrint: which printer will be used.</summary>
-    public string? AssignedPrinter { get; init; }
-
-    /// <summary>Required for ReadyToPrint: which material is loaded.</summary>
-    public string? AssignedMaterial { get; init; }
-
     /// <summary>
     /// Required for ReadyToPrint: signals that G-code has been reviewed and finalised.
     /// </summary>
@@ -266,10 +260,6 @@ public sealed class OrderStatusStateMachine
                 "Mark the order as paid before moving to Ready to Print.");
 
         // Transition the order and persist production parameters if provided
-        if (!string.IsNullOrWhiteSpace(request.AssignedPrinter))
-            order.AssignedPrinter = request.AssignedPrinter.Trim();
-        if (!string.IsNullOrWhiteSpace(request.AssignedMaterial))
-            order.AssignedMaterial = request.AssignedMaterial.Trim();
         if (request.GCodeFinalized)
             order.GCodeFinalized = true;
 
@@ -291,10 +281,6 @@ public sealed class OrderStatusStateMachine
                 $"Cannot move to Printing from '{current}'. " +
                 "Order must be in Ready to Print first.");
 
-        if (!string.IsNullOrWhiteSpace(request.AssignedPrinter))
-            order.AssignedPrinter = request.AssignedPrinter.Trim();
-        if (!string.IsNullOrWhiteSpace(request.AssignedMaterial))
-            order.AssignedMaterial = request.AssignedMaterial.Trim();
         if (request.GCodeFinalized)
             order.GCodeFinalized = true;
 

@@ -25,8 +25,6 @@ export type {
 export interface StatusTransitionPayload {
   targetStatus: string;
   holdReason?: string;
-  assignedPrinter?: string;
-  assignedMaterial?: string;
   gCodeFinalized?: boolean;
   qualityCheckPassed?: boolean;
   trackingNumber?: string;

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { resolveLanguage } from "../i18n/translations";
-import type { FaqItem, FaqTopic, ManagedCity, HeroSlide, User } from "../types";
+import type { FaqItem, FaqTopic, ManagedCity, HeroSlide, User, PolicyTemplate } from "../types";
 import { createCache, createKeyedCache } from "./cache";
 
 const VISITOR_ID_STORAGE_KEY = "pc_visitor_id";
@@ -27,6 +27,15 @@ const faqTopicsCache = createCache<FaqTopic[]>({
 });
 
 const faqTopicBySlugCache = createKeyedCache<FaqTopic>({
+  ttlMs: 15 * 60 * 1000, // 15 minutes
+});
+
+const policiesCache = createCache<PolicyTemplate[]>({
+  ttlMs: 15 * 60 * 1000, // 15 minutes
+  storageKey: "pc_cache_policies",
+});
+
+const policyBySlugCache = createKeyedCache<PolicyTemplate>({
   ttlMs: 15 * 60 * 1000, // 15 minutes
 });
 
@@ -410,6 +419,57 @@ export async function deleteCity(id: string): Promise<{ message: string }> {
 
 export async function seedCities(forceReload = false): Promise<unknown> {
   const res = await api.post(`/cities/seed?forceReload=${forceReload}`);
+  return res.data;
+}
+
+// --- Policies API ---
+
+export async function getPolicies(all = false, force = false): Promise<PolicyTemplate[]> {
+  if (!all) {
+    return policiesCache.fetch(async () => {
+      const res = await api.get("/policies");
+      return Array.isArray(res.data) ? res.data : [];
+    }, force);
+  }
+
+  const res = await api.get("/policies?all=true");
+  return res.data;
+}
+
+export async function getPolicy(slugOrId: string, force = false): Promise<PolicyTemplate> {
+  const key = slugOrId.trim().toLowerCase();
+  return policyBySlugCache.fetch(key, async () => {
+    const res = await api.get(`/policies/${encodeURIComponent(slugOrId)}`);
+    return res.data;
+  }, force);
+}
+
+export function invalidatePoliciesCache(slugOrId?: string): void {
+  policiesCache.invalidate();
+  policyBySlugCache.invalidate(slugOrId ? slugOrId.trim().toLowerCase() : undefined);
+}
+
+export async function createPolicy(policy: Partial<PolicyTemplate>): Promise<PolicyTemplate> {
+  const res = await api.post("/policies", policy);
+  invalidatePoliciesCache();
+  return res.data;
+}
+
+export async function updatePolicy(id: string, policy: Partial<PolicyTemplate>): Promise<PolicyTemplate> {
+  const res = await api.put(`/policies/${id}`, policy);
+  invalidatePoliciesCache(policy.slug || id);
+  return res.data;
+}
+
+export async function deletePolicy(id: string): Promise<{ message: string }> {
+  const res = await api.delete(`/policies/${id}`);
+  invalidatePoliciesCache();
+  return res.data;
+}
+
+export async function seedPolicies(forceReload = false): Promise<unknown> {
+  const res = await api.post(`/policies/seed?forceReload=${forceReload}`);
+  invalidatePoliciesCache();
   return res.data;
 }
 

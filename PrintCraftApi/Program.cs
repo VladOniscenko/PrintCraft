@@ -304,9 +304,13 @@ if (isSeedOnly)
         var topicRes = await FaqTopicSeeder.EnsureDatabaseSeededAsync(db, forceReload);
         Console.WriteLine($"[PrintCraft Seeder] -> FAQ Topics: {topicRes.TotalBefore} before | +{topicRes.Inserted} inserted | {topicRes.Updated} updated | {topicRes.TotalAfter} total");
 
-        Console.WriteLine("[PrintCraft Seeder] Step 7/7: Seeding Dutch & Regional Cities...");
+        Console.WriteLine("[PrintCraft Seeder] Step 7/8: Seeding Dutch & Regional Cities...");
         var cityRes = await CitySeeder.EnsureDatabaseSeededAsync(db, forceReload);
         Console.WriteLine($"[PrintCraft Seeder] -> Cities: {cityRes.TotalBefore} before | +{cityRes.Inserted} inserted | {cityRes.Updated} updated | {cityRes.TotalAfter} total");
+
+        Console.WriteLine("[PrintCraft Seeder] Step 8/8: Seeding Policy Templates...");
+        var policyRes = await PolicyTemplateSeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        Console.WriteLine($"[PrintCraft Seeder] -> Policy Templates: {policyRes.TotalBefore} before | +{policyRes.Inserted} inserted | {policyRes.Updated} updated | {policyRes.TotalAfter} total");
 
         Console.WriteLine("====================================================================");
         Console.WriteLine("[PrintCraft Seeder] Standalone seeding completed successfully! Exiting.");
@@ -487,6 +491,7 @@ using (var scope = app.Services.CreateScope())
         await FaqItemSeeder.EnsureDatabaseSeededAsync(db, forceReload);
         await FaqTopicSeeder.EnsureDatabaseSeededAsync(db, forceReload);
         await CitySeeder.EnsureDatabaseSeededAsync(db, forceReload);
+        await PolicyTemplateSeeder.EnsureDatabaseSeededAsync(db, forceReload);
     }
     catch (Exception ex)
     {
@@ -520,8 +525,8 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
     await SafeExecAsync(db, "ALTER TABLE \"OrderItems\" ADD COLUMN IF NOT EXISTS \"PlateCost\" double precision NOT NULL DEFAULT 2.0;", "OrderItems.PlateCost");
 
     // State machine production fields
-    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedPrinter\" text NULL;", "Orders.AssignedPrinter");
-    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"AssignedMaterial\" text NULL;", "Orders.AssignedMaterial");
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" DROP COLUMN IF EXISTS \"AssignedPrinter\";", "Orders.AssignedPrinter");
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" DROP COLUMN IF EXISTS \"AssignedMaterial\";", "Orders.AssignedMaterial");
     await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"GCodeFinalized\" boolean NOT NULL DEFAULT FALSE;", "Orders.GCodeFinalized");
     await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"HoldReason\" text NULL;", "Orders.HoldReason");
     await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"FlaggedForRefundReview\" boolean NOT NULL DEFAULT FALSE;", "Orders.FlaggedForRefundReview");
@@ -622,6 +627,23 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
         );
         CREATE UNIQUE INDEX IF NOT EXISTS ""IX_FaqTopics_Slug"" ON ""FaqTopics"" (""Slug"");
     ", "FaqTopics table");
+
+    await SafeExecAsync(db, @"
+        CREATE TABLE IF NOT EXISTS ""PolicyTemplates"" (
+            ""Id"" uuid NOT NULL PRIMARY KEY,
+            ""Slug"" text NOT NULL,
+            ""Title"" text NOT NULL,
+            ""LastUpdated"" text NOT NULL,
+            ""Sections"" text NOT NULL,
+            ""ContactTitle"" text NOT NULL,
+            ""ContactBody"" text NOT NULL,
+            ""IsActive"" boolean NOT NULL DEFAULT TRUE,
+            ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT NOW(),
+            ""UpdatedAt"" timestamp with time zone NOT NULL DEFAULT NOW()
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS ""IX_PolicyTemplates_Slug"" ON ""PolicyTemplates"" (""Slug"");
+        CREATE INDEX IF NOT EXISTS ""IX_PolicyTemplates_IsActive"" ON ""PolicyTemplates"" (""IsActive"");
+    ", "PolicyTemplates table");
 }
 
 static void LoadDotEnv(params string[] candidatePaths)

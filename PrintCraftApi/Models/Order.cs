@@ -39,12 +39,6 @@ public class Order
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // ── Production Fields (populated by state machine transitions) ────────
-    /// <summary>Printer assigned at the ReadyToPrint gate.</summary>
-    public string? AssignedPrinter { get; set; }
-
-    /// <summary>Material assigned at the ReadyToPrint gate.</summary>
-    public string? AssignedMaterial { get; set; }
-
     /// <summary>True once admin confirms G-code is finalised.</summary>
     public bool GCodeFinalized { get; set; }
 

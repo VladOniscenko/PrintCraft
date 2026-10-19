@@ -67,6 +67,7 @@ public class ApiAuthorizationTests
     [InlineData(typeof(FaqTopicsController))]
     [InlineData(typeof(HeroSlidesController))]
     [InlineData(typeof(FilamentsController))]
+    [InlineData(typeof(PoliciesController))]
     public void SystemResourceControllers_MutatingEndpoints_RequireAdminRole(Type controllerType)
     {
         var mutatingHttpMethods = new[] { "POST", "PUT", "PATCH", "DELETE" };

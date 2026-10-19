@@ -26,6 +26,7 @@ public class PrintCraftDb : DbContext
     public DbSet<FaqItem> FaqItems => Set<FaqItem>();
     public DbSet<FaqTopic> FaqTopics => Set<FaqTopic>();
     public DbSet<City> Cities => Set<City>();
+    public DbSet<PolicyTemplate> PolicyTemplates => Set<PolicyTemplate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -189,6 +190,17 @@ public class PrintCraftDb : DbContext
             entity.HasIndex(e => e.Slug).IsUnique();
             entity.HasIndex(e => new { e.IsActive, e.SortOrder });
             entity.Property(e => e.Names).HasJsonConversion();
+        });
+
+        modelBuilder.Entity<PolicyTemplate>(entity =>
+        {
+            entity.HasIndex(e => e.Slug).IsUnique();
+            entity.HasIndex(e => e.IsActive);
+            entity.Property(e => e.Title).HasJsonConversion();
+            entity.Property(e => e.LastUpdated).HasJsonConversion();
+            entity.Property(e => e.Sections).HasJsonConversion();
+            entity.Property(e => e.ContactTitle).HasJsonConversion();
+            entity.Property(e => e.ContactBody).HasJsonConversion();
         });
 
         EmailTemplateSeeder.Seed(modelBuilder);

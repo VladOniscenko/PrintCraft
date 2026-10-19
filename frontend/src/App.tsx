@@ -85,6 +85,10 @@ const AdminCities = lazyWithI18n(
   () => import("./components/admin/AdminCities.tsx"),
   ["admin", "cityPage"],
 );
+const AdminPolicies = lazyWithI18n(
+  () => import("./components/admin/AdminPolicies.tsx"),
+  ["admin", "legal"],
+);
 const PrivacyPolicy = lazyWithI18n(
   () => import("./components/PrivacyPolicy.tsx"),
   ["legal"],
@@ -475,6 +479,14 @@ export default function App() {
               element={
                 <AdminRoute>
                   <AdminCities />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="admin/policies"
+              element={
+                <AdminRoute>
+                  <AdminPolicies />
                 </AdminRoute>
               }
             />

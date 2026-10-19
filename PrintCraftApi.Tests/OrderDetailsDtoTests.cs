@@ -163,16 +163,12 @@ public class OrderDetailsDtoTests
 
         var controller = CreateAdminController(db);
         var result = await controller.UpdateProductionAssignment(order.Id, new AdminController.AssignProductionRequest(
-            "Prusa MK4 #2",
-            "Prusament PLA Galaxy Black",
             true
         ));
 
         Assert.IsType<OkObjectResult>(result);
         var updated = await db.Orders.FindAsync(order.Id);
         Assert.NotNull(updated);
-        Assert.Equal("Prusa MK4 #2", updated.AssignedPrinter);
-        Assert.Equal("Prusament PLA Galaxy Black", updated.AssignedMaterial);
         Assert.True(updated.GCodeFinalized);
     }
 
