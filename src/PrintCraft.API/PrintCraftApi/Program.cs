@@ -26,7 +26,9 @@ using QuestPDF.Infrastructure;
 
 LoadDotEnv(
     Path.Combine(Directory.GetCurrentDirectory(), ".env"),
-    Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env")));
+    Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env")),
+    Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env")),
+    Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", ".env")));
 
 var environmentName = ApiEnvironment.ResolveName(
     Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")

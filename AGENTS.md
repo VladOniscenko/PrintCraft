@@ -22,7 +22,7 @@ This repository strictly enforces localization and type-safe internationalizatio
    - Never use English `defaultValue` fallbacks (e.g. `t("key") || "Default"`). Translation keys must exist directly in the resource files.
 
 3. **Add New Keys to Both Supported Locales (`en` and `nl`)**
-   - All translations live in `frontend/src/i18n/translations.ts`.
+   - All translations live in `src/PrintCraft.Frontend/src/i18n/translations.ts`.
    - Every key added to `translations.en` **must** also be added to `translations.nl` with an accurate, natural Dutch translation.
    - Never copy raw English strings into `nl` claiming it is translated.
    - Translation keys are strongly typed (`TranslationKey = Leaves<typeof translations.en>`). Any key that does not exist in the canonical `en` object will trigger a TypeScript compile error (`tsc -b`).
@@ -30,7 +30,7 @@ This repository strictly enforces localization and type-safe internationalizatio
 4. **Never Suppress i18n Checks**
    - Never use `// eslint-disable-next-line i18n/...` or similar comments to bypass translation errors.
    - Never use `as any` or unsafe type assertions to bypass missing translation key type errors.
-   - Fix the root cause by adding the missing translation keys to `frontend/src/i18n/translations.ts`.
+   - Fix the root cause by adding the missing translation keys to `src/PrintCraft.Frontend/src/i18n/translations.ts`.
 
 5. **Distinguish User-Facing Text from Technical Strings**
    - **User-Facing Copy (MUST localize)**: Buttons, titles, headers, badge labels, form placeholders, error/success toasts, validation messages, confirm prompts, modal body text, accessible labels (`aria-label`, `alt`).
@@ -49,7 +49,7 @@ This repository strictly enforces localization and type-safe internationalizatio
 Before concluding any change or opening a PR, you **must** run the automated verification command:
 
 ```bash
-cd frontend
+cd src/PrintCraft.Frontend
 npm run check:i18n
 ```
 
@@ -100,10 +100,10 @@ This repository enforces strict authorization and Role-Based Access Control acro
 Whenever backend endpoints are added or modified, you **must** run:
 
 ```bash
-dotnet test PrintCraftApi.Tests/PrintCraftApi.Tests.csproj
+dotnet test src/PrintCraft.API/PrintCraftApi.Tests/PrintCraftApi.Tests.csproj
 ```
 
-The automated reflection suite (`PrintCraftApi.Tests/ApiAuthorizationTests.cs`) verifies:
+The automated reflection suite (`src/PrintCraft.API/PrintCraftApi.Tests/ApiAuthorizationTests.cs`) verifies:
 1. Zero unapproved public mutating (`POST`, `PUT`, `PATCH`, `DELETE`) endpoints across all controllers.
 2. System resource controllers (`CitiesController`, `FaqController`, `FaqTopicsController`, `HeroSlidesController`, `FilamentsController`, `EmailTemplatesController`, `AdminController`) enforce `[Authorize(Roles = "admin")]` on all mutating operations.
 3. Class-level admin protection on administrative controllers (`AdminController`, `EmailTemplatesController`).
@@ -112,23 +112,23 @@ The automated reflection suite (`PrintCraftApi.Tests/ApiAuthorizationTests.cs`) 
 
 # Backend Architecture: Modular Multi-Project Solution
 
-The backend is organized into a clean, multi-project solution where each business domain is isolated in its own C# class library project.
+The backend is organized into a clean, multi-project solution where each business domain is isolated in its own C# class library project located under `src/PrintCraft.API/`.
 
 ---
 
 ## 1. Solution Structure (`3d-shop.sln`)
 
-- **`PrintCraft.Shared`**: Core database context (`PrintCraftDb`), EF Core migrations, core relational domain entities (`User`, `Order`, `Payment`, `Filament`, etc.), shared validation (`InputSanitizer`, `ShippingInfoValidator`), configuration (`AppLimits`, `ApiEnvironment`), and cross-cutting service interfaces (`IEmailService`, `IDiscordWebhookService`, `IInvoiceService`, `IPrintPricingService`, `IPricingQueue`, `IQuoteDraftService`).
-- **`PrintCraft.Features.Users`**: Authentication (`AuthController`), address management (`AddressesController`), and `UsersModule`.
-- **`PrintCraft.Features.Orders`**: Orders (`OrdersController`), change requests (`OrderChangeRequestsController`), quote drafts (`QuoteDraftsController`), DTOs, mappers (`OrderCustomerMapper`, `OrderDetailsMapper`), state machine (`OrderStatusStateMachine`), invoice generator (`InvoiceService`), and `OrdersModule`.
-- **`PrintCraft.Features.Filaments`**: Filaments catalog (`FilamentsController`), filament painting (`FilamentPaintingController`), pricing engine (`PrintPricingService`, `PricingQueue`, `PricingBackgroundWorker`, `ModelGeometryAnalyzer`), and `FilamentsModule`.
-- **`PrintCraft.Features.Payments`**: Payment processing (`PaymentsController`), manual payment confirmation, and `PaymentsModule`.
-- **`PrintCraft.Features.Uploads`**: File uploads (`UploadController`), cleanup background service (`UploadCleanupBackgroundService`), and `UploadsModule`.
-- **`PrintCraft.Features.Content`**: Storefront content controllers (`CitiesController`, `FaqController`, `FaqTopicsController`, `HeroSlidesController`, `PoliciesController`), seeders, and `ContentModule`.
-- **`PrintCraft.Features.Notifications`**: Email templates management (`EmailTemplatesController`), email delivery (`GmailSmtpEmailService`, `QueuedEmailService`), Discord webhook dispatchers, background workers, and `NotificationsModule`.
-- **`PrintCraft.Features.Admin`**: Administrative dashboard (`AdminController`), operations, and `AdminModule`.
-- **`PrintCraftApi`**: Thin startup host project containing `Program.cs`, middleware, rate limiting, and static file serving.
-- **`PrintCraftApi.Tests`**: Unit, integration, and RBAC reflection security tests.
+- **`src/PrintCraft.API/PrintCraft.Shared`**: Core database context (`PrintCraftDb`), EF Core migrations, core relational domain entities (`User`, `Order`, `Payment`, `Filament`, etc.), shared validation (`InputSanitizer`, `ShippingInfoValidator`), configuration (`AppLimits`, `ApiEnvironment`), and cross-cutting service interfaces (`IEmailService`, `IDiscordWebhookService`, `IInvoiceService`, `IPrintPricingService`, `IPricingQueue`, `IQuoteDraftService`).
+- **`src/PrintCraft.API/PrintCraft.Features.Users`**: Authentication (`AuthController`), address management (`AddressesController`), and `UsersModule`.
+- **`src/PrintCraft.API/PrintCraft.Features.Orders`**: Orders (`OrdersController`), change requests (`OrderChangeRequestsController`), quote drafts (`QuoteDraftsController`), DTOs, mappers (`OrderCustomerMapper`, `OrderDetailsMapper`), state machine (`OrderStatusStateMachine`), invoice generator (`InvoiceService`), and `OrdersModule`.
+- **`src/PrintCraft.API/PrintCraft.Features.Filaments`**: Filaments catalog (`FilamentsController`), filament painting (`FilamentPaintingController`), pricing engine (`PrintPricingService`, `PricingQueue`, `PricingBackgroundWorker`, `ModelGeometryAnalyzer`), and `FilamentsModule`.
+- **`src/PrintCraft.API/PrintCraft.Features.Payments`**: Payment processing (`PaymentsController`), manual payment confirmation, and `PaymentsModule`.
+- **`src/PrintCraft.API/PrintCraft.Features.Uploads`**: File uploads (`UploadController`), cleanup background service (`UploadCleanupBackgroundService`), and `UploadsModule`.
+- **`src/PrintCraft.API/PrintCraft.Features.Content`**: Storefront content controllers (`CitiesController`, `FaqController`, `FaqTopicsController`, `HeroSlidesController`, `PoliciesController`), seeders, and `ContentModule`.
+- **`src/PrintCraft.API/PrintCraft.Features.Notifications`**: Email templates management (`EmailTemplatesController`), email delivery (`GmailSmtpEmailService`, `QueuedEmailService`), Discord webhook dispatchers, background workers, and `NotificationsModule`.
+- **`src/PrintCraft.API/PrintCraft.Features.Admin`**: Administrative dashboard (`AdminController`), operations, and `AdminModule`.
+- **`src/PrintCraft.API/PrintCraftApi`**: Thin startup host project containing `Program.cs`, middleware, rate limiting, and static file serving.
+- **`src/PrintCraft.API/PrintCraftApi.Tests`**: Unit, integration, and RBAC reflection security tests.
 
 ---
 
@@ -143,7 +143,7 @@ The backend is organized into a clean, multi-project solution where each busines
    - Internal implementations and helper classes should be marked `internal` where feasible, exposing only public contracts.
 
 3. **Controller Discovery**:
-   - When introducing a new feature library with controllers, register its assembly in `PrintCraftApi/Program.cs` via `.AddApplicationPart(typeof(MyController).Assembly)` and update `PrintCraftApi.Tests/ApiAuthorizationTests.cs` to include the assembly in reflection security checks.
+   - When introducing a new feature library with controllers, register its assembly in `src/PrintCraft.API/PrintCraftApi/Program.cs` via `.AddApplicationPart(typeof(MyController).Assembly)` and update `src/PrintCraft.API/PrintCraftApi.Tests/ApiAuthorizationTests.cs` to include the assembly in reflection security checks.
 
 
 

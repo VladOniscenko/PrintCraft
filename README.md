@@ -28,32 +28,37 @@ A full-stack e-commerce platform for 3D printing services. Browse products, cust
 
 ```
 3d-shop/
-├── frontend/               # React + Vite app
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── services/       # API client services
-│   │   ├── context/        # State management
-│   │   ├── i18n/          # Internationalization
-│   │   └── types/         # TypeScript interfaces
-│   ├── package.json
-│   └── vite.config.ts
+├── src/
+│   ├── PrintCraft.Frontend/            # React + Vite app
+│   │   ├── src/
+│   │   │   ├── components/             # React components
+│   │   │   ├── services/               # API client services
+│   │   │   ├── context/                # State management
+│   │   │   ├── i18n/                   # Internationalization
+│   │   │   └── types/                  # TypeScript interfaces
+│   │   ├── package.json
+│   │   └── vite.config.ts
+│   │
+│   └── PrintCraft.API/
+│       ├── PrintCraftApi/              # Thin ASP.NET Core startup & host
+│       │   ├── Program.cs
+│       │   └── Dockerfile
+│       ├── PrintCraft.Shared/          # DbContext, migrations, core relational models, shared services & validation
+│       ├── PrintCraft.Features.Users/  # Auth & address management
+│       ├── PrintCraft.Features.Orders/ # Orders, quotes, state machine, invoices
+│       ├── PrintCraft.Features.Filaments/ # Filaments, pricing engine & painting
+│       ├── PrintCraft.Features.Payments/  # Payments & checkout
+│       ├── PrintCraft.Features.Uploads/   # Uploads & cleanup background worker
+│       ├── PrintCraft.Features.Content/   # Hero slides, FAQs, topics, cities, policies
+│       ├── PrintCraft.Features.Notifications/ # SMTP email & Discord webhook dispatchers
+│       ├── PrintCraft.Features.Admin/  # Administration overview & analytics
+│       └── PrintCraftApi.Tests/        # Unit, integration & RBAC security tests
 │
-├── PrintCraftApi/                  # Thin ASP.NET Core startup & host
-│   ├── Program.cs
-│   └── Dockerfile
-├── PrintCraft.Shared/              # DbContext, migrations, core relational models, shared services & validation
-├── PrintCraft.Features.Users/      # Auth & address management
-├── PrintCraft.Features.Orders/     # Orders, quotes, state machine, invoices
-├── PrintCraft.Features.Filaments/  # Filaments, pricing engine & painting
-├── PrintCraft.Features.Payments/   # Payments & checkout
-├── PrintCraft.Features.Uploads/    # Uploads & cleanup background worker
-├── PrintCraft.Features.Content/    # Hero slides, FAQs, topics, cities, policies
-├── PrintCraft.Features.Notifications/ # SMTP email & Discord webhook dispatchers
-├── PrintCraft.Features.Admin/      # Administration overview & analytics
-├── PrintCraftApi.Tests/            # Unit, integration & RBAC security tests
-│
-├── PROJECT_STORY.md        # The journey
-└── README.md              # This file
+├── 3d-shop.sln                         # Solution root
+├── docker-compose.yml                  # Docker development orchestrator
+├── docker-compose.prod.yml             # Docker production orchestrator
+├── PROJECT_STORY.md                    # The journey
+└── README.md                           # This file
 ```
 
 ---
@@ -78,14 +83,14 @@ A full-stack e-commerce platform for 3D printing services. Browse products, cust
 2. **Setup Backend**
 
    ```bash
-   cd PrintCraftApi
+   cd src/PrintCraft.API/PrintCraftApi
    dotnet restore
-   dotnet ef database update  # Apply migrations
+   dotnet ef database update --project ../PrintCraft.Shared --startup-project .
    ```
 
 3. **Setup Frontend**
    ```bash
-   cd ../frontend
+   cd src/PrintCraft.Frontend
    npm install
    ```
 
@@ -98,14 +103,14 @@ A full-stack e-commerce platform for 3D printing services. Browse products, cust
 **Terminal 1 — Backend API** (runs on `ASPNETCORE_URLS` from `.env`)
 
 ```bash
-cd PrintCraftApi
+cd src/PrintCraft.API/PrintCraftApi
 dotnet run
 ```
 
 **Terminal 2 — Frontend** (dev server URL from your frontend setup)
 
 ```bash
-cd frontend
+cd src/PrintCraft.Frontend
 npm run dev
 ```
 
@@ -144,16 +149,16 @@ docker compose down -v
 ### Production Build
 
 **Frontend**
-
+ 
 ```bash
-cd frontend
+cd src/PrintCraft.Frontend
 npm run build
 ```
 
 **Backend**
 
 ```bash
-cd PrintCraftApi
+cd src/PrintCraft.API/PrintCraftApi
 dotnet publish -c Release
 ```
 
@@ -161,7 +166,7 @@ dotnet publish -c Release
 
 ## Database
 
-Migrations are located in `PrintCraftApi/Migrations/`. The schema includes:
+Migrations are located in `src/PrintCraft.API/PrintCraft.Shared/Migrations/`. The schema includes:
 
 - **Products** — catalog with pricing and materials
 - **Users** — customer accounts and authentication
@@ -174,22 +179,21 @@ Migrations are located in `PrintCraftApi/Migrations/`. The schema includes:
 ### Run Migrations
 
 ```bash
-cd PrintCraftApi
-dotnet ef database update
+dotnet ef database update --project src/PrintCraft.API/PrintCraft.Shared --startup-project src/PrintCraft.API/PrintCraftApi
 ```
 
 ### Add a New Migration
 
 ```bash
-dotnet ef migrations add YourMigrationName
-dotnet ef database update
+dotnet ef migrations add YourMigrationName --project src/PrintCraft.API/PrintCraft.Shared --startup-project src/PrintCraft.API/PrintCraftApi
+dotnet ef database update --project src/PrintCraft.API/PrintCraft.Shared --startup-project src/PrintCraft.API/PrintCraftApi
 ```
 
 ---
 
 ## API Documentation
 
-See [PrintCraftApi.http](PrintCraftApi/PrintCraftApi.http) for a complete list of endpoints.
+See [PrintCraftApi.http](src/PrintCraft.API/PrintCraftApi/PrintCraftApi.http) for a complete list of endpoints.
 
 ### Key Endpoints
 
@@ -208,7 +212,7 @@ See [PrintCraftApi.http](PrintCraftApi/PrintCraftApi.http) for a complete list o
 
 ### Business Information and SEO
 
-Edit [frontend/src/config/businessInfo.ts](frontend/src/config/businessInfo.ts)
+Edit [src/PrintCraft.Frontend/src/config/businessInfo.ts](src/PrintCraft.Frontend/src/config/businessInfo.ts)
 for the business name, email, phone, address, opening hours, and public website URL.
 The React UI, English/Dutch translations, route metadata, and structured data use
 this configuration. Vite also uses it to populate the initial HTML metadata and
@@ -224,9 +228,9 @@ confirm them before launch. No street address was supplied.
 
 | Value | Settings Override |
 | --- | --- |
-| `dev` or `Development` | `PrintCraftApi/appsettings.Development.json` |
-| `tst` or `Test` | `PrintCraftApi/appsettings.Test.json` |
-| `prod` or `Production` | `PrintCraftApi/appsettings.Production.json` |
+| `dev` or `Development` | `src/PrintCraft.API/PrintCraftApi/appsettings.Development.json` |
+| `tst` or `Test` | `src/PrintCraft.API/PrintCraftApi/appsettings.Test.json` |
+| `prod` or `Production` | `src/PrintCraft.API/PrintCraftApi/appsettings.Production.json` |
 
 Startup normalizes these aliases before creating the ASP.NET host. Common settings
 remain in `appsettings.json`, so environment files contain only their overrides.
@@ -242,7 +246,7 @@ PowerShell example for Test:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT = "tst"
-dotnet run --project PrintCraftApi --no-launch-profile
+dotnet run --project src/PrintCraft.API/PrintCraftApi --no-launch-profile
 ```
 
 Use `--no-launch-profile` when selecting an environment yourself: the existing

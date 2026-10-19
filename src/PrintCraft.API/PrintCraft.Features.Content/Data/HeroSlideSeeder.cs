@@ -238,6 +238,12 @@ public static class HeroSlideSeeder
         {
             candidateSourceDirs.Add(Path.Combine(contentRootPath, "SeedAssets", "hero"));
             candidateSourceDirs.Add(Path.Combine(contentRootPath, "SeedAssets"));
+            candidateSourceDirs.Add(Path.Combine(contentRootPath, "..", "..", "PrintCraft.Frontend", "public", "uploads", "hero"));
+            candidateSourceDirs.Add(Path.Combine(contentRootPath, "..", "..", "PrintCraft.Frontend", "public", "uploads"));
+            candidateSourceDirs.Add(Path.Combine(contentRootPath, "..", "..", "PrintCraft.Frontend", "src", "assets", "hero-models"));
+            candidateSourceDirs.Add(Path.Combine(contentRootPath, "..", "PrintCraft.Frontend", "public", "uploads", "hero"));
+            candidateSourceDirs.Add(Path.Combine(contentRootPath, "..", "PrintCraft.Frontend", "public", "uploads"));
+            candidateSourceDirs.Add(Path.Combine(contentRootPath, "..", "PrintCraft.Frontend", "src", "assets", "hero-models"));
             candidateSourceDirs.Add(Path.Combine(contentRootPath, "..", "frontend", "public", "uploads", "hero"));
             candidateSourceDirs.Add(Path.Combine(contentRootPath, "..", "frontend", "public", "uploads"));
             candidateSourceDirs.Add(Path.Combine(contentRootPath, "..", "frontend", "src", "assets", "hero-models"));
@@ -245,6 +251,12 @@ public static class HeroSlideSeeder
         candidateSourceDirs.Add(Path.Combine(Directory.GetCurrentDirectory(), "SeedAssets", "hero"));
         candidateSourceDirs.Add(Path.Combine(Directory.GetCurrentDirectory(), "SeedAssets"));
         candidateSourceDirs.Add(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "hero"));
+        candidateSourceDirs.Add(Path.Combine(Directory.GetCurrentDirectory(), "src", "PrintCraft.Frontend", "public", "uploads", "hero"));
+        candidateSourceDirs.Add(Path.Combine(Directory.GetCurrentDirectory(), "src", "PrintCraft.Frontend", "src", "assets", "hero-models"));
+        candidateSourceDirs.Add(Path.Combine(Directory.GetCurrentDirectory(), "..", "PrintCraft.Frontend", "public", "uploads", "hero"));
+        candidateSourceDirs.Add(Path.Combine(Directory.GetCurrentDirectory(), "..", "PrintCraft.Frontend", "src", "assets", "hero-models"));
+        candidateSourceDirs.Add(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "src", "PrintCraft.Frontend", "public", "uploads", "hero"));
+        candidateSourceDirs.Add(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "src", "PrintCraft.Frontend", "src", "assets", "hero-models"));
 
         var seedFiles = new[]
         {

@@ -4,10 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import fs from "node:fs";
 import path from "node:path";
 import { businessInfo } from "./src/config/businessInfo";
-import {
-  supportedLanguages,
-  defaultLanguage,
-} from "./src/i18n/config";
+import { supportedLanguages, defaultLanguage } from "./src/i18n/config";
 import nlSeo from "./src/locales/nl/seo.json";
 import {
   buildHomepageJsonLd,
@@ -28,8 +25,6 @@ const aiCatalog = generateAiCatalog(origin);
 const aiCatalogJson = JSON.stringify(aiCatalog, null, 2);
 const llmsTxt = generateLlmsTxt(origin);
 const llmsFullTxt = generateLlmsFullTxt(origin);
-
-
 
 const publicIndexableRoutes = [
   { subPath: "", priority: "1.0", changefreq: "weekly" },
@@ -144,9 +139,12 @@ try {
 
 export default defineConfig(({ mode }) => {
   const frontendEnv = loadEnv(mode, process.cwd(), "");
-  const rootEnv = loadEnv(mode, path.resolve(process.cwd(), ".."), "");
+  const parentEnv = loadEnv(mode, path.resolve(process.cwd(), ".."), "");
+  const rootEnv = loadEnv(mode, path.resolve(process.cwd(), "../.."), "");
   const devApiOrigin =
-    frontendEnv.VITE_DEV_API_ORIGIN || rootEnv.VITE_DEV_API_ORIGIN;
+    frontendEnv.VITE_DEV_API_ORIGIN ||
+    parentEnv.VITE_DEV_API_ORIGIN ||
+    rootEnv.VITE_DEV_API_ORIGIN;
 
   if (mode !== "production" && !devApiOrigin) {
     throw new Error("VITE_DEV_API_ORIGIN must be set in frontend env file.");
@@ -243,10 +241,7 @@ export default defineConfig(({ mode }) => {
             return;
           }
 
-          let baseTemplate = await fs.promises.readFile(
-            templatePath,
-            "utf-8",
-          );
+          let baseTemplate = await fs.promises.readFile(templatePath, "utf-8");
 
           // Find emitted CSS file in dist/assets and inline it to eliminate render-blocking stylesheet
           const assetsDir = path.join(distDir, "assets");

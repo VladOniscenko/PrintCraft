@@ -19,7 +19,7 @@ services:
   printcraft-api:
     build:
       context: .
-      dockerfile: PrintCraftApi/Dockerfile
+      dockerfile: src/PrintCraft.API/PrintCraftApi/Dockerfile
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,7 +60,7 @@ services:
     profiles: ["seed", "tools"]
     build:
       context: .
-      dockerfile: PrintCraftApi/Dockerfile
+      dockerfile: src/PrintCraft.API/PrintCraftApi/Dockerfile
     command: ["--seed", "--force"]
     depends_on:
       postgres:
@@ -85,7 +85,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./src/PrintCraft.Frontend
       dockerfile: Dockerfile
       args:
         VITE_CURRENCY_CODE: ${VITE_CURRENCY_CODE:-EUR}

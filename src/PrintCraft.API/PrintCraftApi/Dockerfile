@@ -2,22 +2,21 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["3d-shop.sln", "./"]
-COPY ["PrintCraft.Shared/PrintCraft.Shared.csproj", "PrintCraft.Shared/"]
-COPY ["PrintCraft.Features.Users/PrintCraft.Features.Users.csproj", "PrintCraft.Features.Users/"]
-COPY ["PrintCraft.Features.Orders/PrintCraft.Features.Orders.csproj", "PrintCraft.Features.Orders/"]
-COPY ["PrintCraft.Features.Filaments/PrintCraft.Features.Filaments.csproj", "PrintCraft.Features.Filaments/"]
-COPY ["PrintCraft.Features.Payments/PrintCraft.Features.Payments.csproj", "PrintCraft.Features.Payments/"]
-COPY ["PrintCraft.Features.Uploads/PrintCraft.Features.Uploads.csproj", "PrintCraft.Features.Uploads/"]
-COPY ["PrintCraft.Features.Content/PrintCraft.Features.Content.csproj", "PrintCraft.Features.Content/"]
-COPY ["PrintCraft.Features.Notifications/PrintCraft.Features.Notifications.csproj", "PrintCraft.Features.Notifications/"]
-COPY ["PrintCraft.Features.Admin/PrintCraft.Features.Admin.csproj", "PrintCraft.Features.Admin/"]
-COPY ["PrintCraftApi/PrintCraftApi.csproj", "PrintCraftApi/"]
-COPY ["PrintCraftApi.Tests/PrintCraftApi.Tests.csproj", "PrintCraftApi.Tests/"]
-RUN dotnet restore "PrintCraftApi/PrintCraftApi.csproj"
+COPY ["src/PrintCraft.API/PrintCraft.Shared/PrintCraft.Shared.csproj", "src/PrintCraft.API/PrintCraft.Shared/"]
+COPY ["src/PrintCraft.API/PrintCraft.Features.Users/PrintCraft.Features.Users.csproj", "src/PrintCraft.API/PrintCraft.Features.Users/"]
+COPY ["src/PrintCraft.API/PrintCraft.Features.Orders/PrintCraft.Features.Orders.csproj", "src/PrintCraft.API/PrintCraft.Features.Orders/"]
+COPY ["src/PrintCraft.API/PrintCraft.Features.Filaments/PrintCraft.Features.Filaments.csproj", "src/PrintCraft.API/PrintCraft.Features.Filaments/"]
+COPY ["src/PrintCraft.API/PrintCraft.Features.Payments/PrintCraft.Features.Payments.csproj", "src/PrintCraft.API/PrintCraft.Features.Payments/"]
+COPY ["src/PrintCraft.API/PrintCraft.Features.Uploads/PrintCraft.Features.Uploads.csproj", "src/PrintCraft.API/PrintCraft.Features.Uploads/"]
+COPY ["src/PrintCraft.API/PrintCraft.Features.Content/PrintCraft.Features.Content.csproj", "src/PrintCraft.API/PrintCraft.Features.Content/"]
+COPY ["src/PrintCraft.API/PrintCraft.Features.Notifications/PrintCraft.Features.Notifications.csproj", "src/PrintCraft.API/PrintCraft.Features.Notifications/"]
+COPY ["src/PrintCraft.API/PrintCraft.Features.Admin/PrintCraft.Features.Admin.csproj", "src/PrintCraft.API/PrintCraft.Features.Admin/"]
+COPY ["src/PrintCraft.API/PrintCraftApi/PrintCraftApi.csproj", "src/PrintCraft.API/PrintCraftApi/"]
+COPY ["src/PrintCraft.API/PrintCraftApi.Tests/PrintCraftApi.Tests.csproj", "src/PrintCraft.API/PrintCraftApi.Tests/"]
+RUN dotnet restore "src/PrintCraft.API/PrintCraftApi/PrintCraftApi.csproj"
 
 COPY . .
-WORKDIR /src/PrintCraftApi
-RUN dotnet publish "PrintCraftApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "src/PrintCraft.API/PrintCraftApi/PrintCraftApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app

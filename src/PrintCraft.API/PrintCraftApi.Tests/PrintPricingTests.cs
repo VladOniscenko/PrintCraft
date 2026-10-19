@@ -67,12 +67,17 @@ public class PrintPricingTests
     [Fact]
     public void ModelGeometryAnalyzer_ParsesBinaryStlAccurately()
     {
-        // Use repository sample STL if available
-        var samplePath = Path.GetFullPath("../frontend/src/assets/hero-models/cable-holder.stl");
-        if (!File.Exists(samplePath))
+        var candidatePaths = new[]
         {
-            samplePath = Path.GetFullPath("frontend/src/assets/hero-models/cable-holder.stl");
-        }
+            Path.GetFullPath("../../../PrintCraft.Frontend/src/assets/hero-models/cable-holder.stl"),
+            Path.GetFullPath("../../../../src/PrintCraft.Frontend/src/assets/hero-models/cable-holder.stl"),
+            Path.GetFullPath("src/PrintCraft.Frontend/src/assets/hero-models/cable-holder.stl"),
+            Path.GetFullPath("SeedAssets/hero/cable-holder.stl"),
+            Path.GetFullPath("SeedAssets/cable-holder.stl"),
+            Path.GetFullPath("../frontend/src/assets/hero-models/cable-holder.stl"),
+            Path.GetFullPath("frontend/src/assets/hero-models/cable-holder.stl")
+        };
+        var samplePath = candidatePaths.FirstOrDefault(File.Exists) ?? candidatePaths[0];
 
         if (File.Exists(samplePath))
         {

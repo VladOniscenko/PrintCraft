@@ -1,0 +1,12 @@
+**/.git
+**/.github
+**/.vscode
+**/.vs
+**/bin
+**/obj
+**/node_modules
+src/PrintCraft.Frontend/dist
+*.user
+*.suo
+*.orig
+
