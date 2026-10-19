@@ -3,27 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraftApi", "PrintCraftApi\PrintCraftApi.csproj", "{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraftApi", "src\PrintCraft.API\PrintCraftApi\PrintCraftApi.csproj", "{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraftApi.Tests", "PrintCraftApi.Tests\PrintCraftApi.Tests.csproj", "{17FDDDBE-3141-4206-99A4-AD4DED28E8A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraftApi.Tests", "src\PrintCraft.API\PrintCraftApi.Tests\PrintCraftApi.Tests.csproj", "{17FDDDBE-3141-4206-99A4-AD4DED28E8A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Shared", "PrintCraft.Shared\PrintCraft.Shared.csproj", "{1019EB02-9DDB-4AE4-A296-21E33F1F5C70}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Shared", "src\PrintCraft.API\PrintCraft.Shared\PrintCraft.Shared.csproj", "{1019EB02-9DDB-4AE4-A296-21E33F1F5C70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Users", "PrintCraft.Features.Users\PrintCraft.Features.Users.csproj", "{A7C753B0-6DFA-4F1F-B1B9-75373A0FEBB5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Users", "src\PrintCraft.API\PrintCraft.Features.Users\PrintCraft.Features.Users.csproj", "{A7C753B0-6DFA-4F1F-B1B9-75373A0FEBB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Orders", "PrintCraft.Features.Orders\PrintCraft.Features.Orders.csproj", "{019A9C45-C4FA-4F09-B05B-41746C44CED9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Orders", "src\PrintCraft.API\PrintCraft.Features.Orders\PrintCraft.Features.Orders.csproj", "{019A9C45-C4FA-4F09-B05B-41746C44CED9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Filaments", "PrintCraft.Features.Filaments\PrintCraft.Features.Filaments.csproj", "{542F27B0-35B6-4529-8AF9-2DA4CED6E288}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Filaments", "src\PrintCraft.API\PrintCraft.Features.Filaments\PrintCraft.Features.Filaments.csproj", "{542F27B0-35B6-4529-8AF9-2DA4CED6E288}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Payments", "PrintCraft.Features.Payments\PrintCraft.Features.Payments.csproj", "{6D8705A9-70CE-4083-A962-210F89F2518B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Payments", "src\PrintCraft.API\PrintCraft.Features.Payments\PrintCraft.Features.Payments.csproj", "{6D8705A9-70CE-4083-A962-210F89F2518B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Uploads", "PrintCraft.Features.Uploads\PrintCraft.Features.Uploads.csproj", "{B1E1A547-5242-48B1-B23D-974949CA68B8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Uploads", "src\PrintCraft.API\PrintCraft.Features.Uploads\PrintCraft.Features.Uploads.csproj", "{B1E1A547-5242-48B1-B23D-974949CA68B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Content", "PrintCraft.Features.Content\PrintCraft.Features.Content.csproj", "{71E05540-0370-495B-9BB3-2DE6345C4B4D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Content", "src\PrintCraft.API\PrintCraft.Features.Content\PrintCraft.Features.Content.csproj", "{71E05540-0370-495B-9BB3-2DE6345C4B4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Notifications", "PrintCraft.Features.Notifications\PrintCraft.Features.Notifications.csproj", "{DE25FF93-8199-4A71-9645-C9CE4CDD36D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Notifications", "src\PrintCraft.API\PrintCraft.Features.Notifications\PrintCraft.Features.Notifications.csproj", "{DE25FF93-8199-4A71-9645-C9CE4CDD36D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Admin", "PrintCraft.Features.Admin\PrintCraft.Features.Admin.csproj", "{D1B6DD5B-3334-48AF-AAE1-273E8445BA74}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintCraft.Features.Admin", "src\PrintCraft.API\PrintCraft.Features.Admin\PrintCraft.Features.Admin.csproj", "{D1B6DD5B-3334-48AF-AAE1-273E8445BA74}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,18 +35,18 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Debug|x64.Build.0 = Debug|Any CPU
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Debug|x86.Build.0 = Debug|Any CPU
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Release|x64.ActiveCfg = Release|Any CPU
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Release|x64.Build.0 = Release|Any CPU
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Release|x86.ActiveCfg = Release|Any CPU
-		{BB8F97F7-B5C1-3EEF-B639-061A3F1C32BF}.Release|x86.Build.0 = Release|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Debug|x64.Build.0 = Debug|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Debug|x86.Build.0 = Debug|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Release|x64.ActiveCfg = Release|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Release|x64.Build.0 = Release|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Release|x86.ActiveCfg = Release|Any CPU
+		{D207BBCC-C38A-238F-23DA-E24F87F0DF0F}.Release|x86.Build.0 = Release|Any CPU
 		{17FDDDBE-3141-4206-99A4-AD4DED28E8A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{17FDDDBE-3141-4206-99A4-AD4DED28E8A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17FDDDBE-3141-4206-99A4-AD4DED28E8A0}.Debug|x64.ActiveCfg = Debug|Any CPU

@@ -194,14 +194,14 @@ public class PrintPricingService : IPrintPricingService
                         string singleItemTime = timeMatch.Groups[1].Value.Trim();
                         double singleHours = ParsePrintTimeToHours(singleItemTime);
                         singleHours = Math.Max(1.0 / 60.0, singleHours); // Minimum 1 min print time per item
-                        
+
                         // PrusaSlicer's estimate without custom start G-code is just the pure printing time.
                         // We assume ~6 mins of bed heating/leveling prep time per plate.
                         double prepHours = 6.0 / 60.0;
                         double printHoursPerItem = singleHours;
-                        
+
                         double batchTotalHours = prepHours + (printHoursPerItem * count);
-                        
+
                         int totalMins = (int)Math.Round(batchTotalHours * 60);
                         int hours = totalMins / 60;
                         int mins = totalMins % 60;
