@@ -64,10 +64,16 @@ public class ApiAuthorizationTests
         }
     }
 
-    [Fact]
-    public void AdminController_HasAdminOnlyAuthorization()
+    [Theory]
+    [InlineData(typeof(AdminController))]
+    [InlineData(typeof(AdminOrdersController))]
+    [InlineData(typeof(AdminPricingController))]
+    [InlineData(typeof(AdminOrderCommunicationsController))]
+    [InlineData(typeof(AdminPaymentsController))]
+    [InlineData(typeof(AdminUsersController))]
+    public void AdminControllers_HaveAdminOnlyAuthorization(Type controllerType)
     {
-        var authAttr = typeof(AdminController).GetCustomAttribute<AuthorizeAttribute>();
+        var authAttr = controllerType.GetCustomAttribute<AuthorizeAttribute>();
         Assert.NotNull(authAttr);
         Assert.Equal("admin", authAttr.Roles);
     }

@@ -12,10 +12,20 @@ namespace PrintCraftApi.Tests;
 
 public class AdminControllerPricingSyncTests
 {
-    private static AdminController CreateAdminController(PrintCraftDb db)
+    private static AdminPricingController CreatePricingController(PrintCraftDb db)
+    {
+        return new AdminPricingController(db, new NoopEmailService(), new ConfigurationBuilder().Build());
+    }
+
+    private static AdminOrdersController CreateOrdersController(PrintCraftDb db)
+    {
+        return new AdminOrdersController(db);
+    }
+
+    private static AdminOrderCommunicationsController CreateCommunicationsController(PrintCraftDb db)
     {
         var invoiceService = new InvoiceService(Options.Create(new InvoiceOptions()));
-        return new AdminController(db, new NoopEmailService(), new ConfigurationBuilder().Build(), invoiceService);
+        return new AdminOrderCommunicationsController(db, new NoopEmailService(), invoiceService, new ConfigurationBuilder().Build());
     }
 
     [Fact]
@@ -26,7 +36,7 @@ public class AdminControllerPricingSyncTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var result = await CreateAdminController(db).UpdateOrderItem(order.Id, order.Items[0].Id, new AdminController.UpdateItemRequest(12));
+        var result = await CreatePricingController(db).UpdateOrderItem(order.Id, order.Items[0].Id, new AdminController.UpdateItemRequest(12));
 
         var ok = Assert.IsType<OkObjectResult>(result);
         var updated = Assert.IsType<Order>(ok.Value);
@@ -41,7 +51,7 @@ public class AdminControllerPricingSyncTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var result = await CreateAdminController(db).UpdateDeliveryPrice(order.Id, new AdminController.DeliveryPriceRequest(9m));
+        var result = await CreatePricingController(db).UpdateDeliveryPrice(order.Id, new AdminController.DeliveryPriceRequest(9m));
 
         var ok = Assert.IsType<OkObjectResult>(result);
         var updated = Assert.IsType<Order>(ok.Value);
@@ -56,7 +66,7 @@ public class AdminControllerPricingSyncTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var result = await CreateAdminController(db).UpdateOrderDiscount(order.Id, new AdminController.OrderDiscountRequest(5m));
+        var result = await CreatePricingController(db).UpdateOrderDiscount(order.Id, new AdminController.OrderDiscountRequest(5m));
 
         var ok = Assert.IsType<OkObjectResult>(result);
         var updated = Assert.IsType<Order>(ok.Value);
@@ -73,7 +83,7 @@ public class AdminControllerPricingSyncTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var result = await CreateAdminController(db).UpdateOrderDiscount(order.Id, new AdminController.OrderDiscountRequest(5m));
+        var result = await CreatePricingController(db).UpdateOrderDiscount(order.Id, new AdminController.OrderDiscountRequest(5m));
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -88,7 +98,7 @@ public class AdminControllerPricingSyncTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var result = await CreateAdminController(db).UpdateOrderStatus(order.Id, new AdminController.UpdateOrderStatusRequest("quoted"));
+        var result = await CreateOrdersController(db).UpdateOrderStatus(order.Id, new AdminController.UpdateOrderStatusRequest("quoted"));
 
         Assert.IsType<OkObjectResult>(result);
     }
@@ -102,7 +112,7 @@ public class AdminControllerPricingSyncTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var result = await CreateAdminController(db).UpdateOrderStatus(order.Id, new AdminController.UpdateOrderStatusRequest("pending_quote"));
+        var result = await CreateOrdersController(db).UpdateOrderStatus(order.Id, new AdminController.UpdateOrderStatusRequest("pending_quote"));
 
         Assert.IsType<OkObjectResult>(result);
     }
@@ -116,7 +126,7 @@ public class AdminControllerPricingSyncTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var result = await CreateAdminController(db).UpdateOrderStatus(order.Id, new AdminController.UpdateOrderStatusRequest("delivered"));
+        var result = await CreateOrdersController(db).UpdateOrderStatus(order.Id, new AdminController.UpdateOrderStatusRequest("delivered"));
 
         Assert.IsType<OkObjectResult>(result);
     }
@@ -131,7 +141,7 @@ public class AdminControllerPricingSyncTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var result = await CreateAdminController(db).UpdateDeliveryPrice(order.Id, new AdminController.DeliveryPriceRequest(12m));
+        var result = await CreatePricingController(db).UpdateDeliveryPrice(order.Id, new AdminController.DeliveryPriceRequest(12m));
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -145,7 +155,7 @@ public class AdminControllerPricingSyncTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var result = await CreateAdminController(db).UpdateOrderItem(order.Id, order.Items[0].Id, new AdminController.UpdateItemRequest(11));
+        var result = await CreatePricingController(db).UpdateOrderItem(order.Id, order.Items[0].Id, new AdminController.UpdateItemRequest(11));
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -169,7 +179,7 @@ public class AdminControllerPricingSyncTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var result = await CreateAdminController(db).DownloadInvoice(order.Id);
+        var result = await CreateCommunicationsController(db).DownloadInvoice(order.Id);
 
         var file = Assert.IsType<FileContentResult>(result);
         Assert.Equal("application/pdf", file.ContentType);
@@ -203,7 +213,7 @@ public class AdminControllerPricingSyncTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var result = await CreateAdminController(db).DownloadInvoice(order.Id, language);
+        var result = await CreateCommunicationsController(db).DownloadInvoice(order.Id, language);
 
         var file = Assert.IsType<FileContentResult>(result);
         Assert.Equal("application/pdf", file.ContentType);

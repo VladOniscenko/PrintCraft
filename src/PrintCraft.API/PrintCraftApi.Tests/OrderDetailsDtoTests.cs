@@ -14,10 +14,9 @@ namespace PrintCraftApi.Tests;
 
 public class OrderDetailsDtoTests
 {
-    private static AdminController CreateAdminController(PrintCraftDb db)
+    private static AdminOrdersController CreateOrdersController(PrintCraftDb db)
     {
-        var invoiceService = new InvoiceService(Options.Create(new InvoiceOptions()));
-        return new AdminController(db, new NoopEmailService(), new ConfigurationBuilder().Build(), invoiceService);
+        return new AdminOrdersController(db);
     }
 
     [Fact]
@@ -107,7 +106,7 @@ public class OrderDetailsDtoTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var controller = CreateAdminController(db);
+        var controller = CreateOrdersController(db);
         var result = await controller.GetOrderById(order.Id);
 
         var okResult = Assert.IsType<OkObjectResult>(result);
@@ -164,7 +163,7 @@ public class OrderDetailsDtoTests
         db.Orders.Add(order);
         await db.SaveChangesAsync();
 
-        var controller = CreateAdminController(db);
+        var controller = CreateOrdersController(db);
         var result = await controller.UpdateProductionAssignment(order.Id, new AdminController.AssignProductionRequest(
             true
         ));
