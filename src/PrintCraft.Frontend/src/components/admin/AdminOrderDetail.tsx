@@ -60,7 +60,6 @@ export default function AdminOrderDetail() {
         await api.patch(`/admin/orders/${id}/status`, {
           targetStatus,
           holdReason: payload?.holdReason,
-          gCodeFinalized: payload?.gCodeFinalized,
           qualityCheckPassed: payload?.qualityCheckPassed,
           trackingNumber: payload?.trackingNumber,
           trackingUrl: payload?.trackingUrl,

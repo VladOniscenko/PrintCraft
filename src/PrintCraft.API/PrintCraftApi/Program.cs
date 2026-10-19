@@ -518,7 +518,7 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
     // State machine production fields
     await SafeExecAsync(db, "ALTER TABLE \"Orders\" DROP COLUMN IF EXISTS \"AssignedPrinter\";", "Orders.AssignedPrinter");
     await SafeExecAsync(db, "ALTER TABLE \"Orders\" DROP COLUMN IF EXISTS \"AssignedMaterial\";", "Orders.AssignedMaterial");
-    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"GCodeFinalized\" boolean NOT NULL DEFAULT FALSE;", "Orders.GCodeFinalized");
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" DROP COLUMN IF EXISTS \"GCodeFinalized\";", "Orders.GCodeFinalized");
     await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"HoldReason\" text NULL;", "Orders.HoldReason");
     await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"FlaggedForRefundReview\" boolean NOT NULL DEFAULT FALSE;", "Orders.FlaggedForRefundReview");
 

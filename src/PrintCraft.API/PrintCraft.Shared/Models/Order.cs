@@ -39,9 +39,6 @@ public class Order
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // ── Production Fields (populated by state machine transitions) ────────
-    /// <summary>True once admin confirms G-code is finalised.</summary>
-    public bool GCodeFinalized { get; set; }
-
     /// <summary>Admin-supplied reason text when placing order On Hold.</summary>
     public string? HoldReason { get; set; }
 

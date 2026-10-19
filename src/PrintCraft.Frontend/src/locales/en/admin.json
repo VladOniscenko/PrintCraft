@@ -1001,11 +1001,9 @@
         "totalFinalized": "Total Finalized"
       },
       "readyToPrint": {
-        "gcodeWarning": "G-code is not marked as finalized. Proceed to start printing anyway?",
         "gateBadge": "Production Gate",
         "title": "Ready to Print (Payment Confirmed)",
-        "subtitle": "Payment has been confirmed. Review sliced G-code, and begin the print job.",
-        "gcodeCheckbox": "G-code has been sliced, previewed, and loaded on printer.",
+        "subtitle": "Payment has been confirmed. Begin the print job.",
         "specsHeading": "Manufacturing Specifications ({count} items)",
         "pricingHidden": "Pricing hidden for print operator",
         "quantity": "Quantity:",

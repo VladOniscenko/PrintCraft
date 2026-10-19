@@ -145,35 +145,6 @@ public class OrderDetailsDtoTests
         Assert.Contains(dto.Timeline, t => t.Type == "note" && t.Visibility == "internal");
     }
 
-    [Fact]
-    public async Task UpdateProductionAssignment_UpdatesPrinterAndMaterial()
-    {
-        await using var db = CreateDbContext();
-        var order = new Order
-        {
-            Id = Guid.NewGuid(),
-            FullName = "John Doe",
-            AddressLine1 = "Main St 1",
-            City = "Rotterdam",
-            PostalCode = "3011AA",
-            PhoneNumber = "0600000000",
-            Status = OrderStatus.ReadyToPrint,
-            IsPaid = true
-        };
-        db.Orders.Add(order);
-        await db.SaveChangesAsync();
-
-        var controller = CreateOrdersController(db);
-        var result = await controller.UpdateProductionAssignment(order.Id, new AdminController.AssignProductionRequest(
-            true
-        ));
-
-        Assert.IsType<OkObjectResult>(result);
-        var updated = await db.Orders.FindAsync(order.Id);
-        Assert.NotNull(updated);
-        Assert.True(updated.GCodeFinalized);
-    }
-
     private static PrintCraftDb CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<PrintCraftDb>()

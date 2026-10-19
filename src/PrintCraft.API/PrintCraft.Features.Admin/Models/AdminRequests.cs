@@ -6,7 +6,6 @@ public record DeliveryPriceRequest(decimal DeliveryPrice);
 public record FeePriceRequest(decimal ServiceFeePrice);
 public record OrderDiscountRequest(decimal OrderDiscountAmount);
 public record UpdateOrderStatusRequest(string Status);
-public record AssignProductionRequest(bool? GCodeFinalized);
 public record UpdateOrderCustomerRequest(
     string FullName,
     string AddressLine1,

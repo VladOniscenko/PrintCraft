@@ -33,11 +33,6 @@ public sealed class StatusTransitionRequest
     /// <summary>Required when transitioning to OnHold. Admin must provide a reason.</summary>
     public string? HoldReason { get; init; }
 
-    /// <summary>
-    /// Required for ReadyToPrint: signals that G-code has been reviewed and finalised.
-    /// </summary>
-    public bool GCodeFinalized { get; init; }
-
     /// <summary>Required for PostProcessing: indicates QC has passed.</summary>
     public bool QualityCheckPassed { get; init; }
 
@@ -197,10 +192,6 @@ public sealed class OrderStatusStateMachine
                 "Payment has not been confirmed. " +
                 "Mark the order as paid before moving to Ready to Print.");
 
-        // Transition the order and persist production parameters if provided
-        if (request.GCodeFinalized)
-            order.GCodeFinalized = true;
-
         order.Status           = OrderStatus.ReadyToPrint;
         order.UpdatedAt        = DateTime.UtcNow;
         return TransitionResult.Ok();
@@ -218,9 +209,6 @@ public sealed class OrderStatusStateMachine
             return TransitionResult.Fail(
                 $"Cannot move to Printing from '{current}'. " +
                 "Order must be in Ready to Print first.");
-
-        if (request.GCodeFinalized)
-            order.GCodeFinalized = true;
 
         order.Status    = OrderStatus.Printing;
         order.UpdatedAt = DateTime.UtcNow;

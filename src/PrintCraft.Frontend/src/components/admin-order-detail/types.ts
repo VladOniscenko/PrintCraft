@@ -25,7 +25,6 @@ export type {
 export interface StatusTransitionPayload {
   targetStatus: string;
   holdReason?: string;
-  gCodeFinalized?: boolean;
   qualityCheckPassed?: boolean;
   trackingNumber?: string;
   trackingUrl?: string;

@@ -170,9 +170,6 @@ public class AdminOrdersController : ControllerBase
             order.HoldReason = null;
         }
 
-        if (payload.GCodeFinalized)
-            order.GCodeFinalized = true;
-
         await _db.SaveChangesAsync();
         await AdminOrderHelper.LogStatusHistoryAsync(_db, order.Id, previousStatus, order.Status, "admin",
             payload.HoldReason ?? "Status updated via Kanban");
@@ -211,24 +208,6 @@ public class AdminOrdersController : ControllerBase
         order.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
         await AdminOrderHelper.LogStatusHistoryAsync(_db, order.Id, previousStatus, order.Status, "admin", "Status updated");
-
-        return Ok(order);
-    }
-
-    // Permission: Admin Only
-    [HttpPatch("{id:guid}/production")]
-    public async Task<IActionResult> UpdateProductionAssignment(
-        [FromRoute] Guid id,
-        [FromBody] AssignProductionRequest payload)
-    {
-        var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == id);
-        if (order == null) return NotFound(new { message = "Order not found" });
-
-        if (payload.GCodeFinalized.HasValue)
-            order.GCodeFinalized = payload.GCodeFinalized.Value;
-
-        order.UpdatedAt = DateTime.UtcNow;
-        await _db.SaveChangesAsync();
 
         return Ok(order);
     }

@@ -1001,11 +1001,9 @@
         "totalFinalized": "Kesinleşen Toplam"
       },
       "readyToPrint": {
-        "gcodeWarning": "G-code kesinleşti olarak işaretlenmedi. Yine de yazdırmaya başlamak istiyor musunuz?",
         "gateBadge": "Üretim Kapısı",
         "title": "Baskıya Hazır (Ödeme Onaylandı)",
-        "subtitle": "Ödeme onaylandı. Dilimlenmiş G-code dosyasını inceleyin ve baskı işini başlatın.",
-        "gcodeCheckbox": "G-code dilimlendi, önizlendi ve yazıcıya yüklendi.",
+        "subtitle": "Ödeme onaylandı. Baskı işini başlatın.",
         "specsHeading": "Üretim Özellikleri ({count} ürün)",
         "pricingHidden": "Fiyatlandırma baskı operatörü için gizlendi",
         "quantity": "Miktar:",

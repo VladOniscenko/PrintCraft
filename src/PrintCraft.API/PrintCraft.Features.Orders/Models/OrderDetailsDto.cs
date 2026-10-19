@@ -14,7 +14,6 @@ public class OrderDetailsDto
     public bool IsPaid { get; set; }
     public string? HoldReason { get; set; }
     public bool FlaggedForRefundReview { get; set; }
-    public bool GCodeFinalized { get; set; }
     public List<string> AllowedTransitions { get; set; } = new();
 
     // Customer & Shipping Context

@@ -22,105 +22,7 @@ namespace PrintCraft.Shared.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("OrderItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Count")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("EstimatedPrintTime")
-                        .HasColumnType("text");
-
-                    b.Property<double?>("FilamentUsedGrams")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("FileUrl")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("text");
-
-                    b.Property<int>("InfillPercent")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Material")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<double>("PlateCost")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("PrintQuality")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("ScaleFactor")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("Size")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("SupportsNeeded")
-                        .HasColumnType("boolean");
-
-                    b.Property<double>("UnitPrice")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("fileName")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderItems");
-                });
-
-            modelBuilder.Entity("OrderItemAttachment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Kind")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrderItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderItemId", "Kind");
-
-                    b.ToTable("OrderItemAttachments");
-                });
-
-            modelBuilder.Entity("PrintCraftApi.Models.City", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.City", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -166,7 +68,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("Cities");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.EmailTemplate", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.EmailTemplate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -435,7 +337,7 @@ namespace PrintCraft.Shared.Migrations
                         });
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.FaqItem", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.FaqItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -472,7 +374,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("FaqItems");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.FaqTopic", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.FaqTopic", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -563,7 +465,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("FaqTopics");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.Filament", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.Filament", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -930,7 +832,7 @@ namespace PrintCraft.Shared.Migrations
                         });
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.HeroSlide", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.HeroSlide", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1096,7 +998,7 @@ namespace PrintCraft.Shared.Migrations
                         });
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.ManualPaymentNotification", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.ManualPaymentNotification", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1122,7 +1024,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("ManualPaymentNotifications");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.Order", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1164,9 +1066,6 @@ namespace PrintCraft.Shared.Migrations
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<bool>("GCodeFinalized")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("HoldReason")
                         .HasColumnType("text");
@@ -1247,7 +1146,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.OrderCommunication", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderCommunication", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1282,7 +1181,105 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("OrderCommunications");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.OrderItemChangeRequest", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EstimatedPrintTime")
+                        .HasColumnType("text");
+
+                    b.Property<double?>("FilamentUsedGrams")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<int>("InfillPercent")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Material")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<double>("PlateCost")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("PrintQuality")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double>("ScaleFactor")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Size")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("SupportsNeeded")
+                        .HasColumnType("boolean");
+
+                    b.Property<double>("UnitPrice")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("fileName")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderItems");
+                });
+
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderItemAttachment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrderItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderItemId", "Kind");
+
+                    b.ToTable("OrderItemAttachments");
+                });
+
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderItemChangeRequest", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1351,7 +1348,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("OrderItemChangeRequests");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.OrderNote", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderNote", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1381,7 +1378,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("OrderNotes");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.OrderStatusHistory", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderStatusHistory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1413,7 +1410,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("OrderStatusHistory");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.Payment", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.Payment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1481,7 +1478,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.PolicyTemplate", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.PolicyTemplate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1530,7 +1527,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("PolicyTemplates");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.QuoteDraft", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.QuoteDraft", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1590,7 +1587,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("QuoteDrafts");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.User", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1624,7 +1621,7 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.UserAddress", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.UserAddress", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1678,51 +1675,51 @@ namespace PrintCraft.Shared.Migrations
                     b.ToTable("UserAddresses");
                 });
 
-            modelBuilder.Entity("OrderItem", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.ManualPaymentNotification", b =>
                 {
-                    b.HasOne("PrintCraftApi.Models.Order", null)
-                        .WithMany("Items")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("OrderItemAttachment", b =>
-                {
-                    b.HasOne("OrderItem", null)
-                        .WithMany("Attachments")
-                        .HasForeignKey("OrderItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PrintCraftApi.Models.ManualPaymentNotification", b =>
-                {
-                    b.HasOne("PrintCraftApi.Models.Order", null)
+                    b.HasOne("PrintCraft.Shared.Models.Order", null)
                         .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.OrderCommunication", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderCommunication", b =>
                 {
-                    b.HasOne("PrintCraftApi.Models.Order", null)
+                    b.HasOne("PrintCraft.Shared.Models.Order", null)
                         .WithMany("Communications")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.OrderItemChangeRequest", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderItem", b =>
                 {
-                    b.HasOne("PrintCraftApi.Models.Order", "Order")
+                    b.HasOne("PrintCraft.Shared.Models.Order", null)
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderItemAttachment", b =>
+                {
+                    b.HasOne("PrintCraft.Shared.Models.OrderItem", null)
+                        .WithMany("Attachments")
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderItemChangeRequest", b =>
+                {
+                    b.HasOne("PrintCraft.Shared.Models.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OrderItem", "OrderItem")
+                    b.HasOne("PrintCraft.Shared.Models.OrderItem", "OrderItem")
                         .WithMany("ChangeRequests")
                         .HasForeignKey("OrderItemId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1733,9 +1730,9 @@ namespace PrintCraft.Shared.Migrations
                     b.Navigation("OrderItem");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.OrderNote", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderNote", b =>
                 {
-                    b.HasOne("PrintCraftApi.Models.Order", "Order")
+                    b.HasOne("PrintCraft.Shared.Models.Order", "Order")
                         .WithMany("Notes")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1744,18 +1741,18 @@ namespace PrintCraft.Shared.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.OrderStatusHistory", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderStatusHistory", b =>
                 {
-                    b.HasOne("PrintCraftApi.Models.Order", null)
+                    b.HasOne("PrintCraft.Shared.Models.Order", null)
                         .WithMany("StatusHistory")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.Payment", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.Payment", b =>
                 {
-                    b.HasOne("PrintCraftApi.Models.Order", "Order")
+                    b.HasOne("PrintCraft.Shared.Models.Order", "Order")
                         .WithMany("Payments")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1764,9 +1761,9 @@ namespace PrintCraft.Shared.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.UserAddress", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.UserAddress", b =>
                 {
-                    b.HasOne("PrintCraftApi.Models.User", "User")
+                    b.HasOne("PrintCraft.Shared.Models.User", "User")
                         .WithMany("Addresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1775,14 +1772,7 @@ namespace PrintCraft.Shared.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("OrderItem", b =>
-                {
-                    b.Navigation("Attachments");
-
-                    b.Navigation("ChangeRequests");
-                });
-
-            modelBuilder.Entity("PrintCraftApi.Models.Order", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.Order", b =>
                 {
                     b.Navigation("Communications");
 
@@ -1795,7 +1785,14 @@ namespace PrintCraft.Shared.Migrations
                     b.Navigation("StatusHistory");
                 });
 
-            modelBuilder.Entity("PrintCraftApi.Models.User", b =>
+            modelBuilder.Entity("PrintCraft.Shared.Models.OrderItem", b =>
+                {
+                    b.Navigation("Attachments");
+
+                    b.Navigation("ChangeRequests");
+                });
+
+            modelBuilder.Entity("PrintCraft.Shared.Models.User", b =>
                 {
                     b.Navigation("Addresses");
                 });

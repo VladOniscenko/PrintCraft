@@ -68,7 +68,6 @@ public class AdminController : ControllerBase
     public record FeePriceRequest(decimal ServiceFeePrice) : Models.FeePriceRequest(ServiceFeePrice);
     public record OrderDiscountRequest(decimal OrderDiscountAmount) : Models.OrderDiscountRequest(OrderDiscountAmount);
     public record UpdateOrderStatusRequest(string Status) : Models.UpdateOrderStatusRequest(Status);
-    public record AssignProductionRequest(bool? GCodeFinalized) : Models.AssignProductionRequest(GCodeFinalized);
     public record UpdateOrderCustomerRequest(
         string FullName,
         string AddressLine1,

@@ -17,22 +17,11 @@ export default function ReadyToPrintPanel({
 }: StatusPanelProps) {
   const { t } = useI18n();
 
-  const [gCodeFinalized, setGCodeFinalized] = useState<boolean>(
-    order.gCodeFinalized ?? false,
-  );
   const [previewItem, setPreviewItem] = useState<any | null>(null);
 
   // Primary CTA: Start printing
   const handleStartPrint = async () => {
-    if (!gCodeFinalized) {
-      if (!window.confirm(t("admin.orderDetail.panels.readyToPrint.gcodeWarning"))) {
-        return;
-      }
-    }
-
-    await onStatusTransition("printing", {
-      gCodeFinalized: true,
-    });
+    await onStatusTransition("printing");
   };
 
   return (
@@ -63,23 +52,6 @@ export default function ReadyToPrintPanel({
           <span>{isProcessing ? t("admin.orderDetail.panels.readyToPrint.startingJob") : t("admin.orderDetail.panels.readyToPrint.startPrintJob")}</span>
         </button>
       </div>
-
-      {/* G-code Finalization Checkbox */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-        <label className="flex items-center gap-2.5 cursor-pointer text-xs text-slate-700 select-none">
-          <input
-            type="checkbox"
-            checked={gCodeFinalized}
-            onChange={(e) => setGCodeFinalized(e.target.checked)}
-            className="w-4 h-4 rounded text-teal-600 border-slate-300 focus:ring-teal-500"
-          />
-          <span className="font-medium">
-            {t("admin.orderDetail.panels.readyToPrint.gcodeCheckbox")}
-          </span>
-        </label>
-      </div>
-
-      {/* Manufacturing Line Items (PRICING IS HIDDEN) */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">

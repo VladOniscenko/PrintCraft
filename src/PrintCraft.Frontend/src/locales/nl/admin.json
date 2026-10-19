@@ -1001,11 +1001,9 @@
         "totalFinalized": "Definitief totaal"
       },
       "readyToPrint": {
-        "gcodeWarning": "G-code is niet als definitief gemarkeerd. Toch starten met printen?",
         "gateBadge": "Productiestap",
         "title": "Klaar voor printen (Betaling bevestigd)",
-        "subtitle": "De betaling is bevestigd. Controleer de geslicede G-code en start de printopdracht.",
-        "gcodeCheckbox": "G-code is gesliced, gecontroleerd en geladen op de printer.",
+        "subtitle": "De betaling is bevestigd. Start de printopdracht.",
         "specsHeading": "Productiespecificaties ({count} artikelen)",
         "pricingHidden": "Prijzen verborgen voor printoperator",
         "quantity": "Aantal:",

@@ -36,7 +36,6 @@ public static class OrderDetailsMapper
             IsPaid = order.IsPaid,
             HoldReason = order.HoldReason,
             FlaggedForRefundReview = order.FlaggedForRefundReview,
-            GCodeFinalized = order.GCodeFinalized,
             AllowedTransitions = allowedTransitions,
 
             Customer = new OrderCustomerDetailsDto

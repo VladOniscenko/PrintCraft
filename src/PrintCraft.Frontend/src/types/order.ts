@@ -247,7 +247,6 @@ export interface OrderDetailsDto {
   isPaid: boolean;
   holdReason?: string | null;
   flaggedForRefundReview?: boolean;
-  gCodeFinalized?: boolean;
   allowedTransitions: string[];
   customer: OrderCustomerDetails;
   fullName: string;
