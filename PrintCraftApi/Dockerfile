@@ -1,7 +1,18 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
+COPY ["3d-shop.sln", "./"]
+COPY ["PrintCraft.Shared/PrintCraft.Shared.csproj", "PrintCraft.Shared/"]
+COPY ["PrintCraft.Features.Users/PrintCraft.Features.Users.csproj", "PrintCraft.Features.Users/"]
+COPY ["PrintCraft.Features.Orders/PrintCraft.Features.Orders.csproj", "PrintCraft.Features.Orders/"]
+COPY ["PrintCraft.Features.Filaments/PrintCraft.Features.Filaments.csproj", "PrintCraft.Features.Filaments/"]
+COPY ["PrintCraft.Features.Payments/PrintCraft.Features.Payments.csproj", "PrintCraft.Features.Payments/"]
+COPY ["PrintCraft.Features.Uploads/PrintCraft.Features.Uploads.csproj", "PrintCraft.Features.Uploads/"]
+COPY ["PrintCraft.Features.Content/PrintCraft.Features.Content.csproj", "PrintCraft.Features.Content/"]
+COPY ["PrintCraft.Features.Notifications/PrintCraft.Features.Notifications.csproj", "PrintCraft.Features.Notifications/"]
+COPY ["PrintCraft.Features.Admin/PrintCraft.Features.Admin.csproj", "PrintCraft.Features.Admin/"]
 COPY ["PrintCraftApi/PrintCraftApi.csproj", "PrintCraftApi/"]
+COPY ["PrintCraftApi.Tests/PrintCraftApi.Tests.csproj", "PrintCraftApi.Tests/"]
 RUN dotnet restore "PrintCraftApi/PrintCraftApi.csproj"
 
 COPY . .

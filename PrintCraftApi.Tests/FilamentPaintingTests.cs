@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging.Abstractions;
-using PrintCraftApi.Controllers;
-using PrintCraftApi.Data;
-using PrintCraftApi.Services.FilamentPainting;
+using PrintCraft.Features.Filaments.Controllers;
+using PrintCraft.Features.Filaments.Services.FilamentPainting;
+using PrintCraft.Shared.Data;
 using Xunit;
 
 namespace PrintCraftApi.Tests;

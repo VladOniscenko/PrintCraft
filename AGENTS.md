@@ -108,4 +108,42 @@ The automated reflection suite (`PrintCraftApi.Tests/ApiAuthorizationTests.cs`) 
 2. System resource controllers (`CitiesController`, `FaqController`, `FaqTopicsController`, `HeroSlidesController`, `FilamentsController`, `EmailTemplatesController`, `AdminController`) enforce `[Authorize(Roles = "admin")]` on all mutating operations.
 3. Class-level admin protection on administrative controllers (`AdminController`, `EmailTemplatesController`).
 
+---
+
+# Backend Architecture: Modular Multi-Project Solution
+
+The backend is organized into a clean, multi-project solution where each business domain is isolated in its own C# class library project.
+
+---
+
+## 1. Solution Structure (`3d-shop.sln`)
+
+- **`PrintCraft.Shared`**: Core database context (`PrintCraftDb`), EF Core migrations, core relational domain entities (`User`, `Order`, `Payment`, `Filament`, etc.), shared validation (`InputSanitizer`, `ShippingInfoValidator`), configuration (`AppLimits`, `ApiEnvironment`), and cross-cutting service interfaces (`IEmailService`, `IDiscordWebhookService`, `IInvoiceService`, `IPrintPricingService`, `IPricingQueue`, `IQuoteDraftService`).
+- **`PrintCraft.Features.Users`**: Authentication (`AuthController`), address management (`AddressesController`), and `UsersModule`.
+- **`PrintCraft.Features.Orders`**: Orders (`OrdersController`), change requests (`OrderChangeRequestsController`), quote drafts (`QuoteDraftsController`), DTOs, mappers (`OrderCustomerMapper`, `OrderDetailsMapper`), state machine (`OrderStatusStateMachine`), invoice generator (`InvoiceService`), and `OrdersModule`.
+- **`PrintCraft.Features.Filaments`**: Filaments catalog (`FilamentsController`), filament painting (`FilamentPaintingController`), pricing engine (`PrintPricingService`, `PricingQueue`, `PricingBackgroundWorker`, `ModelGeometryAnalyzer`), and `FilamentsModule`.
+- **`PrintCraft.Features.Payments`**: Payment processing (`PaymentsController`), manual payment confirmation, and `PaymentsModule`.
+- **`PrintCraft.Features.Uploads`**: File uploads (`UploadController`), cleanup background service (`UploadCleanupBackgroundService`), and `UploadsModule`.
+- **`PrintCraft.Features.Content`**: Storefront content controllers (`CitiesController`, `FaqController`, `FaqTopicsController`, `HeroSlidesController`, `PoliciesController`), seeders, and `ContentModule`.
+- **`PrintCraft.Features.Notifications`**: Email templates management (`EmailTemplatesController`), email delivery (`GmailSmtpEmailService`, `QueuedEmailService`), Discord webhook dispatchers, background workers, and `NotificationsModule`.
+- **`PrintCraft.Features.Admin`**: Administrative dashboard (`AdminController`), operations, and `AdminModule`.
+- **`PrintCraftApi`**: Thin startup host project containing `Program.cs`, middleware, rate limiting, and static file serving.
+- **`PrintCraftApi.Tests`**: Unit, integration, and RBAC reflection security tests.
+
+---
+
+## 2. Architectural Rules for AI Agents and Developers
+
+1. **Strict Dependency Hierarchy & No Circular Dependencies**:
+   - Feature projects must reference `PrintCraft.Shared` and must **never** reference each other directly (except consumer modules like `Admin` when orchestrating cross-domain actions).
+   - Cross-domain interactions must occur through interfaces in `PrintCraft.Shared.Services` or events/queues.
+
+2. **Feature Module Encapsulation**:
+   - Every feature project exposes an `IServiceCollection` extension method (`Add<FeatureName>Feature(...)`) in a `<FeatureName>Module.cs` class.
+   - Internal implementations and helper classes should be marked `internal` where feasible, exposing only public contracts.
+
+3. **Controller Discovery**:
+   - When introducing a new feature library with controllers, register its assembly in `PrintCraftApi/Program.cs` via `.AddApplicationPart(typeof(MyController).Assembly)` and update `PrintCraftApi.Tests/ApiAuthorizationTests.cs` to include the assembly in reflection security checks.
+
+
 

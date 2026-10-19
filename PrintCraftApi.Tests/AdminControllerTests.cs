@@ -2,10 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using PrintCraftApi.Controllers;
-using PrintCraftApi.Data;
-using PrintCraftApi.Models;
-using PrintCraftApi.Services;
+using PrintCraft.Features.Admin.Controllers;
+using PrintCraft.Features.Orders.Services;
+using PrintCraft.Shared.Data;
+using PrintCraft.Shared.Models;
+using PrintCraft.Shared.Services;
 
 namespace PrintCraftApi.Tests;
 

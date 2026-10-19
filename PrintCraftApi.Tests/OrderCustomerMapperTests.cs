@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
-using PrintCraftApi.Models;
-using PrintCraftApi.Services;
+using PrintCraft.Features.Orders.Models;
+using PrintCraft.Features.Orders.Services;
+using PrintCraft.Shared.Models;
+using PrintCraft.Shared.Orders;
 
 namespace PrintCraftApi.Tests;
 

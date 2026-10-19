@@ -7,21 +7,28 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <ProjectReference Include="..\PrintCraft.Shared\PrintCraft.Shared.csproj" />
+    <ProjectReference Include="..\PrintCraft.Features.Users\PrintCraft.Features.Users.csproj" />
+    <ProjectReference Include="..\PrintCraft.Features.Orders\PrintCraft.Features.Orders.csproj" />
+    <ProjectReference Include="..\PrintCraft.Features.Filaments\PrintCraft.Features.Filaments.csproj" />
+    <ProjectReference Include="..\PrintCraft.Features.Payments\PrintCraft.Features.Payments.csproj" />
+    <ProjectReference Include="..\PrintCraft.Features.Uploads\PrintCraft.Features.Uploads.csproj" />
+    <ProjectReference Include="..\PrintCraft.Features.Content\PrintCraft.Features.Content.csproj" />
+    <ProjectReference Include="..\PrintCraft.Features.Notifications\PrintCraft.Features.Notifications.csproj" />
+    <ProjectReference Include="..\PrintCraft.Features.Admin\PrintCraft.Features.Admin.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="MailKit" Version="4.8.0" />
     <PackageReference Include="QuestPDF" Version="2026.9.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 

@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using PrintCraftApi.Data;
-using PrintCraftApi.Models;
-using PrintCraftApi.Services;
+using PrintCraft.Features.Uploads.Services;
+using PrintCraft.Shared.Data;
+using PrintCraft.Shared.Models;
 using Xunit;
 
 namespace PrintCraftApi.Tests;

@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using PrintCraftApi.Controllers;
-using PrintCraftApi.Data;
-using PrintCraftApi.Models;
-using PrintCraftApi.Services;
+using PrintCraft.Features.Notifications.Controllers;
+using PrintCraft.Features.Notifications.Data;
+using PrintCraft.Features.Notifications.Services;
+using PrintCraft.Shared.Data;
+using PrintCraft.Shared.Models;
+using PrintCraft.Shared.Services;
 using Xunit;
 
 namespace PrintCraftApi.Tests;

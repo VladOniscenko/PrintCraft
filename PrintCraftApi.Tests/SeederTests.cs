@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using PrintCraftApi.Data;
-using PrintCraftApi.Models;
+using PrintCraft.Features.Content.Data;
+using PrintCraft.Features.Filaments.Data;
+using PrintCraft.Features.Notifications.Data;
+using PrintCraft.Shared.Data;
+using PrintCraft.Shared.Models;
 using Xunit;
 
 namespace PrintCraftApi.Tests;

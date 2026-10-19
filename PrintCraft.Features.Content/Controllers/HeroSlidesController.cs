@@ -1,0 +1,604 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using PrintCraft.Shared.Data;
+using PrintCraft.Shared.Models;
+
+namespace PrintCraft.Features.Content.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[Route("api/hero-slides")]
+public class HeroSlidesController : ControllerBase
+{
+    private const string ActiveSlidesCacheKey = "catalog:hero-slides:active";
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
+    private static bool _heroSlideSchemaEnsured = false;
+
+    private readonly PrintCraftDb _db;
+    private readonly IWebHostEnvironment? _env;
+    private readonly IMemoryCache? _cache;
+    private readonly ILogger<HeroSlidesController>? _logger;
+
+    public HeroSlidesController(
+        PrintCraftDb db,
+        IWebHostEnvironment? env = null,
+        IMemoryCache? cache = null,
+        ILogger<HeroSlidesController>? logger = null)
+    {
+        _db = db;
+        _env = env;
+        _cache = cache;
+        _logger = logger;
+    }
+
+    private async Task EnsureHeroSlideSchemaAsync(CancellationToken cancellationToken = default)
+    {
+        if (_heroSlideSchemaEnsured) return;
+        try
+        {
+            await _db.Database.ExecuteSqlRawAsync(@"
+                ALTER TABLE ""HeroSlides"" ADD COLUMN IF NOT EXISTS ""Titles"" text NULL DEFAULT '{}';
+                ALTER TABLE ""HeroSlides"" ADD COLUMN IF NOT EXISTS ""Subtexts"" text NULL DEFAULT '{}';
+                ALTER TABLE ""HeroSlides"" ADD COLUMN IF NOT EXISTS ""PriceTexts"" text NULL DEFAULT '{}';
+                ALTER TABLE ""HeroSlides"" ADD COLUMN IF NOT EXISTS ""InstructionTooltips"" text NULL DEFAULT '{}';
+            ", cancellationToken);
+            _heroSlideSchemaEnsured = true;
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "HeroSlides schema check note: {Message}", ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Public endpoint returning active slides sorted by SortOrder.
+    /// </summary>
+    // Permission: Public Read
+    [HttpGet("active")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetActive(CancellationToken cancellationToken = default)
+    {
+        if (_cache != null && _cache.TryGetValue(ActiveSlidesCacheKey, out List<HeroSlide>? cached) && cached != null)
+        {
+            return Ok(cached);
+        }
+
+        try
+        {
+            await EnsureHeroSlideSchemaAsync(cancellationToken);
+
+            var activeSlides = await _db.HeroSlides
+                .AsNoTracking()
+                .Where(s => s.IsActive)
+                .OrderBy(s => s.SortOrder)
+                .ThenBy(s => s.CreatedAt)
+                .ToListAsync(cancellationToken);
+
+            if (activeSlides.Count == 0)
+            {
+                var fallback = HeroSlideSeeder.GetDefaultSlides()
+                    .Where(s => s.IsActive)
+                    .OrderBy(s => s.SortOrder)
+                    .ToList();
+                return Ok(fallback);
+            }
+
+            foreach (var slide in activeSlides)
+            {
+                HydrateSlideTranslations(slide);
+            }
+
+            _cache?.Set(ActiveSlidesCacheKey, activeSlides, CacheDuration);
+            return Ok(activeSlides);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to retrieve active hero slides from database, falling back to default seed slides.");
+            var fallback = HeroSlideSeeder.GetDefaultSlides()
+                .Where(s => s.IsActive)
+                .OrderBy(s => s.SortOrder)
+                .ToList();
+            return Ok(fallback);
+        }
+    }
+
+    /// <summary>
+    /// Public endpoint returning slides sorted by SortOrder.
+    /// Supports ?activeOnly=true/false and ?all=true
+    /// </summary>
+    // Permission: Public Read
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAll([FromQuery] bool? activeOnly, [FromQuery] bool? all, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await EnsureHeroSlideSchemaAsync(cancellationToken);
+
+            var query = _db.HeroSlides.AsNoTracking();
+
+            if (activeOnly == true || (all != true && activeOnly != false))
+            {
+                query = query.Where(s => s.IsActive);
+            }
+
+            var slides = await query
+                .OrderBy(s => s.SortOrder)
+                .ThenBy(s => s.CreatedAt)
+                .ToListAsync(cancellationToken);
+
+            if (slides.Count == 0 && (all == true || activeOnly == false))
+            {
+                var defaults = HeroSlideSeeder.GetDefaultSlides();
+                return Ok(defaults.OrderBy(s => s.SortOrder).ToList());
+            }
+
+            foreach (var slide in slides)
+            {
+                HydrateSlideTranslations(slide);
+            }
+
+            return Ok(slides);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to retrieve hero slides from database, falling back to default seed slides.");
+            var fallback = HeroSlideSeeder.GetDefaultSlides();
+            if (activeOnly == true || (all != true && activeOnly != false))
+            {
+                fallback = fallback.Where(s => s.IsActive).ToList();
+            }
+            return Ok(fallback.OrderBy(s => s.SortOrder).ToList());
+        }
+    }
+
+    /// <summary>
+    /// Gets a single hero slide by Id.
+    /// </summary>
+    // Permission: Public Read
+    [HttpGet("{id:guid}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await EnsureHeroSlideSchemaAsync(cancellationToken);
+
+            var slide = await _db.HeroSlides
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+
+            if (slide is null)
+            {
+                var fallback = HeroSlideSeeder.GetDefaultSlides().FirstOrDefault(s => s.Id == id);
+                if (fallback != null) return Ok(fallback);
+                return NotFound(new { message = "Hero slide not found." });
+            }
+
+            HydrateSlideTranslations(slide);
+            return Ok(slide);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to retrieve hero slide {Id} from database, checking seed fallback.", id);
+            var fallback = HeroSlideSeeder.GetDefaultSlides().FirstOrDefault(s => s.Id == id);
+            if (fallback != null) return Ok(fallback);
+            return NotFound(new { message = "Hero slide not found." });
+        }
+    }
+
+    /// <summary>
+    /// Creates a new hero slide.
+    /// </summary>
+    // Permission: Admin Only
+    [HttpPost]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> Create([FromBody] HeroSlide slide, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(slide.Title))
+        {
+            return BadRequest(new { message = "Title is required." });
+        }
+
+        if (string.IsNullOrWhiteSpace(slide.MediaUrl))
+        {
+            return BadRequest(new { message = "MediaUrl is required." });
+        }
+
+        if (!string.IsNullOrWhiteSpace(slide.MediaType) && !HeroMediaType.IsValid(slide.MediaType))
+        {
+            return BadRequest(new { message = "MediaType must be either 'image' or 'model3d'." });
+        }
+
+        try
+        {
+            await EnsureHeroSlideSchemaAsync(cancellationToken);
+
+            var now = DateTime.UtcNow;
+            var newSlide = new HeroSlide
+            {
+                Id = slide.Id == Guid.Empty ? Guid.NewGuid() : slide.Id,
+                Title = slide.Title.Trim(),
+                Subtext = slide.Subtext?.Trim() ?? string.Empty,
+                PriceText = slide.PriceText?.Trim() ?? string.Empty,
+                MediaUrl = slide.MediaUrl.Trim(),
+                MediaType = HeroMediaType.Normalize(slide.MediaType),
+                InstructionTooltip = slide.InstructionTooltip?.Trim(),
+                TitleNl = slide.TitleNl?.Trim(),
+                SubtextNl = slide.SubtextNl?.Trim(),
+                PriceTextNl = slide.PriceTextNl?.Trim(),
+                InstructionTooltipNl = slide.InstructionTooltipNl?.Trim(),
+                Titles = slide.Titles != null && slide.Titles.Count > 0 ? slide.Titles : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+                Subtexts = slide.Subtexts != null && slide.Subtexts.Count > 0 ? slide.Subtexts : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+                PriceTexts = slide.PriceTexts != null && slide.PriceTexts.Count > 0 ? slide.PriceTexts : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+                InstructionTooltips = slide.InstructionTooltips != null && slide.InstructionTooltips.Count > 0 ? slide.InstructionTooltips : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+                IsActive = slide.IsActive,
+                SortOrder = slide.SortOrder,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            if (!newSlide.Titles.ContainsKey("en") && !string.IsNullOrWhiteSpace(newSlide.Title)) newSlide.Titles["en"] = newSlide.Title;
+            if (!newSlide.Titles.ContainsKey("nl") && !string.IsNullOrWhiteSpace(newSlide.TitleNl)) newSlide.Titles["nl"] = newSlide.TitleNl;
+            if (!newSlide.Subtexts.ContainsKey("en") && !string.IsNullOrWhiteSpace(newSlide.Subtext)) newSlide.Subtexts["en"] = newSlide.Subtext;
+            if (!newSlide.Subtexts.ContainsKey("nl") && !string.IsNullOrWhiteSpace(newSlide.SubtextNl)) newSlide.Subtexts["nl"] = newSlide.SubtextNl;
+            if (!newSlide.PriceTexts.ContainsKey("en") && !string.IsNullOrWhiteSpace(newSlide.PriceText)) newSlide.PriceTexts["en"] = newSlide.PriceText;
+            if (!newSlide.PriceTexts.ContainsKey("nl") && !string.IsNullOrWhiteSpace(newSlide.PriceTextNl)) newSlide.PriceTexts["nl"] = newSlide.PriceTextNl;
+            if (!newSlide.InstructionTooltips.ContainsKey("en") && !string.IsNullOrWhiteSpace(newSlide.InstructionTooltip)) newSlide.InstructionTooltips["en"] = newSlide.InstructionTooltip;
+            if (!newSlide.InstructionTooltips.ContainsKey("nl") && !string.IsNullOrWhiteSpace(newSlide.InstructionTooltipNl)) newSlide.InstructionTooltips["nl"] = newSlide.InstructionTooltipNl;
+
+            _db.HeroSlides.Add(newSlide);
+            await _db.SaveChangesAsync(cancellationToken);
+            _cache?.Remove(ActiveSlidesCacheKey);
+
+            return CreatedAtAction(nameof(GetById), new { id = newSlide.Id }, newSlide);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to create hero slide.");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to save hero slide: " + ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Updates an existing hero slide.
+    /// </summary>
+    // Permission: Admin Only
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] HeroSlide request, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(request.Title))
+        {
+            return BadRequest(new { message = "Title is required." });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.MediaUrl))
+        {
+            return BadRequest(new { message = "MediaUrl is required." });
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.MediaType) && !HeroMediaType.IsValid(request.MediaType))
+        {
+            return BadRequest(new { message = "MediaType must be either 'image' or 'model3d'." });
+        }
+
+        try
+        {
+            await EnsureHeroSlideSchemaAsync(cancellationToken);
+
+            var existing = await _db.HeroSlides.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+            if (existing is null)
+            {
+                // If it exists in seed defaults, instantiate and persist in DB
+                var defaultSeed = HeroSlideSeeder.GetDefaultSlides().FirstOrDefault(s => s.Id == id);
+                if (defaultSeed != null)
+                {
+                    existing = new HeroSlide
+                    {
+                        Id = id,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _db.HeroSlides.Add(existing);
+                }
+                else
+                {
+                    return NotFound(new { message = "Hero slide not found." });
+                }
+            }
+
+            existing.Title = request.Title.Trim();
+            existing.Subtext = request.Subtext?.Trim() ?? string.Empty;
+            existing.PriceText = request.PriceText?.Trim() ?? string.Empty;
+            existing.MediaUrl = request.MediaUrl.Trim();
+            existing.MediaType = HeroMediaType.Normalize(request.MediaType);
+            existing.InstructionTooltip = request.InstructionTooltip?.Trim();
+            existing.TitleNl = request.TitleNl?.Trim();
+            existing.SubtextNl = request.SubtextNl?.Trim();
+            existing.PriceTextNl = request.PriceTextNl?.Trim();
+            existing.InstructionTooltipNl = request.InstructionTooltipNl?.Trim();
+
+            if (request.Titles != null && request.Titles.Count > 0) existing.Titles = request.Titles;
+            if (request.Subtexts != null && request.Subtexts.Count > 0) existing.Subtexts = request.Subtexts;
+            if (request.PriceTexts != null && request.PriceTexts.Count > 0) existing.PriceTexts = request.PriceTexts;
+            if (request.InstructionTooltips != null && request.InstructionTooltips.Count > 0) existing.InstructionTooltips = request.InstructionTooltips;
+
+            // Bi-directional sync: If legacy fields were updated, reflect in dictionary
+            if (!string.IsNullOrWhiteSpace(existing.Title)) existing.Titles["en"] = existing.Title;
+            if (!string.IsNullOrWhiteSpace(existing.TitleNl)) existing.Titles["nl"] = existing.TitleNl;
+            if (!string.IsNullOrWhiteSpace(existing.Subtext)) existing.Subtexts["en"] = existing.Subtext;
+            if (!string.IsNullOrWhiteSpace(existing.SubtextNl)) existing.Subtexts["nl"] = existing.SubtextNl;
+            if (!string.IsNullOrWhiteSpace(existing.PriceText)) existing.PriceTexts["en"] = existing.PriceText;
+            if (!string.IsNullOrWhiteSpace(existing.PriceTextNl)) existing.PriceTexts["nl"] = existing.PriceTextNl;
+            if (!string.IsNullOrWhiteSpace(existing.InstructionTooltip)) existing.InstructionTooltips["en"] = existing.InstructionTooltip;
+            if (!string.IsNullOrWhiteSpace(existing.InstructionTooltipNl)) existing.InstructionTooltips["nl"] = existing.InstructionTooltipNl;
+
+            // And ensure dictionary values populate legacy fields
+            if (existing.Titles.TryGetValue("en", out var enTitle) && !string.IsNullOrWhiteSpace(enTitle)) existing.Title = enTitle;
+            if (existing.Titles.TryGetValue("nl", out var nlTitle) && !string.IsNullOrWhiteSpace(nlTitle)) existing.TitleNl = nlTitle;
+
+            existing.IsActive = request.IsActive;
+            existing.SortOrder = request.SortOrder;
+            existing.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync(cancellationToken);
+            _cache?.Remove(ActiveSlidesCacheKey);
+
+            return Ok(existing);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to update hero slide {Id}.", id);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to update hero slide: " + ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Deletes a hero slide.
+    /// </summary>
+    // Permission: Admin Only
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await EnsureHeroSlideSchemaAsync(cancellationToken);
+
+            var existing = await _db.HeroSlides.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+            if (existing != null)
+            {
+                _db.HeroSlides.Remove(existing);
+                await _db.SaveChangesAsync(cancellationToken);
+            }
+            else
+            {
+                // Attempt raw SQL deletion in case the slide exists in DB but wasn't tracked
+                try
+                {
+                    await _db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM \"HeroSlides\" WHERE \"Id\" = {id}", cancellationToken);
+                }
+                catch { }
+            }
+
+            _cache?.Remove(ActiveSlidesCacheKey);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to delete hero slide {Id}. Attempting raw SQL fallback.", id);
+            try
+            {
+                await _db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM \"HeroSlides\" WHERE \"Id\" = {id}", cancellationToken);
+                _cache?.Remove(ActiveSlidesCacheKey);
+                return NoContent();
+            }
+            catch (Exception rawEx)
+            {
+                _logger?.LogError(rawEx, "Raw SQL fallback also failed for slide {Id}.", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to delete hero slide: " + ex.Message });
+            }
+        }
+    }
+
+    /// <summary>
+    /// Reseeds default hero slides and ensures all seed files exist on disk.
+    /// </summary>
+    // Permission: Admin Only
+    [HttpPost("seed-defaults")]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> SeedDefaults(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            HeroSlideSeeder.EnsureSeedAssets(_env?.WebRootPath, _env?.ContentRootPath);
+            await EnsureHeroSlideSchemaAsync(cancellationToken);
+
+            await HeroSlideSeeder.EnsureDatabaseSeededAsync(_db, forceReload: true);
+            _cache?.Remove(ActiveSlidesCacheKey);
+
+            var allSlides = await _db.HeroSlides
+                .AsNoTracking()
+                .OrderBy(s => s.SortOrder)
+                .ThenBy(s => s.CreatedAt)
+                .ToListAsync(cancellationToken);
+
+            return Ok(allSlides);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to seed default hero slides to database, returning defaults fallback.");
+            _cache?.Remove(ActiveSlidesCacheKey);
+            return Ok(HeroSlideSeeder.GetDefaultSlides());
+        }
+    }
+
+    /// <summary>
+    /// Uploads a media file (3D model or image) specifically for hero slides.
+    /// </summary>
+    // Permission: Admin Only
+    [HttpPost("upload")]
+    [RequestSizeLimit(50 * 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 50 * 1024 * 1024)]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> Upload([FromForm] IFormFile? file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(new { message = "No file uploaded." });
+        }
+
+        const long maxBytes = 50 * 1024 * 1024; // 50MB
+        if (file.Length > maxBytes)
+        {
+            return BadRequest(new { message = "File is too large. Maximum size is 50 MB." });
+        }
+
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var modelExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".stl", ".obj", ".3mf", ".step", ".stp"
+        };
+        var imageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"
+        };
+
+        if (!modelExtensions.Contains(ext) && !imageExtensions.Contains(ext))
+        {
+            return BadRequest(new { message = "Unsupported file type. Supported types: STL, OBJ, 3MF, STEP, PNG, JPG, WEBP, SVG, GIF." });
+        }
+
+        var mediaType = modelExtensions.Contains(ext) ? HeroMediaType.Model3d : HeroMediaType.Image;
+
+        var webRoot = _env?.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var heroDir = Path.Combine(webRoot, "uploads", "hero");
+        var uploadsDir = Path.Combine(webRoot, "uploads");
+
+        Directory.CreateDirectory(heroDir);
+        Directory.CreateDirectory(uploadsDir);
+
+        var originalCleanName = Path.GetFileNameWithoutExtension(file.FileName)
+            .Replace(" ", "-")
+            .Replace("_", "-");
+        // Keep clean characters
+        originalCleanName = string.Concat(originalCleanName.Where(c => char.IsLetterOrDigit(c) || c == '-'));
+        if (string.IsNullOrWhiteSpace(originalCleanName))
+        {
+            originalCleanName = "hero-asset";
+        }
+
+        var uniquePrefix = Guid.NewGuid().ToString("N")[..8];
+        var safeFileName = $"{uniquePrefix}-{originalCleanName}{ext}";
+        var heroFilePath = Path.Combine(heroDir, safeFileName);
+        var uploadFilePath = Path.Combine(uploadsDir, safeFileName);
+
+        await using (var stream = new FileStream(heroFilePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        // Also duplicate to uploads root for direct accessibility
+        try
+        {
+            System.IO.File.Copy(heroFilePath, uploadFilePath, true);
+        }
+        catch { }
+
+        return Ok(new
+        {
+            url = $"/uploads/hero/{safeFileName}",
+            fileName = safeFileName,
+            mediaType,
+            sizeBytes = file.Length
+        });
+    }
+
+    /// <summary>
+    /// Lists all candidate files (3D models and images) available in uploads.
+    /// </summary>
+    // Permission: Admin Only
+    [HttpGet("files")]
+    [Authorize(Roles = "admin")]
+    public IActionResult GetAvailableFiles()
+    {
+        var webRoot = _env?.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var uploadsDir = Path.Combine(webRoot, "uploads");
+
+        if (!Directory.Exists(uploadsDir))
+        {
+            return Ok(Array.Empty<object>());
+        }
+
+        var modelExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".stl", ".obj", ".3mf", ".step", ".stp"
+        };
+        var imageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"
+        };
+
+        var allFiles = Directory
+            .EnumerateFiles(uploadsDir, "*", SearchOption.AllDirectories)
+            .Select(path => new FileInfo(path))
+            .Where(info => !info.Name.EndsWith(".upload-meta.json", StringComparison.OrdinalIgnoreCase))
+            .Where(info => modelExtensions.Contains(info.Extension) || imageExtensions.Contains(info.Extension))
+            .OrderByDescending(info => info.LastWriteTimeUtc)
+            .Select(info =>
+            {
+                var relPath = Path.GetRelativePath(uploadsDir, info.FullName).Replace('\\', '/');
+                var isModel = modelExtensions.Contains(info.Extension);
+                return new
+                {
+                    fileName = info.Name,
+                    relativePath = relPath,
+                    url = $"/uploads/{relPath}",
+                    mediaType = isModel ? HeroMediaType.Model3d : HeroMediaType.Image,
+                    extension = info.Extension.ToLowerInvariant(),
+                    sizeBytes = info.Length,
+                    lastModifiedUtc = info.LastWriteTimeUtc
+                };
+            })
+            .ToArray();
+
+        return Ok(allFiles);
+    }
+
+    private static readonly Lazy<List<HeroSlide>> DefaultSlides = new(HeroSlideSeeder.GetDefaultSlides);
+
+    private static void HydrateSlideTranslations(HeroSlide target)
+    {
+        var def = DefaultSlides.Value.FirstOrDefault(d => d.Id == target.Id)
+            ?? DefaultSlides.Value.FirstOrDefault(d => d.SortOrder == target.SortOrder);
+        if (def == null) return;
+
+        target.Titles = MergeDict(target.Titles, def.Titles);
+        target.Subtexts = MergeDict(target.Subtexts, def.Subtexts);
+        target.PriceTexts = MergeDict(target.PriceTexts, def.PriceTexts);
+        target.InstructionTooltips = MergeDict(target.InstructionTooltips, def.InstructionTooltips);
+    }
+
+    private static Dictionary<string, string> MergeDict(Dictionary<string, string>? target, Dictionary<string, string>? fallback)
+    {
+        var result = target == null
+            ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            : new Dictionary<string, string>(target, StringComparer.OrdinalIgnoreCase);
+
+        if (fallback != null)
+        {
+            foreach (var (k, v) in fallback)
+            {
+                if (!result.TryGetValue(k, out var val) || string.IsNullOrWhiteSpace(val))
+                {
+                    result[k] = v;
+                }
+            }
+        }
+
+        return result;
+    }
+}
+

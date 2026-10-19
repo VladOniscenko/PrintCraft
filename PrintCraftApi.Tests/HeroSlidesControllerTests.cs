@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PrintCraftApi.Controllers;
-using PrintCraftApi.Data;
-using PrintCraftApi.Models;
+using PrintCraft.Features.Content.Controllers;
+using PrintCraft.Shared.Data;
+using PrintCraft.Shared.Models;
 using Xunit;
 
 namespace PrintCraftApi.Tests;

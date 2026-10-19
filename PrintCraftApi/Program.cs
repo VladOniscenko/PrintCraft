@@ -8,9 +8,20 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
-using PrintCraftApi.Configuration;
-using PrintCraftApi.Data;
-using PrintCraftApi.Services;
+using PrintCraft.Features.Admin;
+using PrintCraft.Features.Content;
+using PrintCraft.Features.Content.Data;
+using PrintCraft.Features.Filaments;
+using PrintCraft.Features.Filaments.Data;
+using PrintCraft.Features.Notifications;
+using PrintCraft.Features.Notifications.Data;
+using PrintCraft.Features.Orders;
+using PrintCraft.Features.Payments;
+using PrintCraft.Features.Uploads;
+using PrintCraft.Features.Users;
+using PrintCraft.Shared.Configuration;
+using PrintCraft.Shared.Data;
+using PrintCraft.Shared.Services;
 using QuestPDF.Infrastructure;
 
 LoadDotEnv(
@@ -62,48 +73,26 @@ builder.Services.AddResponseCompression(options =>
 });
 builder.Services.AddHttpClient();
 
-// Discord Webhooks (Background Queue + Direct Service)
-builder.Services.AddSingleton<DiscordWebhookService>();
-if (!isSeedOnly)
-{
-    builder.Services.AddSingleton<IBackgroundWebhookQueue, BackgroundWebhookQueue>();
-    builder.Services.AddHostedService<BackgroundWebhookWorker>();
-    builder.Services.AddSingleton<IDiscordWebhookService, QueuedDiscordWebhookService>();
-}
-else
-{
-    builder.Services.AddSingleton<IDiscordWebhookService, DiscordWebhookService>();
-}
-
-builder.Services.AddScoped<IQuoteDraftService, QuoteDraftService>();
-builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
-builder.Services.Configure<InvoiceOptions>(builder.Configuration.GetSection("Invoice"));
-
-// SMTP Email (Background Queue + Gmail SMTP Sender)
-builder.Services.AddTransient<GmailSmtpEmailService>();
-if (!isSeedOnly)
-{
-    builder.Services.AddSingleton<IBackgroundEmailQueue, BackgroundEmailQueue>();
-    builder.Services.AddHostedService<BackgroundEmailWorker>();
-    builder.Services.AddSingleton<IEmailService, QueuedEmailService>();
-
-    builder.Services.AddScoped<IInvoiceService, InvoiceService>();
-    builder.Services.AddScoped<IPrintPricingService, PrintPricingService>();
-    builder.Services.AddSingleton<IPricingQueue, PricingQueue>();
-    builder.Services.AddHostedService<PricingBackgroundWorker>();
-    builder.Services.AddHostedService<UploadCleanupBackgroundService>();
-}
-else
-{
-    builder.Services.AddTransient<IEmailService, GmailSmtpEmailService>();
-    builder.Services.AddScoped<IInvoiceService, InvoiceService>();
-    builder.Services.AddScoped<IPrintPricingService, PrintPricingService>();
-}
-
-builder.Services.AddScoped<OrderStatusStateMachine>();
+// Feature Modules
+builder.Services.AddUsersFeature();
+builder.Services.AddOrdersFeature(builder.Configuration);
+builder.Services.AddFilamentsFeature(isSeedOnly);
+builder.Services.AddPaymentsFeature();
+builder.Services.AddUploadsFeature(isSeedOnly);
+builder.Services.AddContentFeature();
+builder.Services.AddNotificationsFeature(builder.Configuration, isSeedOnly);
+builder.Services.AddAdminFeature();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers()
+    .AddApplicationPart(typeof(PrintCraft.Features.Users.Controllers.AuthController).Assembly)
+    .AddApplicationPart(typeof(PrintCraft.Features.Orders.Controllers.OrdersController).Assembly)
+    .AddApplicationPart(typeof(PrintCraft.Features.Filaments.Controllers.FilamentsController).Assembly)
+    .AddApplicationPart(typeof(PrintCraft.Features.Payments.Controllers.PaymentsController).Assembly)
+    .AddApplicationPart(typeof(PrintCraft.Features.Uploads.Controllers.UploadController).Assembly)
+    .AddApplicationPart(typeof(PrintCraft.Features.Content.Controllers.CitiesController).Assembly)
+    .AddApplicationPart(typeof(PrintCraft.Features.Notifications.Controllers.EmailTemplatesController).Assembly)
+    .AddApplicationPart(typeof(PrintCraft.Features.Admin.Controllers.AdminController).Assembly)
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;

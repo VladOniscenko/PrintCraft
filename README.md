@@ -38,15 +38,19 @@ A full-stack e-commerce platform for 3D printing services. Browse products, cust
 │   ├── package.json
 │   └── vite.config.ts
 │
-├── PrintCraftApi/          # ASP.NET Core backend
-│   ├── Controllers/        # API endpoints
-│   ├── Services/           # Business logic
-│   ├── Models/             # Entity models
-│   ├── Migrations/         # Database migrations
-│   ├── Data/              # DbContext
-│   ├── Validation/        # Input validation
-│   ├── appsettings.json
-│   └── Program.cs
+├── PrintCraftApi/                  # Thin ASP.NET Core startup & host
+│   ├── Program.cs
+│   └── Dockerfile
+├── PrintCraft.Shared/              # DbContext, migrations, core relational models, shared services & validation
+├── PrintCraft.Features.Users/      # Auth & address management
+├── PrintCraft.Features.Orders/     # Orders, quotes, state machine, invoices
+├── PrintCraft.Features.Filaments/  # Filaments, pricing engine & painting
+├── PrintCraft.Features.Payments/   # Payments & checkout
+├── PrintCraft.Features.Uploads/    # Uploads & cleanup background worker
+├── PrintCraft.Features.Content/    # Hero slides, FAQs, topics, cities, policies
+├── PrintCraft.Features.Notifications/ # SMTP email & Discord webhook dispatchers
+├── PrintCraft.Features.Admin/      # Administration overview & analytics
+├── PrintCraftApi.Tests/            # Unit, integration & RBAC security tests
 │
 ├── PROJECT_STORY.md        # The journey
 └── README.md              # This file

@@ -2,8 +2,8 @@ using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PrintCraftApi.Controllers;
-using PrintCraftApi.Data;
+using PrintCraft.Features.Uploads.Controllers;
+using PrintCraft.Shared.Data;
 using Xunit;
 
 namespace PrintCraftApi.Tests;

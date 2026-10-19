@@ -2,7 +2,14 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
-using PrintCraftApi.Controllers;
+using PrintCraft.Features.Admin.Controllers;
+using PrintCraft.Features.Content.Controllers;
+using PrintCraft.Features.Filaments.Controllers;
+using PrintCraft.Features.Notifications.Controllers;
+using PrintCraft.Features.Orders.Controllers;
+using PrintCraft.Features.Payments.Controllers;
+using PrintCraft.Features.Uploads.Controllers;
+using PrintCraft.Features.Users.Controllers;
 using Xunit;
 
 namespace PrintCraftApi.Tests;
@@ -22,10 +29,22 @@ public class ApiAuthorizationTests
         "FilamentPaintingController.GeneratePainting"
     };
 
+    private static readonly Assembly[] ControllerAssemblies =
+    [
+        typeof(AdminController).Assembly,
+        typeof(CitiesController).Assembly,
+        typeof(FilamentsController).Assembly,
+        typeof(EmailTemplatesController).Assembly,
+        typeof(OrdersController).Assembly,
+        typeof(PaymentsController).Assembly,
+        typeof(UploadController).Assembly,
+        typeof(AuthController).Assembly
+    ];
+
     private static IEnumerable<Type> GetControllerTypes()
     {
-        return typeof(AdminController).Assembly
-            .GetTypes()
+        return ControllerAssemblies
+            .SelectMany(a => a.GetTypes())
             .Where(t => typeof(ControllerBase).IsAssignableFrom(t) && !t.IsAbstract);
     }
 
