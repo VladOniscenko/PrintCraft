@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
+import NotFound from "../NotFound";
 import { useI18n } from "../../i18n/I18nContext";
 import { getPolicy } from "../../services/api";
 import type { PolicySection, PolicyTemplate } from "../../types";
@@ -43,11 +44,13 @@ function renderFormattedBody(text: string) {
 export default function PolicyPageView({ slug }: PolicyPageViewProps) {
   const { t, language } = useI18n();
   const [template, setTemplate] = useState<PolicyTemplate | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
 
     const loadPolicy = async () => {
+      setLoading(true);
       try {
         const data = await getPolicy(slug);
         if (!cancelled && data) {
@@ -55,6 +58,10 @@ export default function PolicyPageView({ slug }: PolicyPageViewProps) {
         }
       } catch {
         /* Fall back gracefully to bundled translations */
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
@@ -128,6 +135,10 @@ export default function PolicyPageView({ slug }: PolicyPageViewProps) {
         body: resolveDictText(sec.body, language),
       }))
     : fallbackSections;
+
+  if (!loading && !template && fallbackSections.length === 0) {
+    return <NotFound />;
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] flex flex-col">

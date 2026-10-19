@@ -3,6 +3,7 @@ import {
   ArrowDown,
   ArrowUp,
   Check,
+  Copy,
   Edit2,
   ExternalLink,
   Eye,
@@ -17,6 +18,8 @@ import {
 import AdminBreadcrumb from "./AdminBreadcrumb";
 import AdminLayout from "./AdminLayout";
 import {
+  createPolicy,
+  deletePolicy,
   getPolicies,
   seedPolicies,
   updatePolicy,
@@ -41,9 +44,10 @@ export default function AdminPolicies() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  // Edit Modal State
+  // Modal State (Create or Edit)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState<PolicyTemplate | null>(null);
+  const [slugInput, setSlugInput] = useState("");
   const [activeLangTab, setActiveLangTab] = useState<SupportedLanguage>(defaultLanguage);
   const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor");
 
@@ -54,6 +58,10 @@ export default function AdminPolicies() {
   const [contactBodyDict, setContactBodyDict] = useState<Record<string, string>>({});
   const [isActive, setIsActive] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Delete Modal State
+  const [deleteTarget, setDeleteTarget] = useState<PolicyTemplate | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Reset Modal State (single policy or all policies)
   const [resetTarget, setResetTarget] = useState<PolicyTemplate | null>(null);
@@ -87,8 +95,23 @@ export default function AdminPolicies() {
     });
   }, [policies, search, language]);
 
+  const openCreateModal = () => {
+    setEditingPolicy(null);
+    setSlugInput("");
+    setTitleDict({});
+    setLastUpdatedDict({});
+    setSections([]);
+    setContactTitleDict({});
+    setContactBodyDict({});
+    setIsActive(true);
+    setActiveLangTab(defaultLanguage);
+    setActiveTab("editor");
+    setIsModalOpen(true);
+  };
+
   const openEditModal = (policy: PolicyTemplate) => {
     setEditingPolicy(policy);
+    setSlugInput(policy.slug);
     setTitleDict(policy.title ? { ...policy.title } : {});
     setLastUpdatedDict(policy.lastUpdated ? { ...policy.lastUpdated } : {});
     setSections(
@@ -110,7 +133,25 @@ export default function AdminPolicies() {
   };
 
   const handleSave = async () => {
-    if (!editingPolicy) return;
+    const trimmedSlug = slugInput.trim().toLowerCase();
+    const isCreating = !editingPolicy;
+    const isSystem = editingPolicy ? SYSTEM_POLICY_SLUGS.has(editingPolicy.slug) : false;
+
+    if (isCreating || !isSystem) {
+      if (!trimmedSlug) {
+        notifyError(t("admin.policies.slugRequired"));
+        return;
+      }
+      if (!/^[a-z0-9-]+$/.test(trimmedSlug)) {
+        notifyError(t("admin.policies.slugInvalid"));
+        return;
+      }
+    }
+
+    if (!titleDict[activeLangTab]?.trim()) {
+      notifyError(t("admin.policies.titleRequired"));
+      return;
+    }
 
     setSaving(true);
     try {
@@ -123,14 +164,55 @@ export default function AdminPolicies() {
         isActive,
       };
 
-      await updatePolicy(editingPolicy.id, payload);
-      notifySuccess(t("admin.policies.saveSuccess"));
+      if (isCreating) {
+        payload.slug = trimmedSlug;
+        await createPolicy(payload);
+        notifySuccess(t("admin.policies.createSuccess"));
+      } else {
+        if (!isSystem) {
+          payload.slug = trimmedSlug;
+        }
+        await updatePolicy(editingPolicy.id, payload);
+        notifySuccess(t("admin.policies.saveSuccess"));
+      }
+
       setIsModalOpen(false);
       await loadPoliciesList();
     } catch {
-      notifyError(t("admin.policies.saveFailed"));
+      notifyError(
+        isCreating
+          ? t("admin.policies.createFailed")
+          : t("admin.policies.saveFailed"),
+      );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+
+    setDeleting(true);
+    try {
+      await deletePolicy(deleteTarget.id);
+      notifySuccess(t("admin.policies.deleteSuccess"));
+      setDeleteTarget(null);
+      await loadPoliciesList();
+    } catch {
+      notifyError(t("admin.policies.deleteFailed"));
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleCopyLink = async (slug: string) => {
+    try {
+      const path = getPublicPath(slug);
+      const fullUrl = `${window.location.origin}${localizePath(path)}`;
+      await navigator.clipboard.writeText(fullUrl);
+      notifySuccess(t("admin.policies.linkCopied"));
+    } catch {
+      // Fallback
     }
   };
 
@@ -229,7 +311,8 @@ export default function AdminPolicies() {
 
   const getPublicPath = (slug: string) => {
     if (slug === "shipping") return "/shipping-policy";
-    return `/${slug}`;
+    if (SYSTEM_POLICY_SLUGS.has(slug)) return `/${slug}`;
+    return `/policies/${slug}`;
   };
 
   return (
@@ -241,15 +324,25 @@ export default function AdminPolicies() {
           { label: t("admin.policies.title") },
         ]}
         rightSlot={
-          <button
-            type="button"
-            onClick={() => setResetAllConfirmOpen(true)}
-            className="site-btn-soft inline-flex items-center gap-1.5 text-xs text-rose-800 border-rose-200 hover:bg-rose-50"
-            title={t("admin.policies.seedDefaults")}
-          >
-            <RotateCcw size={14} />
-            <span>{t("admin.policies.seedDefaults")}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={openCreateModal}
+              className="site-btn-primary inline-flex items-center gap-1.5 text-xs font-bold"
+            >
+              <Plus size={14} />
+              <span>{t("admin.policies.addPolicy")}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setResetAllConfirmOpen(true)}
+              className="site-btn-soft inline-flex items-center gap-1.5 text-xs text-rose-800 border-rose-200 hover:bg-rose-50"
+              title={t("admin.policies.seedDefaults")}
+            >
+              <RotateCcw size={14} />
+              <span>{t("admin.policies.seedDefaults")}</span>
+            </button>
+          </div>
         }
       />
 
@@ -284,7 +377,7 @@ export default function AdminPolicies() {
           ) : filteredPolicies.length === 0 ? (
             <div className="p-12 text-center text-gray-500 text-sm">
               <FileText className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-              <span>{t("admin.policies.searchPlaceholder")}</span>
+              <span>{t("admin.policies.emptyTitle")}</span>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -312,9 +405,13 @@ export default function AdminPolicies() {
                             <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
                               {policy.slug}
                             </span>
-                            {isSystem && (
+                            {isSystem ? (
                               <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-gray-100 text-gray-600">
                                 {t("admin.policies.coreBadge")}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-purple-50 text-purple-700 border border-purple-200">
+                                {t("admin.policies.customBadge")}
                               </span>
                             )}
                           </div>
@@ -356,20 +453,39 @@ export default function AdminPolicies() {
                             </a>
                             <button
                               type="button"
+                              onClick={() => void handleCopyLink(policy.slug)}
+                              className="p-1.5 text-gray-500 hover:text-teal-700 hover:bg-gray-100 rounded-lg transition-colors"
+                              title={t("admin.policies.copyLink")}
+                            >
+                              <Copy size={15} />
+                            </button>
+                            <button
+                              type="button"
                               onClick={() => openEditModal(policy)}
                               className="p-1.5 text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
                               title={t("admin.policies.edit")}
                             >
                               <Edit2 size={15} />
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => setResetTarget(policy)}
-                              className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                              title={t("admin.policies.resetToDefault")}
-                            >
-                              <RotateCcw size={15} />
-                            </button>
+                            {isSystem ? (
+                              <button
+                                type="button"
+                                onClick={() => setResetTarget(policy)}
+                                className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                title={t("admin.policies.resetToDefault")}
+                              >
+                                <RotateCcw size={15} />
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setDeleteTarget(policy)}
+                                className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                title={t("admin.policies.deletePolicy")}
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -382,15 +498,17 @@ export default function AdminPolicies() {
         </div>
       </div>
 
-      {/* MODAL: EDIT POLICY TEMPLATE */}
-      {isModalOpen && editingPolicy && (
+      {/* MODAL: CREATE OR EDIT POLICY TEMPLATE */}
+      {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-4xl w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto flex flex-col">
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b">
               <div>
                 <h2 className="text-lg font-bold text-gray-900">
-                  {t("admin.policies.modalTitleEdit", { slug: editingPolicy.slug })}
+                  {editingPolicy
+                    ? t("admin.policies.modalTitleEdit", { slug: editingPolicy.slug })
+                    : t("admin.policies.modalTitleNew")}
                 </h2>
                 <p className="text-xs text-gray-500 mt-0.5">
                   {t("admin.policies.subtitle")}
@@ -465,6 +583,21 @@ export default function AdminPolicies() {
             {/* TAB 1: EDITOR */}
             {activeTab === "editor" && (
               <div className="space-y-5 overflow-y-auto flex-1 pr-1">
+                {/* Slug Input */}
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
+                    {t("admin.policies.slugLabel")}
+                  </label>
+                  <input
+                    type="text"
+                    value={slugInput}
+                    onChange={(e) => setSlugInput(e.target.value.toLowerCase())}
+                    disabled={editingPolicy !== null && SYSTEM_POLICY_SLUGS.has(editingPolicy.slug)}
+                    placeholder={t("admin.policies.slugPlaceholder")}
+                    className="site-input w-full px-3 py-2 text-sm rounded-xl font-mono disabled:bg-gray-100 disabled:text-gray-500"
+                  />
+                </div>
+
                 {/* Meta Fields: Title & Last Updated */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -646,7 +779,7 @@ export default function AdminPolicies() {
                 <div className="max-w-2xl mx-auto space-y-6">
                   <div>
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                      {titleDict[activeLangTab] || editingPolicy.slug}
+                      {titleDict[activeLangTab] || (editingPolicy ? editingPolicy.slug : slugInput)}
                     </h1>
                     <p className="text-xs text-gray-500">
                       {lastUpdatedDict[activeLangTab] || ""}
@@ -761,6 +894,37 @@ export default function AdminPolicies() {
               >
                 {resetting && <Loader2 size={14} className="animate-spin" />}
                 <span>{resetting ? t("admin.policies.resetting") : t("admin.policies.seedDefaults")}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* MODAL: DELETE CUSTOM POLICY CONFIRMATION */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h2 className="text-lg font-bold text-gray-900">
+              {t("admin.policies.deleteConfirmTitle")}
+            </h2>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              {t("admin.policies.deleteConfirmMessage")}
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-xl"
+              >
+                {t("admin.policies.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="site-btn-soft px-4 py-2 text-sm rounded-xl font-bold text-rose-800 bg-rose-50 border-rose-300 hover:bg-rose-100 inline-flex items-center gap-1.5"
+              >
+                {deleting && <Loader2 size={14} className="animate-spin" />}
+                <span>{deleting ? t("admin.policies.deleting") : t("admin.policies.deletePolicy")}</span>
               </button>
             </div>
           </div>

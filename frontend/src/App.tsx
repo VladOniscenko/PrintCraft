@@ -105,6 +105,10 @@ const ShippingPolicy = lazyWithI18n(
   () => import("./components/ShippingPolicy.tsx"),
   ["legal"],
 );
+const CustomPolicyPage = lazyWithI18n(
+  () => import("./components/legal/CustomPolicyPage.tsx"),
+  ["legal"],
+);
 const ForgotPassword = lazyWithI18n(
   () => import("./components/ForgotPassword.tsx"),
   ["forgot"],
@@ -314,6 +318,10 @@ export default function App() {
             path="/shipping-policy"
             element={<LegacyPathRedirect target="/shipping-policy" />}
           />
+          <Route
+            path="/policies/:slug"
+            element={<LegacyPathRedirect />}
+          />
           <Route path="/login" element={<LegacyPathRedirect target="/login" />} />
           <Route path="/signup" element={<LegacyPathRedirect target="/signup" />} />
           <Route
@@ -344,6 +352,7 @@ export default function App() {
             <Route path="terms" element={<TermsOfService />} />
             <Route path="refunds" element={<RefundPolicy />} />
             <Route path="shipping-policy" element={<ShippingPolicy />} />
+            <Route path="policies/:slug" element={<CustomPolicyPage />} />
 
             <Route path="quote" element={<Navigate to="../checkout" replace />} />
             <Route path="checkout" element={<Quote />} />
