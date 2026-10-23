@@ -43,3 +43,4 @@ export function getFilamentHexColor(colorName?: string): number {
 
   return 0x2563eb;
 }
+
