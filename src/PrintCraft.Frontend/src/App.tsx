@@ -247,7 +247,10 @@ function RootLanguageRedirect() {
   const stored =
     typeof window !== "undefined" ? localStorage.getItem("language") : null;
   const preferred = resolveLanguage(stored);
-  return <Navigate to={`/${preferred}`} replace />;
+  if (preferred && preferred !== "nl") {
+    return <Navigate to={`/${preferred}`} replace />;
+  }
+  return <Home />;
 }
 
 function LegacyPathRedirect({ target }: { target?: string } = {}) {

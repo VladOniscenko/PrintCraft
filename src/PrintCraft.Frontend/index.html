@@ -124,9 +124,6 @@
     <!--seo-meta-end-->
 
     <!--root-redirect-start-->
-    <noscript>
-      <meta http-equiv="refresh" content="0;url=/nl" />
-    </noscript>
     <script>
       (function () {
         try {
@@ -134,16 +131,15 @@
           if (p === "/" || p === "") {
             var supported = ["nl", "en", "tr", "ru", "ar"];
             var lang = localStorage.getItem("language");
-            if (!lang || supported.indexOf(lang) === -1) {
-              var nav = (navigator.language || "").slice(0, 2).toLowerCase();
-              lang = supported.indexOf(nav) !== -1 ? nav : "nl";
+            // Only redirect returning visitors who explicitly chose a non-default language
+            if (lang && supported.indexOf(lang) !== -1 && lang !== "nl") {
+              var target =
+                "/" +
+                lang +
+                window.location.search +
+                window.location.hash;
+              window.location.replace(target);
             }
-            var target =
-              "/" +
-              lang +
-              window.location.search +
-              window.location.hash;
-            window.location.replace(target);
           }
         } catch (e) {}
       })();

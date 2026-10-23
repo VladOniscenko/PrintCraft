@@ -8,7 +8,10 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Box, RotateCcw } from "lucide-react";
-import { getActiveHeroSlides, getCachedActiveHeroSlides } from "../services/api";
+import {
+  getActiveHeroSlides,
+  getCachedActiveHeroSlides,
+} from "../services/api";
 import type { HeroSlide } from "../types";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import { useI18n } from "../i18n/I18nContext";
@@ -189,7 +192,6 @@ export default function Hero() {
   // Fetch active slides from .NET API (cached client-side to prevent redundant roundtrips on route changes)
   useEffect(() => {
     let active = true;
-    let idleHandle: number | null = null;
     let timeoutHandle: number | null = null;
 
     async function loadSlides() {
@@ -202,7 +204,10 @@ export default function Hero() {
           setSlides(sorted);
         }
       } catch (err) {
-        console.warn("Could not load dynamic hero slides from API, using fallback slides:", err);
+        console.warn(
+          "Could not load dynamic hero slides from API, using fallback slides:",
+          err,
+        );
       }
     }
 
@@ -214,25 +219,27 @@ export default function Hero() {
       };
     }
 
-    const idleWindow = typeof window !== "undefined" ? (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void }) : null;
-    if (idleWindow && typeof idleWindow.requestIdleCallback === "function") {
-      idleHandle = idleWindow.requestIdleCallback(
-        () => {
-          if (active) void loadSlides();
-        },
-        { timeout: 3000 },
-      );
-    } else {
-      timeoutHandle = setTimeout(() => {
-        if (active) void loadSlides();
-      }, 2000) as unknown as number;
-    }
+    const userEvents = ["pointerdown", "scroll", "keydown", "touchstart"];
+    const onUserInteract = () => {
+      userEvents.forEach((e) => window.removeEventListener(e, onUserInteract));
+      if (timeoutHandle !== null) {
+        clearTimeout(timeoutHandle);
+      }
+      if (active) void loadSlides();
+    };
+
+    userEvents.forEach((e) => {
+      window.addEventListener(e, onUserInteract, { once: true, passive: true });
+    });
+
+    timeoutHandle = setTimeout(() => {
+      userEvents.forEach((e) => window.removeEventListener(e, onUserInteract));
+      if (active) void loadSlides();
+    }, 10000) as unknown as number;
 
     return () => {
       active = false;
-      if (idleHandle !== null && idleWindow && typeof idleWindow.cancelIdleCallback === "function") {
-        idleWindow.cancelIdleCallback(idleHandle);
-      }
+      userEvents.forEach((e) => window.removeEventListener(e, onUserInteract));
       if (timeoutHandle !== null) {
         clearTimeout(timeoutHandle);
       }
@@ -468,7 +475,10 @@ export default function Hero() {
               key={slide.id || idx}
               type="button"
               aria-current={isActive ? "true" : undefined}
-              aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
+              aria-label={t("hero.goToSlide", {
+                index: idx + 1,
+                title: slideItemTitle,
+              })}
               onClick={() => goToSlide(idx)}
               className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
             >
