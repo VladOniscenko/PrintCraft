@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Layers,
@@ -6,19 +6,14 @@ import {
   Grid3X3,
   Hash,
   MessageSquare,
-  FileText,
-  Loader2,
   AlertCircle,
   Eye,
-  Palette,
 } from "lucide-react";
 import type { OrderSectionProps } from "./types";
 import { resolveAssetUrl } from "../../utils/assetUrl";
 import { getFilamentHexColor } from "../Interactive3DViewer";
 import ModelInspectorModal from "../ModelInspectorModal";
 import CustomerItemChangeRequestBanner from "./CustomerItemChangeRequestBanner";
-
-const Interactive3DViewer = lazy(() => import("../Interactive3DViewer"));
 
 interface OrderItemsCardProps extends OrderSectionProps {}
 
@@ -144,7 +139,7 @@ function getItemFiles(item: {
 function getPrimaryPreviewFile(itemFiles: ItemFile[]): ItemFile | null {
   if (itemFiles.length === 0) return null;
 
-  // 1. Prefer GLB / GLTF rich visual preview (holds full vertex colors and texture)
+  // 1. Prefer GLB / GLTF rich visual preview
   const glbFile = itemFiles.find((f) => {
     const ext = getFileExtension(f.url) || getFileExtension(f.name);
     return ext === "glb" || ext === "gltf";
@@ -158,11 +153,11 @@ function getPrimaryPreviewFile(itemFiles: ItemFile[]): ItemFile | null {
   });
   if (threeDFile) return threeDFile;
 
-  // 2. Any other model file
+  // 3. Any other model file
   const modelFile = itemFiles.find((f) => f.kind === "model");
   if (modelFile) return modelFile;
 
-  // 3. Image file
+  // 4. Image file
   const imgFile = itemFiles.find((f) => {
     const ext = getFileExtension(f.url) || getFileExtension(f.name);
     return isImageExtension(ext) || f.kind === "image";
@@ -188,36 +183,31 @@ export default function OrderItemsCard({
   const modalPreviewFile = modalItem ? getPrimaryPreviewFile(modalItemFiles) : null;
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200/80 shadow-xs space-y-6">
+    <div className="rounded-3xl border border-gray-200/80 bg-white p-5 sm:p-7 shadow-xs space-y-4">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-5">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-              {t("orderDetail.modelsInProject")}
-            </h2>
-            <span className="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
-              {order.items.length}{" "}
-              {order.items.length === 1
-                ? t("orderDetail.model")
-                : t("orderDetail.models")}
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            {t("orderDetail.modelsSubtitle")}
-          </p>
+      <div className="flex items-center justify-between gap-3 pb-4 border-b border-gray-100">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
+            {t("orderDetail.modelsInProject")}
+          </h2>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+            {order.items.length}{" "}
+            {order.items.length === 1
+              ? t("orderDetail.model")
+              : t("orderDetail.models")}
+          </span>
         </div>
 
         {isCancelledOrder && (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200 self-start sm:self-auto">
-            <AlertCircle size={14} />
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+            <AlertCircle size={13} />
             {t("orderDetail.filesRemovedDueCancellation")}
           </span>
         )}
       </div>
 
-      {/* Items List */}
-      <div className="space-y-6">
+      {/* Items List as Clean Rows */}
+      <div className="divide-y divide-gray-100">
         {order.items.map((item, idx) => {
           const itemFiles = getItemFiles(item);
           const previewFile = getPrimaryPreviewFile(itemFiles);
@@ -234,148 +224,139 @@ export default function OrderItemsCard({
           return (
             <div
               key={item.id || idx}
-              className="rounded-3xl border border-gray-200/80 bg-[#fbfbfd] p-5 sm:p-7 shadow-xs hover:border-gray-300 transition-all duration-200"
+              className="py-4 sm:py-5 first:pt-1 last:pb-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
             >
-              {/* Responsive 2-Column Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                {/* Left Column: Item Specifications & Info */}
-                <div className="lg:col-span-7 space-y-4">
-                  {/* Item Header */}
-                  <div className="flex items-center gap-2.5 flex-wrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#133827] text-white tracking-wider shrink-0">
+              <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                {/* Compact Thumbnail Box */}
+                {!isCancelledOrder && (canRender3D || isImage) ? (
+                  <button
+                    type="button"
+                    onClick={() => setActiveModalItemIndex(idx)}
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border border-gray-200/80 bg-[#fbfbfd] hover:bg-gray-100 flex flex-col items-center justify-center shrink-0 relative overflow-hidden group cursor-pointer shadow-2xs transition-all hover:border-[#133827]"
+                    title={t("orderDetail.inspectModel")}
+                  >
+                    {item.imageUrl || (isImage && previewFile) ? (
+                      <img
+                        src={resolveAssetUrl(item.imageUrl || previewFile?.url || "")}
+                        alt={item.fileName}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-contain p-1 rounded-xl"
+                      />
+                    ) : (
+                      <>
+                        <Box size={20} className="text-[#133827] group-hover:scale-110 transition-transform" />
+                        <span className="text-[9px] font-mono font-bold text-gray-500 uppercase mt-0.5">
+                          .{previewExt || "3D"}
+                        </span>
+                      </>
+                    )}
+                    <div className="absolute inset-0 bg-[#133827]/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                      <Eye size={16} />
+                    </div>
+                  </button>
+                ) : (
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border border-gray-200/80 bg-gray-50 flex items-center justify-center shrink-0 text-gray-400">
+                    <Box size={20} />
+                  </div>
+                )}
+
+                {/* Details & Badges */}
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#133827] text-white shrink-0">
                       #{String(idx + 1).padStart(2, "0")}
                     </span>
                     {previewExt && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
                         .{previewExt}
                       </span>
                     )}
                     <h3
-                      className="text-base sm:text-lg font-bold text-gray-900 break-words tracking-tight"
+                      className="text-sm sm:text-base font-bold text-gray-900 truncate"
                       title={item.fileName}
                     >
                       {item.fileName}
                     </h3>
+
                     {item.activeChangeRequest?.status === "pending_customer" && (
-                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-white tracking-wide uppercase shadow-2xs animate-pulse">
-                        <AlertCircle size={12} />
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white tracking-wide uppercase shrink-0">
+                        <AlertCircle size={11} />
                         {t("orderDetail.changeRequest.actionRequired")}
                       </span>
                     )}
                     {item.activeChangeRequest?.status === "revision_submitted" && (
-                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[11px] font-semibold bg-sky-100 text-sky-800 border border-sky-300">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-sky-100 text-sky-800 border border-sky-300 shrink-0">
                         {t("orderDetail.changeRequest.revisionUnderReview")}
                       </span>
                     )}
                     {previewFile &&
                       (previewFile.url === item.activeChangeRequest?.submittedFileUrl ||
                         item.changeRequests?.some((cr) => cr.submittedFileUrl === previewFile.url)) && (
-                        <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0">
                           {t("orderDetail.changeRequest.revised3dModel")}
                         </span>
                       )}
                   </div>
 
-                  {/* Specifications Container */}
-                  <div className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200/80 space-y-3 shadow-2xs">
-                    {/* 2-Column Grid for Standard Specs */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                      {/* Material */}
-                      <div className="flex items-center justify-between gap-2.5 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70">
-                        <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
-                          <Layers size={14} className="text-emerald-700" />
-                          {t("orderDetail.materialLabel")}
-                        </span>
-                        <span className="font-bold text-gray-900 text-right">
-                          {item.material || "PLA"}
-                        </span>
-                      </div>
+                  {/* Compact Specification Badges */}
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    {/* Material */}
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      <Layers size={11} className="text-emerald-700" />
+                      <span>{item.material || "PLA"}</span>
+                    </span>
 
-                      {/* Color */}
-                      <div className="flex items-center justify-between gap-2.5 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70">
-                        <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
-                          <Palette size={14} className="text-emerald-700" />
-                          {t("orderDetail.colorLabel")}
-                        </span>
-                        <span className="font-bold text-gray-900 flex items-center gap-1.5 text-right">
-                          <span
-                            className="w-3.5 h-3.5 rounded-full border border-gray-300 shadow-inner shrink-0 inline-block"
-                            style={{ backgroundColor: colorHex }}
-                            title={item.color}
-                          />
-                          <span>{item.color || t("orderDetail.defaultColor")}</span>
-                        </span>
-                      </div>
+                    {/* Color */}
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full border border-black/15 shrink-0 inline-block"
+                        style={{ backgroundColor: colorHex }}
+                        title={item.color}
+                      />
+                      <span>{item.color || t("orderDetail.defaultColor")}</span>
+                    </span>
 
-                      {/* Quantity */}
-                      <div className="flex items-center justify-between gap-2.5 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70">
-                        <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
-                          <Hash size={14} className="text-emerald-700" />
-                          {t("orderDetail.qtyLabel")}
-                        </span>
-                        <span className="font-bold text-gray-900 text-right">
-                          x{item.count || 1}
-                        </span>
-                      </div>
+                    {/* Quantity */}
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      <Hash size={11} className="text-emerald-700" />
+                      <span>x{item.count || 1}</span>
+                    </span>
 
-                      {/* Print Quality */}
-                      {item.printQuality && (
-                        <div className="flex items-center justify-between gap-2.5 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70">
-                          <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
-                            <Sparkles size={14} className="text-emerald-700" />
-                            {t("orderDetail.qualityLabel")}
-                          </span>
-                          <span className="font-bold text-gray-900 text-right">
-                            {item.printQuality}
-                          </span>
-                        </div>
-                      )}
+                    {/* Print Quality */}
+                    {item.printQuality && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <Sparkles size={11} className="text-emerald-700" />
+                        <span>{item.printQuality}</span>
+                      </span>
+                    )}
 
-                      {/* Infill Density */}
-                      {item.infillPercent != null && (
-                        <div className="flex items-center justify-between gap-2.5 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70">
-                          <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
-                            <Grid3X3 size={14} className="text-emerald-700" />
-                            {t("orderDetail.infillLabel")}
-                          </span>
-                          <span className="font-bold text-gray-900 text-right">
-                            {item.infillPercent}%
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    {/* Infill Density */}
+                    {item.infillPercent != null && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <Grid3X3 size={11} className="text-emerald-700" />
+                        <span>{item.infillPercent}%</span>
+                      </span>
+                    )}
 
                     {/* Dimensions / Size */}
                     {item.size && (
-                      <div className="flex items-center justify-between gap-3 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70 text-xs">
-                        <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
-                          <Box size={14} className="text-emerald-700" />
-                          {t("orderDetail.sizeLabel")}
-                        </span>
-                        <span className="font-mono font-bold text-gray-900 text-right break-words">
-                          {item.size}
-                        </span>
-                      </div>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-medium text-gray-700 bg-gray-100">
+                        <Box size={11} className="text-emerald-700" />
+                        <span>{item.size}</span>
+                      </span>
                     )}
                   </div>
 
                   {/* Customer / Item Notes */}
                   {item.notes && (
-                    <div className="flex items-start gap-2.5 text-xs text-gray-700 bg-white border border-gray-200/80 p-3.5 rounded-2xl shadow-2xs">
-                      <MessageSquare
-                        size={14}
-                        className="mt-0.5 shrink-0 text-gray-400"
-                      />
-                      <div className="min-w-0">
-                        <span className="font-semibold text-gray-900 mr-1.5">
-                          {t("orderDetail.instructionsLabel")}:
-                        </span>
-                        <span className="italic text-gray-600">"{item.notes}"</span>
-                      </div>
+                    <div className="flex items-start gap-1.5 text-xs text-gray-600 italic pt-0.5">
+                      <MessageSquare size={12} className="shrink-0 mt-0.5 text-gray-400" />
+                      <span>"{item.notes}"</span>
                     </div>
                   )}
 
-                  {/* Customer Item Change Request & Revision Loop Banner */}
+                  {/* Customer Item Change Request Banner */}
                   {item.id && (
                     <CustomerItemChangeRequestBanner
                       orderId={order.id}
@@ -389,84 +370,19 @@ export default function OrderItemsCard({
                     />
                   )}
                 </div>
-
-                {/* Right Column: Clean 3D Dialog Box (Self-start, Natural Height) */}
-                <div className="lg:col-span-5 self-start w-full">
-                  {isCancelledOrder ? (
-                    <div className="w-full rounded-2xl border border-slate-800 bg-slate-950 shadow-md p-6 text-center text-slate-400 space-y-2">
-                      <Box size={32} className="mx-auto text-slate-600" />
-                      <p className="text-xs font-medium">
-                        {t("orderDetail.filesRemovedDueCancellation")}
-                      </p>
-                    </div>
-                  ) : canRender3D && previewFile ? (
-                    <Suspense
-                      fallback={
-                        <div className="w-full h-64 bg-slate-950 rounded-2xl border border-slate-800 flex flex-col items-center justify-center gap-2 text-slate-400">
-                          <Loader2
-                            className="animate-spin text-emerald-400"
-                            size={24}
-                          />
-                          <span className="text-xs font-medium">
-                            {t("orderDetail.loadingModel")}
-                          </span>
-                        </div>
-                      }
-                    >
-                      <Interactive3DViewer
-                        compact={true}
-                        fileUrl={resolveAssetUrl(previewFile.url)}
-                        fileName={previewFile.name}
-                        colorName={item.color}
-                        materialName={item.material}
-                        scaleFactor={item.scaleFactor || 1.0}
-                        count={item.count || 1}
-                        onExpand={() => setActiveModalItemIndex(idx)}
-                        className="w-full shadow-md"
-                      />
-                    </Suspense>
-                  ) : isImage && previewFile ? (
-                    <div className="w-full rounded-2xl overflow-hidden border border-gray-200/80 bg-white shadow-2xs flex flex-col">
-                      <div className="bg-gray-50 border-b border-gray-200/80 px-3.5 py-2.5 flex items-center justify-between text-xs text-gray-900">
-                        <div className="flex items-center gap-1.5 font-bold">
-                          <span
-                            className="w-2.5 h-2.5 rounded-full border border-black/10 shrink-0 inline-block"
-                            style={{ backgroundColor: colorHex }}
-                          />
-                          <span>{item.color}</span>
-                          <span className="text-gray-400 font-normal">
-                            • {item.material}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setActiveModalItemIndex(idx)}
-                          className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white hover:bg-gray-100 text-gray-800 text-[11px] font-semibold border border-gray-200 transition-colors shadow-2xs cursor-pointer"
-                        >
-                          <Eye size={12} />
-                          <span>{t("orderDetail.viewImage")}</span>
-                        </button>
-                      </div>
-                      <div className="w-full h-56 bg-gray-50/50 flex items-center justify-center p-3">
-                        <img
-                          src={resolveAssetUrl(previewFile.url)}
-                          alt={previewFile.name}
-                          loading="lazy"
-                          decoding="async"
-                          className="max-h-full max-w-full object-contain rounded-lg"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-full rounded-2xl border border-gray-200/80 bg-white shadow-2xs p-6 text-center text-gray-400 space-y-2">
-                      <FileText size={32} className="mx-auto text-gray-300" />
-                      <p className="text-xs font-medium">
-                        {t("orderDetail.no3dPreview")}
-                      </p>
-                    </div>
-                  )}
-                </div>
               </div>
+
+              {/* Action Button: Inspect in 3D */}
+              {!isCancelledOrder && canRender3D && previewFile && (
+                <button
+                  type="button"
+                  onClick={() => setActiveModalItemIndex(idx)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gray-200 bg-white hover:bg-[#133827] text-gray-700 hover:text-white text-xs font-semibold shadow-2xs transition-all shrink-0 cursor-pointer self-start sm:self-center"
+                >
+                  <Eye size={13} />
+                  <span>{t("orderDetail.inspectModel")}</span>
+                </button>
+              )}
             </div>
           );
         })}
