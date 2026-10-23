@@ -105,22 +105,36 @@ export default function OrderDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa]">
-        <Loader2 className="animate-spin text-emerald-600" size={40} />
+      <div className="site-shell min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex flex-col items-center justify-center py-24 text-gray-400">
+          <Loader2 className="animate-spin text-emerald-600 mb-4" size={40} />
+          <p className="text-sm font-medium">{t("orders.loading")}</p>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8f9fa] p-6 text-center">
-        <h2 className="text-2xl font-bold mb-2">{t("orderDetail.notFound")}</h2>
-        <button
-          onClick={() => navigate(localizePath("/orders"))}
-          className="text-emerald-700 font-bold underline"
-        >
-          {t("orderDetail.back")}
-        </button>
+      <div className="site-shell min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-4 border border-gray-200/60 shadow-2xs">
+            <XCircle size={32} />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t("orderDetail.notFound")}</h2>
+          <button
+            type="button"
+            onClick={() => navigate(localizePath("/orders"))}
+            className="inline-flex items-center gap-2 mt-4 px-6 py-2.5 rounded-full bg-[#133827] text-white text-xs font-semibold hover:bg-[#1c4d37] transition-all shadow-sm cursor-pointer"
+          >
+            <ArrowLeft size={14} />
+            <span>{t("orderDetail.back")}</span>
+          </button>
+        </div>
+        <Footer />
       </div>
     );
   }
@@ -144,7 +158,7 @@ export default function OrderDetail() {
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         )
-    : [];
+  : [];
   let isAdmin = false;
   try {
     const token = localStorage.getItem("token");
@@ -157,79 +171,81 @@ export default function OrderDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa]">
+    <div className="site-shell">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-6 py-12">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <main className="site-main max-w-6xl mx-auto px-4 sm:px-6 py-10 md:py-14 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
           <button
+            type="button"
             onClick={() => navigate(localizePath("/orders"))}
-            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors group"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-all shadow-2xs cursor-pointer self-start"
           >
-            <ArrowLeft
-              size={20}
-              className="group-hover:-translate-x-1 transition-transform"
-            />
-            {t("orderDetail.back")}
+            <ArrowLeft size={15} />
+            <span>{t("orderDetail.back")}</span>
           </button>
 
-          <div className="md:ml-auto flex flex-wrap items-center justify-end gap-3">
-
+          <div className="flex flex-wrap items-center gap-2.5">
             {isAdmin && (
               <Link
                 to={localizePath(`/admin/orders/${id}`)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 border border-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#133827] text-white text-xs font-semibold rounded-full hover:bg-[#1c4d37] transition-all shadow-2xs cursor-pointer"
               >
-                {t("orderDetail.openInAdmin")}
+                <span>{t("orderDetail.openInAdmin")}</span>
               </Link>
             )}
 
             {["quote_requested", "awaiting_payment", "ready_to_print"].includes(normalizedStatus) && (
               <button
+                type="button"
                 onClick={handleCancelOrder}
                 disabled={isCancelling}
-                className="flex items-center gap-2 px-6 py-2.5 bg-white border border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-semibold rounded-full transition-all shadow-2xs disabled:opacity-50 cursor-pointer"
               >
                 {isCancelling ? (
-                  <Loader2 className="animate-spin" size={18} />
+                  <Loader2 className="animate-spin" size={15} />
                 ) : (
-                  <XCircle size={18} />
+                  <XCircle size={15} />
                 )}
-                {t("orderDetail.cancelOrder")}
+                <span>{t("orderDetail.cancelOrder")}</span>
               </button>
             )}
 
-
             {normalizedStatus === "expired_quote" && (
               <button
+                type="button"
                 onClick={handleRequestNewQuote}
-                className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 border border-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition-all shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-full transition-all shadow-2xs cursor-pointer"
               >
-                {t("orderDetail.requestNewQuote")}
+                <span>{t("orderDetail.requestNewQuote")}</span>
               </button>
             )}
           </div>
         </div>
 
+        {/* Notices */}
         {showPendingQuoteNotice && (
-          <p className="mb-6 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-            {t("orderDetail.pendingQuoteInfo")}
-          </p>
+          <div className="rounded-2xl border border-sky-200/80 bg-sky-50/70 p-4 text-xs sm:text-sm text-sky-950 flex items-center gap-3 shadow-2xs">
+            <span className="shrink-0 text-sky-600">ℹ️</span>
+            <span>{t("orderDetail.pendingQuoteInfo")}</span>
+          </div>
         )}
 
         {showQuoteExpiryNotice && (
-          <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            {t("orderDetail.quoteExpiresOn")} {quoteExpiresAt.toLocaleString()}
-          </p>
+          <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 text-xs sm:text-sm text-amber-950 flex items-center gap-3 shadow-2xs">
+            <span className="shrink-0 text-amber-600">⏳</span>
+            <span>{t("orderDetail.quoteExpiresOn")} {quoteExpiresAt.toLocaleString()}</span>
+          </div>
         )}
 
         {normalizedStatus === "expired_quote" && (
-          <p className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
-            {t("orderDetail.quoteExpiredInfo")}
-          </p>
+          <div className="rounded-2xl border border-rose-200/80 bg-rose-50/70 p-4 text-xs sm:text-sm text-rose-950 flex items-center gap-3 shadow-2xs">
+            <span className="shrink-0 text-rose-600">⚠️</span>
+            <span>{t("orderDetail.quoteExpiredInfo")}</span>
+          </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 space-y-6">
             <OrderItemsCard
               order={order}
@@ -244,20 +260,20 @@ export default function OrderDetail() {
             />
 
             {customerNotes.length > 0 && (
-              <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h3 className="text-sm font-black uppercase tracking-wide text-gray-900 mb-3">
+              <section className="rounded-3xl border border-gray-200/80 bg-white p-6 sm:p-7 shadow-xs space-y-4">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500">
                   {t("orderDetail.customerNotesTitle")}
                 </h3>
                 <div className="space-y-3">
                   {customerNotes.map((note) => (
                     <article
                       key={note.id || `${note.createdAt}-${note.content}`}
-                      className="rounded-xl border border-gray-100 bg-gray-50 p-3"
+                      className="rounded-2xl border border-gray-200/70 bg-[#fbfbfd] p-4 text-xs sm:text-sm"
                     >
-                      <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                      <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
                         {note.content}
                       </p>
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-[11px] text-gray-400 mt-2">
                         {new Date(note.createdAt).toLocaleString()}
                       </p>
                     </article>
@@ -280,7 +296,6 @@ export default function OrderDetail() {
           />
         </div>
       </main>
-
 
       <Footer />
     </div>

@@ -33,37 +33,44 @@ export default function OrderSidebar({
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-2xl p-6 border border-gray-200">
-        <h4 className="font-bold text-sm text-gray-900 mb-2 flex items-center gap-2">
-          <Calendar size={16} className="text-emerald-600" />{" "}
-          {t("orderDetail.referenceId")}
-        </h4>
-        <p className="text-[10px] font-mono text-gray-400 break-all">
+      <div className="rounded-3xl border border-gray-200/80 bg-white p-5 sm:p-6 shadow-xs">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+            <Calendar size={14} className="text-emerald-700" />
+            {t("orderDetail.referenceId")}
+          </span>
+        </div>
+        <div className="bg-[#fbfbfd] border border-gray-200/60 rounded-xl px-3 py-2 text-xs font-mono text-gray-700 select-all break-all">
           {order.id}
-        </p>
+        </div>
       </div>
 
-      <div className="bg-[#133827] text-white rounded-2xl p-8 shadow-lg">
-        <h3 className="font-bold mb-6 flex items-center gap-2 text-emerald-400">
-          <MapPin size={20} />
-          {t("orderDetail.shippingDetails")}
-        </h3>
-        <div className="space-y-4 text-sm">
-          <div className="flex gap-3">
-            <User size={16} className="text-emerald-500 shrink-0" />
-            <p className="font-bold">{order.fullName}</p>
+      <div className="rounded-3xl bg-[#133827] text-white p-6 sm:p-7 shadow-sm space-y-6">
+        <div className="flex items-center gap-2.5 pb-4 border-b border-white/10">
+          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-emerald-400">
+            <MapPin size={16} />
+          </div>
+          <h3 className="font-semibold text-base text-white">
+            {t("orderDetail.shippingDetails")}
+          </h3>
+        </div>
+
+        <div className="space-y-3.5 text-xs sm:text-sm">
+          <div className="flex items-center gap-3">
+            <User size={15} className="text-emerald-400 shrink-0" />
+            <p className="font-medium text-white">{order.fullName}</p>
           </div>
 
-          <div className="flex gap-3">
-            <Phone size={16} className="text-emerald-500 shrink-0" />
-            <p className="text-emerald-50/80">
+          <div className="flex items-center gap-3">
+            <Phone size={15} className="text-emerald-400 shrink-0" />
+            <p className="text-emerald-100/80 font-normal">
               {order.phoneNumber || t("orderDetail.noPhone")}
             </p>
           </div>
 
-          <div className="flex gap-3">
-            <MapPin size={16} className="text-emerald-500 shrink-0" />
-            <div className="text-emerald-50/80">
+          <div className="flex items-start gap-3">
+            <MapPin size={15} className="text-emerald-400 shrink-0 mt-0.5" />
+            <div className="text-emerald-100/80 font-normal leading-relaxed">
               {order.addressLine1 && order.city && order.postalCode ? (
                 <>
                   <p>{order.addressLine1}</p>
@@ -76,71 +83,71 @@ export default function OrderSidebar({
               )}
             </div>
           </div>
+        </div>
 
-          <div className="pt-6 mt-2 border-t border-white/10 space-y-3">
-            <div className="flex justify-between items-center text-emerald-100/70">
-              <span>{t("orderDetail.subtotal")}</span>
-              <span>
-                {!priceSummary.isPendingQuote &&
-                priceSummary.subtotalPrice != null
-                  ? `€${priceSummary.subtotalPrice.toFixed(2)}`
-                  : t("orderDetail.toBeCalculated")}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center text-emerald-100/70">
-              <span className="flex items-center gap-2">
-                <Truck size={14} /> {t("orderDetail.delivery")}
-              </span>
-              <span>
-                {!priceSummary.isPendingQuote && priceSummary.deliveryPrice > 0
-                  ? `€${priceSummary.deliveryPrice.toFixed(2)}`
-                  : t("orderDetail.toBeCalculated")}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center text-emerald-100/70">
-              <span className="flex items-center gap-2">
-                <Receipt size={14} /> {t("orderDetail.serviceFee")}
-              </span>
-              <span>
-                {!priceSummary.isPendingQuote &&
-                priceSummary.serviceFeePrice > 0
-                  ? `€${priceSummary.serviceFeePrice.toFixed(2)}`
-                  : t("orderDetail.toBeCalculated")}
-              </span>
-            </div>
-
-            {!priceSummary.isPendingQuote && priceSummary.orderDiscount > 0 && (
-              <div className="flex justify-between items-center text-emerald-200">
-                <span className="flex items-center gap-2">
-                  <Tag size={14} /> {t("orderDetail.discount")}
-                </span>
-                <span>-€{priceSummary.orderDiscount.toFixed(2)}</span>
-              </div>
-            )}
-
-            <div className="flex justify-between items-center text-xl font-bold text-white pt-2">
-              <span className="flex items-center gap-2">
-                <Tag size={18} className="text-emerald-400" />{" "}
-                {t("orderDetail.total")}
-              </span>
-              <span className="text-emerald-400">
-                {priceSummary.displayTotal > 0
-                  ? `€${priceSummary.displayTotal.toFixed(2)}`
-                  : t("orderDetail.pendingQuote")}
-              </span>
-            </div>
+        <div className="pt-5 border-t border-white/10 space-y-3 text-xs sm:text-sm">
+          <div className="flex justify-between items-center text-emerald-100/70">
+            <span>{t("orderDetail.subtotal")}</span>
+            <span className="font-medium text-white/90">
+              {!priceSummary.isPendingQuote &&
+              priceSummary.subtotalPrice != null
+                ? `€${priceSummary.subtotalPrice.toFixed(2)}`
+                : t("orderDetail.toBeCalculated")}
+            </span>
           </div>
 
-          <div className="pt-4 border-t border-white/10">
-            <p className="text-emerald-100/40 text-xs uppercase font-bold tracking-widest mb-1">
-              {t("orderDetail.status")}
-            </p>
-            <p className="text-xl font-bold text-emerald-400 uppercase tracking-tight">
-              {statusLabel}
-            </p>
+          <div className="flex justify-between items-center text-emerald-100/70">
+            <span className="flex items-center gap-2">
+              <Truck size={14} className="text-emerald-400/80" /> {t("orderDetail.delivery")}
+            </span>
+            <span className="font-medium text-white/90">
+              {!priceSummary.isPendingQuote && priceSummary.deliveryPrice > 0
+                ? `€${priceSummary.deliveryPrice.toFixed(2)}`
+                : t("orderDetail.toBeCalculated")}
+            </span>
           </div>
+
+          <div className="flex justify-between items-center text-emerald-100/70">
+            <span className="flex items-center gap-2">
+              <Receipt size={14} className="text-emerald-400/80" /> {t("orderDetail.serviceFee")}
+            </span>
+            <span className="font-medium text-white/90">
+              {!priceSummary.isPendingQuote &&
+              priceSummary.serviceFeePrice > 0
+                ? `€${priceSummary.serviceFeePrice.toFixed(2)}`
+                : t("orderDetail.toBeCalculated")}
+            </span>
+          </div>
+
+          {!priceSummary.isPendingQuote && priceSummary.orderDiscount > 0 && (
+            <div className="flex justify-between items-center text-emerald-300">
+              <span className="flex items-center gap-2">
+                <Tag size={14} /> {t("orderDetail.discount")}
+              </span>
+              <span className="font-semibold">-€{priceSummary.orderDiscount.toFixed(2)}</span>
+            </div>
+          )}
+
+          <div className="flex justify-between items-center text-lg sm:text-xl font-bold text-white pt-3 border-t border-white/10">
+            <span className="flex items-center gap-2">
+              <Tag size={17} className="text-emerald-400" />{" "}
+              {t("orderDetail.total")}
+            </span>
+            <span className="text-emerald-300">
+              {priceSummary.displayTotal > 0
+                ? `€${priceSummary.displayTotal.toFixed(2)}`
+                : t("orderDetail.pendingQuote")}
+            </span>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+          <span className="text-xs font-medium text-emerald-100/70">
+            {t("orderDetail.status")}
+          </span>
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-emerald-200 border border-white/15 backdrop-blur-xs">
+            {statusLabel}
+          </span>
         </div>
       </div>
 
@@ -149,23 +156,27 @@ export default function OrderSidebar({
           order.status === "quoted" ||
           order.status === "pending_payment") &&
         !order.isPaid && (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
-            <h4 className="font-bold text-sm text-amber-900 mb-3 flex items-center gap-2">
-              <Landmark size={16} className="text-amber-700" />
-              {t("orderDetail.bankTransferTitle")}
-            </h4>
-            <p className="text-sm text-amber-900/80">
+          <div className="rounded-3xl border border-amber-200/80 bg-amber-50/60 p-6 sm:p-7 shadow-xs space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
+                <Landmark size={16} />
+              </div>
+              <h4 className="font-semibold text-sm sm:text-base text-amber-950">
+                {t("orderDetail.bankTransferTitle")}
+              </h4>
+            </div>
+            <p className="text-xs sm:text-sm text-amber-900/80 leading-relaxed">
               {t("orderDetail.bankTransferInstructions")}
             </p>
 
             {hasBankTransferDetails ? (
-              <div className="mt-4 space-y-3 rounded-xl border border-amber-200 bg-white/70 p-4 text-sm text-amber-950">
+              <div className="space-y-2.5 rounded-2xl border border-amber-200/80 bg-white/80 backdrop-blur-xs p-4 text-xs sm:text-sm text-amber-950">
                 {bankTransferDetails?.accountName ? (
                   <div className="flex items-start justify-between gap-4">
-                    <span className="text-amber-700 font-semibold">
+                    <span className="text-amber-800 font-medium">
                       {t("orderDetail.bankTransferAccountName")}
                     </span>
-                    <span className="text-right font-medium">
+                    <span className="text-right font-semibold">
                       {bankTransferDetails.accountName}
                     </span>
                   </div>
@@ -173,10 +184,10 @@ export default function OrderSidebar({
 
                 {bankTransferDetails?.iban ? (
                   <div className="flex items-start justify-between gap-4">
-                    <span className="text-amber-700 font-semibold">
+                    <span className="text-amber-800 font-medium">
                       {t("orderDetail.bankTransferIban")}
                     </span>
-                    <span className="text-right font-mono text-xs break-all">
+                    <span className="text-right font-mono text-xs select-all break-all">
                       {bankTransferDetails.iban}
                     </span>
                   </div>
@@ -184,10 +195,10 @@ export default function OrderSidebar({
 
                 {bankTransferDetails?.bic ? (
                   <div className="flex items-start justify-between gap-4">
-                    <span className="text-amber-700 font-semibold">
+                    <span className="text-amber-800 font-medium">
                       {t("orderDetail.bankTransferBic")}
                     </span>
-                    <span className="text-right font-mono text-xs break-all">
+                    <span className="text-right font-mono text-xs select-all break-all">
                       {bankTransferDetails.bic}
                     </span>
                   </div>
@@ -197,10 +208,10 @@ export default function OrderSidebar({
                   (payment) => payment.provider === "bank_transfer",
                 )?.reference ? (
                   <div className="flex items-start justify-between gap-4 pt-2 border-t border-amber-100">
-                    <span className="text-amber-700 font-semibold">
+                    <span className="text-amber-800 font-medium">
                       {t("orderDetail.bankTransferReference")}
                     </span>
-                    <span className="text-right font-mono text-xs break-all">
+                    <span className="text-right font-mono text-xs select-all break-all font-semibold">
                       {
                         order.payments?.find(
                           (payment) => payment.provider === "bank_transfer",
@@ -211,19 +222,21 @@ export default function OrderSidebar({
                 ) : null}
               </div>
             ) : (
-              <p className="mt-4 rounded-xl border border-dashed border-amber-200 bg-white/60 p-4 text-sm text-amber-800">
+              <p className="rounded-2xl border border-dashed border-amber-300 bg-white/60 p-4 text-xs sm:text-sm text-amber-800">
                 {t("orderDetail.bankTransferMissingDetails")}
               </p>
             )}
-            <p className="mt-4 text-sm text-amber-900/80">
+
+            <p className="text-xs text-amber-800/80 leading-relaxed">
               {t("orderDetail.bankTransferNotice")}
             </p>
+
             {onManualPaymentNotification && (
               <button
                 type="button"
                 onClick={onManualPaymentNotification}
                 disabled={manualPaymentNotificationDisabled}
-                className="mt-3 rounded-lg bg-amber-700 px-3 py-2 text-xs font-bold text-white hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-amber-700 px-5 py-2.5 text-xs font-semibold text-white hover:bg-amber-800 active:bg-amber-900 disabled:cursor-not-allowed disabled:opacity-50 transition-all shadow-xs cursor-pointer"
               >
                 {manualPaymentNotificationDisabled
                   ? t("orderDetail.manualPaymentNotificationCooldown")
@@ -234,28 +247,37 @@ export default function OrderSidebar({
         )}
 
       {(order.trackingCode || order.trackingUrl) && (
-        <div className="rounded-2xl border border-sky-200 bg-sky-50 p-6 shadow-sm">
-          <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-sky-950">
-            <Truck size={16} className="text-sky-700" />
-            {t("orderDetail.trackingTitle")}
-          </h4>
+        <div className="rounded-3xl border border-sky-200/80 bg-sky-50/60 p-6 sm:p-7 shadow-xs space-y-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-700">
+              <Truck size={16} />
+            </div>
+            <h4 className="font-semibold text-sm sm:text-base text-sky-950">
+              {t("orderDetail.trackingTitle")}
+            </h4>
+          </div>
           {order.trackingCode && (
-            <p className="text-sm text-sky-950">
-              <span className="font-semibold">
+            <p className="text-xs sm:text-sm text-sky-950 flex items-baseline gap-2">
+              <span className="text-sky-800/80 font-medium">
                 {t("orderDetail.trackingCode")}:
               </span>{" "}
-              <span className="font-mono">{order.trackingCode}</span>
+              <span className="font-mono font-semibold bg-white px-2 py-0.5 rounded-lg border border-sky-200 select-all">
+                {order.trackingCode}
+              </span>
             </p>
           )}
           {order.trackingUrl && (
-            <a
-              href={order.trackingUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 inline-block text-sm font-bold text-sky-800 underline"
-            >
-              {t("orderDetail.openTracking")}
-            </a>
+            <div className="pt-1">
+              <a
+                href={order.trackingUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+              >
+                <span>{t("orderDetail.openTracking")}</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
           )}
         </div>
       )}

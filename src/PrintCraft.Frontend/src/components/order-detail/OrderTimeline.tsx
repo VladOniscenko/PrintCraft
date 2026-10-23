@@ -44,24 +44,26 @@ export default function OrderTimeline({
   ];
 
   return (
-    <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
-      <h3 className="font-bold text-lg mb-8">{t("orderDetail.timeline")}</h3>
+    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200/80 shadow-xs">
+      <h3 className="font-bold text-xl sm:text-2xl text-gray-900 tracking-tight mb-8">
+        {t("orderDetail.timeline")}
+      </h3>
 
       {isException && (
-        <div className={`mb-8 p-4 rounded-xl border flex gap-3 items-start ${
-          terminalState === 'on_hold' ? 'bg-orange-50 border-orange-200 text-orange-900' :
-          'bg-rose-50 border-rose-200 text-rose-900'
+        <div className={`mb-8 p-4 rounded-2xl border flex gap-3.5 items-start ${
+          terminalState === 'on_hold' ? 'bg-amber-50 border-amber-200 text-amber-950' :
+          'bg-rose-50 border-rose-200 text-rose-950'
         }`}>
-          {terminalState === 'on_hold' ? <PauseCircle className="shrink-0 mt-0.5 text-orange-600" /> :
+          {terminalState === 'on_hold' ? <PauseCircle className="shrink-0 mt-0.5 text-amber-600" /> :
            terminalState === 'returned' ? <Undo2 className="shrink-0 mt-0.5 text-rose-600" /> :
            <Ban className="shrink-0 mt-0.5 text-rose-600" />}
           <div>
-            <h4 className="font-bold">
+            <h4 className="font-bold text-sm">
               {terminalState === 'on_hold' ? t("orderDetail.onHoldTitle") :
                terminalState === 'returned' ? t("orderDetail.returnedTitle") :
                t("orderDetail.cancelledTitle")}
             </h4>
-            <p className="text-sm mt-1">
+            <p className="text-xs text-gray-600 mt-1 leading-relaxed">
               {terminalState === 'on_hold' ? t("orderDetail.onHoldDesc") :
                terminalState === 'returned' ? t("orderDetail.returnedDesc") :
                t("orderDetail.cancelledDesc")}
@@ -72,7 +74,7 @@ export default function OrderTimeline({
 
       <div
         className={`space-y-8 relative before:absolute before:inset-0 before:ml-5 before:w-0.5 ${
-          isException ? "before:bg-rose-200" : "before:bg-gray-100"
+          isException ? "before:bg-rose-200" : "before:bg-gray-200"
         }`}
       >
         {steps.map((s) => {

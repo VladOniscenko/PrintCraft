@@ -188,15 +188,15 @@ export default function OrderItemsCard({
   const modalPreviewFile = modalItem ? getPrimaryPreviewFile(modalItemFiles) : null;
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200/90 shadow-sm space-y-6">
+    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200/80 shadow-xs space-y-6">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-5">
         <div>
           <div className="flex items-center gap-2.5">
-            <h2 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
               {t("orderDetail.modelsInProject")}
             </h2>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            <span className="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
               {order.items.length}{" "}
               {order.items.length === 1
                 ? t("orderDetail.model")
@@ -209,7 +209,7 @@ export default function OrderItemsCard({
         </div>
 
         {isCancelledOrder && (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 self-start sm:self-auto">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200 self-start sm:self-auto">
             <AlertCircle size={14} />
             {t("orderDetail.filesRemovedDueCancellation")}
           </span>
@@ -234,70 +234,70 @@ export default function OrderItemsCard({
           return (
             <div
               key={item.id || idx}
-              className="rounded-2xl border border-gray-200/90 bg-gradient-to-b from-white to-slate-50/40 p-5 sm:p-6 shadow-xs hover:border-gray-300 hover:shadow-md transition-all duration-200"
+              className="rounded-3xl border border-gray-200/80 bg-[#fbfbfd] p-5 sm:p-7 shadow-xs hover:border-gray-300 transition-all duration-200"
             >
-              {/* Responsive 2-Column Grid (items-start ensures right side does NOT stretch to bottom) */}
+              {/* Responsive 2-Column Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 {/* Left Column: Item Specifications & Info */}
                 <div className="lg:col-span-7 space-y-4">
-                  {/* Item Header: #, file ext, and filename inline on the same line */}
+                  {/* Item Header */}
                   <div className="flex items-center gap-2.5 flex-wrap">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-black bg-slate-900 text-white tracking-wider shrink-0">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#133827] text-white tracking-wider shrink-0">
                       #{String(idx + 1).padStart(2, "0")}
                     </span>
                     {previewExt && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
                         .{previewExt}
                       </span>
                     )}
                     <h3
-                      className="text-base sm:text-lg font-black text-gray-900 break-words tracking-tight"
+                      className="text-base sm:text-lg font-bold text-gray-900 break-words tracking-tight"
                       title={item.fileName}
                     >
                       {item.fileName}
                     </h3>
                     {item.activeChangeRequest?.status === "pending_customer" && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-500 text-white tracking-wide uppercase shadow-2xs animate-pulse">
+                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-white tracking-wide uppercase shadow-2xs animate-pulse">
                         <AlertCircle size={12} />
                         {t("orderDetail.changeRequest.actionRequired")}
                       </span>
                     )}
                     {item.activeChangeRequest?.status === "revision_submitted" && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800 border border-sky-300">
+                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[11px] font-semibold bg-sky-100 text-sky-800 border border-sky-300">
                         {t("orderDetail.changeRequest.revisionUnderReview")}
                       </span>
                     )}
                     {previewFile &&
                       (previewFile.url === item.activeChangeRequest?.submittedFileUrl ||
                         item.changeRequests?.some((cr) => cr.submittedFileUrl === previewFile.url)) && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
                           {t("orderDetail.changeRequest.revised3dModel")}
                         </span>
                       )}
                   </div>
 
-                  {/* Redesigned Specifications Container (Spacious, No Overflow) */}
-                  <div className="bg-slate-50/80 rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 space-y-2.5">
+                  {/* Specifications Container */}
+                  <div className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200/80 space-y-3 shadow-2xs">
                     {/* 2-Column Grid for Standard Specs */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                       {/* Material */}
-                      <div className="flex items-center justify-between gap-2.5 bg-white px-3 py-2 rounded-xl border border-gray-200/70 shadow-2xs">
-                        <span className="flex items-center gap-1.5 font-semibold text-slate-500 shrink-0">
-                          <Layers size={14} className="text-emerald-600" />
+                      <div className="flex items-center justify-between gap-2.5 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70">
+                        <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
+                          <Layers size={14} className="text-emerald-700" />
                           {t("orderDetail.materialLabel")}
                         </span>
-                        <span className="font-bold text-slate-900 text-right">
+                        <span className="font-bold text-gray-900 text-right">
                           {item.material || "PLA"}
                         </span>
                       </div>
 
                       {/* Color */}
-                      <div className="flex items-center justify-between gap-2.5 bg-white px-3 py-2 rounded-xl border border-gray-200/70 shadow-2xs">
-                        <span className="flex items-center gap-1.5 font-semibold text-slate-500 shrink-0">
-                          <Palette size={14} className="text-indigo-600" />
+                      <div className="flex items-center justify-between gap-2.5 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70">
+                        <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
+                          <Palette size={14} className="text-emerald-700" />
                           {t("orderDetail.colorLabel")}
                         </span>
-                        <span className="font-bold text-slate-900 flex items-center gap-1.5 text-right">
+                        <span className="font-bold text-gray-900 flex items-center gap-1.5 text-right">
                           <span
                             className="w-3.5 h-3.5 rounded-full border border-gray-300 shadow-inner shrink-0 inline-block"
                             style={{ backgroundColor: colorHex }}
@@ -308,24 +308,24 @@ export default function OrderItemsCard({
                       </div>
 
                       {/* Quantity */}
-                      <div className="flex items-center justify-between gap-2.5 bg-white px-3 py-2 rounded-xl border border-gray-200/70 shadow-2xs">
-                        <span className="flex items-center gap-1.5 font-semibold text-slate-500 shrink-0">
-                          <Hash size={14} className="text-sky-600" />
+                      <div className="flex items-center justify-between gap-2.5 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70">
+                        <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
+                          <Hash size={14} className="text-emerald-700" />
                           {t("orderDetail.qtyLabel")}
                         </span>
-                        <span className="font-bold text-slate-900 text-right">
+                        <span className="font-bold text-gray-900 text-right">
                           x{item.count || 1}
                         </span>
                       </div>
 
                       {/* Print Quality */}
                       {item.printQuality && (
-                        <div className="flex items-center justify-between gap-2.5 bg-white px-3 py-2 rounded-xl border border-gray-200/70 shadow-2xs">
-                          <span className="flex items-center gap-1.5 font-semibold text-slate-500 shrink-0">
-                            <Sparkles size={14} className="text-amber-600" />
+                        <div className="flex items-center justify-between gap-2.5 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70">
+                          <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
+                            <Sparkles size={14} className="text-emerald-700" />
                             {t("orderDetail.qualityLabel")}
                           </span>
-                          <span className="font-bold text-slate-900 text-right">
+                          <span className="font-bold text-gray-900 text-right">
                             {item.printQuality}
                           </span>
                         </div>
@@ -333,26 +333,26 @@ export default function OrderItemsCard({
 
                       {/* Infill Density */}
                       {item.infillPercent != null && (
-                        <div className="flex items-center justify-between gap-2.5 bg-white px-3 py-2 rounded-xl border border-gray-200/70 shadow-2xs">
-                          <span className="flex items-center gap-1.5 font-semibold text-slate-500 shrink-0">
-                            <Grid3X3 size={14} className="text-purple-600" />
+                        <div className="flex items-center justify-between gap-2.5 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70">
+                          <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
+                            <Grid3X3 size={14} className="text-emerald-700" />
                             {t("orderDetail.infillLabel")}
                           </span>
-                          <span className="font-bold text-slate-900 text-right">
+                          <span className="font-bold text-gray-900 text-right">
                             {item.infillPercent}%
                           </span>
                         </div>
                       )}
                     </div>
 
-                    {/* Dimensions / Size (Dedicated Full-Width Row so large strings never overflow) */}
+                    {/* Dimensions / Size */}
                     {item.size && (
-                      <div className="flex items-center justify-between gap-3 bg-white px-3.5 py-2.5 rounded-xl border border-gray-200/70 shadow-2xs text-xs">
-                        <span className="flex items-center gap-1.5 font-semibold text-slate-500 shrink-0">
-                          <Box size={14} className="text-teal-600" />
+                      <div className="flex items-center justify-between gap-3 bg-[#fbfbfd] px-3.5 py-2.5 rounded-xl border border-gray-200/70 text-xs">
+                        <span className="flex items-center gap-1.5 font-semibold text-gray-600 shrink-0">
+                          <Box size={14} className="text-emerald-700" />
                           {t("orderDetail.sizeLabel")}
                         </span>
-                        <span className="font-mono font-bold text-slate-900 text-right break-words">
+                        <span className="font-mono font-bold text-gray-900 text-right break-words">
                           {item.size}
                         </span>
                       </div>
@@ -361,16 +361,16 @@ export default function OrderItemsCard({
 
                   {/* Customer / Item Notes */}
                   {item.notes && (
-                    <div className="flex items-start gap-2.5 text-xs text-amber-900 bg-amber-50/70 border border-amber-200/80 p-3 rounded-xl">
+                    <div className="flex items-start gap-2.5 text-xs text-gray-700 bg-white border border-gray-200/80 p-3.5 rounded-2xl shadow-2xs">
                       <MessageSquare
                         size={14}
-                        className="mt-0.5 shrink-0 text-amber-600"
+                        className="mt-0.5 shrink-0 text-gray-400"
                       />
                       <div className="min-w-0">
-                        <span className="font-bold mr-1.5">
+                        <span className="font-semibold text-gray-900 mr-1.5">
                           {t("orderDetail.instructionsLabel")}:
                         </span>
-                        <span className="italic">"{item.notes}"</span>
+                        <span className="italic text-gray-600">"{item.notes}"</span>
                       </div>
                     </div>
                   )}
@@ -426,28 +426,28 @@ export default function OrderItemsCard({
                       />
                     </Suspense>
                   ) : isImage && previewFile ? (
-                    <div className="w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-md flex flex-col">
-                      <div className="bg-slate-900 border-b border-slate-800 px-3 py-2 flex items-center justify-between text-xs text-white">
+                    <div className="w-full rounded-2xl overflow-hidden border border-gray-200/80 bg-white shadow-2xs flex flex-col">
+                      <div className="bg-gray-50 border-b border-gray-200/80 px-3.5 py-2.5 flex items-center justify-between text-xs text-gray-900">
                         <div className="flex items-center gap-1.5 font-bold">
                           <span
-                            className="w-2.5 h-2.5 rounded-full border border-white/20 shrink-0 inline-block"
+                            className="w-2.5 h-2.5 rounded-full border border-black/10 shrink-0 inline-block"
                             style={{ backgroundColor: colorHex }}
                           />
                           <span>{item.color}</span>
-                          <span className="text-slate-400 font-normal">
+                          <span className="text-gray-400 font-normal">
                             • {item.material}
                           </span>
                         </div>
                         <button
                           type="button"
                           onClick={() => setActiveModalItemIndex(idx)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-[11px] font-bold border border-emerald-500/30 transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white hover:bg-gray-100 text-gray-800 text-[11px] font-semibold border border-gray-200 transition-colors shadow-2xs cursor-pointer"
                         >
                           <Eye size={12} />
                           <span>{t("orderDetail.viewImage")}</span>
                         </button>
                       </div>
-                      <div className="w-full h-56 bg-slate-900 flex items-center justify-center p-3">
+                      <div className="w-full h-56 bg-gray-50/50 flex items-center justify-center p-3">
                         <img
                           src={resolveAssetUrl(previewFile.url)}
                           alt={previewFile.name}
@@ -458,8 +458,8 @@ export default function OrderItemsCard({
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full rounded-2xl border border-slate-800 bg-slate-950 shadow-md p-6 text-center text-slate-400 space-y-2">
-                      <FileText size={32} className="mx-auto text-slate-600" />
+                    <div className="w-full rounded-2xl border border-gray-200/80 bg-white shadow-2xs p-6 text-center text-gray-400 space-y-2">
+                      <FileText size={32} className="mx-auto text-gray-300" />
                       <p className="text-xs font-medium">
                         {t("orderDetail.no3dPreview")}
                       </p>

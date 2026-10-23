@@ -85,131 +85,129 @@ export default function Orders() {
     <div className="site-shell">
       <Navbar />
 
-      <main className="site-main max-w-7xl px-4 sm:px-6 py-12">
-        <div className="flex items-center justify-between mb-10">
+      <main className="site-main max-w-5xl mx-auto px-4 sm:px-6 py-10 md:py-16 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-200/60">
           <div>
-            <h1 className="site-heading text-3xl font-bold tracking-tight">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold mb-3 border border-emerald-100 shadow-2xs">
+              <Package size={14} className="text-[#133827]" />
+              <span>{t("orders.title")}</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 mb-2">
               {t("orders.title")}
             </h1>
-            <p className="site-subheading mt-1">{t("orders.subtitle")}</p>
+            <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-2xl">
+              {t("orders.subtitle")}
+            </p>
           </div>
-          <div className="hidden sm:block p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
-            <Package size={32} className="text-emerald-600" />
-          </div>
+          <Link
+            to={localizePath("/checkout")}
+            className="inline-flex items-center justify-center gap-2 bg-[#133827] hover:bg-[#1c4d37] text-white px-6 py-3 rounded-full text-xs font-semibold transition-all shadow-sm cursor-pointer shrink-0 self-start sm:self-center"
+          >
+            <span>{t("orders.start")}</span>
+            <ChevronRight size={14} />
+          </Link>
         </div>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 text-gray-400">
-            <Loader2 className="animate-spin text-emerald-600 mb-4" size={48} />
-            <p className="font-medium">{t("orders.loading")}</p>
+            <Loader2 className="animate-spin text-emerald-600 mb-4" size={40} />
+            <p className="text-sm font-medium">{t("orders.loading")}</p>
           </div>
-        ) : orders.length === 0 ? (
-          <div className="bg-white border-2 border-dashed border-gray-200 rounded-3xl p-16 text-center">
-            <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Box className="text-gray-300" size={40} />
+        ) : orders.length === 0 || visibleOrders.length === 0 ? (
+          <div className="rounded-3xl border border-gray-200/80 bg-white p-12 sm:p-16 text-center shadow-xs max-w-md mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-5 border border-gray-200/60 shadow-2xs">
+              <Box size={32} />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">
               {t("orders.none")}
             </h3>
-            <p className="text-gray-500 mb-8 max-w-sm mx-auto leading-relaxed">
+            <p className="text-sm text-gray-500 mb-8 max-w-xs mx-auto leading-relaxed">
               {t("orders.noneDesc")}
             </p>
             <Link
               to={localizePath("/checkout")}
-              className="inline-block bg-[#133827] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#1c4d37] transition-all shadow-lg shadow-emerald-900/10"
+              className="inline-flex items-center justify-center gap-2 bg-[#133827] hover:bg-[#1c4d37] text-white px-8 py-3.5 rounded-full text-sm font-semibold transition-all shadow-sm cursor-pointer"
             >
-              {t("orders.start")}
-            </Link>
-          </div>
-        ) : visibleOrders.length === 0 ? (
-          <div className="bg-white border-2 border-dashed border-gray-200 rounded-3xl p-16 text-center">
-            <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Box className="text-gray-300" size={40} />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              {t("orders.none")}
-            </h3>
-            <p className="text-gray-500 mb-8 max-w-sm mx-auto leading-relaxed">
-              {t("orders.noneDesc")}
-            </p>
-            <Link
-              to={localizePath("/checkout")}
-              className="inline-block bg-[#133827] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#1c4d37] transition-all shadow-lg shadow-emerald-900/10"
-            >
-              {t("orders.start")}
+              <span>{t("orders.start")}</span>
+              <ChevronRight size={16} />
             </Link>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {visibleOrders.map((order) => {
               const shippingCity = getShippingCity(order);
 
               return (
                 <div
                   key={order.id}
-                  className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-xl hover:shadow-gray-200/50 transition-all group"
+                  className="rounded-3xl border border-gray-200/80 bg-white p-6 sm:p-7 shadow-xs hover:border-gray-300 hover:shadow-sm transition-all"
                 >
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
                     {/* Status & Date */}
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-4 flex-1 min-w-0">
                       <div
-                        className={`p-4 rounded-2xl border ${getOrderStatusBadgeClass(order.status)}`}
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border shadow-2xs ${getOrderStatusBadgeClass(order.status)}`}
                       >
                         <BoxIcon status={order.status} />
                       </div>
-                      <div>
-                        <div className="flex items-center gap-3 mb-1">
-                          <h3 className="font-black text-gray-900 text-lg uppercase tracking-tight">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
+                          <h3 className="font-bold text-gray-900 text-base sm:text-lg">
                             {t("orders.project")} #{order.id.slice(0, 8)}
                           </h3>
                           <span
-                            className={`text-[10px] font-black px-2 py-0.5 rounded-md border uppercase ${getOrderStatusBadgeClass(order.status)}`}
+                            className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${getOrderStatusBadgeClass(order.status)}`}
                           >
                             {getStatusLabel(order.status)}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-400">
-                          {t("orders.placedOn")}{" "}
-                          {new Date(order.createdAt).toLocaleDateString(
-                            undefined,
-                            { dateStyle: "long" },
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                          <span>
+                            {t("orders.placedOn")}{" "}
+                            {new Date(order.createdAt).toLocaleDateString(
+                              undefined,
+                              { dateStyle: "medium" },
+                            )}
+                          </span>
+                          <span className="text-gray-300">•</span>
+                          <span className="inline-flex items-center gap-1 font-medium text-gray-700">
+                            <Package size={13} className="text-gray-400" />
+                            {order.items?.length || 0}{" "}
+                            {order.items?.length === 1
+                              ? t("orders.model")
+                              : t("orders.models")}
+                          </span>
+                          {shippingCity && (
+                            <>
+                              <span className="text-gray-300">•</span>
+                              <span className="inline-flex items-center gap-1 text-gray-600">
+                                <MapPin size={13} className="text-gray-400" />
+                                {shippingCity}
+                              </span>
+                            </>
                           )}
-                        </p>
+                        </div>
+                        {Number(order.orderDiscountAmount ?? 0) > 0 &&
+                          normalizeOrderStatus(order.status) !==
+                            "pending_quote" && (
+                            <p className="text-xs text-emerald-700 font-semibold mt-1">
+                              {t("orderDetail.discount")}: -€
+                              {Number(order.orderDiscountAmount).toFixed(2)}
+                            </p>
+                          )}
                       </div>
-                    </div>
-
-                    {/* Summary of items */}
-                    <div className="flex-1 lg:px-10 border-gray-100 lg:border-x">
-                      <div className="flex items-center gap-2 text-gray-600 mb-1 text-sm font-bold">
-                        <Package size={14} />
-                        {order.items?.length || 0}{" "}
-                        {order.items?.length === 1
-                          ? t("orders.model")
-                          : t("orders.models")}
-                      </div>
-                      {shippingCity && (
-                        <p className="text-xs text-gray-400 flex items-center gap-1">
-                          <MapPin size={12} /> {t("orders.shippingTo")}{" "}
-                          {shippingCity}
-                        </p>
-                      )}
-                      {Number(order.orderDiscountAmount ?? 0) > 0 &&
-                        normalizeOrderStatus(order.status) !==
-                          "pending_quote" && (
-                          <p className="text-xs text-emerald-700 font-semibold mt-1">
-                            {t("orderDetail.discount")}: -€
-                            {Number(order.orderDiscountAmount).toFixed(2)}
-                          </p>
-                        )}
                     </div>
 
                     {/* View Button */}
-                    <Link
-                      to={localizePath(`/orders/${order.id}`)}
-                      className="flex items-center justify-center gap-2 bg-gray-50 text-gray-900 px-6 py-3 rounded-xl font-bold text-sm group-hover:bg-emerald-600 group-hover:text-white transition-all"
-                    >
-                      {t("orders.manage")} <ChevronRight size={18} />
-                    </Link>
+                    <div className="flex items-center justify-end sm:justify-center shrink-0">
+                      <Link
+                        to={localizePath(`/orders/${order.id}`)}
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gray-100 hover:bg-[#133827] text-gray-800 hover:text-white text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+                      >
+                        <span>{t("orders.manage")}</span>
+                        <ChevronRight size={15} />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               );
