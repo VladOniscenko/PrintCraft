@@ -8,10 +8,7 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Box, RotateCcw } from "lucide-react";
-import {
-  getActiveHeroSlides,
-  getCachedActiveHeroSlides,
-} from "../services/api";
+import { getActiveHeroSlides, getCachedActiveHeroSlides } from "../services/api";
 import type { HeroSlide } from "../types";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import { useI18n } from "../i18n/I18nContext";
@@ -204,10 +201,7 @@ export default function Hero() {
           setSlides(sorted);
         }
       } catch (err) {
-        console.warn(
-          "Could not load dynamic hero slides from API, using fallback slides:",
-          err,
-        );
+        console.warn("Could not load dynamic hero slides from API, using fallback slides:", err);
       }
     }
 
@@ -475,10 +469,7 @@ export default function Hero() {
               key={slide.id || idx}
               type="button"
               aria-current={isActive ? "true" : undefined}
-              aria-label={t("hero.goToSlide", {
-                index: idx + 1,
-                title: slideItemTitle,
-              })}
+              aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
               onClick={() => goToSlide(idx)}
               className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
             >
