@@ -1,6 +1,7 @@
 {
+  "badge": "Yardım ve Cevaplar",
   "title": "Sıkça Sorulan Sorular",
-  "subtitle": "3D baskı, kargo veya malzemeler hakkında sorularınız mı var? Yanıtları burada bulabilirsiniz.",
+  "subtitle": "3D baskı sürecimiz, teslimat sürelerimiz ve malzemelerimiz hakkında bilmeniz gereken her şey.",
   "contactText": "Hâlâ bir yanıt arıyor veya 3D tasarımınız için özel tavsiyeye mi ihtiyaç duyuyorsunuz? Bizimle doğrudan iletişime geçin veya anında fiyat teklifi isteyin.",
   "contactCta": "Fiyat Teklifi İsteyin",
   "q1": "Hangi tür 3D dosyalarını kabul ediyorsunuz?",
@@ -34,5 +35,13 @@
   "q15": "Özel mastarlar, fikstürler ve yedek makine bileşenleri üretebilir misiniz?",
   "a15": "Evet! Özel montaj mastarları, delme şablonları, muayene aparatları ve dayanıklı PETG veya TPU alet tutucuları üretiyoruz. Üretimi durdurulmuş makine bileşenleri ve endüstriyel yedek parçalar için mühendislik sınıfı FDM baskımız, darbe dayanımı ve hassas toleranslar (±0.1mm) sağlar.",
   "q16": "Küçük seriler (10–500+ parça) için seri üretim sunuyor musunuz?",
-  "a16": "Evet! Baskı çiftliğimiz, 10 ila 500+ adet arasında kısa vadeli plastik seri üretimi konusunda uzmanlaşmıştır. Bu, pilot çalışmalar, ilk ürün lansmanları ve talep üzerine yedek parçalar için enjeksiyon kalıplamaya hızlı ve esnek bir köprü üretim alternatifi sunar."
+  "a16": "Evet! Baskı çiftliğimiz, 10 ila 500+ adet arasında kısa vadeli plastik seri üretimi konusunda uzmanlaşmıştır. Bu, pilot çalışmalar, ilk ürün lansmanları ve talep üzerine yedek parçalar için enjeksiyon kalıplamaya hızlı ve esnek bir köprü üretim alternatifi sunar.",
+  "trustBadgeFastDelivery": "PostNL ile 2–5 iş günü teslimat",
+  "trustBadgeInspection": "Uzman tarafından ücretsiz basılabilirlik kontrolü",
+  "trustBadgeRotterdam": "Rotterdam'da basılmıştır",
+  "ctaUploadQuote": "3D Dosya Yükle ve Anında Fiyat Al",
+  "ctaEmailUs": "Uzmanlarımıza E-posta Gönderin",
+  "searchPlaceholder": "Soru veya konu arayın...",
+  "allCategories": "Tüm Sorular",
+  "noQuestionsFound": "Aramanızla eşleşen soru bulunamadı."
 }

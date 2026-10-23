@@ -1,6 +1,7 @@
 {
+  "badge": "Hulp & Antwoorden",
   "title": "Veelgestelde Vragen",
-  "subtitle": "Vragen over 3D printen, levering of materialen? We helpen je graag.",
+  "subtitle": "Alles wat je wilt weten over ons 3D-printproces, levertijden en materialen.",
   "contactText": "Nog een specifieke vraag over jouw 3D-model, gewenste materialen of toleranties? Neem contact op of vraag direct een offerte aan.",
   "contactCta": "Vraag een Offerte Aan",
   "q1": "Welke 3D-bestanden accepteren jullie?",
@@ -34,5 +35,13 @@
   "q15": "Kunnen jullie industriële mallen, kalibers (jigs & fixtures) en machineonderdelen printen?",
   "a15": "Zeker. We produceren maatwerk montagemallen, boorsjablonen, meet- en inspectiekalibers (jigs & fixtures) en sterke PETG/TPU gereedschapshouders. Ook voor het nabouwen van niet meer leverbare machineonderdelen en industriële componenten leveren we slijtvaste FDM prints met nauwkeurige toleranties (±0.1mm).",
   "q16": "Verzorgen jullie ook serieproductie of kleinseries (10–500 stuks)?",
-  "a16": "Ja, met onze print farm verzorgen we kleinserie serieproductie van kunststof onderdelen van 10 tot 500+ stuks. Dit is het ideale snelle en flexibele alternatief voor spuitgieten voor nulseries, pilot runs en on-demand spare parts."
+  "a16": "Ja, met onze print farm verzorgen we kleinserie serieproductie van kunststof onderdelen van 10 tot 500+ stuks. Dit is het ideale snelle en flexibele alternatief voor spuitgieten voor nulseries, pilot runs en on-demand spare parts.",
+  "trustBadgeFastDelivery": "2–5 werkdagen via PostNL",
+  "trustBadgeInspection": "Gratis printbaarheidscontrole door specialist",
+  "trustBadgeRotterdam": "Geprint in Rotterdam",
+  "ctaUploadQuote": "Upload 3D-bestand & Directe Prijs",
+  "ctaEmailUs": "Mail onze specialisten",
+  "searchPlaceholder": "Zoek vragen of onderwerpen...",
+  "allCategories": "Alle vragen",
+  "noQuestionsFound": "Geen vragen gevonden die overeenkomen met je zoekopdracht."
 }
