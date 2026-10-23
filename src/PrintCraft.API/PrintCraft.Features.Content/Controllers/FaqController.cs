@@ -32,6 +32,11 @@ public class FaqController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] bool? all, [FromQuery] string? category, CancellationToken cancellationToken = default)
     {
+        if (HttpContext != null && all != true && string.IsNullOrEmpty(category))
+        {
+            Response.Headers.CacheControl = "public, max-age=600, s-maxage=3600";
+        }
+
         if (all != true && string.IsNullOrEmpty(category) && _cache != null && _cache.TryGetValue(FaqCacheKey, out List<FaqItem>? cached) && cached != null)
         {
             return Ok(cached);

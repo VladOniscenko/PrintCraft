@@ -17,7 +17,7 @@ import Footer from "./Footer";
 import NotFound from "./NotFound";
 import { useI18n } from "../i18n/I18nContext";
 import { dutchCities, getDutchCityBySlug, getCityName } from "../config/dutchCities";
-import { getCity } from "../services/api";
+import { getCity, getCachedCity } from "../services/api";
 import type { ManagedCity } from "../types/city";
 import { getLocalizedText } from "../utils/i18nHelpers";
 
@@ -30,7 +30,6 @@ export default function CityLandingPage({ citySlug: propSlug }: CityLandingPageP
   const location = useLocation();
   const { t, language, localizePath } = useI18n();
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
-  const [dynamicCity, setDynamicCity] = useState<ManagedCity | null>(null);
 
   // Robust slug extraction (prop -> params -> path parsing)
   let slug = propSlug || params.city;
@@ -41,6 +40,10 @@ export default function CityLandingPage({ citySlug: propSlug }: CityLandingPageP
       slug = segments[serviceIdx + 1];
     }
   }
+
+  const [dynamicCity, setDynamicCity] = useState<ManagedCity | null>(() => {
+    return slug ? getCachedCity(slug) : null;
+  });
 
   useEffect(() => {
     if (!slug) return;

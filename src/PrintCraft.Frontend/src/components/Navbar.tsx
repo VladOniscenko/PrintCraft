@@ -5,20 +5,42 @@ import Logo from "./logos/Logo";
 import { useI18n } from "../i18n/I18nContext";
 import { seoApplications, getApplicationName } from "../config/seoApplications";
 import ThemeToggle from "./ThemeToggle";
+import {
+  getFaqItems,
+  getFaqTopics,
+  getActiveHeroSlides,
+  getCities,
+  getFilaments,
+} from "../services/api";
 
 const prefetchMap: Record<string, () => Promise<unknown>> = {
+  "/": () => import("./Home"),
   "/orders": () => import("./user/Orders"),
   "/profile": () => import("./user/Profile"),
   "/admin": () => import("./admin/AdminDashboard"),
   "/login": () => import("./Login"),
+  "/quote": () => import("./Quote"),
   "/checkout": () => import("./Quote"),
   "/faq": () => import("./FAQ"),
 };
 
 function prefetchRoute(path: string) {
-  const loader = prefetchMap[path];
+  // Normalize path by stripping language prefix (e.g. "/en/faq" -> "/faq", "/nl/" -> "/")
+  const cleanPath = path.replace(/^\/[a-z]{2}(?:\/|$)/, "/") || "/";
+  const loader = prefetchMap[cleanPath];
   if (loader) {
     void loader();
+  }
+
+  // Pre-warm client-side data cache for instant response when clicked
+  if (cleanPath === "/faq") {
+    void getFaqItems();
+    void getFaqTopics();
+  } else if (cleanPath === "/" || cleanPath === "") {
+    void getActiveHeroSlides();
+    void getCities();
+  } else if (cleanPath === "/quote" || cleanPath === "/checkout") {
+    void getFilaments();
   }
 }
 

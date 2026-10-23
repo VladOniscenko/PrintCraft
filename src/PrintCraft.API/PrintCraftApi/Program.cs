@@ -374,12 +374,32 @@ staticFileContentTypes.Mappings[".webp"] = "image/webp";
 staticFileContentTypes.Mappings[".gif"] = "image/gif";
 staticFileContentTypes.Mappings[".svg"] = "image/svg+xml";
 
+void PrepareStaticFileResponse(StaticFileResponseContext ctx)
+{
+    var path = ctx.Context.Request.Path.Value ?? string.Empty;
+    var ext = Path.GetExtension(path).ToLowerInvariant();
+
+    if (ext is ".html" or ".htm")
+    {
+        ctx.Context.Response.Headers.CacheControl = "public, max-age=600, s-maxage=3600, stale-while-revalidate=86400";
+    }
+    else if (path.Contains("/assets/") || ext is ".js" or ".css" or ".woff2" or ".woff" or ".stl" or ".3mf" or ".glb" or ".obj")
+    {
+        ctx.Context.Response.Headers.CacheControl = "public, max-age=31536000, immutable";
+    }
+    else if (ext is ".png" or ".jpg" or ".jpeg" or ".webp" or ".svg" or ".ico")
+    {
+        ctx.Context.Response.Headers.CacheControl = "public, max-age=2592000";
+    }
+}
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(webRoot),
     ContentTypeProvider = staticFileContentTypes,
     ServeUnknownFileTypes = true,
-    DefaultContentType = "application/octet-stream"
+    DefaultContentType = "application/octet-stream",
+    OnPrepareResponse = PrepareStaticFileResponse
 });
 
 // Also serve from current directory wwwroot if webRoot is different
@@ -391,7 +411,8 @@ if (!string.Equals(Path.GetFullPath(altWebRoot), Path.GetFullPath(webRoot), Stri
         FileProvider = new PhysicalFileProvider(altWebRoot),
         ContentTypeProvider = staticFileContentTypes,
         ServeUnknownFileTypes = true,
-        DefaultContentType = "application/octet-stream"
+        DefaultContentType = "application/octet-stream",
+        OnPrepareResponse = PrepareStaticFileResponse
     });
 }
 

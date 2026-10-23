@@ -1,6 +1,6 @@
 import axios from "axios";
 import { resolveLanguage } from "../i18n/translations";
-import type { FaqItem, FaqTopic, ManagedCity, HeroSlide, User, PolicyTemplate } from "../types";
+import type { FaqItem, FaqTopic, ManagedCity, HeroSlide, User, PolicyTemplate, Filament } from "../types";
 import { createCache, createKeyedCache } from "./cache";
 
 const VISITOR_ID_STORAGE_KEY = "pc_visitor_id";
@@ -28,6 +28,20 @@ const faqTopicsCache = createCache<FaqTopic[]>({
 
 const faqTopicBySlugCache = createKeyedCache<FaqTopic>({
   ttlMs: 15 * 60 * 1000, // 15 minutes
+});
+
+const citiesCache = createCache<ManagedCity[]>({
+  ttlMs: 30 * 60 * 1000, // 30 minutes
+  storageKey: "pc_cache_cities",
+});
+
+const cityBySlugCache = createKeyedCache<ManagedCity>({
+  ttlMs: 30 * 60 * 1000, // 30 minutes
+});
+
+const filamentsCache = createCache<Filament[]>({
+  ttlMs: 30 * 60 * 1000, // 30 minutes
+  storageKey: "pc_cache_filaments",
 });
 
 const policiesCache = createCache<PolicyTemplate[]>({
@@ -388,7 +402,14 @@ export async function seedFaqTopics(forceReload = false): Promise<unknown> {
 
 // --- Cities API ---
 
-export async function getCities(all = false, province?: string): Promise<ManagedCity[]> {
+export async function getCities(all = false, province?: string, force = false): Promise<ManagedCity[]> {
+  if (!all && !province) {
+    return citiesCache.fetch(async () => {
+      const res = await api.get("/cities");
+      return Array.isArray(res.data) ? res.data : [];
+    }, force);
+  }
+
   const params = new URLSearchParams();
   if (all) params.append("all", "true");
   if (province) params.append("province", province);
@@ -397,29 +418,66 @@ export async function getCities(all = false, province?: string): Promise<Managed
   return res.data;
 }
 
-export async function getCity(slugOrId: string): Promise<ManagedCity> {
-  const res = await api.get(`/cities/${encodeURIComponent(slugOrId)}`);
-  return res.data;
+export function getCachedCities(): ManagedCity[] | null {
+  return citiesCache.get();
+}
+
+export async function getCity(slugOrId: string, force = false): Promise<ManagedCity> {
+  const key = slugOrId.trim().toLowerCase();
+  return cityBySlugCache.fetch(key, async () => {
+    const res = await api.get(`/cities/${encodeURIComponent(slugOrId)}`);
+    return res.data;
+  }, force);
+}
+
+export function getCachedCity(slugOrId: string): ManagedCity | null {
+  return cityBySlugCache.get(slugOrId.trim().toLowerCase());
+}
+
+export function invalidateCitiesCache(slugOrId?: string): void {
+  citiesCache.invalidate();
+  cityBySlugCache.invalidate(slugOrId ? slugOrId.trim().toLowerCase() : undefined);
 }
 
 export async function createCity(city: Partial<ManagedCity>): Promise<ManagedCity> {
   const res = await api.post("/cities", city);
+  invalidateCitiesCache();
   return res.data;
 }
 
 export async function updateCity(id: string, city: Partial<ManagedCity>): Promise<ManagedCity> {
   const res = await api.put(`/cities/${id}`, city);
+  invalidateCitiesCache(city.slug || id);
   return res.data;
 }
 
 export async function deleteCity(id: string): Promise<{ message: string }> {
   const res = await api.delete(`/cities/${id}`);
+  invalidateCitiesCache();
   return res.data;
 }
 
 export async function seedCities(forceReload = false): Promise<unknown> {
   const res = await api.post(`/cities/seed?forceReload=${forceReload}`);
+  invalidateCitiesCache();
   return res.data;
+}
+
+// --- Filaments Catalog API ---
+
+export async function getFilaments(force = false): Promise<Filament[]> {
+  return filamentsCache.fetch(async () => {
+    const res = await api.get("/filaments");
+    return Array.isArray(res.data) ? res.data : [];
+  }, force);
+}
+
+export function getCachedFilaments(): Filament[] | null {
+  return filamentsCache.get();
+}
+
+export function invalidateFilamentsCache(): void {
+  filamentsCache.invalidate();
 }
 
 // --- Policies API ---

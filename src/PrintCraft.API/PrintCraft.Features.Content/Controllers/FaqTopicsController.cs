@@ -33,6 +33,11 @@ public class FaqTopicsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] bool? all, CancellationToken cancellationToken = default)
     {
+        if (HttpContext != null && all != true)
+        {
+            Response.Headers.CacheControl = "public, max-age=600, s-maxage=3600";
+        }
+
         if (all != true && _cache != null && _cache.TryGetValue(TopicsCacheKey, out List<FaqTopic>? cached) && cached != null)
         {
             return Ok(cached);
@@ -88,6 +93,10 @@ public class FaqTopicsController : ControllerBase
 
         HydrateTopicTranslations(topic);
 
+        if (HttpContext != null)
+        {
+            Response.Headers.CacheControl = "public, max-age=600, s-maxage=3600";
+        }
         return Ok(topic);
     }
 

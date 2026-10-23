@@ -31,3 +31,12 @@ async function bootstrap() {
 }
 
 void bootstrap();
+
+// Register high-performance caching service worker in production after window load
+if (typeof window !== "undefined" && "serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .catch((err) => console.debug("[SW] Registration skipped:", err));
+  });
+}

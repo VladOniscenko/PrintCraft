@@ -60,6 +60,11 @@ public class HeroSlidesController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetActive(CancellationToken cancellationToken = default)
     {
+        if (HttpContext != null)
+        {
+            Response.Headers.CacheControl = "public, max-age=600, s-maxage=3600";
+        }
+
         if (_cache != null && _cache.TryGetValue(ActiveSlidesCacheKey, out List<HeroSlide>? cached) && cached != null)
         {
             return Ok(cached);

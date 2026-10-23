@@ -32,6 +32,11 @@ public class CitiesController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] bool? all, [FromQuery] string? province, CancellationToken cancellationToken = default)
     {
+        if (HttpContext != null && all != true && string.IsNullOrEmpty(province))
+        {
+            Response.Headers.CacheControl = "public, max-age=600, s-maxage=3600";
+        }
+
         if (all != true && string.IsNullOrEmpty(province) && _cache != null && _cache.TryGetValue(CitiesCacheKey, out List<City>? cached) && cached != null)
         {
             return Ok(cached);
@@ -91,6 +96,10 @@ public class CitiesController : ControllerBase
         }
 
         HydrateCityTranslations(city);
+        if (HttpContext != null)
+        {
+            Response.Headers.CacheControl = "public, max-age=600, s-maxage=3600";
+        }
         return Ok(city);
     }
 
