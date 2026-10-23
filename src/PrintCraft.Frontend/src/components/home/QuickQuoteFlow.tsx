@@ -3,7 +3,6 @@ import { Check, FileUp, Loader2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useI18n } from "../../i18n/I18nContext";
-import { detectModelDimensions } from "../../utils/modelDimensions";
 
 type AuthMode = "login" | "register";
 type Draft = {
@@ -55,6 +54,9 @@ export default function QuickQuoteFlow() {
     try {
       const form = new FormData();
       form.append("file", file);
+      const { detectModelDimensions } = await import(
+        "../../utils/modelDimensions"
+      );
       const [uploadResponse, dims] = await Promise.all([
         api.post("/upload", form),
         detectModelDimensions(file).catch(() => null),

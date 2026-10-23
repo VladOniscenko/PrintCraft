@@ -34,7 +34,7 @@ export default function MaterialFeatures() {
   return (
     <section id="materials" className="space-y-8 sm:space-y-10">
       <div className="text-center max-w-2xl mx-auto space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600">
+        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
           {t("home.materials.eyebrow")}
         </p>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950">

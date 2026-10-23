@@ -20,6 +20,7 @@ export default function SolutionsGrid() {
       titleKey: "home.solutions.card1Title",
       descKey: "home.solutions.card1Desc",
       tagKey: "home.solutions.card1Tag",
+      ctaKey: "home.solutions.card1Cta",
       link: "/faq/vervangende-onderdelen-printen",
       icon: Wrench,
       gradient: "from-emerald-50 to-teal-50/40",
@@ -29,6 +30,7 @@ export default function SolutionsGrid() {
       titleKey: "home.solutions.card2Title",
       descKey: "home.solutions.card2Desc",
       tagKey: "home.solutions.card2Tag",
+      ctaKey: "home.solutions.card2Cta",
       link: "/faq/elektronica-behuizingen-op-maat",
       icon: Box,
       gradient: "from-sky-50 to-blue-50/40",
@@ -38,6 +40,7 @@ export default function SolutionsGrid() {
       titleKey: "home.solutions.card3Title",
       descKey: "home.solutions.card3Desc",
       tagKey: "home.solutions.card3Tag",
+      ctaKey: "home.solutions.card3Cta",
       link: "/faq/rapid-prototyping-kunststof",
       icon: Cpu,
       gradient: "from-amber-50 to-orange-50/40",
@@ -47,6 +50,7 @@ export default function SolutionsGrid() {
       titleKey: "home.solutions.card4Title",
       descKey: "home.solutions.card4Desc",
       tagKey: "home.solutions.card4Tag",
+      ctaKey: "home.solutions.card4Cta",
       link: "/filament-painting",
       icon: Sparkles,
       gradient: "from-purple-50 to-pink-50/40",
@@ -68,7 +72,7 @@ export default function SolutionsGrid() {
       {/* Header with Navigation Controls */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600">
+          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
             {t("home.solutions.eyebrow")}
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950">
@@ -111,6 +115,7 @@ export default function SolutionsGrid() {
             titleKey,
             descKey,
             tagKey,
+            ctaKey,
             link,
             icon: Icon,
             gradient,
@@ -145,9 +150,10 @@ export default function SolutionsGrid() {
               <div className="pt-8">
                 <Link
                   to={localizePath(link)}
+                  aria-label={t(ctaKey)}
                   className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-800 hover:text-emerald-950 transition-colors"
                 >
-                  <span>{t("home.solutions.learnMore")}</span>
+                  <span>{t(ctaKey)}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>

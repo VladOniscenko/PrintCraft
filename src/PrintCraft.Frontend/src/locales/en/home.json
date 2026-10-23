@@ -20,7 +20,11 @@
     "nextShelf": "Next",
     "viewSolution": "View solution",
     "viewSpecific": "Explore {name}",
-    "learnMore": "Learn more"
+    "learnMore": "Learn more",
+    "card1Cta": "Explore replacement part printing",
+    "card2Cta": "Explore custom electronics enclosures",
+    "card3Cta": "Explore rapid prototyping services",
+    "card4Cta": "Explore 3D photo painting with HueForge"
   },
   "quickQuote": {
     "fileMode": "I have a file",

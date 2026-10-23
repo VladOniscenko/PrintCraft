@@ -20,7 +20,11 @@
     "nextShelf": "Sonraki",
     "viewSolution": "Çözümü görüntüle",
     "viewSpecific": "{name} keşfedin",
-    "learnMore": "Daha fazla bilgi edinin"
+    "learnMore": "Daha fazla bilgi edinin",
+    "card1Cta": "Yedek parça 3D baskısını keşfedin",
+    "card2Cta": "Özel elektronik muhafazalarını keşfedin",
+    "card3Cta": "Hızlı prototipleme hizmetlerini keşfedin",
+    "card4Cta": "HueForge ile 3D fotoğraf tablolarını keşfedin"
   },
   "quickQuote": {
     "fileMode": "Bir dosyam var",

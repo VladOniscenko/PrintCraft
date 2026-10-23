@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, FileUp, Layers, Loader2, Truck, UploadCloud } from "lucide-react";
 import { useI18n } from "../../i18n/I18nContext";
 import api from "../../services/api";
-import { detectModelDimensions } from "../../utils/modelDimensions";
 
 const DRAFT_KEY = "printcraft-home-quote";
 
@@ -41,6 +40,9 @@ export default function HomeWorkflow() {
     try {
       const form = new FormData();
       form.append("file", file);
+      const { detectModelDimensions } = await import(
+        "../../utils/modelDimensions"
+      );
       const [uploadResponse, dims] = await Promise.all([
         api.post("/upload", form),
         detectModelDimensions(file).catch(() => null),
@@ -104,7 +106,7 @@ export default function HomeWorkflow() {
     <section id="workflow" className="space-y-10 sm:space-y-12">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600">
+        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
           {t("home.process.eyebrow")}
         </p>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950">
@@ -124,10 +126,10 @@ export default function HomeWorkflow() {
           >
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-black text-gray-300 font-mono group-hover:text-emerald-500 transition-colors">
+                <span className="text-3xl font-black text-gray-400 font-mono group-hover:text-emerald-800 transition-colors">
                   {num}
                 </span>
-                <div className="w-12 h-12 rounded-2xl bg-white border border-gray-200/60 shadow-sm flex items-center justify-center text-emerald-600 group-hover:scale-110 group-hover:bg-emerald-50 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-gray-200/60 shadow-sm flex items-center justify-center text-emerald-800 group-hover:scale-110 group-hover:bg-emerald-50 transition-all">
                   <Icon className="w-6 h-6" />
                 </div>
               </div>
@@ -153,8 +155,8 @@ export default function HomeWorkflow() {
         onClick={() => fileInputRef.current?.click()}
         className={`relative overflow-hidden rounded-3xl border-2 border-dashed p-8 sm:p-12 text-center transition-all duration-200 cursor-pointer ${
           dragging
-            ? "border-emerald-500 bg-emerald-50/40 scale-[1.01]"
-            : "border-gray-200 hover:border-emerald-400 bg-gray-50/50 hover:bg-emerald-50/15"
+            ? "border-emerald-600 bg-emerald-50/40 scale-[1.01]"
+            : "border-gray-200 hover:border-emerald-500 bg-gray-50/50 hover:bg-emerald-50/15"
         }`}
       >
         <input
@@ -169,9 +171,9 @@ export default function HomeWorkflow() {
         />
 
         <div className="max-w-md mx-auto flex flex-col items-center justify-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-white border border-gray-200/80 shadow-sm flex items-center justify-center text-emerald-600">
+          <div className="w-14 h-14 rounded-2xl bg-white border border-gray-200/80 shadow-sm flex items-center justify-center text-emerald-800">
             {uploading ? (
-              <Loader2 className="w-7 h-7 animate-spin text-emerald-600" />
+              <Loader2 className="w-7 h-7 animate-spin text-emerald-800" />
             ) : (
               <FileUp className="w-7 h-7" />
             )}
@@ -183,7 +185,7 @@ export default function HomeWorkflow() {
                 ? t("home.process.analyzing")
                 : t("home.process.dropTitle")}
             </h4>
-            <p className="text-xs sm:text-sm text-gray-500">
+            <p className="text-xs sm:text-sm text-gray-600">
               {t("home.process.dropSubtitle")}
             </p>
           </div>
@@ -195,7 +197,7 @@ export default function HomeWorkflow() {
               e.stopPropagation();
               fileInputRef.current?.click();
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95 transition-all shadow-md hover:shadow-emerald-600/20 cursor-pointer disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold bg-emerald-700 text-white hover:bg-emerald-800 active:scale-95 transition-all shadow-md hover:shadow-emerald-700/20 cursor-pointer disabled:opacity-60"
           >
             <span>{t("home.process.uploadCta")}</span>
             <ArrowRight className="w-4 h-4" />

@@ -20,7 +20,11 @@
     "nextShelf": "Volgende",
     "viewSolution": "Bekijk oplossing",
     "viewSpecific": "Ontdek {name}",
-    "learnMore": "Lees meer"
+    "learnMore": "Lees meer",
+    "card1Cta": "Ontdek vervangende onderdelen printen",
+    "card2Cta": "Ontdek behuizingen op maat",
+    "card3Cta": "Ontdek rapid prototyping diensten",
+    "card4Cta": "Ontdek 3D-fotoschilderijen met HueForge"
   },
   "quickQuote": {
     "fileMode": "Ik heb een bestand",

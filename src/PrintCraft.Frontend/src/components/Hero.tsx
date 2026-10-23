@@ -180,6 +180,28 @@ export default function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
+  const [canRender3D, setCanRender3D] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const idleWindow = window as unknown as {
+      requestIdleCallback?: (
+        cb: () => void,
+        opts?: { timeout: number },
+      ) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (typeof idleWindow.requestIdleCallback === "function") {
+      const handle = idleWindow.requestIdleCallback(
+        () => setCanRender3D(true),
+        { timeout: 1200 },
+      );
+      return () => idleWindow.cancelIdleCallback?.(handle);
+    } else {
+      const timer = setTimeout(() => setCanRender3D(true), 200);
+      return () => clearTimeout(timer);
+    }
+  }, []);
   const timerRef = useRef<number | null>(null);
 
   // Fetch active slides from .NET API (cached client-side to prevent redundant roundtrips on route changes)
@@ -294,7 +316,11 @@ export default function Hero() {
 
   return (
     <section
+      role="region"
+      aria-roledescription="carousel"
       aria-label={t("hero.slideshowAria")}
+      onPointerOver={() => setCanRender3D(true)}
+      onTouchStart={() => setCanRender3D(true)}
       className="relative w-full rounded-[2.5rem] overflow-hidden bg-gradient-to-b from-[#071c15] via-[#05140f] to-[#030d0a] border border-emerald-500/20 shadow-[0_32px_64px_-16px_rgba(2,12,9,0.8)] text-white"
     >
       {/* Background Accent Gradients */}
@@ -357,21 +383,28 @@ export default function Hero() {
             {/* CONDITIONAL MEDIA RENDERING */}
             {currentSlide.mediaType === "model3d" ? (
               <div className="relative w-full h-full flex items-center justify-center">
-                <Suspense
-                  fallback={
-                    <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
-                      <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
-                      <span>{t("hero.loading3d")}</span>
-                    </div>
-                  }
-                >
-                  <HeroModelViewer
-                    src={resolveAssetUrl(currentSlide.mediaUrl)}
-                    className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
-                    onInteractionStart={handleInteractionStart}
-                    onInteractionEnd={handleInteractionEnd}
-                  />
-                </Suspense>
+                {canRender3D ? (
+                  <Suspense
+                    fallback={
+                      <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
+                        <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
+                        <span>{t("hero.loading3d")}</span>
+                      </div>
+                    }
+                  >
+                    <HeroModelViewer
+                      src={resolveAssetUrl(currentSlide.mediaUrl)}
+                      className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
+                      onInteractionStart={handleInteractionStart}
+                      onInteractionEnd={handleInteractionEnd}
+                    />
+                  </Suspense>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
+                    <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
+                    <span>{t("hero.loading3d")}</span>
+                  </div>
+                )}
 
                 {/* Subtle Interactive Instruction */}
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
@@ -415,7 +448,11 @@ export default function Hero() {
       </div>
 
       {/* ================= BOTTOM BAR: Minimal Pagination Dots ================= */}
-      <div className="relative z-20 flex items-center justify-center gap-2.5 pb-8">
+      <div
+        role="group"
+        aria-label={t("hero.paginationAria")}
+        className="relative z-20 flex items-center justify-center gap-2 pb-8"
+      >
         {slides.map((slide, idx) => {
           const isActive = idx === currentIndex;
           const slideItemTitle = getHeroSlideTitle(slide, language);
@@ -423,11 +460,10 @@ export default function Hero() {
             <button
               key={slide.id || idx}
               type="button"
-              role="tab"
-              aria-selected={isActive}
+              aria-current={isActive ? "true" : undefined}
               aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
               onClick={() => goToSlide(idx)}
-              className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
+              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
             >
               <span
                 className={`block h-2 rounded-full transition-all duration-300 ${

@@ -319,7 +319,7 @@ export default defineConfig(({ mode }) => {
 
             pageHtml = pageHtml.replace(
               "<!--app-html-->",
-              isRoot ? "" : renderResult.html,
+              renderResult.html,
             );
 
             if (!isRoot) {
@@ -374,7 +374,17 @@ export default defineConfig(({ mode }) => {
     ],
     build: {
       sourcemap: true,
-      modulePreload: true,
+      modulePreload: {
+        resolveDependencies(_filename, deps, { hostType }) {
+          if (hostType === "html") {
+            return deps.filter(
+              (dep) =>
+                !dep.includes("three-vendor") && !dep.includes("modelParser"),
+            );
+          }
+          return deps;
+        },
+      },
       rollupOptions: {
         output: {
           manualChunks(id) {

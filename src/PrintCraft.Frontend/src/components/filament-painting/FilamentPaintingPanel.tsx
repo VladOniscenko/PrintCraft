@@ -28,7 +28,7 @@ import {
   type HueForgeQualityPreset,
   CURATED_PALETTES,
 } from "../../types/filamentPainting";
-import { getFilamentHexColor } from "../Interactive3DViewer";
+import { getFilamentHexColor } from "../../utils/filamentColors";
 const Interactive3DViewer = lazy(() => import("../Interactive3DViewer"));
 import api from "../../services/api";
 import { useI18n } from "../../i18n/I18nContext";

@@ -1,4 +1,4 @@
-import { Box3, Vector3 } from "three";
+
 
 export const MAX_DIMENSION_MM = 256;
 export const MIN_SCALE = 0.1;
@@ -49,6 +49,7 @@ export async function detectModelDimensionsDirect(
   if (!MODEL_EXTENSIONS.has(ext)) return null;
 
   try {
+    const { Box3, Vector3 } = await import("three");
     if (ext === ".stl") {
       const { STLLoader } = await import("three/examples/jsm/loaders/STLLoader.js");
       const loader = new STLLoader();

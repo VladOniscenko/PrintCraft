@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import type { OrderSectionProps } from "./types";
 import { resolveAssetUrl } from "../../utils/assetUrl";
-import { getFilamentHexColor } from "../Interactive3DViewer";
+import { getFilamentHexColor } from "../../utils/filamentColors";
 import ModelInspectorModal from "../ModelInspectorModal";
 import CustomerItemChangeRequestBanner from "./CustomerItemChangeRequestBanner";
 

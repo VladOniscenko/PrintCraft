@@ -6,7 +6,7 @@ import {
   Info,
 } from "lucide-react";
 import { resolveAssetUrl } from "../utils/assetUrl";
-import { getFilamentHexColor } from "./Interactive3DViewer";
+import { getFilamentHexColor } from "../utils/filamentColors";
 import { useI18n } from "../i18n/I18nContext";
 
 const Interactive3DViewer = lazy(() => import("./Interactive3DViewer"));
