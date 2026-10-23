@@ -51,10 +51,13 @@ export default function MarketAudiences() {
     <section aria-labelledby="market-audiences-heading" className="space-y-6">
       <div className="flex flex-col justify-between gap-3 md:flex-row md:items-end">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-800">
             {t("home.audiences.eyebrow")}
           </p>
-          <h2 id="market-audiences-heading" className="site-heading mt-2 text-3xl sm:text-4xl font-black">
+          <h2
+            id="market-audiences-heading"
+            className="site-heading mt-2 text-3xl sm:text-4xl font-black"
+          >
             {t("home.audiences.title")}
           </h2>
         </div>
@@ -64,29 +67,41 @@ export default function MarketAudiences() {
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {audiences.map(({ titleKey, tagKey, descKey, icon: Icon, color, border, tagColor, iconColor }) => (
-          <article
-            key={titleKey}
-            className={`relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br ${color} p-6 text-white border ${border} shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-xl`}
-          >
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${tagColor}`}>
-                  {t(tagKey)}
-                </span>
-                <Icon size={26} className={iconColor} aria-hidden="true" />
+        {audiences.map(
+          ({
+            titleKey,
+            tagKey,
+            descKey,
+            icon: Icon,
+            color,
+            border,
+            tagColor,
+            iconColor,
+          }) => (
+            <article
+              key={titleKey}
+              className={`relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br ${color} p-6 text-white border ${border} shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-xl`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${tagColor}`}
+                  >
+                    {t(tagKey)}
+                  </span>
+                  <Icon size={26} className={iconColor} aria-hidden="true" />
+                </div>
+                <h3 className="mt-5 text-xl font-black tracking-tight text-white">
+                  {t(titleKey)}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-gray-200/90 font-normal">
+                  {t(descKey)}
+                </p>
               </div>
-              <h3 className="mt-5 text-xl font-black tracking-tight text-white">
-                {t(titleKey)}
-              </h3>
-              <p className="mt-3 text-sm leading-relaxed text-gray-200/90 font-normal">
-                {t(descKey)}
-              </p>
-            </div>
-          </article>
-        ))}
+            </article>
+          ),
+        )}
       </div>
     </section>
   );
 }
-

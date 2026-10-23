@@ -7,8 +7,11 @@ import {
   useState,
 } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, RotateCcw } from "lucide-react";
-import { getActiveHeroSlides, getCachedActiveHeroSlides } from "../services/api";
+import { ArrowRight, Box, RotateCcw } from "lucide-react";
+import {
+  getActiveHeroSlides,
+  getCachedActiveHeroSlides,
+} from "../services/api";
 import type { HeroSlide } from "../types";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import { useI18n } from "../i18n/I18nContext";
@@ -181,26 +184,8 @@ export default function Hero() {
   const [isPaused, setIsPaused] = useState(false);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
   const [canRender3D, setCanRender3D] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const idleWindow = window as unknown as {
-      requestIdleCallback?: (
-        cb: () => void,
-        opts?: { timeout: number },
-      ) => number;
-      cancelIdleCallback?: (id: number) => void;
-    };
-    if (typeof idleWindow.requestIdleCallback === "function") {
-      const handle = idleWindow.requestIdleCallback(
-        () => setCanRender3D(true),
-        { timeout: 1200 },
-      );
-      return () => idleWindow.cancelIdleCallback?.(handle);
-    } else {
-      const timer = setTimeout(() => setCanRender3D(true), 200);
-      return () => clearTimeout(timer);
-    }
+  const activate3D = useCallback(() => {
+    setCanRender3D(true);
   }, []);
   const timerRef = useRef<number | null>(null);
 
@@ -220,7 +205,10 @@ export default function Hero() {
           setSlides(sorted);
         }
       } catch (err) {
-        console.warn("Could not load dynamic hero slides from API, using fallback slides:", err);
+        console.warn(
+          "Could not load dynamic hero slides from API, using fallback slides:",
+          err,
+        );
       }
     }
 
@@ -232,7 +220,16 @@ export default function Hero() {
       };
     }
 
-    const idleWindow = typeof window !== "undefined" ? (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void }) : null;
+    const idleWindow =
+      typeof window !== "undefined"
+        ? (window as unknown as {
+            requestIdleCallback?: (
+              cb: () => void,
+              opts?: { timeout: number },
+            ) => number;
+            cancelIdleCallback?: (id: number) => void;
+          })
+        : null;
     if (idleWindow && typeof idleWindow.requestIdleCallback === "function") {
       idleHandle = idleWindow.requestIdleCallback(
         () => {
@@ -248,7 +245,11 @@ export default function Hero() {
 
     return () => {
       active = false;
-      if (idleHandle !== null && idleWindow && typeof idleWindow.cancelIdleCallback === "function") {
+      if (
+        idleHandle !== null &&
+        idleWindow &&
+        typeof idleWindow.cancelIdleCallback === "function"
+      ) {
         idleWindow.cancelIdleCallback(idleHandle);
       }
       if (timeoutHandle !== null) {
@@ -344,7 +345,7 @@ export default function Hero() {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.08]">
               {slideTitle}
             </h1>
-            <p className="text-lg sm:text-xl text-emerald-100/75 leading-relaxed max-w-xl font-normal">
+            <p className="text-lg sm:text-xl text-emerald-100 leading-relaxed max-w-xl font-normal">
               {slideSubtext}
             </p>
           </div>
@@ -372,9 +373,15 @@ export default function Hero() {
         <div className="lg:col-span-5 flex flex-col items-center justify-center">
           <div
             className="relative w-full h-[360px] sm:h-[420px] lg:h-[480px] rounded-3xl overflow-hidden bg-white/[0.02] border border-white/10 flex items-center justify-center group"
-            onMouseEnter={() => setIsPaused(true)}
+            onMouseEnter={() => {
+              setIsPaused(true);
+              activate3D();
+            }}
             onMouseLeave={() => setIsPaused(false)}
-            onPointerDown={handleInteractionStart}
+            onPointerDown={() => {
+              handleInteractionStart();
+              activate3D();
+            }}
             onPointerUp={handleInteractionEnd}
           >
             {/* Ambient Media Aura */}
@@ -384,35 +391,54 @@ export default function Hero() {
             {currentSlide.mediaType === "model3d" ? (
               <div className="relative w-full h-full flex items-center justify-center">
                 {canRender3D ? (
-                  <Suspense
-                    fallback={
-                      <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
-                        <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
-                        <span>{t("hero.loading3d")}</span>
-                      </div>
-                    }
-                  >
-                    <HeroModelViewer
-                      src={resolveAssetUrl(currentSlide.mediaUrl)}
-                      className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
-                      onInteractionStart={handleInteractionStart}
-                      onInteractionEnd={handleInteractionEnd}
-                    />
-                  </Suspense>
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
-                    <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
-                    <span>{t("hero.loading3d")}</span>
-                  </div>
-                )}
+                  <>
+                    <Suspense
+                      fallback={
+                        <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
+                          <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
+                          <span>{t("hero.loading3d")}</span>
+                        </div>
+                      }
+                    >
+                      <HeroModelViewer
+                        src={resolveAssetUrl(currentSlide.mediaUrl)}
+                        className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
+                        onInteractionStart={handleInteractionStart}
+                        onInteractionEnd={handleInteractionEnd}
+                      />
+                    </Suspense>
 
-                {/* Subtle Interactive Instruction */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/40 text-emerald-200/80 backdrop-blur-md border border-white/10">
-                    <RotateCcw className="w-3 h-3 text-emerald-400" />
-                    <span>{t("hero.dragToRotate")}</span>
-                  </span>
-                </div>
+                    {/* Subtle Interactive Instruction */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/40 text-emerald-200/80 backdrop-blur-md border border-white/10">
+                        <RotateCcw className="w-3 h-3 text-emerald-400" />
+                        <span>{t("hero.dragToRotate")}</span>
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={activate3D}
+                    aria-label={t("hero.interactive3d")}
+                    className="relative w-full h-full flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none group/stage focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-3xl"
+                  >
+                    <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-gradient-to-br from-emerald-500/20 to-teal-500/5 border border-emerald-400/30 flex items-center justify-center shadow-[0_0_40px_rgba(52,211,153,0.15)] group-hover/stage:scale-105 group-hover/stage:border-emerald-400/50 transition-all duration-300">
+                      <Box className="w-14 h-14 sm:w-16 sm:h-16 text-emerald-400 drop-shadow-[0_4px_12px_rgba(52,211,153,0.4)]" />
+                      <div className="absolute inset-0 rounded-3xl bg-emerald-400/10 pointer-events-none" />
+                    </div>
+
+                    <div className="mt-6 flex flex-col items-center gap-2">
+                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-emerald-400 text-gray-950 shadow-md group-hover/stage:bg-emerald-300 transition-colors">
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>{t("hero.interactive3d")}</span>
+                      </span>
+                      <span className="text-[11px] text-emerald-200/80">
+                        {t("hero.dragToRotate")}
+                      </span>
+                    </div>
+                  </button>
+                )}
               </div>
             ) : (
               <div className="relative w-full h-full flex items-center justify-center p-6">
@@ -461,7 +487,10 @@ export default function Hero() {
               key={slide.id || idx}
               type="button"
               aria-current={isActive ? "true" : undefined}
-              aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
+              aria-label={t("hero.goToSlide", {
+                index: idx + 1,
+                title: slideItemTitle,
+              })}
               onClick={() => goToSlide(idx)}
               className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
             >

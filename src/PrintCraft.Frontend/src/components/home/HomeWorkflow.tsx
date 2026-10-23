@@ -1,6 +1,13 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, FileUp, Layers, Loader2, Truck, UploadCloud } from "lucide-react";
+import {
+  ArrowRight,
+  FileUp,
+  Layers,
+  Loader2,
+  Truck,
+  UploadCloud,
+} from "lucide-react";
 import { useI18n } from "../../i18n/I18nContext";
 import api from "../../services/api";
 
@@ -40,9 +47,8 @@ export default function HomeWorkflow() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const { detectModelDimensions } = await import(
-        "../../utils/modelDimensions"
-      );
+      const { detectModelDimensions } =
+        await import("../../utils/modelDimensions");
       const [uploadResponse, dims] = await Promise.all([
         api.post("/upload", form),
         detectModelDimensions(file).catch(() => null),
@@ -126,7 +132,7 @@ export default function HomeWorkflow() {
           >
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-black text-gray-400 font-mono group-hover:text-emerald-800 transition-colors">
+                <span className="text-3xl font-black text-gray-600 font-mono group-hover:text-emerald-800 transition-colors">
                   {num}
                 </span>
                 <div className="w-12 h-12 rounded-2xl bg-white border border-gray-200/60 shadow-sm flex items-center justify-center text-emerald-800 group-hover:scale-110 group-hover:bg-emerald-50 transition-all">

@@ -1,5 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, LogOut, ChevronDown, User, Package, ShieldCheck } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  ChevronDown,
+  User,
+  Package,
+  ShieldCheck,
+} from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./logos/Logo";
 import { useI18n } from "../i18n/I18nContext";
@@ -59,8 +67,10 @@ const Navbar = () => {
   // Sync auth state on mount, route changes, or cross-tab storage events
   useEffect(() => {
     const updateAuth = () => {
-      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      const userStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const userStr =
+        typeof window !== "undefined" ? localStorage.getItem("user") : null;
       const isAuth = !!token;
       setIsLoggedIn(isAuth);
 
@@ -117,10 +127,7 @@ const Navbar = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setSolutionsOpen(false);
       }
       if (
@@ -190,7 +197,8 @@ const Navbar = () => {
                 type="button"
                 onClick={() => setSolutionsOpen(!solutionsOpen)}
                 className={`rounded-full px-3.5 py-1.5 transition-colors inline-flex items-center gap-1 cursor-pointer ${
-                  pathname.includes("/faq/") && pathname.replace(/\/$/, "") !== localizePath("/faq")
+                  pathname.includes("/faq/") &&
+                  pathname.replace(/\/$/, "") !== localizePath("/faq")
                     ? "bg-gray-200/70 text-gray-950 font-semibold"
                     : "text-gray-600 hover:text-gray-950 hover:bg-gray-100/70"
                 }`}
@@ -215,7 +223,7 @@ const Navbar = () => {
                         <p className="text-xs font-semibold text-gray-900 group-hover:text-emerald-800 transition-colors">
                           {getApplicationName(app, language)}
                         </p>
-                        <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">
+                        <p className="text-[11px] text-gray-600 mt-0.5 line-clamp-1">
                           {app.badge[language] || app.badge.nl}
                         </p>
                       </Link>
@@ -251,7 +259,7 @@ const Navbar = () => {
                 className={`px-2.5 py-0.5 text-[11px] font-semibold rounded-full transition-all cursor-pointer ${
                   language === option.code
                     ? "bg-white text-gray-950 shadow-2xs font-bold"
-                    : "text-gray-500 hover:text-gray-900"
+                    : "text-gray-700 hover:text-gray-950"
                 }`}
               >
                 {option.label}
@@ -272,7 +280,9 @@ const Navbar = () => {
           {/* Auth Action Slot */}
           <div className="flex items-center shrink-0">
             {/* Guest: Log In Button */}
-            <div className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}>
+            <div
+              className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}
+            >
               <Link
                 to={localizePath("/login")}
                 onMouseEnter={() => prefetchRoute(localizePath("/login"))}
@@ -303,7 +313,9 @@ const Navbar = () => {
                 aria-haspopup="true"
               >
                 <User size={14} className="text-gray-600" />
-                <span className="max-w-[100px] truncate">{userName || t("nav.account")}</span>
+                <span className="max-w-[100px] truncate">
+                  {userName || t("nav.account")}
+                </span>
                 <ChevronDown
                   size={13}
                   className={`transition-transform duration-200 ${accountOpen ? "rotate-180" : ""}`}
@@ -314,7 +326,7 @@ const Navbar = () => {
                 <div className="absolute right-0 top-full pt-2 w-56 z-50">
                   <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/80 p-2 space-y-1">
                     {userName && (
-                      <div className="px-3 py-2 text-xs font-semibold text-gray-500 border-b border-gray-100 truncate">
+                      <div className="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-100 truncate">
                         {userName}
                       </div>
                     )}
@@ -322,7 +334,9 @@ const Navbar = () => {
                     <Link
                       to={localizePath("/orders")}
                       onClick={() => setAccountOpen(false)}
-                      onMouseEnter={() => prefetchRoute(localizePath("/orders"))}
+                      onMouseEnter={() =>
+                        prefetchRoute(localizePath("/orders"))
+                      }
                       onFocus={() => prefetchRoute(localizePath("/orders"))}
                       className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                         isLinkActive(localizePath("/orders"))
@@ -337,7 +351,9 @@ const Navbar = () => {
                     <Link
                       to={localizePath("/profile")}
                       onClick={() => setAccountOpen(false)}
-                      onMouseEnter={() => prefetchRoute(localizePath("/profile"))}
+                      onMouseEnter={() =>
+                        prefetchRoute(localizePath("/profile"))
+                      }
                       onFocus={() => prefetchRoute(localizePath("/profile"))}
                       className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                         isLinkActive(localizePath("/profile"))
@@ -353,7 +369,9 @@ const Navbar = () => {
                       <Link
                         to={localizePath("/admin")}
                         onClick={() => setAccountOpen(false)}
-                        onMouseEnter={() => prefetchRoute(localizePath("/admin"))}
+                        onMouseEnter={() =>
+                          prefetchRoute(localizePath("/admin"))
+                        }
                         onFocus={() => prefetchRoute(localizePath("/admin"))}
                         className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                           isLinkActive(localizePath("/admin"))
@@ -524,7 +542,7 @@ const Navbar = () => {
                 className={`px-3 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
                   language === option.code
                     ? "bg-white text-gray-950 shadow-2xs font-bold"
-                    : "text-gray-500"
+                    : "text-gray-700 hover:text-gray-950"
                 }`}
               >
                 {option.label}

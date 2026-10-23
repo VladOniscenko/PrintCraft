@@ -19,7 +19,6 @@
       })();
     </script>
 
-
     <!-- Preload Self-Hosted Critical Font -->
     <link
       rel="preload"
@@ -36,7 +35,9 @@
     <!-- Deferred Third-Party Analytics (GTM) to prevent main-thread blocking & layout thrashing -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag() { dataLayer.push(arguments); }
+      function gtag() {
+        dataLayer.push(arguments);
+      }
 
       function initAnalytics() {
         if (window._analyticsInitialized) return;
@@ -55,22 +56,25 @@
         })(window, document, "script", "dataLayer", "GTM-NKDJR356");
       }
 
-      var gtmTimer = setTimeout(initAnalytics, 6000);
+      var gtmTimer = setTimeout(initAnalytics, 15000);
       var userEvents = ["pointerdown", "scroll", "keydown", "touchstart"];
       function onUserInteract() {
         clearTimeout(gtmTimer);
-        userEvents.forEach(function (e) { window.removeEventListener(e, onUserInteract); });
+        userEvents.forEach(function (e) {
+          window.removeEventListener(e, onUserInteract);
+        });
         initAnalytics();
       }
       userEvents.forEach(function (e) {
-        window.addEventListener(e, onUserInteract, { once: true, passive: true });
+        window.addEventListener(e, onUserInteract, {
+          once: true,
+          passive: true,
+        });
       });
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!--seo-meta-start-->
-    <title>
-      3D Print Service Nederland | Print My 3D
-    </title>
+    <title>3D Print Service Nederland | Print My 3D</title>
     <meta
       name="description"
       content="Professionele 3D-printservice in Nederland. Upload direct je 3D-bestand voor een offerte op maat in PLA, PETG of TPU. Gevestigd in Rotterdam, snel bezorgd in heel Nederland."
@@ -93,7 +97,12 @@
     />
     <link rel="ard" href="https://printmy3d.work/.well-known/ard.json" />
     <link rel="ai-catalog" href="https://printmy3d.work/ai-catalog.json" />
-    <link rel="alternate" type="text/markdown" href="https://printmy3d.work/llms.txt" title="LLM Guidance" />
+    <link
+      rel="alternate"
+      type="text/markdown"
+      href="https://printmy3d.work/llms.txt"
+      title="LLM Guidance"
+    />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="nl_NL" />
     <meta
@@ -139,10 +148,7 @@
               lang = supported.indexOf(nav) !== -1 ? nav : "nl";
             }
             var target =
-              "/" +
-              lang +
-              window.location.search +
-              window.location.hash;
+              "/" + lang + window.location.search + window.location.hash;
             window.location.replace(target);
           }
         } catch (e) {}
@@ -151,7 +157,7 @@
     <!--root-redirect-end-->
     <meta name="theme-color" content="#fbfbfd" />
   </head>
-  <body style="background-color: #fbfbfd;">
+  <body style="background-color: #fbfbfd">
     <!-- Google Tag Manager (noscript) -->
     <noscript
       ><iframe

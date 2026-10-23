@@ -403,6 +403,24 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    resolve: {
+      alias: [
+        {
+          find: /^react-router\/dom$/,
+          replacement: path.resolve(
+            process.cwd(),
+            "node_modules/react-router/dist/production/dom-export.mjs",
+          ),
+        },
+        {
+          find: /^react-router$/,
+          replacement: path.resolve(
+            process.cwd(),
+            "node_modules/react-router/dist/production/index.mjs",
+          ),
+        },
+      ],
+    },
     server,
   };
 });
