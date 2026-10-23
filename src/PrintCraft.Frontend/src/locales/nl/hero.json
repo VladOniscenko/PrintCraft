@@ -38,6 +38,7 @@
   "prevSlideAria": "Vorige dia",
   "nextSlideAria": "Volgende dia",
   "paginationAria": "Diavoorstelling paginering",
+  "slideAria": "Dia {current} van {total}: {title}",
   "goToSlide": "Ga naar dia {index}: {title}",
   "paused": "Gepauzeerd",
   "auto": "Automatisch 5s",

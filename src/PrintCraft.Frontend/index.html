@@ -55,10 +55,8 @@
         })(window, document, "script", "dataLayer", "GTM-NKDJR356");
       }
 
-      var gtmTimer = setTimeout(initAnalytics, 15000);
       var userEvents = ["pointerdown", "scroll", "keydown", "touchstart"];
       function onUserInteract() {
-        clearTimeout(gtmTimer);
         userEvents.forEach(function (e) { window.removeEventListener(e, onUserInteract); });
         initAnalytics();
       }

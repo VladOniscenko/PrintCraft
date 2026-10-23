@@ -163,6 +163,7 @@ export default function HomeWorkflow() {
           ref={fileInputRef}
           type="file"
           accept=".stl,.3mf,.step,.stp,.obj"
+          aria-label={t("home.process.uploadCta")}
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];

@@ -38,6 +38,7 @@
   "prevSlideAria": "Önceki tanıtım slaytı",
   "nextSlideAria": "Sonraki tanıtım slaytı",
   "paginationAria": "Slayt gösterisi sayfalaması",
+  "slideAria": "Slayt {current} / {total}: {title}",
   "goToSlide": "Slayta git {index}: {title}",
   "paused": "Duraklatıldı",
   "auto": "Otomatik 5 sn",

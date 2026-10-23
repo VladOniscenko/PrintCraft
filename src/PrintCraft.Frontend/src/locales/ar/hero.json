@@ -38,6 +38,7 @@
   "prevSlideAria": "الشريحة الترويجية السابقة",
   "nextSlideAria": "الشريحة الترويجية التالية",
   "paginationAria": "ترقيم صفحات عرض الشرائح",
+  "slideAria": "الشريحة {current} من {total}: {title}",
   "goToSlide": "الانتقال إلى الشريحة {index}: {title}",
   "paused": "متوقف مؤقتاً",
   "auto": "تلقائي كل 5 ثوانٍ",

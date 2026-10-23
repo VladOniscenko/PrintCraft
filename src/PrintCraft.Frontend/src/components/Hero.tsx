@@ -178,6 +178,7 @@ export default function Hero() {
     return FALLBACK_SLIDES;
   });
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
   const [canRender3D, setCanRender3D] = useState(false);
@@ -186,10 +187,26 @@ export default function Hero() {
   }, []);
   const timerRef = useRef<number | null>(null);
 
-  // Fetch active slides from .NET API (cached client-side to prevent redundant roundtrips on route changes)
+  // Mark user interaction to activate auto-play & prefetching without degrading initial LCP
+  useEffect(() => {
+    const userEvents = ["pointerdown", "scroll", "keydown", "touchstart"];
+    const onInteract = () => {
+      setHasInteracted(true);
+      userEvents.forEach((e) => window.removeEventListener(e, onInteract));
+    };
+
+    userEvents.forEach((e) => {
+      window.addEventListener(e, onInteract, { once: true, passive: true });
+    });
+
+    return () => {
+      userEvents.forEach((e) => window.removeEventListener(e, onInteract));
+    };
+  }, []);
+
+  // Fetch active slides from .NET API on user interaction (cached client-side to prevent redundant roundtrips)
   useEffect(() => {
     let active = true;
-    let timeoutHandle: number | null = null;
 
     async function loadSlides() {
       try {
@@ -205,7 +222,7 @@ export default function Hero() {
       }
     }
 
-    // If already cached synchronously, no delay is required
+    // If already cached synchronously, load immediately
     if (getCachedActiveHeroSlides() !== null) {
       void loadSlides();
       return () => {
@@ -216,9 +233,6 @@ export default function Hero() {
     const userEvents = ["pointerdown", "scroll", "keydown", "touchstart"];
     const onUserInteract = () => {
       userEvents.forEach((e) => window.removeEventListener(e, onUserInteract));
-      if (timeoutHandle !== null) {
-        clearTimeout(timeoutHandle);
-      }
       if (active) void loadSlides();
     };
 
@@ -226,17 +240,9 @@ export default function Hero() {
       window.addEventListener(e, onUserInteract, { once: true, passive: true });
     });
 
-    timeoutHandle = setTimeout(() => {
-      userEvents.forEach((e) => window.removeEventListener(e, onUserInteract));
-      if (active) void loadSlides();
-    }, 10000) as unknown as number;
-
     return () => {
       active = false;
       userEvents.forEach((e) => window.removeEventListener(e, onUserInteract));
-      if (timeoutHandle !== null) {
-        clearTimeout(timeoutHandle);
-      }
     };
   }, []);
 
@@ -267,9 +273,9 @@ export default function Hero() {
     setCurrentIndex(index);
   }, []);
 
-  // Auto-play (5-second intervals)
+  // Auto-play (5-second intervals, activated only after first user interaction to preserve LCP and conform to WCAG 2.2.2)
   useEffect(() => {
-    if (totalSlides <= 1 || isPaused) {
+    if (!hasInteracted || totalSlides <= 1 || isPaused) {
       if (timerRef.current) {
         window.clearInterval(timerRef.current);
         timerRef.current = null;
@@ -287,7 +293,7 @@ export default function Hero() {
         timerRef.current = null;
       }
     };
-  }, [isPaused, nextSlide, totalSlides]);
+  }, [hasInteracted, isPaused, nextSlide, totalSlides]);
 
   const handleInteractionStart = useCallback(() => {
     setIsPaused(true);
@@ -302,8 +308,16 @@ export default function Hero() {
       role="region"
       aria-roledescription="carousel"
       aria-label={t("hero.slideshowAria")}
-      onPointerOver={() => setCanRender3D(true)}
-      onTouchStart={() => setCanRender3D(true)}
+      aria-live={isPaused ? "polite" : "off"}
+      onPointerOver={() => {
+        setIsPaused(true);
+        setCanRender3D(true);
+      }}
+      onPointerLeave={() => setIsPaused(false)}
+      onTouchStart={() => {
+        setHasInteracted(true);
+        setCanRender3D(true);
+      }}
       className="relative w-full rounded-[2.5rem] overflow-hidden bg-gradient-to-b from-[#071c15] via-[#05140f] to-[#030d0a] border border-emerald-500/20 shadow-[0_32px_64px_-16px_rgba(2,12,9,0.8)] text-white"
     >
       {/* Background Accent Gradients */}
@@ -311,8 +325,17 @@ export default function Hero() {
       <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-400/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[65%] bg-emerald-400/5 rounded-full blur-3xl pointer-events-none transform-gpu" />
 
-      {/* Main Split Layout Container */}
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center py-16 md:py-24 px-6 sm:px-10 lg:px-16">
+      {/* Main Split Layout Container / Active Slide */}
+      <div
+        role="group"
+        aria-roledescription="slide"
+        aria-label={t("hero.slideAria", {
+          current: currentIndex + 1,
+          total: totalSlides,
+          title: slideTitle,
+        })}
+        className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center py-16 md:py-24 px-6 sm:px-10 lg:px-16"
+      >
         {/* ================= LEFT SIDE: Apple-Style Typography & Primary CTA ================= */}
         <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
           {/* Eyebrow */}
@@ -470,7 +493,10 @@ export default function Hero() {
               type="button"
               aria-current={isActive ? "true" : undefined}
               aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
-              onClick={() => goToSlide(idx)}
+              onClick={() => {
+                setHasInteracted(true);
+                goToSlide(idx);
+              }}
               className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
             >
               <span

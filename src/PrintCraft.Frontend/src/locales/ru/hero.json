@@ -38,6 +38,7 @@
   "prevSlideAria": "Предыдущий промо-слайд",
   "nextSlideAria": "Следующий промо-слайд",
   "paginationAria": "Навигация по слайдам",
+  "slideAria": "Слайд {current} из {total}: {title}",
   "goToSlide": "Перейти к слайду {index}: {title}",
   "paused": "На паузе",
   "auto": "Авто 5 с",

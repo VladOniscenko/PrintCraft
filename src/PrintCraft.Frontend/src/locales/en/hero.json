@@ -38,6 +38,7 @@
   "prevSlideAria": "Previous promotional slide",
   "nextSlideAria": "Next promotional slide",
   "paginationAria": "Slideshow pagination",
+  "slideAria": "Slide {current} of {total}: {title}",
   "goToSlide": "Go to slide {index}: {title}",
   "paused": "Paused",
   "auto": "Auto 5s",
