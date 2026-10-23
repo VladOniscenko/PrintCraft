@@ -53,24 +53,27 @@ export default function FAQ() {
     };
   }, []);
 
-  const fallbackData = useMemo(() => [
-    { question: t("faq.q1"), answer: t("faq.a1") },
-    { question: t("faq.q2"), answer: t("faq.a2") },
-    { question: t("faq.q3"), answer: t("faq.a3") },
-    { question: t("faq.q4"), answer: t("faq.a4") },
-    { question: t("faq.q5"), answer: t("faq.a5") },
-    { question: t("faq.q6"), answer: t("faq.a6") },
-    { question: t("faq.q7"), answer: t("faq.a7") },
-    { question: t("faq.q8"), answer: t("faq.a8") },
-    { question: t("faq.q9"), answer: t("faq.a9") },
-    { question: t("faq.q10"), answer: t("faq.a10") },
-    { question: t("faq.q11"), answer: t("faq.a11") },
-    { question: t("faq.q12"), answer: t("faq.a12") },
-    { question: t("faq.q13"), answer: t("faq.a13") },
-    { question: t("faq.q14"), answer: t("faq.a14") },
-    { question: t("faq.q15"), answer: t("faq.a15") },
-    { question: t("faq.q16"), answer: t("faq.a16") },
-  ], [t]);
+  const fallbackData = useMemo(
+    () => [
+      { question: t("faq.q1"), answer: t("faq.a1") },
+      { question: t("faq.q2"), answer: t("faq.a2") },
+      { question: t("faq.q3"), answer: t("faq.a3") },
+      { question: t("faq.q4"), answer: t("faq.a4") },
+      { question: t("faq.q5"), answer: t("faq.a5") },
+      { question: t("faq.q6"), answer: t("faq.a6") },
+      { question: t("faq.q7"), answer: t("faq.a7") },
+      { question: t("faq.q8"), answer: t("faq.a8") },
+      { question: t("faq.q9"), answer: t("faq.a9") },
+      { question: t("faq.q10"), answer: t("faq.a10") },
+      { question: t("faq.q11"), answer: t("faq.a11") },
+      { question: t("faq.q12"), answer: t("faq.a12") },
+      { question: t("faq.q13"), answer: t("faq.a13") },
+      { question: t("faq.q14"), answer: t("faq.a14") },
+      { question: t("faq.q15"), answer: t("faq.a15") },
+      { question: t("faq.q16"), answer: t("faq.a16") },
+    ],
+    [t],
+  );
 
   const rawFaqData = useMemo(() => {
     return dynamicItems.length > 0
@@ -87,7 +90,7 @@ export default function FAQ() {
     return rawFaqData.filter(
       (item) =>
         item.question.toLowerCase().includes(q) ||
-        item.answer.toLowerCase().includes(q)
+        item.answer.toLowerCase().includes(q),
     );
   }, [rawFaqData, searchQuery]);
 
@@ -105,7 +108,10 @@ export default function FAQ() {
       {/* Apple-Style Clean Header */}
       <header className="px-4 sm:px-6 pt-10 md:pt-16 pb-6 max-w-4xl mx-auto text-center w-full">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-semibold mb-4 border border-emerald-100 dark:border-emerald-800/50 shadow-2xs">
-          <MessageCircleQuestion size={14} className="text-emerald-700 dark:text-emerald-400" />
+          <MessageCircleQuestion
+            size={14}
+            className="text-emerald-700 dark:text-emerald-400"
+          />
           <span>{t("faq.badge")}</span>
         </div>
 
@@ -123,18 +129,27 @@ export default function FAQ() {
             {t("faq.trustBadgeFastDelivery")}
           </span>
           <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 dark:bg-white/10 border border-gray-200/60 dark:border-white/10 shadow-2xs">
-            <ShieldCheck size={14} className="text-[#133827] dark:text-emerald-400" />
+            <ShieldCheck
+              size={14}
+              className="text-[#133827] dark:text-emerald-400"
+            />
             {t("faq.trustBadgeInspection")}
           </span>
           <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 dark:bg-white/10 border border-gray-200/60 dark:border-white/10 shadow-2xs">
-            <MapPin size={14} className="text-[#133827] dark:text-emerald-400" />
+            <MapPin
+              size={14}
+              className="text-[#133827] dark:text-emerald-400"
+            />
             {t("faq.trustBadgeRotterdam")}
           </span>
         </div>
 
         {/* Interactive Search Bar */}
         <div className="max-w-xl mx-auto mt-8 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={18} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
+            size={18}
+          />
           <input
             type="text"
             value={searchQuery}
@@ -173,14 +188,18 @@ export default function FAQ() {
                   >
                     <h3
                       className={`font-bold text-base sm:text-lg pr-4 transition-colors ${
-                        isOpen ? "text-gray-900 dark:text-white" : "text-gray-800 dark:text-gray-200"
+                        isOpen
+                          ? "text-gray-900 dark:text-white"
+                          : "text-gray-800 dark:text-gray-200"
                       }`}
                     >
                       {faq.question}
                     </h3>
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                        isOpen ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400" : "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400"
+                        isOpen
+                          ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400"
+                          : "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400"
                       }`}
                     >
                       {isOpen ? (
@@ -224,7 +243,7 @@ export default function FAQ() {
             </Link>
             <a
               href={`mailto:${businessInfo.email}`}
-              className="rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-800 px-6 py-3.5 text-xs sm:text-sm font-semibold inline-flex items-center gap-2 transition-all cursor-pointer shadow-2xs"
+              className="rounded-full border border-gray-300 dark:border-white/20 bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/15 text-gray-800 dark:text-white px-6 py-3.5 text-xs sm:text-sm font-semibold inline-flex items-center gap-2 transition-all cursor-pointer shadow-2xs"
             >
               <Mail size={16} />
               <span>{businessInfo.email}</span>

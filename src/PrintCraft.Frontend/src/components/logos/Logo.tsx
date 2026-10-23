@@ -26,10 +26,10 @@ const Logo: React.FC<LogoProps> = ({ className = "", isLink = true }) => {
 
       {/* Brand Text */}
       <div>
-        <span className="text-xl font-bold leading-none tracking-tight text-gray-900 block">
+        <span className="text-xl font-bold leading-none tracking-tight text-gray-900 dark:text-white block transition-colors">
           {businessInfo.name}
         </span>
-        <p className="text-xs text-gray-500 font-medium mt-0.5">
+        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5 transition-colors">
           {t("common.poweredBy", { name: "Oni" })}
         </p>
       </div>
@@ -39,7 +39,10 @@ const Logo: React.FC<LogoProps> = ({ className = "", isLink = true }) => {
   // 2. If isLink is true, wrap the content in a Link to home ('/')
   if (isLink) {
     return (
-      <Link to={localizePath("/")} className="hover:opacity-80 transition-opacity block">
+      <Link
+        to={localizePath("/")}
+        className="hover:opacity-80 transition-opacity block"
+      >
         {content}
       </Link>
     );
