@@ -5,5 +5,9 @@
   "save": "حفظ",
   "poweredBy": "مشغل بواسطة {name}",
   "preview": "معاينة",
-  "standard": "قياسي"
+  "standard": "قياسي",
+  "themeLight": "الوضع النهاري",
+  "themeDark": "الوضع الليلي",
+  "themeSystem": "سمة النظام",
+  "toggleTheme": "تبديل سمة الألوان"
 }

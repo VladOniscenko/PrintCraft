@@ -72,13 +72,13 @@ export default function SolutionsGrid() {
       {/* Header with Navigation Controls */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
+          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800 dark:text-emerald-400">
             {t("home.solutions.eyebrow")}
           </p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950 dark:text-white">
             {t("home.solutions.title")}
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 max-w-xl">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-xl">
             {t("home.solutions.subtitle")}
           </p>
         </div>
@@ -89,7 +89,7 @@ export default function SolutionsGrid() {
             type="button"
             onClick={() => scroll("left")}
             aria-label={t("home.solutions.prevShelf")}
-            className="p-3 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+            className="p-3 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141e1a] hover:bg-gray-50 dark:hover:bg-[#1a2722] text-gray-700 dark:text-gray-200 transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -97,7 +97,7 @@ export default function SolutionsGrid() {
             type="button"
             onClick={() => scroll("right")}
             aria-label={t("home.solutions.nextShelf")}
-            className="p-3 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+            className="p-3 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141e1a] hover:bg-gray-50 dark:hover:bg-[#1a2722] text-gray-700 dark:text-gray-200 transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -123,11 +123,11 @@ export default function SolutionsGrid() {
           }) => (
             <article
               key={titleKey}
-              className={`min-w-[300px] sm:min-w-[360px] md:min-w-[420px] rounded-3xl p-8 bg-gradient-to-br ${gradient} border border-gray-200/80 hover:border-emerald-300 hover:shadow-xl transition-all duration-300 flex flex-col justify-between shrink-0 snap-start group`}
+              className={`min-w-[300px] sm:min-w-[360px] md:min-w-[420px] rounded-3xl p-8 bg-gradient-to-br ${gradient} dark:from-[#0a1712] dark:to-[#0f1f18] border border-gray-200/80 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between shrink-0 snap-start group`}
             >
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/90 text-gray-800 border border-gray-200/60 shadow-xs">
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/90 dark:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200/60 dark:border-white/10 shadow-xs">
                     {t(tagKey)}
                   </span>
                   <div
@@ -138,10 +138,10 @@ export default function SolutionsGrid() {
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-bold text-gray-950 tracking-tight group-hover:text-emerald-700 transition-colors">
+                  <h3 className="text-2xl font-bold text-gray-950 dark:text-white tracking-tight group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                     {t(titleKey)}
                   </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                     {t(descKey)}
                   </p>
                 </div>
@@ -151,7 +151,7 @@ export default function SolutionsGrid() {
                 <Link
                   to={localizePath(link)}
                   aria-label={t(ctaKey)}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-800 hover:text-emerald-950 transition-colors"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-800 dark:text-emerald-400 hover:text-emerald-950 dark:hover:text-emerald-300 transition-colors"
                 >
                   <span>{t(ctaKey)}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

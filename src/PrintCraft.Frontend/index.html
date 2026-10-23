@@ -2,9 +2,22 @@
 <html lang="nl-NL">
   <head>
     <meta charset="UTF-8" />
+    <meta name="color-scheme" content="light dark" />
     <script>
       (function () {
         try {
+          var storedTheme = localStorage.getItem("printcraft-theme");
+          var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var isDark = storedTheme === "dark" || (storedTheme !== "light" && prefersDark);
+          if (isDark) {
+            document.documentElement.classList.add("dark");
+            document.documentElement.setAttribute("data-theme", "dark");
+            document.documentElement.style.colorScheme = "dark";
+          } else {
+            document.documentElement.classList.remove("dark");
+            document.documentElement.setAttribute("data-theme", "light");
+            document.documentElement.style.colorScheme = "light";
+          }
           if (localStorage.getItem("token")) {
             document.documentElement.classList.add("user-auth");
             var userStr = localStorage.getItem("user");

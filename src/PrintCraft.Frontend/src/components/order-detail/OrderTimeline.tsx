@@ -44,26 +44,26 @@ export default function OrderTimeline({
   ];
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200/80 shadow-xs">
-      <h3 className="font-bold text-xl sm:text-2xl text-gray-900 tracking-tight mb-8">
+    <div className="bg-white dark:bg-[#0e1512] rounded-3xl p-6 sm:p-8 border border-gray-200/80 dark:border-white/10 shadow-xs">
+      <h3 className="font-bold text-xl sm:text-2xl text-gray-900 dark:text-white tracking-tight mb-8">
         {t("orderDetail.timeline")}
       </h3>
 
       {isException && (
         <div className={`mb-8 p-4 rounded-2xl border flex gap-3.5 items-start ${
-          terminalState === 'on_hold' ? 'bg-amber-50 border-amber-200 text-amber-950' :
-          'bg-rose-50 border-rose-200 text-rose-950'
+          terminalState === 'on_hold' ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-950 dark:text-amber-200' :
+          'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-950 dark:text-rose-200'
         }`}>
-          {terminalState === 'on_hold' ? <PauseCircle className="shrink-0 mt-0.5 text-amber-600" /> :
-           terminalState === 'returned' ? <Undo2 className="shrink-0 mt-0.5 text-rose-600" /> :
-           <Ban className="shrink-0 mt-0.5 text-rose-600" />}
+          {terminalState === 'on_hold' ? <PauseCircle className="shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" /> :
+           terminalState === 'returned' ? <Undo2 className="shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" /> :
+           <Ban className="shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />}
           <div>
             <h4 className="font-bold text-sm">
               {terminalState === 'on_hold' ? t("orderDetail.onHoldTitle") :
                terminalState === 'returned' ? t("orderDetail.returnedTitle") :
                t("orderDetail.cancelledTitle")}
             </h4>
-            <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
               {terminalState === 'on_hold' ? t("orderDetail.onHoldDesc") :
                terminalState === 'returned' ? t("orderDetail.returnedDesc") :
                t("orderDetail.cancelledDesc")}
@@ -74,7 +74,7 @@ export default function OrderTimeline({
 
       <div
         className={`space-y-8 relative before:absolute before:inset-0 before:ml-5 before:w-0.5 ${
-          isException ? "before:bg-rose-200" : "before:bg-gray-200"
+          isException ? "before:bg-rose-200 dark:before:bg-rose-900/60" : "before:bg-gray-200 dark:before:bg-white/10"
         }`}
       >
         {steps.map((s) => {
@@ -124,13 +124,13 @@ function TimelineItem({
 }: TimelineItemProps) {
   const activeIconClass =
     tone === "danger"
-      ? "bg-rose-600 text-white border-rose-100"
-      : "bg-emerald-600 text-white border-emerald-50";
+      ? "bg-rose-600 text-white border-rose-100 dark:border-rose-900/60"
+      : "bg-emerald-600 text-white border-emerald-50 dark:border-emerald-900/60";
 
   const activeTextClass =
-    tone === "danger" ? "text-rose-800" : "text-gray-900";
+    tone === "danger" ? "text-rose-800 dark:text-rose-300" : "text-gray-900 dark:text-white";
 
-  const containerClass = isException || active ? activeIconClass : "bg-gray-100 text-gray-400 border-white";
+  const containerClass = isException || active ? activeIconClass : "bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-gray-500 border-white dark:border-[#0e1512]";
 
   return (
     <div className="relative flex items-center gap-6">
@@ -141,11 +141,11 @@ function TimelineItem({
       </div>
       <div>
         <p
-          className={`font-bold text-sm ${isException || active ? activeTextClass : "text-gray-400"}`}
+          className={`font-bold text-sm ${isException || active ? activeTextClass : "text-gray-400 dark:text-gray-500"}`}
         >
           {title}
         </p>
-        <p className={`text-xs ${isException || active ? "text-gray-500" : "text-gray-400"}`}>{date}</p>
+        <p className={`text-xs ${isException || active ? "text-gray-500 dark:text-gray-400" : "text-gray-400 dark:text-gray-600"}`}>{date}</p>
       </div>
     </div>
   );

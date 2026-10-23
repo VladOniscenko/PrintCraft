@@ -5,5 +5,9 @@
   "save": "Kaydet",
   "poweredBy": "{name} tarafından desteklenmektedir",
   "preview": "Önizleme",
-  "standard": "Standart"
+  "standard": "Standart",
+  "themeLight": "Açık Mod",
+  "themeDark": "Karanlık Mod",
+  "themeSystem": "Sistem Teması",
+  "toggleTheme": "Renk temasını değiştir"
 }

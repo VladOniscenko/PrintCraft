@@ -377,7 +377,8 @@ export default function Hero() {
         {/* ================= RIGHT SIDE: Clean 3D Model Display ================= */}
         <div className="lg:col-span-5 flex flex-col items-center justify-center">
           <div
-            className="relative w-full h-[360px] sm:h-[420px] lg:h-[480px] rounded-3xl overflow-hidden bg-white/[0.02] border border-white/10 flex items-center justify-center group"
+            className="relative w-full h-[360px] sm:h-[420px] lg:h-[480px] rounded-3xl overflow-hidden bg-white/[0.02] border border-white/10 flex items-center justify-center group touch-none"
+            style={{ overscrollBehavior: "contain" }}
             onMouseEnter={() => {
               setIsPaused(true);
               activate3D();

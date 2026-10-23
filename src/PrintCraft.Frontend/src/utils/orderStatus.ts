@@ -75,25 +75,25 @@ export function getOrderStatusPillClass(status: string): string {
 
   switch (normalized) {
     case "quote_requested":
-      return `${base} bg-amber-100 text-amber-800`;
+      return `${base} bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300`;
     case "awaiting_payment":
-      return `${base} bg-sky-100 text-sky-800`;
+      return `${base} bg-sky-100 dark:bg-sky-950/50 text-sky-800 dark:text-sky-300`;
     case "ready_to_print":
-      return `${base} bg-teal-100 text-teal-800`;
+      return `${base} bg-teal-100 dark:bg-teal-950/50 text-teal-800 dark:text-teal-300`;
     case "printing":
-      return `${base} bg-indigo-100 text-indigo-800`;
+      return `${base} bg-indigo-100 dark:bg-indigo-950/50 text-indigo-800 dark:text-indigo-300`;
     case "post_processing":
-      return `${base} bg-purple-100 text-purple-800`;
+      return `${base} bg-purple-100 dark:bg-purple-950/50 text-purple-800 dark:text-purple-300`;
     case "shipped":
-      return `${base} bg-emerald-100 text-emerald-800`;
+      return `${base} bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300`;
     case "on_hold":
-      return `${base} bg-orange-100 text-orange-800`;
+      return `${base} bg-orange-100 dark:bg-orange-950/50 text-orange-800 dark:text-orange-300`;
     case "cancelled":
-      return `${base} bg-rose-100 text-rose-800`;
+      return `${base} bg-rose-100 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300`;
     case "returned":
-      return `${base} bg-rose-200 text-rose-900`;
+      return `${base} bg-rose-200 dark:bg-rose-900/60 text-rose-900 dark:text-rose-200`;
     default:
-      return `${base} bg-slate-100 text-slate-700`;
+      return `${base} bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300`;
   }
 }
 
@@ -102,24 +102,24 @@ export function getOrderStatusBadgeClass(status: string): string {
 
   switch (normalized) {
     case "quote_requested":
-      return "bg-amber-50 text-amber-700 border-amber-100";
+      return "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-100 dark:border-amber-800/60";
     case "awaiting_payment":
-      return "bg-sky-50 text-sky-700 border-sky-100";
+      return "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-100 dark:border-sky-800/60";
     case "ready_to_print":
-      return "bg-teal-50 text-teal-700 border-teal-100";
+      return "bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border-teal-100 dark:border-teal-800/60";
     case "printing":
-      return "bg-blue-50 text-blue-700 border-blue-100";
+      return "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-800/60";
     case "post_processing":
-      return "bg-purple-50 text-purple-700 border-purple-100";
+      return "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-100 dark:border-purple-800/60";
     case "shipped":
-      return "bg-emerald-50 text-emerald-700 border-emerald-100";
+      return "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800/60";
     case "on_hold":
-      return "bg-orange-50 text-orange-700 border-orange-100";
+      return "bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border-orange-100 dark:border-orange-800/60";
     case "cancelled":
     case "returned":
-      return "bg-rose-50 text-rose-700 border-rose-100";
+      return "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-100 dark:border-rose-800/60";
     default:
-      return "bg-gray-50 text-gray-600 border-gray-100";
+      return "bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-400 border-gray-100 dark:border-white/10";
   }
 }
 

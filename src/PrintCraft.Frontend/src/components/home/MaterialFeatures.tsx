@@ -34,13 +34,13 @@ export default function MaterialFeatures() {
   return (
     <section id="materials" className="space-y-8 sm:space-y-10">
       <div className="text-center max-w-2xl mx-auto space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
+        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800 dark:text-emerald-400">
           {t("home.materials.eyebrow")}
         </p>
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950 dark:text-white">
           {t("home.materials.title")}
         </h2>
-        <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
+        <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
           {t("home.materials.subtitle")}
         </p>
       </div>
@@ -49,23 +49,23 @@ export default function MaterialFeatures() {
         {materials.map(({ name, label, text, icon: Icon, badgeColor, hoverBorder }) => (
           <article
             key={name}
-            className={`flex flex-col justify-between p-8 rounded-3xl bg-white border border-gray-200/80 ${hoverBorder} hover:shadow-xl transition-all duration-300 group`}
+            className={`flex flex-col justify-between p-8 rounded-3xl bg-white dark:bg-[#0e1512] border border-gray-200/80 dark:border-white/10 ${hoverBorder} hover:shadow-xl transition-all duration-300 group`}
           >
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <span className={`text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full ${badgeColor}`}>
                   {name}
                 </span>
-                <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-700 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-[#141e1a] border border-gray-100 dark:border-white/10 flex items-center justify-center text-gray-700 dark:text-gray-300 group-hover:scale-110 transition-transform">
                   <Icon className="w-6 h-6" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-xl font-bold text-gray-950 tracking-tight">
+                <h3 className="text-xl font-bold text-gray-950 dark:text-white tracking-tight">
                   {t(label)}
                 </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   {t(text)}
                 </p>
               </div>

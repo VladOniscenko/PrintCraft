@@ -5,6 +5,7 @@ import App from "./App.tsx";
 import { BrowserRouter } from "react-router-dom";
 import { I18nProvider, getInitialLanguage } from "./i18n/I18nContext.tsx";
 import { NotifyProvider } from "./context/NotifyContext.tsx";
+import { ThemeProvider } from "./theme/ThemeContext.tsx";
 import { loadLanguage } from "./i18n/loader.ts";
 
 async function bootstrap() {
@@ -19,7 +20,9 @@ async function bootstrap() {
       <BrowserRouter>
         <I18nProvider initialLanguage={initialLang}>
           <NotifyProvider>
-            <App />
+            <ThemeProvider>
+              <App />
+            </ThemeProvider>
           </NotifyProvider>
         </I18nProvider>
       </BrowserRouter>

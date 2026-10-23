@@ -179,7 +179,7 @@ export default function OrderDetail() {
           <button
             type="button"
             onClick={() => navigate(localizePath("/orders"))}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-all shadow-2xs cursor-pointer self-start"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/15 text-gray-700 dark:text-gray-200 text-xs font-semibold transition-all shadow-2xs cursor-pointer self-start"
           >
             <ArrowLeft size={15} />
             <span>{t("orderDetail.back")}</span>
@@ -189,7 +189,7 @@ export default function OrderDetail() {
             {isAdmin && (
               <Link
                 to={localizePath(`/admin/orders/${id}`)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#133827] text-white text-xs font-semibold rounded-full hover:bg-[#1c4d37] transition-all shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#133827] hover:bg-[#1c4d37] dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-xs font-semibold rounded-full transition-all shadow-2xs cursor-pointer"
               >
                 <span>{t("orderDetail.openInAdmin")}</span>
               </Link>
@@ -200,7 +200,7 @@ export default function OrderDetail() {
                 type="button"
                 onClick={handleCancelOrder}
                 disabled={isCancelling}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-semibold rounded-full transition-all shadow-2xs disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold rounded-full transition-all shadow-2xs disabled:opacity-50 cursor-pointer"
               >
                 {isCancelling ? (
                   <Loader2 className="animate-spin" size={15} />
@@ -225,22 +225,22 @@ export default function OrderDetail() {
 
         {/* Notices */}
         {showPendingQuoteNotice && (
-          <div className="rounded-2xl border border-sky-200/80 bg-sky-50/70 p-4 text-xs sm:text-sm text-sky-950 flex items-center gap-3 shadow-2xs">
-            <span className="shrink-0 text-sky-600">ℹ️</span>
+          <div className="rounded-2xl border border-sky-200/80 dark:border-sky-800/60 bg-sky-50/70 dark:bg-sky-950/40 p-4 text-xs sm:text-sm text-sky-950 dark:text-sky-200 flex items-center gap-3 shadow-2xs">
+            <span className="shrink-0 text-sky-600 dark:text-sky-400">ℹ️</span>
             <span>{t("orderDetail.pendingQuoteInfo")}</span>
           </div>
         )}
 
         {showQuoteExpiryNotice && (
-          <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 text-xs sm:text-sm text-amber-950 flex items-center gap-3 shadow-2xs">
-            <span className="shrink-0 text-amber-600">⏳</span>
+          <div className="rounded-2xl border border-amber-200/80 dark:border-amber-800/60 bg-amber-50/70 dark:bg-amber-950/40 p-4 text-xs sm:text-sm text-amber-950 dark:text-amber-200 flex items-center gap-3 shadow-2xs">
+            <span className="shrink-0 text-amber-600 dark:text-amber-400">⏳</span>
             <span>{t("orderDetail.quoteExpiresOn")} {quoteExpiresAt.toLocaleString()}</span>
           </div>
         )}
 
         {normalizedStatus === "expired_quote" && (
-          <div className="rounded-2xl border border-rose-200/80 bg-rose-50/70 p-4 text-xs sm:text-sm text-rose-950 flex items-center gap-3 shadow-2xs">
-            <span className="shrink-0 text-rose-600">⚠️</span>
+          <div className="rounded-2xl border border-rose-200/80 dark:border-rose-800/60 bg-rose-50/70 dark:bg-rose-950/40 p-4 text-xs sm:text-sm text-rose-950 dark:text-rose-200 flex items-center gap-3 shadow-2xs">
+            <span className="shrink-0 text-rose-600 dark:text-rose-400">⚠️</span>
             <span>{t("orderDetail.quoteExpiredInfo")}</span>
           </div>
         )}
@@ -260,20 +260,20 @@ export default function OrderDetail() {
             />
 
             {customerNotes.length > 0 && (
-              <section className="rounded-3xl border border-gray-200/80 bg-white p-6 sm:p-7 shadow-xs space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500">
+              <section className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-6 sm:p-7 shadow-xs space-y-4">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   {t("orderDetail.customerNotesTitle")}
                 </h3>
                 <div className="space-y-3">
                   {customerNotes.map((note) => (
                     <article
                       key={note.id || `${note.createdAt}-${note.content}`}
-                      className="rounded-2xl border border-gray-200/70 bg-[#fbfbfd] p-4 text-xs sm:text-sm"
+                      className="rounded-2xl border border-gray-200/70 dark:border-white/10 bg-[#fbfbfd] dark:bg-white/5 p-4 text-xs sm:text-sm"
                     >
-                      <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+                      <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
                         {note.content}
                       </p>
-                      <p className="text-[11px] text-gray-400 mt-2">
+                      <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-2">
                         {new Date(note.createdAt).toLocaleString()}
                       </p>
                     </article>

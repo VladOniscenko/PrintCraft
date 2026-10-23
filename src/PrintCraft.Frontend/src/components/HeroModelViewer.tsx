@@ -50,6 +50,8 @@ function fitObject(object: any, camera: any, controls: any): void {
   camera.updateProjectionMatrix();
 
   controls.target.set(0, 0, 0);
+  controls.minDistance = maxDim * 0.15;
+  controls.maxDistance = cameraDistance * 8.0;
   camera.position.set(0, maxDim * 0.18, cameraDistance * 1.35);
   camera.lookAt(controls.target);
   controls.update();
@@ -129,6 +131,8 @@ export default function HeroModelViewer({
     controls.autoRotate = true;
     controls.autoRotateSpeed = 1.1;
     controls.enablePan = false;
+    controls.enableZoom = true;
+    controls.zoomSpeed = 1.2;
     controls.target.set(0, 0, 0);
     controls.update();
     controlsRef.current = controls;
@@ -137,6 +141,13 @@ export default function HeroModelViewer({
     const handleEnd = () => onInteractionEndRef.current?.();
     controls.addEventListener("start", handleStart);
     controls.addEventListener("end", handleEnd);
+
+    // Explicit non-passive wheel prevention on canvas: prevents window scroll and dedicates wheel to 3D zoom
+    const handleCanvasWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      resetIdleTimer();
+    };
+    canvas.addEventListener("wheel", handleCanvasWheel, { passive: false });
 
     // Scroll listener: pause WebGL render passes during page scroll to give 100% frame time to compositor
     const handleWindowScroll = () => {
@@ -220,6 +231,7 @@ export default function HeroModelViewer({
       window.removeEventListener("scroll", handleWindowScroll);
       if (scrollTimeout !== null) window.clearTimeout(scrollTimeout);
       if (idleTimeout !== null) window.clearTimeout(idleTimeout);
+      canvas.removeEventListener("wheel", handleCanvasWheel);
       canvas.removeEventListener("pointerdown", resetIdleTimer);
       canvas.removeEventListener("pointermove", resetIdleTimer);
       window.cancelAnimationFrame(frameId);
@@ -387,6 +399,7 @@ export default function HeroModelViewer({
     <>
       <canvas
         ref={canvasRef}
+        style={{ touchAction: "none", overscrollBehavior: "contain" }}
         className={
           className ||
           "absolute z-30 left-1/2 -translate-x-1/2 bottom-[6%] w-[98%] h-[86%]"

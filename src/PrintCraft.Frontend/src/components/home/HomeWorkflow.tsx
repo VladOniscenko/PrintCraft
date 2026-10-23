@@ -106,13 +106,13 @@ export default function HomeWorkflow() {
     <section id="workflow" className="space-y-10 sm:space-y-12">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
+        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800 dark:text-emerald-400">
           {t("home.process.eyebrow")}
         </p>
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950 dark:text-white">
           {t("home.process.title")}
         </h2>
-        <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
+        <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
           {t("home.process.subtitle")}
         </p>
       </div>
@@ -122,23 +122,23 @@ export default function HomeWorkflow() {
         {steps.map(({ num, icon: Icon, titleKey, descKey }) => (
           <article
             key={titleKey}
-            className="group relative flex flex-col justify-between p-8 rounded-3xl bg-gray-50/70 border border-gray-100 hover:border-emerald-200 hover:bg-white hover:shadow-xl transition-all duration-300"
+            className="group relative flex flex-col justify-between p-8 rounded-3xl bg-gray-50/70 dark:bg-[#0e1512] border border-gray-100 dark:border-white/10 hover:border-emerald-200 dark:hover:border-emerald-500/30 hover:bg-white dark:hover:bg-[#121c18] hover:shadow-xl transition-all duration-300"
           >
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-black text-gray-600 font-mono group-hover:text-emerald-800 transition-colors">
+                <span className="text-3xl font-black text-gray-600 dark:text-gray-400 font-mono group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors">
                   {num}
                 </span>
-                <div className="w-12 h-12 rounded-2xl bg-white border border-gray-200/60 shadow-sm flex items-center justify-center text-emerald-800 group-hover:scale-110 group-hover:bg-emerald-50 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#141e1a] border border-gray-200/60 dark:border-white/10 shadow-sm flex items-center justify-center text-emerald-800 dark:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/40 transition-all">
                   <Icon className="w-6 h-6" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-xl font-bold text-gray-950 tracking-tight">
+                <h3 className="text-xl font-bold text-gray-950 dark:text-white tracking-tight">
                   {t(titleKey)}
                 </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   {t(descKey)}
                 </p>
               </div>
@@ -155,8 +155,8 @@ export default function HomeWorkflow() {
         onClick={() => fileInputRef.current?.click()}
         className={`relative overflow-hidden rounded-3xl border-2 border-dashed p-8 sm:p-12 text-center transition-all duration-200 cursor-pointer ${
           dragging
-            ? "border-emerald-600 bg-emerald-50/40 scale-[1.01]"
-            : "border-gray-200 hover:border-emerald-500 bg-gray-50/50 hover:bg-emerald-50/15"
+            ? "border-emerald-600 dark:border-emerald-400 bg-emerald-50/40 dark:bg-emerald-950/30 scale-[1.01]"
+            : "border-gray-200 dark:border-white/10 hover:border-emerald-500 dark:hover:border-emerald-400 bg-gray-50/50 dark:bg-[#0e1512]/60 hover:bg-emerald-50/15 dark:hover:bg-emerald-950/20"
         }`}
       >
         <input
@@ -172,21 +172,21 @@ export default function HomeWorkflow() {
         />
 
         <div className="max-w-md mx-auto flex flex-col items-center justify-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-white border border-gray-200/80 shadow-sm flex items-center justify-center text-emerald-800">
+          <div className="w-14 h-14 rounded-2xl bg-white dark:bg-[#141e1a] border border-gray-200/80 dark:border-white/10 shadow-sm flex items-center justify-center text-emerald-800 dark:text-emerald-400">
             {uploading ? (
-              <Loader2 className="w-7 h-7 animate-spin text-emerald-800" />
+              <Loader2 className="w-7 h-7 animate-spin text-emerald-800 dark:text-emerald-400" />
             ) : (
               <FileUp className="w-7 h-7" />
             )}
           </div>
 
           <div className="space-y-1">
-            <h4 className="text-lg font-bold text-gray-950">
+            <h4 className="text-lg font-bold text-gray-950 dark:text-white">
               {uploading
                 ? t("home.process.analyzing")
                 : t("home.process.dropTitle")}
             </h4>
-            <p className="text-xs sm:text-sm text-gray-600">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               {t("home.process.dropSubtitle")}
             </p>
           </div>
@@ -198,7 +198,7 @@ export default function HomeWorkflow() {
               e.stopPropagation();
               fileInputRef.current?.click();
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold bg-emerald-700 text-white hover:bg-emerald-800 active:scale-95 transition-all shadow-md hover:shadow-emerald-700/20 cursor-pointer disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold bg-emerald-700 dark:bg-emerald-600 text-white hover:bg-emerald-800 dark:hover:bg-emerald-500 active:scale-95 transition-all shadow-md hover:shadow-emerald-700/20 cursor-pointer disabled:opacity-60"
           >
             <span>{t("home.process.uploadCta")}</span>
             <ArrowRight className="w-4 h-4" />

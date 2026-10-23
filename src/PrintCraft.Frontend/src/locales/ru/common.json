@@ -5,5 +5,9 @@
   "save": "Сохранить",
   "poweredBy": "Работает на базе {name}",
   "preview": "Предпросмотр",
-  "standard": "Стандарт"
+  "standard": "Стандарт",
+  "themeLight": "Светлая тема",
+  "themeDark": "Темная тема",
+  "themeSystem": "Системная тема",
+  "toggleTheme": "Переключить тему оформления"
 }

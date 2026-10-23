@@ -43,14 +43,14 @@ export default function ShowcaseGallery() {
     <section id="showcase" className="space-y-8 sm:space-y-10">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
+          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800 dark:text-emerald-400">
             {t("home.showcase.eyebrow")}
           </p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950 dark:text-white">
             {t("home.showcase.title")}
           </h2>
         </div>
-        <p className="max-w-md text-base text-gray-600 leading-relaxed">
+        <p className="max-w-md text-base text-gray-600 dark:text-gray-400 leading-relaxed">
           {t("home.showcase.subtitle")}
         </p>
       </div>

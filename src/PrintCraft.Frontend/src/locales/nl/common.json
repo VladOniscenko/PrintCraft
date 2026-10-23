@@ -5,5 +5,9 @@
   "save": "Opslaan",
   "poweredBy": "Mogelijk gemaakt door {name}",
   "preview": "Voorbeeld",
-  "standard": "Standaard"
+  "standard": "Standaard",
+  "themeLight": "Lichte modus",
+  "themeDark": "Donkere modus",
+  "themeSystem": "Systeemthema",
+  "toggleTheme": "Wissel kleurthema"
 }

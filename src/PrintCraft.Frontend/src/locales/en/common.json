@@ -5,5 +5,9 @@
   "save": "Save",
   "poweredBy": "Powered by {name}",
   "preview": "Preview",
-  "standard": "Standard"
+  "standard": "Standard",
+  "themeLight": "Light Mode",
+  "themeDark": "Dark Mode",
+  "themeSystem": "System Theme",
+  "toggleTheme": "Toggle color theme"
 }

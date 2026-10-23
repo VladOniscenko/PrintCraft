@@ -2,6 +2,7 @@ import React from "react";
 import { renderToString } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { I18nProvider } from "./i18n/I18nContext";
+import { ThemeProvider } from "./theme/ThemeContext";
 import {
   supportedLanguages,
   defaultLanguage,
@@ -133,7 +134,9 @@ export function renderPage(url: string): RenderResult {
   const appHtml = renderToString(
     <MemoryRouter initialEntries={[url]}>
       <I18nProvider>
-        <PageComponent />
+        <ThemeProvider>
+          <PageComponent />
+        </ThemeProvider>
       </I18nProvider>
     </MemoryRouter>,
   );
