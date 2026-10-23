@@ -33,6 +33,7 @@ export default function OrderSidebar({
 
   return (
     <div className="space-y-6">
+      {/* Reference ID Card */}
       <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-5 sm:p-6 shadow-xs">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -45,47 +46,24 @@ export default function OrderSidebar({
         </div>
       </div>
 
-      <div className="rounded-3xl bg-[#133827] dark:bg-[#081810] dark:border dark:border-white/10 text-white p-6 sm:p-7 shadow-sm space-y-6">
-        <div className="flex items-center gap-2.5 pb-4 border-b border-white/10">
-          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-emerald-400">
-            <MapPin size={16} />
-          </div>
-          <h3 className="font-semibold text-base text-white">
-            {t("orderDetail.shippingDetails")}
-          </h3>
-        </div>
-
-        <div className="space-y-3.5 text-xs sm:text-sm">
-          <div className="flex items-center gap-3">
-            <User size={15} className="text-emerald-400 shrink-0" />
-            <p className="font-medium text-white">{order.fullName}</p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Phone size={15} className="text-emerald-400 shrink-0" />
-            <p className="text-emerald-100/80 font-normal">
-              {order.phoneNumber || t("orderDetail.noPhone")}
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <MapPin size={15} className="text-emerald-400 shrink-0 mt-0.5" />
-            <div className="text-emerald-100/80 font-normal leading-relaxed">
-              {order.addressLine1 && order.city && order.postalCode ? (
-                <>
-                  <p>{order.addressLine1}</p>
-                  <p>
-                    {order.city}, {order.postalCode}
-                  </p>
-                </>
-              ) : (
-                <p>{t("orderDetail.pending")}</p>
-              )}
+      {/* Pricing & Order Summary Card */}
+      <div className="rounded-3xl bg-[#133827] dark:bg-[#081810] dark:border dark:border-white/10 text-white p-6 sm:p-7 shadow-sm space-y-5">
+        <div className="flex items-center justify-between pb-4 border-b border-white/10">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-emerald-400">
+              <Tag size={16} />
             </div>
+            <h3 className="font-semibold text-base text-white">
+              {t("orderDetail.total")}
+            </h3>
           </div>
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-emerald-200 border border-white/15 backdrop-blur-xs">
+            {statusLabel}
+          </span>
         </div>
 
-        <div className="pt-5 border-t border-white/10 space-y-3 text-xs sm:text-sm">
+        {/* Breakdown */}
+        <div className="space-y-3 text-xs sm:text-sm">
           <div className="flex justify-between items-center text-emerald-100/70">
             <span>{t("orderDetail.subtotal")}</span>
             <span className="font-medium text-white/90">
@@ -134,20 +112,55 @@ export default function OrderSidebar({
               {t("orderDetail.total")}
             </span>
             <span className="text-emerald-300">
-              {priceSummary.displayTotal > 0
-                ? `€${priceSummary.displayTotal.toFixed(2)}`
-                : t("orderDetail.pendingQuote")}
+              {priceSummary.isPendingQuote
+                ? t("orderDetail.toBeCalculated")
+                : priceSummary.displayTotal > 0
+                  ? `€${priceSummary.displayTotal.toFixed(2)}`
+                  : t("orderDetail.toBeCalculated")}
             </span>
           </div>
         </div>
+      </div>
 
-        <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-          <span className="text-xs font-medium text-emerald-100/70">
-            {t("orderDetail.status")}
-          </span>
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-emerald-200 border border-white/15 backdrop-blur-xs">
-            {statusLabel}
-          </span>
+      {/* Shipping Details Card */}
+      <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-6 sm:p-7 shadow-xs space-y-4">
+        <div className="flex items-center gap-2.5 pb-4 border-b border-gray-100 dark:border-white/10">
+          <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
+            <MapPin size={16} />
+          </div>
+          <h3 className="font-semibold text-base text-gray-900 dark:text-white">
+            {t("orderDetail.shippingDetails")}
+          </h3>
+        </div>
+
+        <div className="space-y-3.5 text-xs sm:text-sm">
+          <div className="flex items-center gap-3">
+            <User size={15} className="text-gray-400 dark:text-gray-500 shrink-0" />
+            <p className="font-medium text-gray-900 dark:text-white">{order.fullName}</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Phone size={15} className="text-gray-400 dark:text-gray-500 shrink-0" />
+            <p className="text-gray-600 dark:text-gray-400 font-normal">
+              {order.phoneNumber || t("orderDetail.noPhone")}
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <MapPin size={15} className="text-gray-400 dark:text-gray-500 shrink-0 mt-0.5" />
+            <div className="text-gray-600 dark:text-gray-400 font-normal leading-relaxed">
+              {order.addressLine1 && order.city && order.postalCode ? (
+                <>
+                  <p>{order.addressLine1}</p>
+                  <p>
+                    {order.city}, {order.postalCode}
+                  </p>
+                </>
+              ) : (
+                <p>{t("orderDetail.pending")}</p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

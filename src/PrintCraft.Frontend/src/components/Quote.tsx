@@ -1862,25 +1862,25 @@ export default function Quote() {
       <main className="site-main px-4 sm:px-6 py-10 md:py-16 max-w-5xl mx-auto">
         {/* Apple-Style Clean Header */}
         <div className="mb-8 md:mb-12 text-center max-w-3xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-3">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-3">
             {t("quote.title")}
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
             {t("quote.subtitle")}
           </p>
 
           {/* High-Trust Reassurance Badges */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-medium text-gray-600">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 border border-gray-200/60 shadow-2xs">
-              <Truck size={14} className="text-[#133827]" />
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-medium text-gray-600 dark:text-gray-300">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 shadow-2xs">
+              <Truck size={14} className="text-[#133827] dark:text-emerald-400" />
               {t("quote.trustBadgePostNl")}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 border border-gray-200/60 shadow-2xs">
-              <ShieldCheck size={14} className="text-[#133827]" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 shadow-2xs">
+              <ShieldCheck size={14} className="text-[#133827] dark:text-emerald-400" />
               {t("quote.trustBadgeReview")}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 border border-gray-200/60 shadow-2xs">
-              <MapPin size={14} className="text-[#133827]" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 shadow-2xs">
+              <MapPin size={14} className="text-[#133827] dark:text-emerald-400" />
               {t("quote.trustBadgeRotterdam")}
             </span>
           </div>
@@ -1888,7 +1888,7 @@ export default function Quote() {
 
         {/* Apple-Style Segmented Stepper Pill Bar */}
         <div className="flex justify-center mb-10 sm:mb-12">
-          <div className="inline-flex items-center p-1.5 bg-gray-100/90 rounded-full border border-gray-200/80 shadow-2xs gap-1 max-w-full overflow-x-auto">
+          <div className="inline-flex items-center p-1.5 bg-gray-100/90 dark:bg-white/5 rounded-full border border-gray-200/80 dark:border-white/10 shadow-2xs gap-1 max-w-full overflow-x-auto">
             {steps.map((step, index) => {
               const stepNumber = index + 1;
               const isActive = currentStepId === step.id;
@@ -1907,19 +1907,19 @@ export default function Quote() {
                   }}
                   className={`rounded-full px-3.5 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
                     isActive
-                      ? "bg-white text-gray-900 shadow-xs border border-gray-200/60"
+                      ? "bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white shadow-xs border border-gray-200/60 dark:border-white/10"
                       : isComplete
-                        ? "text-emerald-800 hover:text-emerald-950 hover:bg-white/60 cursor-pointer"
-                        : "text-gray-400 cursor-default"
+                        ? "text-emerald-800 dark:text-emerald-400 hover:text-emerald-950 dark:hover:text-emerald-300 hover:bg-white/60 dark:hover:bg-white/10 cursor-pointer"
+                        : "text-gray-400 dark:text-gray-500 cursor-default"
                   }`}
                 >
                   <span
                     className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center transition-colors ${
                       isActive
-                        ? "bg-[#133827] text-white"
+                        ? "bg-[#133827] dark:bg-emerald-600 text-white"
                         : isComplete
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-gray-200 text-gray-500"
+                          ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300"
+                          : "bg-gray-200 dark:bg-white/10 text-gray-500 dark:text-gray-400"
                     }`}
                   >
                     {isComplete ? <Check size={12} strokeWidth={2.5} /> : stepNumber}
@@ -1932,25 +1932,25 @@ export default function Quote() {
         </div>
 
         {!isLoggedIn && guestSubmittedOrderId && (
-          <div className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 text-center">
-            <h3 className="text-xl font-bold text-emerald-800">
+          <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/60 dark:bg-emerald-950/30 p-5 text-center">
+            <h3 className="text-xl font-bold text-emerald-800 dark:text-emerald-300">
               {guestAccountCreated
                 ? t("quote.guestAccountCreatedTitle")
                 : t("quote.guestSubmittedTitle")}
             </h3>
-            <p className="mt-2 text-sm text-emerald-900/80 max-w-lg mx-auto">
+            <p className="mt-2 text-sm text-emerald-900/80 dark:text-emerald-200/80 max-w-lg mx-auto">
               {guestAccountCreated
                 ? t("quote.guestAccountCreatedBody")
                 : t("quote.guestSubmittedBody")}
             </p>
-            <div className="mt-4 inline-block bg-white px-4 py-2 rounded-lg border border-emerald-100 shadow-sm text-sm font-semibold text-emerald-800">
+            <div className="mt-4 inline-block bg-white dark:bg-[#0e1512] px-4 py-2 rounded-lg border border-emerald-100 dark:border-emerald-800/40 shadow-sm text-sm font-semibold text-emerald-800 dark:text-emerald-300">
               {t("quote.guestSubmittedReference")}{" "}
-              <span className="font-mono text-emerald-600 ml-2">
+              <span className="font-mono text-emerald-600 dark:text-emerald-400 ml-2">
                 {guestSubmittedOrderId}
               </span>
             </div>
             {guestAccountCreated && (
-              <p className="mt-4 text-xs text-[#0f766e] font-semibold">
+              <p className="mt-4 text-xs text-[#0f766e] dark:text-emerald-400 font-semibold">
                 {t("quote.guestAccountCreatedHint")}
               </p>
             )}
@@ -1998,22 +1998,22 @@ export default function Quote() {
                 {activeCreatorFlow === "filament-painting" && (
                   <div
                     id="filament-painting-configurator"
-                    className="rounded-3xl border border-gray-200/80 bg-white p-6 md:p-8 shadow-xs space-y-6"
+                    className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-6 md:p-8 shadow-xs space-y-6"
                   >
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                    <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-white/10">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-800 border border-amber-100/70 flex items-center justify-center shadow-2xs">
+                        <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-100/70 dark:border-amber-800/40 flex items-center justify-center shadow-2xs">
                           <Sparkles size={18} />
                         </div>
                         <div>
-                          <h4 className="text-base font-bold text-gray-900">
+                          <h4 className="text-base font-bold text-gray-900 dark:text-white">
                             {items.length > 0
                               ? t("quote.configureItemPaintingNumber", {
                                   number: items.length + 1,
                                 })
                               : t("quote.configurePaintingTitle")}
                           </h4>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             {t("quote.configurePaintingSubtitle")}
                           </p>
                         </div>
@@ -2024,7 +2024,7 @@ export default function Quote() {
                           setActiveCreatorFlow(null);
                           setPendingPaintingFile(null);
                         }}
-                        className="text-xs font-semibold text-gray-500 hover:text-gray-900 px-4 py-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
                       >
                         {t("quote.cancelAndBack")}
                       </button>
@@ -2032,8 +2032,8 @@ export default function Quote() {
 
                     <Suspense
                       fallback={
-                        <div className="w-full h-80 rounded-2xl bg-white border border-gray-200 flex flex-col items-center justify-center text-gray-500 gap-2 p-8">
-                          <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+                        <div className="w-full h-80 rounded-2xl bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 gap-2 p-8">
+                          <Loader2 className="w-8 h-8 animate-spin text-emerald-600 dark:text-emerald-400" />
                           <span className="text-xs font-semibold">{t("quote.loadingPaintingStudio")}</span>
                         </div>
                       }
@@ -2053,10 +2053,10 @@ export default function Quote() {
                 {items.length === 0 && !activeCreatorFlow && editingItemIndex === null && (
                   <div className="space-y-6 my-2">
                     <div className="text-center py-2 max-w-md mx-auto">
-                      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">
+                      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
                         {t("quote.startOrderQuestion")}
                       </h2>
-                      <p className="text-sm text-gray-500 mt-2">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                         {t("quote.startOrderSubtitle")}
                       </p>
                     </div>
@@ -2075,32 +2075,32 @@ export default function Quote() {
                           setEditingItemIndex(0);
                           await uploadSelectedFilesForItem(droppedFiles, 0);
                         }}
-                        className={`rounded-3xl border bg-white p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 hover:shadow-sm ${
+                        className={`rounded-3xl border bg-white dark:bg-[#0e1512] p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm ${
                           isDragOver
-                            ? "border-emerald-600 bg-emerald-50/40 scale-[0.99]"
-                            : "border-gray-200/80"
+                            ? "border-emerald-600 dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 scale-[0.99]"
+                            : "border-gray-200/80 dark:border-white/10"
                         } ${isUploading ? "opacity-70" : ""}`}
                       >
                         <div>
-                          <div className="w-14 h-14 rounded-2xl bg-gray-100 text-[#133827] border border-gray-200/60 flex items-center justify-center mx-auto mb-4 shadow-2xs">
+                          <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/10 text-[#133827] dark:text-emerald-400 border border-gray-200/60 dark:border-white/10 flex items-center justify-center mx-auto mb-4 shadow-2xs">
                             <Layers size={26} />
                           </div>
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200 text-[11px] font-bold uppercase mb-2">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 text-[11px] font-bold uppercase mb-2">
                             {t("quote.badgeCadPrint")}
                           </div>
-                          <h3 className="text-xl font-bold text-gray-900">
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                             {t("quote.startPath3dTitle")}
                           </h3>
-                          <p className="text-sm text-gray-500 mt-2 max-w-xs mx-auto leading-relaxed">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
                             {t("quote.startPath3dSubtitle")}
                           </p>
-                          <p className="text-xs text-gray-400 mt-2 font-medium">
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 font-medium">
                             {t("quote.allowedFilesInline")}
                           </p>
                         </div>
 
                         <div className="mt-8 flex justify-center">
-                          <label className="cursor-pointer bg-[#133827] text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-[#0f2d1f] transition-all flex items-center gap-2 shadow-xs">
+                          <label className="cursor-pointer bg-[#133827] dark:bg-emerald-600 text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-[#0f2d1f] dark:hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-xs">
                             {isUploading ? (
                               <Loader2 className="animate-spin" size={16} />
                             ) : (
@@ -2126,19 +2126,19 @@ export default function Quote() {
                       </div>
 
                       {/* Path 2: HueForge Filament Painting */}
-                      <div className="rounded-3xl border border-gray-200/80 bg-white p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 hover:shadow-sm">
+                      <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm">
                         <div>
-                          <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center justify-center mx-auto mb-4 shadow-2xs">
+                          <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center mx-auto mb-4 shadow-2xs">
                             <Sparkles size={26} />
                           </div>
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-100 text-[11px] font-bold uppercase mb-2">
-                            <Sparkles size={12} className="text-emerald-700" />
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 text-[11px] font-bold uppercase mb-2">
+                            <Sparkles size={12} className="text-emerald-700 dark:text-emerald-400" />
                             HueForge
                           </div>
-                          <h3 className="text-xl font-bold text-gray-900">
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                             {t("quote.startPathPaintingTitle")}
                           </h3>
-                          <p className="text-sm text-gray-500 mt-2 max-w-xs mx-auto leading-relaxed">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
                             {t("quote.startPathPaintingSubtitle")}
                           </p>
                         </div>
@@ -2147,9 +2147,9 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={() => openFilamentPaintingCreator()}
-                            className="bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 px-8 py-3.5 rounded-full text-sm font-semibold transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
+                            className="bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10 px-8 py-3.5 rounded-full text-sm font-semibold transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
                           >
-                            <Sparkles size={16} className="text-emerald-700" />
+                            <Sparkles size={16} className="text-emerald-700 dark:text-emerald-400" />
                             <span>{t("quote.createFilamentPainting")}</span>
                           </button>
                         </div>
@@ -2167,7 +2167,7 @@ export default function Quote() {
 
                   return (
                     <div
-                      className="p-6 sm:p-8 md:p-10 border border-gray-200/80 rounded-3xl bg-white shadow-xs space-y-7"
+                      className="p-6 sm:p-8 md:p-10 border border-gray-200/80 dark:border-white/10 rounded-3xl bg-white dark:bg-[#0e1512] shadow-xs space-y-7"
                       {...(!isPainting
                         ? {
                             onDragOver: handleDragOver,
@@ -2176,19 +2176,19 @@ export default function Quote() {
                           }
                         : {})}
                     >
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-gray-100 pb-5">
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-gray-100 dark:border-white/10 pb-5">
                         <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
-                          <span className="font-extrabold text-gray-900 text-xl truncate">
+                          <span className="font-extrabold text-gray-900 dark:text-white text-xl truncate">
                             {item.fileName || t("quote.textDescription")}
                           </span>
                           {isPainting ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80 shrink-0">
-                              <Sparkles size={13} className="text-emerald-600" />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40 shrink-0">
+                              <Sparkles size={13} className="text-emerald-600 dark:text-emerald-400" />
                               {t("quote.badgeFilamentPainting")}
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
-                              <Layers size={13} className="text-gray-600" />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 shrink-0">
+                              <Layers size={13} className="text-gray-600 dark:text-gray-400" />
                               {t("quote.flowCadTitle")}
                             </span>
                           )}
@@ -2196,7 +2196,7 @@ export default function Quote() {
                         <div className="flex items-center gap-2.5">
                           {!isPainting && (
                             hasFiles ? (
-                              <label className="cursor-pointer bg-white text-gray-700 hover:text-gray-900 px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 transition-colors flex items-center gap-1.5 border border-gray-200 shadow-2xs">
+                              <label className="cursor-pointer bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-colors flex items-center gap-1.5 border border-gray-200 dark:border-white/10 shadow-2xs">
                                 {isUploading ? (
                                   <Loader2 className="animate-spin" size={15} />
                                 ) : (
@@ -2213,7 +2213,7 @@ export default function Quote() {
                                 />
                               </label>
                             ) : (
-                              <label className="cursor-pointer bg-white text-emerald-800 hover:text-emerald-950 px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 transition-colors flex items-center gap-1.5 border border-gray-200 shadow-2xs">
+                              <label className="cursor-pointer bg-white dark:bg-white/5 text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-200 px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-colors flex items-center gap-1.5 border border-gray-200 dark:border-white/10 shadow-2xs">
                                 {isUploading ? (
                                   <Loader2 className="animate-spin" size={15} />
                                 ) : (
@@ -2234,7 +2234,7 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={() => removeItem(idx)}
-                            className="p-2 rounded-full text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                            className="p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
                             title={t("quote.removeItemTitle")}
                           >
                             <Trash2 size={17} />
@@ -2242,7 +2242,7 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={handleCancelEdit}
-                            className="text-xs font-semibold text-gray-500 hover:text-gray-800 px-3.5 py-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+                            className="text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 px-3.5 py-2 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
                           >
                             {t("quote.cancel")}
                           </button>
@@ -2254,7 +2254,7 @@ export default function Quote() {
                             {(item.files || []).map((file, fileIndex) => (
                               <div
                                 key={`${file.url}-${fileIndex}`}
-                                className="inline-flex items-center gap-2 rounded-lg bg-gray-50 border border-gray-200 pl-3 pr-2 py-1.5 text-sm text-gray-700 font-medium"
+                                className="inline-flex items-center gap-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 pl-3 pr-2 py-1.5 text-sm text-gray-700 dark:text-gray-300 font-medium"
                               >
                                 <span className="truncate max-w-[200px]">
                                   {file.name}
@@ -2263,7 +2263,7 @@ export default function Quote() {
                                   <button
                                     type="button"
                                     onClick={() => removeItemFile(idx, fileIndex)}
-                                    className="text-gray-400 hover:text-rose-600 bg-white rounded-md p-0.5 shadow-sm border border-gray-100 hover:border-rose-200 transition-colors"
+                                    className="text-gray-400 dark:text-gray-500 hover:text-rose-600 dark:hover:text-rose-400 bg-white dark:bg-white/10 rounded-md p-0.5 shadow-sm border border-gray-100 dark:border-white/10 hover:border-rose-200 transition-colors"
                                     aria-label={`Remove ${file.name}`}
                                     title={t("quote.removeItemTitle")}
                                   >
@@ -2276,7 +2276,7 @@ export default function Quote() {
                               <button
                                 type="button"
                                 onClick={() => clearItemFiles(idx)}
-                                className="text-xs font-semibold text-rose-600 hover:text-rose-800 ml-2"
+                                className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 ml-2 cursor-pointer"
                               >
                                 {t("quote.removeFile")}
                               </button>
@@ -2286,19 +2286,19 @@ export default function Quote() {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
                           <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                              <Layers size={14} className="text-emerald-700" /> {t("quote.material")}
+                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                              <Layers size={14} className="text-emerald-700 dark:text-emerald-400" /> {t("quote.material")}
                             </label>
                             {item.uploadType === "filament-painting" ? (
-                              <div className="p-3 bg-[#fbfbfd] border border-gray-200/90 rounded-xl text-sm font-medium text-gray-700 flex items-center justify-between">
+                              <div className="p-3 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center justify-between">
                                 <span>{item.material || "PLA"}</span>
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-800/40">
                                   {t("quote.multiColor")}
                                 </span>
                               </div>
                             ) : (
                               <select
-                                className="w-full p-3 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all cursor-pointer"
+                                className="w-full p-3 bg-[#fbfbfd] dark:bg-[#141e1a] border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all cursor-pointer"
                                 value={item.material}
                                 onChange={(e) => {
                                   const newMaterial = e.target.value;
@@ -2315,7 +2315,7 @@ export default function Quote() {
                                 }}
                               >
                                 {finalMaterials.map((m) => (
-                                  <option key={m} value={m}>
+                                  <option key={m} value={m} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
                                     {m}
                                   </option>
                                 ))}
@@ -2325,23 +2325,23 @@ export default function Quote() {
 
                           {item.uploadType === "filament-painting" ? (
                             <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                                <Sparkles size={14} className="text-emerald-700" /> {t("quote.filamentPalette")}
+                              <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <Sparkles size={14} className="text-emerald-700 dark:text-emerald-400" /> {t("quote.filamentPalette")}
                               </label>
-                              <div className="p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-xl text-xs font-bold text-emerald-950 flex items-center justify-between">
+                              <div className="p-3 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/40 rounded-xl text-xs font-bold text-emerald-950 dark:text-emerald-200 flex items-center justify-between">
                                 <span className="truncate">{translateColorText(item.color, t)}</span>
-                                <span className="px-2 py-0.5 rounded-md bg-emerald-700 text-white text-[10px] uppercase tracking-wider shrink-0 ml-1">
+                                <span className="px-2 py-0.5 rounded-md bg-emerald-700 dark:bg-emerald-600 text-white text-[10px] uppercase tracking-wider shrink-0 ml-1">
                                   {t("quote.tdBlended")}
                                 </span>
                               </div>
                             </div>
                           ) : (
                             <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                                <Palette size={14} className="text-emerald-700" /> {t("quote.color")}
+                              <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <Palette size={14} className="text-emerald-700 dark:text-emerald-400" /> {t("quote.color")}
                               </label>
                               <select
-                                className="w-full p-3 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all cursor-pointer"
+                                className="w-full p-3 bg-[#fbfbfd] dark:bg-[#141e1a] border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all cursor-pointer"
                                 value={
                                   item.color ||
                                   getColorsForMaterial(item.material)[0] ||
@@ -2352,7 +2352,7 @@ export default function Quote() {
                                 }
                               >
                                 {getColorsForMaterial(item.material).map((c) => (
-                                  <option key={c} value={c}>
+                                  <option key={c} value={c} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
                                     {translateColorText(c, t)}
                                   </option>
                                 ))}
@@ -2362,10 +2362,10 @@ export default function Quote() {
 
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                                <Hash size={14} className="text-emerald-700" /> {t("quote.quantity")}
+                              <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <Hash size={14} className="text-emerald-700 dark:text-emerald-400" /> {t("quote.quantity")}
                               </label>
-                              <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                              <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-800/40">
                                 {t("quote.maxQuantityHint")}
                               </span>
                             </div>
@@ -2373,7 +2373,7 @@ export default function Quote() {
                               type="number"
                               min="1"
                               max={MAX_ITEM_QUANTITY}
-                              className="w-full p-3 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
+                              className="w-full p-3 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
                               value={item.count}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
@@ -2513,14 +2513,14 @@ export default function Quote() {
 
 
                         {/* 3D Slicing & Print Specifications */}
-                        <div className="mb-5 rounded-2xl border border-gray-200/70 bg-[#fbfbfd] p-5 sm:p-6 shadow-2xs space-y-4">
-                          <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                        <div className="mb-5 rounded-2xl border border-gray-200/70 dark:border-white/10 bg-[#fbfbfd] dark:bg-white/5 p-5 sm:p-6 shadow-2xs space-y-4">
+                          <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/10 pb-3">
                             <div>
-                              <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
-                                <Gauge size={15} className="text-emerald-700" />
+                              <h4 className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                                <Gauge size={15} className="text-emerald-700 dark:text-emerald-400" />
                                 {t("quote.printSpecs")}
                               </h4>
-                              <p className="text-[11px] text-gray-500 mt-0.5">
+                              <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
                                 {t("quote.printSpecsSubtitle")}
                               </p>
                             </div>
@@ -2570,23 +2570,23 @@ export default function Quote() {
 
                             if (item.uploadType === "filament-painting") {
                               return (
-                                <div className="p-3.5 rounded-xl border bg-emerald-50/70 border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="p-3.5 rounded-xl border bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                   <div className="flex items-center gap-2.5">
-                                    <div className="p-2 rounded-lg bg-emerald-100 text-emerald-700">
+                                    <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300">
                                       <Ruler size={18} />
                                     </div>
                                     <div>
-                                      <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                      <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                         {t("quote.calibratedRelief")}
                                       </p>
-                                      <p className="text-base font-extrabold text-gray-900">
+                                      <p className="text-base font-extrabold text-gray-900 dark:text-white">
                                         {targetX ?? item.dimensionX} mm × {targetY ?? item.dimensionY} mm ×{" "}
                                         {targetZ ?? item.dimensionZ} mm
                                       </p>
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100/90 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                    <span className="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-900/50 px-2.5 py-1 rounded-lg flex items-center gap-1">
                                       ✓ {t("quote.buildVolumeFits")}
                                     </span>
                                   </div>
@@ -2605,57 +2605,57 @@ export default function Quote() {
                                     <div
                                       className={`p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                                         fitsBuildVolume
-                                          ? "bg-emerald-50/70 border-emerald-200"
-                                          : "bg-rose-50/70 border-rose-200"
+                                          ? "bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/40"
+                                          : "bg-rose-50/70 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/40"
                                       }`}
                                     >
                                       <div className="flex items-center gap-2.5">
                                         <div
                                           className={`p-2 rounded-lg ${
                                             fitsBuildVolume
-                                              ? "bg-emerald-100 text-emerald-700"
-                                              : "bg-rose-100 text-rose-700"
+                                              ? "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300"
+                                              : "bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300"
                                           }`}
                                         >
                                           <Ruler size={18} />
                                         </div>
                                         <div>
-                                          <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                                          <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                             {t("quote.dimensionsPreview")}
                                           </p>
-                                          <p className="text-base font-extrabold text-gray-900">
+                                          <p className="text-base font-extrabold text-gray-900 dark:text-white">
                                             {targetX} mm × {targetY} mm ×{" "}
                                             {targetZ} mm
                                           </p>
                                         </div>
                                       </div>
                                       <div className="flex flex-wrap items-center gap-2">
-                                        <span className="text-xs font-bold text-gray-700 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-sm">
+                                        <span className="text-xs font-bold text-gray-700 dark:text-gray-300 bg-white dark:bg-white/10 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-white/10 shadow-sm">
                                           {currentScale.toFixed(2)}x
                                         </span>
                                         {fitsBuildVolume ? (
-                                          <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100/90 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                          <span className="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-900/50 px-2.5 py-1 rounded-lg flex items-center gap-1">
                                             ✓ {t("quote.buildVolumeFits")}
                                           </span>
                                         ) : (
-                                          <span className="text-[11px] font-semibold text-rose-800 bg-rose-100/90 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                          <span className="text-[11px] font-semibold text-rose-800 dark:text-rose-300 bg-rose-100/90 dark:bg-rose-900/50 px-2.5 py-1 rounded-lg flex items-center gap-1">
                                             ⚠️ {t("quote.buildVolumeExceeded")}
                                           </span>
                                         )}
                                       </div>
                                     </div>
                                   ) : (
-                                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 border border-gray-200">
+                                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10">
                                       <div className="flex items-center gap-2">
                                         <Loader2
                                           size={14}
-                                          className="animate-spin text-emerald-600"
+                                          className="animate-spin text-emerald-600 dark:text-emerald-400"
                                         />
-                                        <span className="text-xs font-medium text-gray-600">
+                                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
                                           {t("quote.detectingDimensions")}
                                         </span>
                                       </div>
-                                      <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/40">
                                         {currentScale.toFixed(2)}x
                                       </span>
                                     </div>
@@ -2664,14 +2664,14 @@ export default function Quote() {
                                   {/* Quick Scale Presets (Pills) */}
                                   <div className="space-y-1.5">
                                     <div className="flex items-center justify-between">
-                                      <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                                      <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                                         <Sliders
                                           size={13}
-                                          className="text-gray-500"
+                                          className="text-gray-500 dark:text-gray-400"
                                         />{" "}
                                         {t("quote.scalePreset")}
                                       </label>
-                                      <span className="text-[11px] text-gray-500">
+                                      <span className="text-[11px] text-gray-500 dark:text-gray-400">
                                         {t("quote.dimensionsMaxHint")}
                                       </span>
                                     </div>
@@ -2718,10 +2718,10 @@ export default function Quote() {
                                             }
                                             className={`p-2 rounded-xl text-left transition-all border ${
                                               !canFit
-                                                ? "bg-gray-100 border-gray-200 text-gray-400 opacity-60 cursor-not-allowed"
+                                                ? "bg-gray-100 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 opacity-60 cursor-not-allowed"
                                                 : isCurrent
-                                                  ? "bg-[#133827] text-white border-[#133827] shadow-xs"
-                                                  : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                                                  ? "bg-[#133827] dark:bg-emerald-600 text-white border-[#133827] dark:border-emerald-600 shadow-xs"
+                                                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20"
                                             }`}
                                             title={
                                               !canFit
@@ -2733,14 +2733,14 @@ export default function Quote() {
                                               <span
                                                 className={`text-xs font-bold ${
                                                   !canFit
-                                                    ? "line-through text-gray-400"
+                                                    ? "line-through text-gray-400 dark:text-gray-500"
                                                     : ""
                                                 }`}
                                               >
                                                 {preset.label}
                                               </span>
                                               {!canFit && (
-                                                <span className="text-[9px] font-bold text-rose-600 uppercase bg-rose-50 px-1 py-0.5 rounded">
+                                                <span className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase bg-rose-50 dark:bg-rose-950/50 px-1 py-0.5 rounded">
                                                   &gt;256mm
                                                 </span>
                                               )}
@@ -2749,10 +2749,10 @@ export default function Quote() {
                                               <p
                                                 className={`text-[10px] truncate mt-0.5 ${
                                                   !canFit
-                                                    ? "text-gray-400"
+                                                    ? "text-gray-400 dark:text-gray-500"
                                                     : isCurrent
                                                       ? "text-emerald-100"
-                                                      : "text-gray-500"
+                                                      : "text-gray-500 dark:text-gray-400"
                                                 }`}
                                               >
                                                 {pX}×{pY}×{pZ} mm
@@ -2767,11 +2767,11 @@ export default function Quote() {
                                   {/* Custom Scale Slider */}
                                   <div className="space-y-1">
                                     <div className="flex justify-between items-center">
-                                      <label className="text-xs font-bold text-gray-700">
+                                      <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
                                         {t("quote.scaleCustom")}
                                       </label>
                                       {hasBaseDimensions && (
-                                        <span className="text-xs font-semibold text-gray-600">
+                                        <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">
                                           {t("quote.dimensionMax")} {maxScale.toFixed(2)}x
                                         </span>
                                       )}
@@ -2781,17 +2781,17 @@ export default function Quote() {
                                       max={hasBaseDimensions ? maxScale : 3.0}
                                       step={SCALE_STEP}
                                       value={currentScale}
-                                      className="w-full accent-[#133827] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                      className="w-full accent-[#133827] dark:accent-emerald-500 h-2 bg-gray-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer"
                                       onChange={(val) =>
                                         updateItemScale(idx, val)
                                       }
                                     />
-                                    <div className="flex justify-between items-center text-[11px] text-gray-500 pt-0.5">
+                                    <div className="flex justify-between items-center text-[11px] text-gray-500 dark:text-gray-400 pt-0.5">
                                       <span>
                                         {t("quote.dimensionsMaxHint")}
                                       </span>
                                       {targetX && targetY && targetZ && (
-                                        <span className="font-semibold text-gray-800">
+                                        <span className="font-semibold text-gray-800 dark:text-white">
                                           {targetX} × {targetY} × {targetZ} mm
                                         </span>
                                       )}
@@ -2806,21 +2806,21 @@ export default function Quote() {
                               <div className="space-y-3">
                                 <div className="space-y-1">
                                   <div className="flex items-center justify-between">
-                                    <label className="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
+                                    <label className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
                                       <Ruler
                                         size={14}
-                                        className="text-emerald-600"
+                                        className="text-emerald-600 dark:text-emerald-400"
                                       />
                                       {t("quote.dimensionsMm")}
                                     </label>
-                                    <span className="text-[11px] text-gray-500">
+                                    <span className="text-[11px] text-gray-500 dark:text-gray-400">
                                       {t("quote.dimensionsMaxHint")}
                                     </span>
                                   </div>
-                                  <p className="text-[11px] text-gray-500">
+                                  <p className="text-[11px] text-gray-500 dark:text-gray-400">
                                     {t("quote.dimensionsNonFilePrompt")}
                                   </p>
-                                  <p className="text-[11px] text-amber-700/80 bg-amber-50/60 px-2.5 py-1.5 rounded-lg border border-amber-200/50">
+                                  <p className="text-[11px] text-amber-700/80 dark:text-amber-300/90 bg-amber-50/60 dark:bg-amber-950/30 px-2.5 py-1.5 rounded-lg border border-amber-200/50 dark:border-amber-800/40">
                                     💡 {t("quote.scaleNeedsStl")}
                                   </p>
                                 </div>
@@ -2871,15 +2871,15 @@ export default function Quote() {
                                         }
                                         className={`p-2.5 rounded-xl text-left border transition-all ${
                                           isCurrent
-                                            ? "bg-[#133827] text-white border-[#133827] shadow-xs"
-                                            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                                            ? "bg-[#133827] dark:bg-emerald-600 text-white border-[#133827] dark:border-emerald-600 shadow-xs"
+                                            : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20"
                                         }`}
                                       >
                                         <p
                                           className={`text-xs font-bold ${
                                             isCurrent
                                               ? "text-white"
-                                              : "text-gray-800"
+                                              : "text-gray-800 dark:text-white"
                                           }`}
                                         >
                                           {preset.name.split(" ")[0]}
@@ -2888,7 +2888,7 @@ export default function Quote() {
                                           className={`text-[11px] mt-0.5 truncate ${
                                             isCurrent
                                               ? "text-emerald-100"
-                                              : "text-gray-500"
+                                              : "text-gray-500 dark:text-gray-400"
                                           }`}
                                         >
                                           {preset.x} × {preset.y} × {preset.z}{" "}
@@ -2902,7 +2902,7 @@ export default function Quote() {
                                 {/* Custom Dimensions Inputs (Length X, Width Y, Height Z) */}
                                 <div className="grid grid-cols-3 gap-3">
                                   <div>
-                                    <label className="text-[11px] font-semibold text-gray-600 mb-1 block">
+                                    <label className="text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1 block">
                                       {t("quote.dimensionLength")}
                                     </label>
                                     <DebouncedNumberInput
@@ -2925,11 +2925,11 @@ export default function Quote() {
                                           item.dimensionZ,
                                         );
                                       }}
-                                      className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
+                                      className="w-full p-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
                                     />
                                   </div>
                                   <div>
-                                    <label className="text-[11px] font-semibold text-gray-600 mb-1 block">
+                                    <label className="text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1 block">
                                       {t("quote.dimensionWidth")}
                                     </label>
                                     <DebouncedNumberInput
@@ -2952,11 +2952,11 @@ export default function Quote() {
                                           item.dimensionZ,
                                         );
                                       }}
-                                      className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
+                                      className="w-full p-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
                                     />
                                   </div>
                                   <div>
-                                    <label className="text-[11px] font-semibold text-gray-600 mb-1 block">
+                                    <label className="text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1 block">
                                       {t("quote.dimensionHeight")}
                                     </label>
                                     <DebouncedNumberInput
@@ -2979,7 +2979,7 @@ export default function Quote() {
                                           val,
                                         );
                                       }}
-                                      className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
+                                      className="w-full p-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
                                     />
                                   </div>
                                 </div>
@@ -2993,8 +2993,8 @@ export default function Quote() {
                                         (item.dimensionX ?? 0) <= 256 &&
                                         (item.dimensionY ?? 0) <= 256 &&
                                         (item.dimensionZ ?? 0) <= 256
-                                          ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                                          : "bg-rose-50 text-rose-800 border-rose-200"
+                                          ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/40"
+                                          : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800/40"
                                       }`}
                                     >
                                       <span className="flex items-center gap-1.5">
@@ -3020,12 +3020,12 @@ export default function Quote() {
 
                           {/* Infill Density & Print Quality */}
                           {item.uploadType === "filament-painting" ? (
-                            <div className="p-3.5 bg-emerald-50/60 rounded-xl border border-emerald-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                              <div className="flex items-center gap-2 text-emerald-950 font-medium">
-                                <Sparkles size={16} className="text-emerald-600 shrink-0" />
+                            <div className="p-3.5 bg-emerald-50/60 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                              <div className="flex items-center gap-2 text-emerald-950 dark:text-emerald-200 font-medium">
+                                <Sparkles size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                                 <span>{t("quote.filamentPaintingSpecsBanner")}</span>
                               </div>
-                              <span className="px-2.5 py-1 bg-white rounded-md text-[11px] font-bold text-emerald-700 border border-emerald-200 shrink-0">
+                              <span className="px-2.5 py-1 bg-white dark:bg-white/10 rounded-md text-[11px] font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 shrink-0">
                                 {t("quote.calibratedForTd")}
                               </span>
                             </div>
@@ -3034,12 +3034,12 @@ export default function Quote() {
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                                 {/* Infill Density */}
                                 <div className="space-y-1.5">
-                                  <label className="text-xs font-bold text-gray-700 flex items-center justify-between">
+                                  <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center justify-between">
                                     <span className="flex items-center gap-1.5">
-                                      <Layers size={13} className="text-gray-500" />
+                                      <Layers size={13} className="text-gray-500 dark:text-gray-400" />
                                       {t("quote.infill")}
                                     </span>
-                                    <span className="text-[11px] font-semibold text-emerald-600">
+                                    <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
                                       {item.infillPercent ?? 20}%
                                     </span>
                                   </label>
@@ -3052,30 +3052,30 @@ export default function Quote() {
                                         parseInt(e.target.value, 10) || 20,
                                       )
                                     }
-                                    className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
+                                    className="w-full p-2.5 bg-white dark:bg-[#141e1a] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
                                   >
-                                    <option value={15}>
+                                    <option value={15} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
                                       {t("quote.infillLight")}
                                     </option>
-                                    <option value={20}>
+                                    <option value={20} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
                                       {t("quote.infillStandard")}
                                     </option>
-                                    <option value={40}>
+                                    <option value={40} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
                                       {t("quote.infillStrong")}
                                     </option>
-                                    <option value={80}>
+                                    <option value={80} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
                                       {t("quote.infillSolid")}
                                     </option>
                                   </select>
-                                  <p className="text-[10px] text-gray-400">
+                                  <p className="text-[10px] text-gray-400 dark:text-gray-500">
                                     {t("quote.infillHint")}
                                   </p>
                                 </div>
 
                                 {/* Print Quality */}
                                 <div className="space-y-1.5">
-                                  <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
-                                    <Sliders size={13} className="text-gray-500" />
+                                  <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                                    <Sliders size={13} className="text-gray-500 dark:text-gray-400" />
                                     {t("quote.quality")}
                                   </label>
                                   <select
@@ -3087,26 +3087,26 @@ export default function Quote() {
                                         e.target.value,
                                       )
                                     }
-                                    className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
+                                    className="w-full p-2.5 bg-white dark:bg-[#141e1a] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
                                   >
-                                    <option value="Detail (0.12mm)">
+                                    <option value="Detail (0.12mm)" className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
                                       {t("quote.qualityDetail")}
                                     </option>
-                                    <option value="Standard (0.20mm)">
+                                    <option value="Standard (0.20mm)" className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
                                       {t("quote.qualityStandard")}
                                     </option>
-                                    <option value="Draft (0.28mm)">
+                                    <option value="Draft (0.28mm)" className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
                                       {t("quote.qualityDraft")}
                                     </option>
                                   </select>
-                                  <p className="text-[10px] text-gray-400">
+                                  <p className="text-[10px] text-gray-400 dark:text-gray-500">
                                     {t("quote.qualityHint")}
                                   </p>
                                 </div>
                               </div>
 
                               {/* Supports Toggle */}
-                              <div className="pt-2 border-t border-gray-100">
+                              <div className="pt-2 border-t border-gray-100 dark:border-white/10">
                                 <label className="flex items-start gap-2.5 cursor-pointer">
                                   <input
                                     type="checkbox"
@@ -3118,13 +3118,13 @@ export default function Quote() {
                                         e.target.checked,
                                       )
                                     }
-                                    className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                    className="mt-0.5 h-4 w-4 rounded border-gray-300 dark:border-white/20 text-emerald-600 focus:ring-emerald-500 dark:bg-white/5"
                                   />
                                   <div>
-                                    <span className="text-xs font-semibold text-gray-800">
+                                    <span className="text-xs font-semibold text-gray-800 dark:text-gray-200">
                                       {t("quote.supportsLabel")}
                                     </span>
-                                    <p className="text-[11px] text-gray-500">
+                                    <p className="text-[11px] text-gray-500 dark:text-gray-400">
                                       {t("quote.supportsHint")}
                                     </p>
                                   </div>
@@ -3136,12 +3136,12 @@ export default function Quote() {
 
                         <div className="relative">
                           <MessageSquare
-                            className="absolute left-3.5 top-3.5 text-gray-400"
+                            className="absolute left-3.5 top-3.5 text-gray-400 dark:text-gray-500"
                             size={18}
                           />
                           <textarea
                             placeholder={t("quote.notesPlaceholder")}
-                            className="w-full p-3.5 pl-11 text-sm bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all min-h-[100px] resize-y"
+                            className="w-full p-3.5 pl-11 text-sm bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-[#141e1a] transition-all min-h-[100px] resize-y"
                             value={item.notes}
                             onChange={(e) =>
                               updateItem(idx, "notes", e.target.value)
@@ -3150,11 +3150,11 @@ export default function Quote() {
                         </div>
 
                         {/* Focus Mode Primary CTA at bottom */}
-                        <div className="pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-center gap-3">
+                        <div className="pt-4 border-t border-gray-100 dark:border-white/10 flex flex-col sm:flex-row items-center gap-3">
                           <button
                             type="button"
                             onClick={() => handleConfirmItem(idx)}
-                            className="w-full sm:flex-1 py-4 px-8 rounded-full bg-[#133827] hover:bg-[#1c4d37] text-white font-semibold text-base shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer"
+                            className="w-full sm:flex-1 py-4 px-8 rounded-full bg-[#133827] dark:bg-emerald-600 hover:bg-[#1c4d37] dark:hover:bg-emerald-700 text-white font-semibold text-base shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer"
                           >
                             <CheckCircle2 size={20} />
                             <span>
@@ -3166,7 +3166,7 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={handleCancelEdit}
-                            className="py-3 px-6 rounded-full text-sm font-semibold text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer"
+                            className="py-3 px-6 rounded-full text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
                           >
                             {t("quote.cancel")}
                           </button>
@@ -3177,11 +3177,11 @@ export default function Quote() {
 
                 {/* 3. Cart Summary: Minimized State */}
                 {items.length > 0 && editingItemIndex === null && !activeCreatorFlow && (
-                  <div className="rounded-3xl border border-gray-200/80 bg-white p-6 sm:p-8 md:p-10 shadow-xs space-y-6">
-                    <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                  <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-6 sm:p-8 md:p-10 shadow-xs space-y-6">
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10">
                       <div>
-                        <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2.5">
-                          <Package size={20} className="text-[#133827]" />
+                        <h4 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2.5">
+                          <Package size={20} className="text-[#133827] dark:text-emerald-400" />
                           <span>
                             {items.length === 1
                               ? t("quote.orderSummaryCount", {
@@ -3192,7 +3192,7 @@ export default function Quote() {
                                 })}
                           </span>
                         </h4>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                           {t("quote.reviewItemsSubtitle")}
                         </p>
                       </div>
@@ -3205,7 +3205,7 @@ export default function Quote() {
                         return (
                           <div
                             key={idx}
-                            className="p-4 sm:p-5 border border-gray-200/80 rounded-2xl bg-[#fbfbfd] hover:bg-white hover:border-gray-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
+                            className="p-4 sm:p-5 border border-gray-200/80 dark:border-white/10 rounded-2xl bg-[#fbfbfd] dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
                           >
                             <div className="flex items-center gap-4 flex-1 min-w-0">
                               {/* Thumbnail / Icon */}
@@ -3215,14 +3215,14 @@ export default function Quote() {
                                   alt={item.fileName || t("quote.sourceThumbnail")}
                                   loading="lazy"
                                   decoding="async"
-                                  className="w-14 h-14 rounded-xl object-cover border border-gray-200 bg-gray-50 shrink-0 shadow-2xs"
+                                  className="w-14 h-14 rounded-xl object-cover border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 shrink-0 shadow-2xs"
                                 />
                               ) : isPainting ? (
-                                <div className="w-14 h-14 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700 shrink-0 shadow-2xs">
+                                <div className="w-14 h-14 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center text-emerald-700 dark:text-emerald-300 shrink-0 shadow-2xs">
                                   <Sparkles size={24} />
                                 </div>
                               ) : (
-                                <div className="w-14 h-14 rounded-xl bg-gray-100 border border-gray-200/80 flex items-center justify-center text-[#133827] shrink-0 shadow-2xs">
+                                <div className="w-14 h-14 rounded-xl bg-gray-100 dark:bg-white/10 border border-gray-200/80 dark:border-white/10 flex items-center justify-center text-[#133827] dark:text-emerald-400 shrink-0 shadow-2xs">
                                   <Layers size={24} />
                                 </div>
                               )}
@@ -3230,54 +3230,54 @@ export default function Quote() {
                               {/* Details */}
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <h5 className="font-bold text-gray-900 text-sm truncate max-w-[260px]">
+                                  <h5 className="font-bold text-gray-900 dark:text-white text-sm truncate max-w-[260px]">
                                     {item.fileName || t("quote.textDescription")}
                                   </h5>
                                   {isPainting ? (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80 shrink-0">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40 shrink-0">
                                       <Sparkles size={10} />
                                       {t("quote.badgeFilamentPainting")}
                                     </span>
                                   ) : (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 shrink-0">
                                       {t("quote.badgeCadPrint")}
                                     </span>
                                   )}
                                 </div>
 
-                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-600">
-                                  <span className="font-semibold text-gray-800">
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-600 dark:text-gray-300">
+                                  <span className="font-semibold text-gray-800 dark:text-gray-200">
                                     {item.material} · {translateColorText(item.color, t)}
                                   </span>
-                                  <span className="text-gray-300">|</span>
-                                  <span className="text-gray-600">
+                                  <span className="text-gray-300 dark:text-gray-600">|</span>
+                                  <span className="text-gray-600 dark:text-gray-400">
                                     {t("quote.qty")}{" "}
-                                    <span className="font-bold text-gray-800">{item.count}</span>
+                                    <span className="font-bold text-gray-800 dark:text-white">{item.count}</span>
                                   </span>
                                   {hasDimensionValue(item.dimensionX) &&
                                     hasDimensionValue(item.dimensionY) &&
                                     hasDimensionValue(item.dimensionZ) && (
                                       <>
-                                        <span className="text-gray-300">|</span>
-                                        <span className="text-gray-600">
+                                        <span className="text-gray-300 dark:text-gray-600">|</span>
+                                        <span className="text-gray-600 dark:text-gray-400">
                                           {item.dimensionX} × {item.dimensionY} × {item.dimensionZ} mm
                                         </span>
                                       </>
                                     )}
-                                  <span className="text-gray-300">|</span>
-                                  <span className="text-gray-500 font-medium">
+                                  <span className="text-gray-300 dark:text-gray-600">|</span>
+                                  <span className="text-gray-500 dark:text-gray-400 font-medium">
                                     {formatPrintQuality(item.printQuality, t)}
                                   </span>
                                   {isPainting && (
                                     <>
-                                      <span className="text-gray-300">|</span>
-                                      <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded text-[11px] border border-emerald-100">
+                                      <span className="text-gray-300 dark:text-gray-600">|</span>
+                                      <span className="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded text-[11px] border border-emerald-100 dark:border-emerald-800/40">
                                         {t("quote.solidInfill100")}
                                       </span>
                                       {item.layerSwaps && item.layerSwaps.length > 0 && (
                                         <>
-                                          <span className="text-gray-300">|</span>
-                                          <span className="text-gray-700 font-medium">
+                                          <span className="text-gray-300 dark:text-gray-600">|</span>
+                                          <span className="text-gray-700 dark:text-gray-300 font-medium">
                                             {item.layerSwaps.length - 1 === 1
                                               ? t("quote.colorSwapCount", {
                                                   count: item.layerSwaps.length - 1,
@@ -3293,7 +3293,7 @@ export default function Quote() {
                                 </div>
 
                                 {item.notes && (
-                                  <p className="text-[11px] text-gray-500 italic mt-1 truncate max-w-md">
+                                  <p className="text-[11px] text-gray-500 dark:text-gray-400 italic mt-1 truncate max-w-md">
                                     "{item.notes}"
                                   </p>
                                 )}
@@ -3305,7 +3305,7 @@ export default function Quote() {
                               <button
                                 type="button"
                                 onClick={() => setEditingItemIndex(idx)}
-                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 border border-gray-200 transition-colors shadow-2xs cursor-pointer"
+                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-white/10 transition-colors shadow-2xs cursor-pointer"
                               >
                                 <Pencil size={13} />
                                 <span>{t("quote.edit")}</span>
@@ -3313,7 +3313,7 @@ export default function Quote() {
                               <button
                                 type="button"
                                 onClick={() => removeItem(idx)}
-                                className="p-2 rounded-full text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                className="p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
                                 title={t("quote.removeItemTitle")}
                               >
                                 <Trash2 size={16} />
@@ -3325,21 +3325,21 @@ export default function Quote() {
                     </div>
 
                     {/* Next Steps: Add Another Item or Proceed to Checkout */}
-                    <div className="pt-6 border-t border-gray-100">
+                    <div className="pt-6 border-t border-gray-100 dark:border-white/10">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <button
                           type="button"
                           onClick={() => setShowAddItemChoiceModal(true)}
-                          className="w-full py-4 px-6 rounded-full border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-800 font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-2xs cursor-pointer"
+                          className="w-full py-4 px-6 rounded-full border border-gray-300 dark:border-white/20 hover:border-gray-400 dark:hover:border-white/30 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-800 dark:text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-2xs cursor-pointer"
                         >
-                          <Plus size={18} className="text-[#133827]" />
+                          <Plus size={18} className="text-[#133827] dark:text-emerald-400" />
                           <span>{t("quote.addAnotherItem")}</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={goToNextStep}
-                          className="w-full py-4 px-8 rounded-full bg-[#133827] hover:bg-[#1c4d37] text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                          className="w-full py-4 px-8 rounded-full bg-[#133827] dark:bg-emerald-600 hover:bg-[#1c4d37] dark:hover:bg-emerald-700 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
                         >
                           <span>{t("quote.proceedToCheckout")}</span>
                           <ArrowRight size={18} />
@@ -3356,26 +3356,26 @@ export default function Quote() {
               <div
                 role="dialog"
                 aria-modal="true"
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150"
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/75 backdrop-blur-xs animate-in fade-in duration-150"
                 onClick={() => setShowAddItemChoiceModal(false)}
               >
                 <div
-                  className="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl border border-gray-100 space-y-6 animate-in zoom-in-95 duration-150"
+                  className="bg-white dark:bg-[#0e1512] rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl border border-gray-100 dark:border-white/10 space-y-6 animate-in zoom-in-95 duration-150"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                         {t("quote.addItemModalTitle")}
                       </h3>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                         {t("quote.addItemModalSubtitle")}
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setShowAddItemChoiceModal(false)}
-                      className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors cursor-pointer"
+                      className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-500 dark:text-gray-400 flex items-center justify-center transition-colors cursor-pointer"
                     >
                       <X size={18} />
                     </button>
@@ -3383,16 +3383,16 @@ export default function Quote() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Flow 1: 3D CAD Print / Custom Quote */}
-                    <div className="p-6 rounded-2xl border border-gray-200/90 hover:border-gray-300 hover:shadow-xs transition-all flex flex-col justify-between space-y-4 bg-[#fbfbfd]">
+                    <div className="p-6 rounded-2xl border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:shadow-xs transition-all flex flex-col justify-between space-y-4 bg-[#fbfbfd] dark:bg-white/5">
                       <div className="space-y-2.5">
-                        <div className="w-11 h-11 rounded-2xl bg-gray-100 text-[#133827] border border-gray-200/60 flex items-center justify-center shadow-2xs">
+                        <div className="w-11 h-11 rounded-2xl bg-gray-100 dark:bg-white/10 text-[#133827] dark:text-emerald-400 border border-gray-200/60 dark:border-white/10 flex items-center justify-center shadow-2xs">
                           <Layers size={20} />
                         </div>
                         <div>
-                          <h4 className="font-bold text-gray-900 text-sm">
+                          <h4 className="font-bold text-gray-900 dark:text-white text-sm">
                             {t("quote.flowCadTitle")}
                           </h4>
-                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
                             {t("quote.flowCadSubtitle")}
                           </p>
                         </div>
@@ -3405,7 +3405,7 @@ export default function Quote() {
                             setShowAddItemChoiceModal(false);
                             new3dFileInputRef.current?.click();
                           }}
-                          className="w-full py-2.5 px-3 rounded-full bg-[#133827] hover:bg-[#1c4d37] text-white text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                          className="w-full py-2.5 px-3 rounded-full bg-[#133827] dark:bg-emerald-600 hover:bg-[#1c4d37] dark:hover:bg-emerald-700 text-white text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Upload size={14} />
                           <span>{t("quote.browse3dModels")}</span>
@@ -3418,7 +3418,7 @@ export default function Quote() {
                             addTextOnlyItem();
                             setEditingItemIndex(newIndex);
                           }}
-                          className="w-full py-2 px-3 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-xs font-semibold transition-all cursor-pointer"
+                          className="w-full py-2 px-3 rounded-full bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 text-xs font-semibold transition-all cursor-pointer"
                         >
                           {t("quote.addBlankCustomItem")}
                         </button>
@@ -3426,21 +3426,21 @@ export default function Quote() {
                     </div>
 
                     {/* Flow 2: HueForge Filament Painting */}
-                    <div className="p-6 rounded-2xl border border-emerald-100 hover:border-emerald-200 hover:shadow-xs transition-all flex flex-col justify-between space-y-4 bg-emerald-50/20">
+                    <div className="p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800/40 hover:border-emerald-200 dark:hover:border-emerald-700/60 hover:shadow-xs transition-all flex flex-col justify-between space-y-4 bg-emerald-50/20 dark:bg-emerald-950/20">
                       <div className="space-y-2.5">
-                        <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center justify-center shadow-2xs">
+                        <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center shadow-2xs">
                           <Sparkles size={20} />
                         </div>
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <h4 className="font-bold text-gray-900 text-sm">
+                            <h4 className="font-bold text-gray-900 dark:text-white text-sm">
                               {t("quote.flowPaintingTitle")}
                             </h4>
-                            <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded uppercase">
+                            <span className="text-[9px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold px-1.5 py-0.2 rounded uppercase">
                               HueForge
                             </span>
                           </div>
-                          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
                             {t("quote.flowPaintingSubtitle")}
                           </p>
                         </div>
@@ -3452,7 +3452,7 @@ export default function Quote() {
                           onClick={() => {
                             newPaintingImageInputRef.current?.click();
                           }}
-                          className="w-full py-2.5 px-3 rounded-full bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                          className="w-full py-2.5 px-3 rounded-full bg-emerald-800 dark:bg-emerald-600 hover:bg-emerald-900 dark:hover:bg-emerald-700 text-white text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Upload size={14} />
                           <span>{t("quote.browseImageRender3d")}</span>
@@ -3462,7 +3462,7 @@ export default function Quote() {
                           onClick={() => {
                             openFilamentPaintingCreator();
                           }}
-                          className="w-full py-2 px-3 rounded-full bg-white hover:bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="w-full py-2 px-3 rounded-full bg-white dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 border border-emerald-200 dark:border-white/10 text-emerald-800 dark:text-emerald-300 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Sparkles size={13} />
                           <span>{t("quote.open2dConfigurator")}</span>
@@ -3476,52 +3476,52 @@ export default function Quote() {
 
             {/* STEP: ACCOUNT */}
             {currentStepId === "account" && (
-              <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80 space-y-6">
+              <div className="bg-white dark:bg-[#0e1512] p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80 dark:border-white/10 space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-100/70 flex items-center justify-center shadow-2xs">
+                  <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100/70 dark:border-emerald-800/40 flex items-center justify-center shadow-2xs">
                     <User size={22} />
                   </div>
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900">
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white">
                       {t("quote.authTitle")}
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-500">
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                       {t("quote.authSubtitle")}
                     </p>
                   </div>
                 </div>
 
                 {isLoggedIn ? (
-                  <div className="bg-[#fbfbfd] border border-emerald-200/80 rounded-2xl p-6">
+                  <div className="bg-[#fbfbfd] dark:bg-white/5 border border-emerald-200/80 dark:border-emerald-800/40 rounded-2xl p-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+                      <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center font-bold">
                         <CheckCircle size={22} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-gray-900 text-base">
+                        <h4 className="font-bold text-gray-900 dark:text-white text-base">
                           {t("quote.loggedInAs")}:{" "}
-                          <span className="text-emerald-800">
+                          <span className="text-emerald-800 dark:text-emerald-400">
                             {currentUser?.name || currentUser?.email}
                           </span>
                         </h4>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                           {currentUser?.email}
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={handleSwitchAccount}
-                        className="text-xs font-semibold text-gray-500 hover:text-red-600 underline ml-auto transition-colors cursor-pointer"
+                        className="text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 underline ml-auto transition-colors cursor-pointer"
                       >
                         {t("quote.switchAccount")}
                       </button>
                     </div>
 
-                    <div className="mt-6 flex items-center justify-between gap-3 pt-6 border-t border-gray-200/80">
+                    <div className="mt-6 flex items-center justify-between gap-3 pt-6 border-t border-gray-200/80 dark:border-white/10">
                       <button
                         type="button"
                         onClick={goToPreviousStep}
-                        className="border border-gray-200 bg-white text-gray-700 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+                        className="border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
                       >
                         <ChevronLeft size={16} />
                         <span>{t("quote.backToModels")}</span>
@@ -3529,7 +3529,7 @@ export default function Quote() {
                       <button
                         type="button"
                         onClick={goToNextStep}
-                        className="bg-[#133827] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                        className="bg-[#133827] dark:bg-emerald-600 text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] dark:hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-sm cursor-pointer"
                       >
                         <span>{t("quote.continueToShipping")}</span>
                         <ChevronRight size={16} />
@@ -3539,7 +3539,7 @@ export default function Quote() {
                 ) : (
                   <div>
                     {/* Tab Navigation: Apple Pill Bar */}
-                    <div className="inline-flex p-1 bg-gray-100/90 rounded-full border border-gray-200/60 shadow-2xs gap-1 mb-6">
+                    <div className="inline-flex p-1 bg-gray-100/90 dark:bg-white/5 rounded-full border border-gray-200/60 dark:border-white/10 shadow-2xs gap-1 mb-6">
                       <button
                         type="button"
                         onClick={() => {
@@ -3548,8 +3548,8 @@ export default function Quote() {
                         }}
                         className={`rounded-full py-2 px-5 text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
                           authMode === "register"
-                            ? "bg-white text-gray-900 shadow-xs"
-                            : "text-gray-500 hover:text-gray-900"
+                            ? "bg-white dark:bg-[#141e1a] text-gray-900 dark:text-white shadow-xs"
+                            : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                         }`}
                       >
                         <UserPlus size={16} />
@@ -3563,8 +3563,8 @@ export default function Quote() {
                         }}
                         className={`rounded-full py-2 px-5 text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
                           authMode === "login"
-                            ? "bg-white text-gray-900 shadow-xs"
-                            : "text-gray-500 hover:text-gray-900"
+                            ? "bg-white dark:bg-[#141e1a] text-gray-900 dark:text-white shadow-xs"
+                            : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                         }`}
                       >
                         <LogIn size={16} />
@@ -3573,7 +3573,7 @@ export default function Quote() {
                     </div>
 
                     {authError && (
-                      <div className="mb-6 flex items-center gap-2.5 p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                      <div className="mb-6 flex items-center gap-2.5 p-3.5 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/40 text-red-700 dark:text-red-300 text-sm">
                         <AlertCircle size={18} className="shrink-0" />
                         <span>{authError}</span>
                       </div>
@@ -3589,9 +3589,9 @@ export default function Quote() {
                         <div className="space-y-1.5">
                           <label
                             htmlFor="register-name"
-                            className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
+                            className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5"
                           >
-                            <User size={14} className="text-emerald-700" />
+                            <User size={14} className="text-emerald-700 dark:text-emerald-400" />
                             {t("quote.fullName")}
                           </label>
                           <input
@@ -3605,7 +3605,7 @@ export default function Quote() {
                               setGuestName(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
                             placeholder={t("quote.placeholderName")}
                           />
                         </div>
@@ -3613,9 +3613,9 @@ export default function Quote() {
                         <div className="space-y-1.5">
                           <label
                             htmlFor="register-email"
-                            className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
+                            className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5"
                           >
-                            <Mail size={14} className="text-emerald-700" />
+                            <Mail size={14} className="text-emerald-700 dark:text-emerald-400" />
                             {t("quote.email")}
                           </label>
                           <input
@@ -3629,7 +3629,7 @@ export default function Quote() {
                               setGuestEmail(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
                             placeholder={t("quote.placeholderEmail") || "jane@example.com"}
                           />
                         </div>
@@ -3638,12 +3638,12 @@ export default function Quote() {
                           <div className="flex items-center justify-between">
                             <label
                               htmlFor="register-password"
-                              className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
+                              className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5"
                             >
-                              <Lock size={14} className="text-emerald-700" />
+                              <Lock size={14} className="text-emerald-700 dark:text-emerald-400" />
                               {t("quote.password")}
                             </label>
-                            <span className="text-[11px] text-gray-400">
+                            <span className="text-[11px] text-gray-400 dark:text-gray-500">
                               {t("quote.min8Chars")}
                             </span>
                           </div>
@@ -3657,16 +3657,16 @@ export default function Quote() {
                               setRegPassword(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
                             placeholder="••••••••"
                           />
                         </div>
 
-                        <div className="pt-6 mt-6 flex items-center justify-between gap-3 border-t border-gray-100">
+                        <div className="pt-6 mt-6 flex items-center justify-between gap-3 border-t border-gray-100 dark:border-white/10">
                           <button
                             type="button"
                             onClick={goToPreviousStep}
-                            className="border border-gray-200 bg-white text-gray-700 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+                            className="border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
                           >
                             <ChevronLeft size={16} />
                             <span>{t("quote.backToModels")}</span>
@@ -3674,7 +3674,7 @@ export default function Quote() {
                           <button
                             type="submit"
                             disabled={authLoading}
-                            className="bg-[#133827] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
+                            className="bg-[#133827] dark:bg-emerald-600 text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] dark:hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
                           >
                             {authLoading ? (
                               <Loader2 className="animate-spin" size={18} />
@@ -3697,9 +3697,9 @@ export default function Quote() {
                         <div className="space-y-1.5">
                           <label
                             htmlFor="login-email"
-                            className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
+                            className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5"
                           >
-                            <Mail size={14} className="text-emerald-700" />
+                            <Mail size={14} className="text-emerald-700 dark:text-emerald-400" />
                             {t("quote.email")}
                           </label>
                           <input
@@ -3713,7 +3713,7 @@ export default function Quote() {
                               setGuestEmail(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
                             placeholder={t("quote.placeholderEmail") || "jane@example.com"}
                           />
                         </div>
@@ -3721,9 +3721,9 @@ export default function Quote() {
                         <div className="space-y-1.5">
                           <label
                             htmlFor="login-password"
-                            className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
+                            className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5"
                           >
-                            <Lock size={14} className="text-emerald-700" />
+                            <Lock size={14} className="text-emerald-700 dark:text-emerald-400" />
                             {t("quote.password")}
                           </label>
                           <input
@@ -3736,16 +3736,16 @@ export default function Quote() {
                               setLoginPassword(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
                             placeholder="••••••••"
                           />
                         </div>
 
-                        <div className="pt-6 mt-6 flex items-center justify-between gap-3 border-t border-gray-100">
+                        <div className="pt-6 mt-6 flex items-center justify-between gap-3 border-t border-gray-100 dark:border-white/10">
                           <button
                             type="button"
                             onClick={goToPreviousStep}
-                            className="border border-gray-200 bg-white text-gray-700 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+                            className="border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
                           >
                             <ChevronLeft size={16} />
                             <span>{t("quote.backToModels")}</span>
@@ -3753,7 +3753,7 @@ export default function Quote() {
                           <button
                             type="submit"
                             disabled={authLoading}
-                            className="bg-[#133827] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
+                            className="bg-[#133827] dark:bg-emerald-600 text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] dark:hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
                           >
                             {authLoading ? (
                               <Loader2 className="animate-spin" size={18} />
@@ -3776,25 +3776,25 @@ export default function Quote() {
             {currentStepId === "shipping" && (
               <div className="space-y-6">
 
-                <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80">
+                <div className="bg-white dark:bg-[#0e1512] p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80 dark:border-white/10">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-100/70 flex items-center justify-center shadow-2xs">
+                    <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100/70 dark:border-emerald-800/40 flex items-center justify-center shadow-2xs">
                       <MapPin size={22} />
                     </div>
                     <div>
-                      <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900">
+                      <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white">
                         {t("quote.shippingDetailsTitle")}
                       </h3>
-                      <p className="text-xs sm:text-sm text-gray-500">
+                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                         {t("quote.shippingDetailsSubtitle")}
                       </p>
                     </div>
                   </div>
 
                   {isLoggedIn && (
-                    <div className="mb-6 flex flex-wrap items-center justify-between gap-2 p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-100 text-xs">
-                      <div className="flex items-center gap-2 text-emerald-900 font-medium">
-                        <User size={15} className="text-emerald-700 shrink-0" />
+                    <div className="mb-6 flex flex-wrap items-center justify-between gap-2 p-3.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-800/40 text-xs">
+                      <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-200 font-medium">
+                        <User size={15} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
                         <span>
                           {t("quote.signedInAs")}:{" "}
                           <strong>{currentUser?.name || guestName || t("quote.customerFallback")}</strong>{" "}
@@ -3804,7 +3804,7 @@ export default function Quote() {
                       <button
                         type="button"
                         onClick={handleSwitchAccount}
-                        className="font-bold text-emerald-700 hover:text-red-600 underline transition-colors ml-auto cursor-pointer"
+                        className="font-bold text-emerald-700 dark:text-emerald-300 hover:text-red-600 dark:hover:text-red-400 underline transition-colors ml-auto cursor-pointer"
                       >
                         {t("quote.switchAccount")}
                       </button>
@@ -3814,7 +3814,7 @@ export default function Quote() {
                   {/* Saved Address Selector (Only if logged in and has addresses) */}
                   {isLoggedIn && savedAddresses.length > 0 && (
                     <div className="mb-8">
-                      <label className="text-sm font-bold text-gray-700 block mb-3">
+                      <label className="text-sm font-bold text-gray-700 dark:text-gray-300 block mb-3">
                         {t("profile.addressBook")}
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -3824,8 +3824,8 @@ export default function Quote() {
                             onClick={() => handleSelectSavedAddress(addr)}
                             className={`p-4 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
                               selectedAddressId === addr.id
-                                ? "border-[#133827] bg-emerald-50/40"
-                                : "border-gray-200/90 hover:border-gray-300 bg-white hover:bg-gray-50/50"
+                                ? "border-[#133827] dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/30"
+                                : "border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 bg-white dark:bg-white/5 hover:bg-gray-50/50 dark:hover:bg-white/10"
                             }`}
                           >
                             <div className="flex items-center gap-2 mb-1">
@@ -3833,21 +3833,21 @@ export default function Quote() {
                                 size={14}
                                 className={
                                   selectedAddressId === addr.id
-                                    ? "text-[#133827]"
-                                    : "text-gray-400"
+                                    ? "text-[#133827] dark:text-emerald-400"
+                                    : "text-gray-400 dark:text-gray-500"
                                 }
                               />
-                              <span className="font-bold text-gray-900 text-sm">
+                              <span className="font-bold text-gray-900 dark:text-white text-sm">
                                 {addr.label || t("quote.addressFallback")}
                               </span>
                             </div>
-                            <p className="text-sm text-gray-600 truncate">
+                            <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
                               {addr.fullName}
                             </p>
-                            <p className="text-xs text-gray-500 truncate">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                               {addr.addressLine1}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               {addr.postalCode} {addr.city}
                             </p>
                           </div>
@@ -3860,7 +3860,7 @@ export default function Quote() {
                     <div className="space-y-1.5 md:col-span-2">
                       <label
                         htmlFor="shipping-name"
-                        className="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                        className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                       >
                         {t("quote.fullName")}
                       </label>
@@ -3879,11 +3879,11 @@ export default function Quote() {
                         onChange={(e) =>
                           handleManualShippingChange("fullName", e.target.value)
                         }
-                        className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
+                        className="w-full p-3.5 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
                         placeholder={t("quote.placeholderShippingName")}
                       />
                       {shippingErrors.fullName && (
-                        <p className="text-xs text-red-600 mt-1">
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
                           {shippingErrors.fullName}
                         </p>
                       )}
@@ -3892,7 +3892,7 @@ export default function Quote() {
                     <div className="space-y-1.5 md:col-span-2">
                       <label
                         htmlFor="shipping-phone"
-                        className="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                        className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                       >
                         {t("quote.phone")}
                       </label>
@@ -3914,11 +3914,11 @@ export default function Quote() {
                             e.target.value,
                           )
                         }
-                        className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
+                        className="w-full p-3.5 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
                         placeholder={t("quote.placeholderShippingPhone")}
                       />
                       {shippingErrors.phoneNumber && (
-                        <p className="text-xs text-red-600 mt-1">
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
                           {shippingErrors.phoneNumber}
                         </p>
                       )}
@@ -3927,7 +3927,7 @@ export default function Quote() {
                     <div className="space-y-1.5 md:col-span-2">
                       <label
                         htmlFor="shipping-street"
-                        className="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                        className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                       >
                         {t("quote.street")}
                       </label>
@@ -3949,11 +3949,11 @@ export default function Quote() {
                             e.target.value,
                           )
                         }
-                        className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
+                        className="w-full p-3.5 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
                         placeholder={t("quote.placeholderStreet")}
                       />
                       {shippingErrors.addressLine1 && (
-                        <p className="text-xs text-red-600 mt-1">
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
                           {shippingErrors.addressLine1}
                         </p>
                       )}
@@ -3962,7 +3962,7 @@ export default function Quote() {
                     <div className="space-y-1.5">
                       <label
                         htmlFor="shipping-city"
-                        className="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                        className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                       >
                         {t("quote.city")}
                       </label>
@@ -3981,11 +3981,11 @@ export default function Quote() {
                         onChange={(e) =>
                           handleManualShippingChange("city", e.target.value)
                         }
-                        className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
+                        className="w-full p-3.5 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
                         placeholder={t("quote.placeholderCity")}
                       />
                       {shippingErrors.city && (
-                        <p className="text-xs text-red-600 mt-1">
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
                           {shippingErrors.city}
                         </p>
                       )}
@@ -3994,7 +3994,7 @@ export default function Quote() {
                     <div className="space-y-1.5">
                       <label
                         htmlFor="shipping-postal"
-                        className="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                        className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                       >
                         {t("quote.postalCode")}
                       </label>
@@ -4016,11 +4016,11 @@ export default function Quote() {
                             e.target.value,
                           )
                         }
-                        className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
+                        className="w-full p-3.5 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
                         placeholder={t("quote.placeholderPostalCode")}
                       />
                       {shippingErrors.postalCode && (
-                        <p className="text-xs text-red-600 mt-1">
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
                           {shippingErrors.postalCode}
                         </p>
                       )}
@@ -4028,11 +4028,11 @@ export default function Quote() {
                   </div>
 
                   {/* Step Navigation */}
-                  <div className="pt-6 mt-8 border-t border-gray-100 flex items-center justify-between gap-4">
+                  <div className="pt-6 mt-8 border-t border-gray-100 dark:border-white/10 flex items-center justify-between gap-4">
                     <button
                       type="button"
                       onClick={goToPreviousStep}
-                      className="border border-gray-200 bg-white text-gray-700 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+                      className="border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
                     >
                       <ChevronLeft size={16} />
                       <span>{t("quote.backStep")}</span>
@@ -4040,7 +4040,7 @@ export default function Quote() {
                     <button
                       type="button"
                       onClick={goToNextStep}
-                      className="bg-[#133827] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                      className="bg-[#133827] dark:bg-emerald-600 text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] dark:hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-sm cursor-pointer"
                     >
                       <span>{t("quote.reviewStep")}</span>
                       <ChevronRight size={18} />
@@ -4053,12 +4053,12 @@ export default function Quote() {
             {/* STEP: REVIEW */}
             {currentStepId === "review" && (
               <div className="space-y-6">
-                <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80">
+                <div className="bg-white dark:bg-[#0e1512] p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80 dark:border-white/10">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-100/70 flex items-center justify-center shadow-2xs">
+                    <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100/70 dark:border-emerald-800/40 flex items-center justify-center shadow-2xs">
                       <CheckCircle2 size={22} />
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900">
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white">
                       {t("quote.reviewTitle")}
                     </h3>
                   </div>
@@ -4066,33 +4066,33 @@ export default function Quote() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Models Review */}
                     <div>
-                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100 pb-2 mb-4">
+                      <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-white/10 pb-2 mb-4">
                         {t("quote.models")} ({items.length})
                       </h4>
                       <ul className="space-y-4">
                         {items.map((item, idx) => (
                           <li
                             key={idx}
-                            className="bg-[#fbfbfd] p-5 rounded-2xl border border-gray-200/80"
+                            className="bg-[#fbfbfd] dark:bg-white/5 p-5 rounded-2xl border border-gray-200/80 dark:border-white/10"
                           >
-                            <p className="font-bold text-gray-800 text-sm truncate mb-1">
+                            <p className="font-bold text-gray-800 dark:text-white text-sm truncate mb-1">
                               {item.fileName || t("quote.textDescription")}
                             </p>
-                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600">
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600 dark:text-gray-300">
                               <span>
-                                <span className="font-semibold text-gray-400">
+                                <span className="font-semibold text-gray-400 dark:text-gray-500">
                                   {t("quote.qty")}
                                 </span>{" "}
                                 {item.count}
                               </span>
                               <span>
-                                <span className="font-semibold text-gray-400">
+                                <span className="font-semibold text-gray-400 dark:text-gray-500">
                                   {t("quote.mat")}
                                 </span>{" "}
                                 {item.material}
                               </span>
                               <span>
-                                <span className="font-semibold text-gray-400">
+                                <span className="font-semibold text-gray-400 dark:text-gray-500">
                                   {t("quote.colorLabel")}
                                 </span>{" "}
                                 {translateColorText(
@@ -4108,12 +4108,12 @@ export default function Quote() {
                                   hasDimensionValue(item.dimensionY) &&
                                   hasDimensionValue(item.dimensionZ) ? (
                                     <span>
-                                      <span className="font-semibold text-gray-400">
+                                      <span className="font-semibold text-gray-400 dark:text-gray-500">
                                         {t("quote.dimensionsMm")}:
                                       </span>{" "}
                                       {item.dimensionX} × {item.dimensionY} ×{" "}
                                       {item.dimensionZ} mm
-                                      <span className="ml-1 text-gray-400 font-normal">
+                                      <span className="ml-1 text-gray-400 dark:text-gray-500 font-normal">
                                         (
                                         {(
                                           item.scaleFactor ??
@@ -4125,7 +4125,7 @@ export default function Quote() {
                                     </span>
                                   ) : (
                                     <span>
-                                      <span className="font-semibold text-gray-400">
+                                      <span className="font-semibold text-gray-400 dark:text-gray-500">
                                         {t("quote.scale")}:
                                       </span>{" "}
                                       {(
@@ -4142,7 +4142,7 @@ export default function Quote() {
                                 hasDimensionValue(item.dimensionY) &&
                                 hasDimensionValue(item.dimensionZ) && (
                                   <span>
-                                    <span className="font-semibold text-gray-400">
+                                    <span className="font-semibold text-gray-400 dark:text-gray-500">
                                       {t("quote.dimensionsMm")}:
                                     </span>{" "}
                                     {item.dimensionX} × {item.dimensionY} ×{" "}
@@ -4151,13 +4151,13 @@ export default function Quote() {
                                 )
                               )}
                               <span>
-                                <span className="font-semibold text-gray-400">
+                                <span className="font-semibold text-gray-400 dark:text-gray-500">
                                   {t("quote.infill")}
                                 </span>{" "}
                                 {item.infillPercent ?? 20}%
                               </span>
                               <span>
-                                <span className="font-semibold text-gray-400">
+                                <span className="font-semibold text-gray-400 dark:text-gray-500">
                                   {t("quote.quality")}
                                 </span>{" "}
                                 {formatPrintQuality(
@@ -4166,7 +4166,7 @@ export default function Quote() {
                                 )}
                               </span>
                               {item.supportsNeeded && (
-                                <span className="text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                <span className="text-emerald-700 dark:text-emerald-300 font-semibold bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800/40">
                                   {t("quote.plusSupports")}
                                 </span>
                               )}
@@ -4179,25 +4179,25 @@ export default function Quote() {
                     {/* Details Review */}
                     <div className="space-y-6">
                       <div>
-                        <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100 pb-2 mb-4">
+                        <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-white/10 pb-2 mb-4">
                           {t("quote.contactInfo")}
                         </h4>
-                        <div className="bg-[#fbfbfd] p-5 rounded-2xl border border-gray-200/80 text-sm text-gray-700 space-y-1">
+                        <div className="bg-[#fbfbfd] dark:bg-white/5 p-5 rounded-2xl border border-gray-200/80 dark:border-white/10 text-sm text-gray-700 dark:text-gray-300 space-y-1">
                           {isLoggedIn ? (
                             <div>
-                              <p className="font-bold text-emerald-800">
+                              <p className="font-bold text-emerald-800 dark:text-emerald-400">
                                 {currentUser?.name || shippingDetails.fullName || t("quote.loggedInUser")}
                               </p>
                               {currentUser?.email && (
-                                <p className="text-gray-600">{currentUser.email}</p>
+                                <p className="text-gray-600 dark:text-gray-400">{currentUser.email}</p>
                               )}
                               {shippingDetails.phoneNumber && (
-                                <p className="text-gray-600">{shippingDetails.phoneNumber}</p>
+                                <p className="text-gray-600 dark:text-gray-400">{shippingDetails.phoneNumber}</p>
                               )}
                             </div>
                           ) : (
                             <>
-                              <p className="font-bold text-gray-800">
+                              <p className="font-bold text-gray-800 dark:text-white">
                                 {shippingDetails.fullName || guestName || "-"}
                               </p>
                               <p>{currentUser?.email || guestEmail || "-"}</p>
@@ -4208,11 +4208,11 @@ export default function Quote() {
                       </div>
 
                       <div>
-                        <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100 pb-2 mb-4">
+                        <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-white/10 pb-2 mb-4">
                           {t("quote.shippingDetailsTitle")}
                         </h4>
-                        <div className="bg-[#fbfbfd] p-5 rounded-2xl border border-gray-200/80 text-sm text-gray-700 space-y-1">
-                          <p className="font-bold text-gray-800">
+                        <div className="bg-[#fbfbfd] dark:bg-white/5 p-5 rounded-2xl border border-gray-200/80 dark:border-white/10 text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                          <p className="font-bold text-gray-800 dark:text-white">
                             {shippingDetails.fullName || "-"}
                           </p>
                           <p>{shippingDetails.phoneNumber || "-"}</p>
@@ -4227,33 +4227,33 @@ export default function Quote() {
                   </div>
 
                   {/* Pricing Disclaimer & Terms & Conditions agreement */}
-                  <div className="mt-8 pt-6 border-t border-gray-100 space-y-4">
-                    <label className="flex items-start gap-3 rounded-2xl border border-gray-200/80 bg-[#fbfbfd] p-4 text-left text-sm text-gray-800 cursor-pointer">
+                  <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/10 space-y-4">
+                    <label className="flex items-start gap-3 rounded-2xl border border-gray-200/80 dark:border-white/10 bg-[#fbfbfd] dark:bg-white/5 p-4 text-left text-sm text-gray-800 dark:text-gray-200 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={agreementAccepted}
                         onChange={(event) =>
                           setAgreementAccepted(event.target.checked)
                         }
-                        className="mt-1 h-4 w-4 shrink-0 accent-[#133827] rounded"
+                        className="mt-1 h-4 w-4 shrink-0 accent-[#133827] dark:accent-emerald-500 rounded"
                       />
                       <span>
                         {t("orderDetail.agreementText")}{" "}
                         <Link
                           to={localizePath("/terms")}
                           target="_blank"
-                          className="font-bold underline text-emerald-800 hover:text-emerald-950"
+                          className="font-bold underline text-emerald-800 dark:text-emerald-400 hover:text-emerald-950 dark:hover:text-emerald-300"
                         >
                           {t("orderDetail.agreementLink")}
                         </Link>
                       </span>
                     </label>
 
-                    <p className="text-xs leading-relaxed text-[#5e7069] text-center">
+                    <p className="text-xs leading-relaxed text-[#5e7069] dark:text-gray-400 text-center">
                       {t("quote.pricingDisclaimer")}{" "}
                       <Link
                         to={localizePath("/terms")}
-                        className="font-semibold text-emerald-700 hover:underline"
+                        className="font-semibold text-emerald-700 dark:text-emerald-400 hover:underline"
                       >
                         {t("footer.terms")}
                       </Link>
@@ -4265,7 +4265,7 @@ export default function Quote() {
                         type="button"
                         onClick={goToPreviousStep}
                         disabled={isSubmitting}
-                        className="border border-gray-200 bg-white text-gray-700 px-7 py-4 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-2xs"
+                        className="border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 px-7 py-4 rounded-full font-semibold text-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-2xs"
                       >
                         <ChevronLeft size={16} />
                         <span>{t("quote.backStep")}</span>
@@ -4274,7 +4274,7 @@ export default function Quote() {
                         type="button"
                         onClick={handleSubmit}
                         disabled={isSubmitting}
-                        className="bg-[#133827] text-white px-9 py-4 rounded-full font-bold text-base hover:bg-[#1c4d37] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 shadow-sm cursor-pointer"
+                        className="bg-[#133827] dark:bg-emerald-600 text-white px-9 py-4 rounded-full font-bold text-base hover:bg-[#1c4d37] dark:hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 shadow-sm cursor-pointer"
                       >
                         {isSubmitting ? (
                           <Loader2 className="animate-spin" size={18} />

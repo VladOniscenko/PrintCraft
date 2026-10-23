@@ -8,16 +8,19 @@ import {
 } from "../../utils/orderStatus";
 
 export function buildPriceSummary(order: Order): PriceSummary {
-  const hasMissingPrice = order.items.some(
-    (item) => item.price == null || item.price <= 0,
-  );
-
   const normalizedStatus = normalizeOrderStatus(order.status);
   const isPendingQuote =
     normalizedStatus === "quote_requested" ||
     normalizedStatus === "pending_quote" ||
-    normalizedStatus === "pending";
-  const fallbackSubtotal = hasMissingPrice
+    normalizedStatus === "pending" ||
+    normalizedStatus === "requested_quote" ||
+    (!order.quotedPrice && (order.status?.toLowerCase().includes("quote") ?? false));
+
+  const hasMissingPrice = order.items.some(
+    (item) => item.price == null || item.price <= 0,
+  );
+
+  const fallbackSubtotal = hasMissingPrice || isPendingQuote
     ? null
     : order.items.reduce((sum, item) => {
         const unit =
@@ -28,24 +31,30 @@ export function buildPriceSummary(order: Order): PriceSummary {
         return sum + unit * (item.count || 1) + plate;
       }, 0);
 
-  const subtotalPrice =
-    order.subtotalAmount != null ? order.subtotalAmount : fallbackSubtotal;
-  const orderDiscount = Math.max(
-    order.discountAmount ?? order.orderDiscountAmount ?? 0,
-    0,
-  );
-  const deliveryPrice = Math.max(order.deliveryPrice ?? 0, 0);
-  const serviceFeePrice = Math.max(order.serviceFeePrice ?? 0, 0);
+  const subtotalPrice = isPendingQuote
+    ? null
+    : order.subtotalAmount != null ? order.subtotalAmount : fallbackSubtotal;
+  const orderDiscount = isPendingQuote
+    ? 0
+    : Math.max(order.discountAmount ?? order.orderDiscountAmount ?? 0, 0);
+  const deliveryPrice = isPendingQuote
+    ? 0
+    : Math.max(order.deliveryPrice ?? 0, 0);
+  const serviceFeePrice = isPendingQuote
+    ? 0
+    : Math.max(order.serviceFeePrice ?? 0, 0);
 
   const calculatedTotal =
-    subtotalPrice == null
+    subtotalPrice == null || isPendingQuote
       ? null
       : Math.max(subtotalPrice + deliveryPrice - orderDiscount, 0);
 
   const finalTotal =
-    order.finalTotalAmount != null
-      ? Math.max(order.finalTotalAmount, 0)
-      : calculatedTotal;
+    isPendingQuote
+      ? null
+      : order.finalTotalAmount != null
+        ? Math.max(order.finalTotalAmount, 0)
+        : calculatedTotal;
 
   const displayTotal = isPendingQuote
     ? 0

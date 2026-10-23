@@ -655,7 +655,7 @@ export default function Interactive3DViewer({
   return (
     <div
       className={`relative flex flex-col rounded-2xl ${
-        compact ? "border border-slate-800" : "border border-gray-200/90"
+        compact ? "border border-slate-800" : "border border-gray-200/90 dark:border-white/10"
       } bg-slate-950 text-white overflow-hidden shadow-sm ${className}`}
     >
       {/* 3D Canvas Viewport */}

@@ -45,7 +45,7 @@ export default function AdminBreadcrumb({
     <div className="mb-6 space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <nav className="text-xs uppercase tracking-[0.12em] text-[#5f736d]">
+          <nav className="text-xs uppercase tracking-[0.12em] text-[#5f736d] dark:text-gray-400">
             <ol className="flex flex-wrap items-center gap-2">
               {items.map((item, index) => {
                 const isLast = index === items.length - 1;
@@ -58,24 +58,24 @@ export default function AdminBreadcrumb({
                     {item.to && !isLast ? (
                       <Link
                         to={localizePath(item.to)}
-                        className="hover:text-teal-800 hover:underline"
+                        className="hover:text-teal-800 dark:hover:text-teal-400 hover:underline"
                       >
                         {item.label}
                       </Link>
                     ) : (
                       <span
-                        className={isLast ? "font-semibold text-[#2f423c]" : ""}
+                        className={isLast ? "font-semibold text-[#2f423c] dark:text-white" : ""}
                       >
                         {item.label}
                       </span>
                     )}
-                    {!isLast && <span className="text-[#95a8a2]">/</span>}
+                    {!isLast && <span className="text-[#95a8a2] dark:text-gray-500">/</span>}
                   </li>
                 );
               })}
             </ol>
           </nav>
-          <h1 className="text-3xl font-bold tracking-tight text-[#16251f]">
+          <h1 className="text-3xl font-bold tracking-tight text-[#16251f] dark:text-white">
             {title}
           </h1>
         </div>
@@ -94,8 +94,8 @@ export default function AdminBreadcrumb({
                   to={localizePath(link.to)}
                   className={`inline-flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${
                     active
-                      ? "bg-teal-700 text-white shadow"
-                      : "text-[#314842] hover:bg-[#eaf4f1] hover:text-[#0f766e]"
+                      ? "bg-teal-700 dark:bg-teal-600 text-white shadow"
+                      : "text-[#314842] dark:text-gray-300 hover:bg-[#eaf4f1] dark:hover:bg-white/10 hover:text-[#0f766e] dark:hover:text-teal-400"
                   }`}
                 >
                   {t(link.labelKey)}

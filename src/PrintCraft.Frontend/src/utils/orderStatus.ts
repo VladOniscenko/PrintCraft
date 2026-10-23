@@ -25,11 +25,18 @@ const STATUS_LABEL_BY_VALUE = new Map<string, string>(
 );
 
 export function normalizeOrderStatus(status?: string | null): string {
-  const s = (status || "").trim().toLowerCase();
-  if (s === "pending_payment" || s === "quoted") return "awaiting_payment";
-  if (s === "pending_quote" || s === "pending") return "quote_requested";
-  if (s === "paid" || s === "completed") return "ready_to_print";
-  if (s === "sent" || s === "delivered") return "shipped";
+  const s = (status || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+  if (s === "pending_payment" || s === "quoted" || s === "awaiting_payment") return "awaiting_payment";
+  if (
+    s === "pending_quote" ||
+    s === "pending" ||
+    s === "quote_requested" ||
+    s === "quote_request" ||
+    s === "requested_quote"
+  )
+    return "quote_requested";
+  if (s === "paid" || s === "completed" || s === "ready_to_print") return "ready_to_print";
+  if (s === "sent" || s === "delivered" || s === "shipped") return "shipped";
   return s;
 }
 
