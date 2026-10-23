@@ -130,32 +130,32 @@ export default function CommunicationTimelineCard({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 transition-shadow hover:shadow flex flex-col">
+    <div className="bg-white dark:bg-[#0e1512] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm p-5 transition-shadow hover:shadow flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-white/10">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-purple-50 text-purple-700">
+          <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300">
             <MessageSquare size={18} />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
               {t("admin.orderDetail.sidebar.communicationHistoryTitle")}
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-gray-400">
               {t("admin.orderDetail.sidebar.communicationHistorySubtitle")}
             </p>
           </div>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-[11px]">
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/10 p-0.5 rounded-lg text-[11px]">
           <button
             type="button"
             onClick={() => setFilterType("all")}
             className={`px-2 py-0.5 rounded-md font-medium transition-colors ${
               filterType === "all"
-                ? "bg-white text-slate-900 shadow-2xs"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-white/20 text-slate-900 dark:text-white shadow-2xs"
+                : "text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             {t("admin.orderDetail.sidebar.tabAll")}

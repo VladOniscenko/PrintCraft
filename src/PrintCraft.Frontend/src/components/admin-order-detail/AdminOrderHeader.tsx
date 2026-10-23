@@ -144,14 +144,14 @@ export default function AdminOrderHeader({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm transition-all">
+    <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#0e1512]/95 backdrop-blur border-b border-slate-200 dark:border-white/10 shadow-sm transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* Left: Back Link & Core Order Meta */}
           <div className="flex items-center gap-3 min-w-0">
             <Link
               to={localizePath("/admin/orders")}
-              className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-1.5 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors"
               title={t("admin.orderDetail.header.backToOrders")}
             >
               <ArrowLeft size={18} />
@@ -159,32 +159,32 @@ export default function AdminOrderHeader({
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <div className="flex items-center gap-1.5">
-                <span className="font-mono text-base font-bold text-slate-900 tracking-tight">
+                <span className="font-mono text-base font-bold text-slate-900 dark:text-white tracking-tight">
                   #{order.id.slice(0, 8)}
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyId}
-                  className="text-slate-400 hover:text-slate-600 p-1 rounded transition-colors"
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-gray-200 p-1 rounded transition-colors"
                   title={t("admin.orderDetail.header.copyOrderId")}
                 >
                   {copiedId ? (
-                    <Check size={14} className="text-emerald-600" />
+                    <Check size={14} className="text-emerald-600 dark:text-emerald-400" />
                   ) : (
                     <Copy size={14} />
                   )}
                 </button>
               </div>
 
-              <span className="text-slate-300 hidden sm:inline">|</span>
+              <span className="text-slate-300 dark:text-white/20 hidden sm:inline">|</span>
 
-              <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+              <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-gray-200">
                 <User size={14} className="text-slate-400" />
                 <span className="truncate max-w-[140px] sm:max-w-[200px]">
                   {customerName}
                 </span>
                 <span
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-white/10"
                   title={t("admin.orderDetail.header.languagePreference", { lang: customerLang.toUpperCase() })}
                 >
                   <span>{languageFlagMap[customerLang] || "🌐"}</span>
@@ -192,9 +192,9 @@ export default function AdminOrderHeader({
                 </span>
               </div>
 
-              <span className="text-slate-300 hidden sm:inline">|</span>
+              <span className="text-slate-300 dark:text-white/20 hidden sm:inline">|</span>
 
-              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-gray-400">
                 <Calendar size={13} className="text-slate-400" />
                 <span>{createdDate}</span>
               </div>
@@ -215,13 +215,13 @@ export default function AdminOrderHeader({
               </span>
 
               {order.isPaid && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
                   {t("admin.orderDetail.header.paid")}
                 </span>
               )}
 
               {order.flaggedForRefundReview && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200 animate-pulse">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/40 animate-pulse">
                   <AlertTriangle size={11} className="mr-1" /> {t("admin.orderDetail.header.refundReview")}
                 </span>
               )}
@@ -233,22 +233,22 @@ export default function AdminOrderHeader({
                 type="button"
                 onClick={() => setDropdownOpen((prev) => !prev)}
                 disabled={isProcessing}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-200 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 border border-slate-300 dark:border-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                 aria-expanded={dropdownOpen}
               >
                 <span>{t("admin.orderDetail.header.actions")}</span>
-                <ChevronDown size={14} className="text-slate-500" />
+                <ChevronDown size={14} className="text-slate-500 dark:text-gray-400" />
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-1.5 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 z-40 animate-in fade-in-50 zoom-in-95">
+                <div className="absolute right-0 mt-1.5 w-56 bg-white dark:bg-[#0e1512] rounded-xl shadow-lg border border-slate-200 dark:border-white/10 py-1.5 z-40 animate-in fade-in-50 zoom-in-95">
                   <button
                     type="button"
                     onClick={handleDownloadInvoice}
                     disabled={downloadingInvoice}
-                    className="w-full text-left px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors disabled:opacity-50"
+                    className="w-full text-left px-3.5 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-white/10 flex items-center gap-2.5 transition-colors disabled:opacity-50"
                   >
-                    <FileDown size={16} className="text-slate-500" />
+                    <FileDown size={16} className="text-slate-500 dark:text-gray-400" />
                     <span>
                       {downloadingInvoice
                         ? t("admin.orderDetail.header.downloading")
@@ -256,7 +256,7 @@ export default function AdminOrderHeader({
                     </span>
                   </button>
 
-                  <div className="h-px bg-slate-100 my-1" />
+                  <div className="h-px bg-slate-100 dark:bg-white/10 my-1" />
 
                   {normalizedStatus !== "cancelled" &&
                     normalizedStatus !== "shipped" && (

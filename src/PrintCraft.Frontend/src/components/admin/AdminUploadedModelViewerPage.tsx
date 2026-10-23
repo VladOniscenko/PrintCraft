@@ -56,7 +56,7 @@ export default function AdminUploadedModelViewerPage() {
         <div className="mb-6 flex items-center justify-between gap-3">
           <Link
             to={localizePath("/admin/models")}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#d8e6df] bg-white px-4 py-2 text-sm font-semibold text-[#27443c] hover:bg-[#f3faf7]"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#d8e6df] dark:border-white/10 bg-white dark:bg-[#0e1512] px-4 py-2 text-sm font-semibold text-[#27443c] dark:text-emerald-300 hover:bg-[#f3faf7] dark:hover:bg-white/10 transition-colors"
           >
             <ArrowLeft size={16} /> {t("models.backToFiles")}
           </Link>
@@ -66,7 +66,7 @@ export default function AdminUploadedModelViewerPage() {
               href={modelUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-[#cfe2da] bg-white px-4 py-2 text-sm font-semibold text-[#12594d] hover:bg-[#ecf7f3]"
+              className="inline-flex items-center gap-2 rounded-xl border border-[#cfe2da] dark:border-white/10 bg-white dark:bg-[#0e1512] px-4 py-2 text-sm font-semibold text-[#12594d] dark:text-emerald-300 hover:bg-[#ecf7f3] dark:hover:bg-white/10 transition-colors"
             >
               <Download size={16} /> {t("modelViewer.download")}
             </a>

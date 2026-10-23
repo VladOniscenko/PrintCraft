@@ -815,8 +815,8 @@ export default function AdminOrders() {
               </select>
             </div>
             <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
-              <table className="w-full text-left text-sm text-gray-600">
-                <thead className="bg-gray-50 text-gray-900 sticky top-0 border-b border-gray-200">
+              <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+                <thead className="bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white sticky top-0 border-b border-gray-200 dark:border-white/10">
                   <tr>
                     <th className="p-2 font-semibold">
                       {t("admin.orders.kanbanColumnId")}
@@ -835,7 +835,7 @@ export default function AdminOrders() {
                     </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-100 dark:divide-white/10">
                   {orders
                     .filter((o) => {
                       const matchSearch =
@@ -853,17 +853,17 @@ export default function AdminOrders() {
                       return (
                         <tr
                           key={o.id}
-                          className="border-t border-gray-100 hover:bg-gray-50/80"
+                          className="border-t border-gray-100 dark:border-white/10 hover:bg-gray-50/80 dark:hover:bg-white/5 transition-colors"
                         >
                           <td className="p-2 font-mono text-xs">
                             <Link
                               to={localizePath(`/admin/orders/${o.id}`)}
-                              className="text-emerald-700 font-bold hover:underline"
+                              className="text-emerald-700 dark:text-emerald-400 font-bold hover:underline"
                             >
                               #{o.id.slice(0, 8)}
                             </Link>
                           </td>
-                          <td className="p-2">{o.fullName}</td>
+                          <td className="p-2 text-gray-800 dark:text-gray-200">{o.fullName}</td>
                           <td className="p-2">
                             <span
                               className={`text-[10px] px-2 py-0.5 rounded-full font-semibold truncate max-w-[150px] inline-block ${getOrderStatusPillClass(
@@ -874,10 +874,10 @@ export default function AdminOrders() {
                               {formatOrderStatusLabel(o.status, t)}
                             </span>
                           </td>
-                          <td className="p-2">
+                          <td className="p-2 text-gray-600 dark:text-gray-400">
                             {new Date(o.createdAt).toLocaleDateString()}
                           </td>
-                          <td className="p-2 font-bold text-gray-900">
+                          <td className="p-2 font-bold text-gray-900 dark:text-white">
                             {total != null ? `€${total.toFixed(2)}` : "-"}
                           </td>
                         </tr>

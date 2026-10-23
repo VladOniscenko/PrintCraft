@@ -382,7 +382,7 @@ export default function AdminPolicies() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-[#f0f6f3] text-xs uppercase tracking-wider text-[#355249] border-b border-[#dde9e3]">
+                <thead className="bg-[#f0f6f3] dark:bg-white/5 text-xs uppercase tracking-wider text-[#355249] dark:text-gray-200 border-b border-[#dde9e3] dark:border-white/10">
                   <tr>
                     <th className="py-3 px-4">{t("admin.policies.colSlug")}</th>
                     <th className="py-3 px-4">{t("admin.policies.colTitle")}</th>
@@ -392,37 +392,37 @@ export default function AdminPolicies() {
                     <th className="py-3 px-4 text-right">{t("admin.policies.colActions")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-white/10">
                   {filteredPolicies.map((policy) => {
                     const resolvedTitle = getLocalizedText(policy.title, language, policy.slug);
                     const resolvedUpdated = getLocalizedText(policy.lastUpdated, language);
                     const isSystem = SYSTEM_POLICY_SLUGS.has(policy.slug);
 
                     return (
-                      <tr key={policy.id} className="hover:bg-[#f7faf8] transition-colors">
+                      <tr key={policy.id} className="hover:bg-teal-50/40 dark:hover:bg-white/5 transition-colors">
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
+                            <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800/40">
                               {policy.slug}
                             </span>
                             {isSystem ? (
-                              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-gray-100 text-gray-600">
+                              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400">
                                 {t("admin.policies.coreBadge")}
                               </span>
                             ) : (
-                              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-purple-50 text-purple-700 border border-purple-200">
+                              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
                                 {t("admin.policies.customBadge")}
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="py-3 px-4 font-medium text-gray-900">
+                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">
                           {resolvedTitle}
                         </td>
-                        <td className="py-3 px-4 text-center font-mono text-xs text-gray-600">
+                        <td className="py-3 px-4 text-center font-mono text-xs text-gray-600 dark:text-gray-400">
                           {policy.sections?.length || 0}
                         </td>
-                        <td className="py-3 px-4 text-xs text-gray-600">
+                        <td className="py-3 px-4 text-xs text-gray-600 dark:text-gray-400">
                           {resolvedUpdated || "-"}
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -431,8 +431,8 @@ export default function AdminPolicies() {
                             onClick={() => handleToggleActive(policy)}
                             className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${
                               policy.isActive
-                                ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                ? "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200"
+                                : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-200"
                             }`}
                           >
                             {policy.isActive
@@ -446,7 +446,7 @@ export default function AdminPolicies() {
                               href={localizePath(getPublicPath(policy.slug))}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-1.5 text-gray-500 hover:text-teal-700 hover:bg-gray-100 rounded-lg transition-colors"
+                              className="p-1.5 text-gray-500 hover:text-teal-700 dark:hover:text-teal-400 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                               title={t("admin.policies.viewLive")}
                             >
                               <ExternalLink size={15} />

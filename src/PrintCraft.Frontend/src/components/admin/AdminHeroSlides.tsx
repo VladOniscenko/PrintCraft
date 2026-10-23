@@ -83,24 +83,24 @@ function Model3dPreviewModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b">
+      <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
+            <div className="p-2 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 rounded-xl">
               <Box size={20} />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-900">
+              <h3 className="text-base font-bold text-gray-900 dark:text-white">
                 {title || t("admin.heroSlides.preview3d")}
               </h3>
-              <p className="text-xs text-gray-500 font-mono truncate max-w-md">
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-mono truncate max-w-md">
                 {modelUrl}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
+            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400"
           >
             <X size={20} />
           </button>
@@ -226,20 +226,20 @@ function MediaSelectorModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-4xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+      <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-4xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b shrink-0">
+        <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10 shrink-0">
           <div>
-            <h3 className="text-lg font-bold text-gray-900">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
               {t("admin.heroSlides.selectFromUploads")}
             </h3>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {t("admin.heroSlides.selectFromUploadsDesc")}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
+            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400"
           >
             <X size={20} />
           </button>
@@ -841,15 +841,15 @@ export default function AdminHeroSlides() {
             <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
           </div>
         ) : slides.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 space-y-4">
-            <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
+          <div className="text-center py-16 bg-white dark:bg-[#0e1512] rounded-2xl border border-gray-100 dark:border-white/10 space-y-4">
+            <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
               <Sparkles size={24} />
             </div>
             <div>
-              <p className="text-gray-900 font-bold text-base mb-1">
+              <p className="text-gray-900 dark:text-white font-bold text-base mb-1">
                 {t("admin.heroSlides.noSlidesTitle")}
               </p>
-              <p className="text-gray-500 text-sm max-w-md mx-auto mb-4">
+              <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md mx-auto mb-4">
                 {t("admin.heroSlides.noSlidesDesc")}
               </p>
             </div>
@@ -859,7 +859,7 @@ export default function AdminHeroSlides() {
                 type="button"
                 disabled={isReseeding}
                 onClick={handleSeedDefaults}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold rounded-xl text-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 font-semibold rounded-xl text-sm cursor-pointer"
               >
                 {isReseeding ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -871,7 +871,7 @@ export default function AdminHeroSlides() {
 
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl text-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl text-sm cursor-pointer"
               >
                 <Plus size={16} />
                 <span>{t("admin.heroSlides.createSlide")}</span>
@@ -888,18 +888,18 @@ export default function AdminHeroSlides() {
               return (
                 <div
                   key={slide.id}
-                  className={`bg-white rounded-2xl border p-6 shadow-xs transition-all ${
+                  className={`bg-white dark:bg-[#0e1512] rounded-2xl border p-6 shadow-xs transition-all ${
                     slide.isActive
-                      ? "border-emerald-200 ring-1 ring-emerald-50"
-                      : "border-gray-200 opacity-75"
+                      ? "border-emerald-200 dark:border-emerald-800/60 ring-1 ring-emerald-50 dark:ring-emerald-950/40"
+                      : "border-gray-200 dark:border-white/10 opacity-75"
                   }`}
                 >
                   {isEditing ? (
                     // Edit Form
                     <div className="space-y-4">
                       {/* Language Selector Tabs */}
-                      <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-gray-100 rounded-xl">
-                        <span className="text-xs font-semibold text-gray-500 px-2">
+                      <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-gray-100 dark:bg-white/5 rounded-xl">
+                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-2">
                           {t("admin.heroSlides.languageTab")}:
                         </span>
                         {supportedLanguages.map((lang) => (
@@ -907,10 +907,10 @@ export default function AdminHeroSlides() {
                             key={lang}
                             type="button"
                             onClick={() => setEditLang(lang)}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                               editLang === lang
-                                ? "bg-white text-emerald-800 shadow-xs"
-                                : "text-gray-600 hover:text-gray-900"
+                                ? "bg-white dark:bg-[#141e1a] text-emerald-800 dark:text-emerald-400 shadow-xs"
+                                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                             }`}
                           >
                             <span>{languageFlagMap[lang]}</span>
@@ -1254,14 +1254,14 @@ export default function AdminHeroSlides() {
                           <span
                             className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
                               slide.isActive
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-gray-100 text-gray-600"
+                                ? "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300"
+                                : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400"
                             }`}
                           >
                             {slide.isActive ? t("admin.heroSlides.active") : t("admin.heroSlides.inactive")}
                           </span>
 
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300">
                             {slide.mediaType === "model3d" ? (
                               <Box size={12} />
                             ) : (
@@ -1270,49 +1270,49 @@ export default function AdminHeroSlides() {
                             <span>{slide.mediaType}</span>
                           </span>
 
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-gray-400 dark:text-gray-500">
                             {t("admin.heroSlides.sortOrderPrefix")} #{slide.sortOrder}
                           </span>
                         </div>
 
-                        <h3 className="text-xl font-bold text-gray-900 flex flex-wrap items-center gap-2">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white flex flex-wrap items-center gap-2">
                           <span>{slide.title}</span>
                           {slide.titleNl && (
-                            <span className="text-xs font-normal text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                            <span className="text-xs font-normal text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/50">
                               {t("admin.heroSlides.nlPrefix")} {slide.titleNl}
                             </span>
                           )}
                         </h3>
 
-                        <p className="text-sm text-gray-600 max-w-2xl">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 max-w-2xl">
                           {slide.subtext}
                         </p>
                         {slide.subtextNl && (
-                          <p className="text-xs text-gray-500 italic max-w-2xl">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 italic max-w-2xl">
                             {t("admin.heroSlides.nlPrefix")} {slide.subtextNl}
                           </p>
                         )}
 
-                        <div className="flex flex-wrap gap-4 text-xs text-gray-500 pt-1">
+                        <div className="flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400 pt-1">
                           {slide.priceText && (
                             <div>
-                              <span className="font-semibold text-gray-700">
+                              <span className="font-semibold text-gray-700 dark:text-gray-300">
                                 {t("admin.heroSlides.pricePrefix")}
                               </span>{" "}
                               {slide.priceText}
                             </div>
                           )}
                           <div>
-                            <span className="font-semibold text-gray-700">
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">
                               {t("admin.heroSlides.mediaUrlPrefix")}
                             </span>{" "}
-                            <span className="font-mono text-gray-600">
+                            <span className="font-mono text-gray-600 dark:text-gray-400">
                               {slide.mediaUrl}
                             </span>
                           </div>
                           {slide.instructionTooltip && (
                             <div>
-                              <span className="font-semibold text-gray-700">
+                              <span className="font-semibold text-gray-700 dark:text-gray-300">
                                 {t("admin.heroSlides.tooltipPrefix")}
                               </span>{" "}
                               {slide.instructionTooltip}
@@ -1324,7 +1324,7 @@ export default function AdminHeroSlides() {
                       {/* Right Action buttons & Thumbnail */}
                       <div className="flex items-center gap-3 shrink-0">
                         {slide.mediaType === "image" && slide.mediaUrl && (
-                          <div className="w-20 h-20 rounded-xl overflow-hidden border bg-gray-50 flex items-center justify-center">
+                          <div className="w-20 h-20 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 flex items-center justify-center">
                             <img
                               src={resolveAssetUrl(slide.mediaUrl)}
                               alt={slide.title}
@@ -1336,7 +1336,7 @@ export default function AdminHeroSlides() {
                         )}
 
                         {slide.mediaType === "model3d" && slide.mediaUrl && (
-                          <div className="w-20 h-20 rounded-xl overflow-hidden border border-blue-200 bg-blue-50/70 flex flex-col items-center justify-center text-blue-700 gap-1 p-1 text-center">
+                          <div className="w-20 h-20 rounded-xl overflow-hidden border border-blue-200 dark:border-blue-900/50 bg-blue-50/70 dark:bg-blue-950/30 flex flex-col items-center justify-center text-blue-700 dark:text-blue-300 gap-1 p-1 text-center">
                             <Box size={22} />
                             <span className="text-[10px] font-bold truncate max-w-full px-1">
                               {slide.mediaUrl.split("/").pop()}
@@ -1347,7 +1347,7 @@ export default function AdminHeroSlides() {
                                 setPreview3dModelUrl(slide.mediaUrl);
                                 setPreview3dTitle(slide.title);
                               }}
-                              className="text-[9px] underline text-blue-800 hover:text-blue-900 font-bold"
+                              className="text-[9px] underline text-blue-800 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-200 font-bold cursor-pointer"
                             >
                               {t("admin.heroSlides.preview3d")}
                             </button>
@@ -1358,7 +1358,7 @@ export default function AdminHeroSlides() {
                           <button
                             type="button"
                             onClick={() => handleStartEdit(slide)}
-                            className="p-2 border rounded-xl hover:bg-gray-50 text-gray-700 hover:text-emerald-700 transition-colors"
+                            className="p-2 border border-gray-200 dark:border-white/15 rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors cursor-pointer"
                             title={t("admin.heroSlides.editSlide")}
                           >
                             <Edit2 size={16} />
@@ -1367,7 +1367,7 @@ export default function AdminHeroSlides() {
                             type="button"
                             disabled={isDeleting}
                             onClick={() => handleDelete(slide.id)}
-                            className="p-2 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 transition-colors"
+                            className="p-2 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
                             title={t("admin.heroSlides.deleteSlide")}
                           >
                             {isDeleting ? (
@@ -1389,14 +1389,14 @@ export default function AdminHeroSlides() {
         {/* Create Slide Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between pb-3 border-b">
-                <h3 className="text-lg font-bold text-gray-900">
+            <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                   {t("admin.heroSlides.addSlideTitle")}
                 </h3>
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
+                  className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400"
                 >
                   <X size={20} />
                 </button>
@@ -1404,8 +1404,8 @@ export default function AdminHeroSlides() {
 
               <form onSubmit={handleCreate} className="space-y-4">
                 {/* Language Selector Tabs */}
-                <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-gray-100 rounded-xl">
-                  <span className="text-xs font-semibold text-gray-500 px-2">
+                <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-gray-100 dark:bg-white/5 border border-gray-200/50 dark:border-white/10 rounded-xl">
+                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-2">
                     {t("admin.heroSlides.languageTab")}:
                   </span>
                   {supportedLanguages.map((lang) => (
@@ -1415,8 +1415,8 @@ export default function AdminHeroSlides() {
                       onClick={() => setCreateLang(lang)}
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                         createLang === lang
-                          ? "bg-white text-emerald-800 shadow-xs"
-                          : "text-gray-600 hover:text-gray-900"
+                          ? "bg-white dark:bg-emerald-700 text-emerald-800 dark:text-white shadow-xs"
+                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                       }`}
                     >
                       <span>{languageFlagMap[lang]}</span>

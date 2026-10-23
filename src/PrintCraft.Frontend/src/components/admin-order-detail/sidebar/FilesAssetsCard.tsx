@@ -60,32 +60,32 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 transition-shadow hover:shadow">
-      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+    <div className="bg-white dark:bg-[#0e1512] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm p-5 transition-shadow hover:shadow">
+      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-white/10">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-indigo-50 text-indigo-700">
+          <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400">
             <FolderArchive size={18} />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
               {t("admin.orderDetail.sidebar.filesTitle")}
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-gray-400">
               {files.length} {t("admin.orderDetail.sidebar.uploaded")}{" "}
               {t("admin.orderDetail.sidebar.fileTypesHint")}
             </p>
           </div>
         </div>
 
-        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-gray-300">
           {files.length}
         </span>
       </div>
 
       {files.length === 0 ? (
-        <div className="text-center py-6 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
-          <Layers className="mx-auto text-slate-300 mb-1.5" size={28} />
-          <p className="text-xs text-slate-500">
+        <div className="text-center py-6 border border-dashed border-slate-200 dark:border-white/10 rounded-xl bg-slate-50/50 dark:bg-white/5">
+          <Layers className="mx-auto text-slate-300 dark:text-gray-600 mb-1.5" size={28} />
+          <p className="text-xs text-slate-500 dark:text-gray-400">
             {t("admin.orderDetail.sidebar.noFiles")}
           </p>
         </div>
@@ -106,15 +106,15 @@ export default function FilesAssetsCard({ order }: FilesAssetsCardProps) {
             return (
               <div
                 key={file.id}
-                className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-slate-150 hover:border-slate-300 bg-slate-50/40 hover:bg-white transition-all group"
+                className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-slate-150 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-slate-50/40 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all group"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="p-1.5 bg-white rounded-lg border border-slate-200 shadow-2xs">
+                  <div className="p-1.5 bg-white dark:bg-white/10 rounded-lg border border-slate-200 dark:border-white/10 shadow-2xs">
                     {getFileIcon(file)}
                   </div>
                   <div className="min-w-0">
                     <p
-                      className="text-xs font-medium text-slate-800 truncate"
+                      className="text-xs font-medium text-slate-800 dark:text-white truncate"
                       title={file.fileName}
                     >
                       {file.fileName}

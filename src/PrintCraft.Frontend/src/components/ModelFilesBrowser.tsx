@@ -171,81 +171,81 @@ export default function ModelFilesBrowser() {
                 type="text"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                className="w-full rounded-xl border border-[#d5e3dc] bg-[#f9fcfb] py-2.5 pl-9 pr-3 text-sm outline-none ring-0 transition focus:border-[#18907f]"
+                className="w-full rounded-xl border border-[#d5e3dc] dark:border-white/10 bg-[#f9fcfb] dark:bg-white/5 dark:text-white py-2.5 pl-9 pr-3 text-sm outline-none ring-0 transition focus:border-[#18907f]"
                 placeholder={t("models.searchPlaceholder")}
               />
             </label>
 
-            <div className="text-sm text-[#5f756e]">
+            <div className="text-sm text-[#5f756e] dark:text-gray-400">
               {t("models.count")}:{" "}
-              <span className="font-semibold">{visibleFiles.length}</span>
+              <span className="font-semibold text-gray-900 dark:text-white">{visibleFiles.length}</span>
             </div>
           </div>
 
           {loading ? (
-            <div className="py-16 text-center text-[#5e746d]">
+            <div className="py-16 text-center text-[#5e746d] dark:text-gray-400">
               {t("models.loading")}
             </div>
           ) : error ? (
-            <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+            <div className="mt-6 rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 p-4 text-red-700 dark:text-red-300">
               {error}
             </div>
           ) : (
             <>
               {successMessage && (
-                <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800 flex items-center justify-between text-sm">
+                <div className="mt-4 rounded-xl border border-emerald-200 dark:border-emerald-800/40 bg-emerald-50 dark:bg-emerald-950/30 p-4 text-emerald-800 dark:text-emerald-300 flex items-center justify-between text-sm">
                   <span>{successMessage}</span>
                   <button
                     type="button"
                     onClick={() => setSuccessMessage(null)}
-                    className="text-emerald-700 hover:text-emerald-900 font-bold ml-2 text-base leading-none"
+                    className="text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 font-bold ml-2 text-base leading-none"
                   >
                     ×
                   </button>
                 </div>
               )}
               {visibleFiles.length === 0 ? (
-            <div className="mt-8 rounded-2xl border border-dashed border-[#cfded7] bg-[#f8fbfa] p-12 text-center text-[#4e6660]">
-              <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#2f5a4f]">
+            <div className="mt-8 rounded-2xl border border-dashed border-[#cfded7] dark:border-white/10 bg-[#f8fbfa] dark:bg-white/5 p-12 text-center text-[#4e6660] dark:text-gray-400">
+              <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-white/10 text-[#2f5a4f] dark:text-teal-300">
                 <Boxes size={22} />
               </div>
-              <p className="font-semibold">{t("models.empty")}</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{t("models.empty")}</p>
             </div>
           ) : (
-            <div className="mt-6 overflow-x-auto rounded-2xl border border-[#deebe5]">
-              <table className="min-w-full divide-y divide-[#e7f0ec] text-sm">
-                <thead className="bg-[#f7fbf9]">
+            <div className="mt-6 overflow-x-auto rounded-2xl border border-[#deebe5] dark:border-white/10">
+              <table className="min-w-full divide-y divide-[#e7f0ec] dark:divide-white/10 text-sm">
+                <thead className="bg-[#f7fbf9] dark:bg-white/5">
                   <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-[#23423a]">
+                    <th className="px-4 py-3 text-left font-semibold text-[#23423a] dark:text-gray-200">
                       {t("models.table.file")}
                     </th>
-                    <th className="px-4 py-3 text-left font-semibold text-[#23423a]">
+                    <th className="px-4 py-3 text-left font-semibold text-[#23423a] dark:text-gray-200">
                       {t("models.table.type")}
                     </th>
-                    <th className="px-4 py-3 text-left font-semibold text-[#23423a]">
+                    <th className="px-4 py-3 text-left font-semibold text-[#23423a] dark:text-gray-200">
                       {t("models.table.size")}
                     </th>
-                    <th className="px-4 py-3 text-left font-semibold text-[#23423a]">
+                    <th className="px-4 py-3 text-left font-semibold text-[#23423a] dark:text-gray-200">
                       {t("models.table.updated")}
                     </th>
-                    <th className="px-4 py-3 text-right font-semibold text-[#23423a]">
+                    <th className="px-4 py-3 text-right font-semibold text-[#23423a] dark:text-gray-200">
                       {t("models.table.action")}
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#eef4f1] bg-white">
+                <tbody className="divide-y divide-[#eef4f1] dark:divide-white/10 bg-white dark:bg-[#0e1512]">
                   {visibleFiles.map((file) => (
-                    <tr key={file.fileName} className="hover:bg-[#fbfefd]">
-                      <td className="px-4 py-3 font-medium text-[#223d36]">
+                    <tr key={file.fileName} className="hover:bg-teal-50/40 dark:hover:bg-white/5 transition-colors">
+                      <td className="px-4 py-3 font-medium text-[#223d36] dark:text-white">
                         {file.fileName}
                       </td>
-                      <td className="px-4 py-3 text-[#4f6a63]">
+                      <td className="px-4 py-3 text-[#4f6a63] dark:text-gray-400">
                         {file.extension}
                       </td>
-                      <td className="px-4 py-3 text-[#4f6a63]">
+                      <td className="px-4 py-3 text-[#4f6a63] dark:text-gray-400">
                         {formatBytes(file.sizeBytes)}
                       </td>
-                      <td className="px-4 py-3 text-[#4f6a63]">
+                      <td className="px-4 py-3 text-[#4f6a63] dark:text-gray-400">
                         {new Date(file.lastModifiedUtc).toLocaleString()}
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -253,7 +253,7 @@ export default function ModelFilesBrowser() {
                           {file.orderId ? (
                             <Link
                               to={localizePath(`/admin/orders/${file.orderId}`)}
-                              className="inline-flex items-center rounded-lg border border-[#d8e6df] px-3 py-1.5 font-semibold text-[#21453d] hover:bg-[#f2f9f6]"
+                              className="inline-flex items-center rounded-lg border border-[#d8e6df] dark:border-white/10 px-3 py-1.5 font-semibold text-[#21453d] dark:text-teal-300 hover:bg-[#f2f9f6] dark:hover:bg-white/10"
                             >
                               {t("models.order")}
                             </Link>
@@ -262,7 +262,7 @@ export default function ModelFilesBrowser() {
                           {file.fileName ? (
                             <Link
                               to={localizePath(`/admin/models/view/${encodeURIComponent(file.fileName)}`)}
-                              className="inline-flex items-center rounded-lg border border-[#cfd9ff] px-3 py-1.5 font-semibold text-[#3048a0] hover:bg-[#eef1ff]"
+                              className="inline-flex items-center rounded-lg border border-[#cfd9ff] dark:border-indigo-800/40 px-3 py-1.5 font-semibold text-[#3048a0] dark:text-indigo-300 hover:bg-[#eef1ff] dark:hover:bg-indigo-950/40"
                             >
                               {file.extension === ".png" ||
                               file.extension === ".jpg" ||
@@ -278,7 +278,7 @@ export default function ModelFilesBrowser() {
                             href={resolveAssetUrl(file.url)}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 rounded-lg border border-[#cfe2da] px-3 py-1.5 font-semibold text-[#165f52] hover:bg-[#ecf7f3]"
+                            className="inline-flex items-center gap-1 rounded-lg border border-[#cfe2da] dark:border-white/10 px-3 py-1.5 font-semibold text-[#165f52] dark:text-emerald-300 hover:bg-[#ecf7f3] dark:hover:bg-white/10"
                           >
                             {t("models.open")}
                             <ExternalLink size={14} />

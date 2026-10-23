@@ -529,9 +529,9 @@ export default function AdminFaq() {
                 <p className="font-semibold text-base">{t("admin.faq.emptyItems")}</p>
               </div>
             ) : (
-              <div className="site-card rounded-2xl overflow-hidden border border-[#d8e6df]">
+              <div className="site-card rounded-2xl overflow-hidden border border-[#d8e6df] dark:border-white/10 dark:bg-[#0e1512]">
                 <table className="w-full text-left border-collapse text-sm">
-                  <thead className="bg-[#f4f9f6] text-[#283d36] font-bold text-xs uppercase tracking-wider border-b border-[#d8e6df]">
+                  <thead className="bg-[#f4f9f6] dark:bg-white/5 text-[#283d36] dark:text-gray-200 font-bold text-xs uppercase tracking-wider border-b border-[#d8e6df] dark:border-white/10">
                     <tr>
                       <th className="py-3 px-4">{t("admin.faq.colQuestion")}</th>
                       <th className="py-3 px-4 w-32">{t("admin.faq.colCategory")}</th>
@@ -540,23 +540,23 @@ export default function AdminFaq() {
                       <th className="py-3 px-4 w-28 text-right">{t("admin.faq.colActions")}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#e9f2ee]">
+                  <tbody className="divide-y divide-[#e9f2ee] dark:divide-white/10">
                     {filteredItems.map((item) => {
                       const qText = getLocalizedText(item.question, language);
                       const aText = getLocalizedText(item.answer, language);
 
                       return (
-                        <tr key={item.id} className="hover:bg-[#fafdff] transition-colors">
+                        <tr key={item.id} className="hover:bg-teal-50/40 dark:hover:bg-white/5 transition-colors">
                           <td className="py-3 px-4">
-                            <p className="font-bold text-[#142621] line-clamp-1">{qText}</p>
-                            <p className="text-xs text-[#5f746e] line-clamp-2 mt-0.5">{aText}</p>
+                            <p className="font-bold text-[#142621] dark:text-white line-clamp-1">{qText}</p>
+                            <p className="text-xs text-[#5f746e] dark:text-gray-400 line-clamp-2 mt-0.5">{aText}</p>
                           </td>
                           <td className="py-3 px-4">
-                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#edf5f1] text-[#1c473c]">
+                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#edf5f1] dark:bg-white/5 text-[#1c473c] dark:text-teal-300 border border-transparent dark:border-white/10">
                               {item.category}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-center font-mono text-xs text-gray-600">
+                          <td className="py-3 px-4 text-center font-mono text-xs text-gray-600 dark:text-gray-400">
                             {item.sortOrder}
                           </td>
                           <td className="py-3 px-4 text-center">
@@ -564,8 +564,8 @@ export default function AdminFaq() {
                               onClick={() => handleToggleItemActive(item)}
                               className={`px-2 py-0.5 rounded-full text-xs font-bold transition-all ${
                                 item.isActive
-                                  ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                  ? "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200"
+                                  : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-200"
                               }`}
                             >
                               {item.isActive ? t("admin.faq.active") : t("admin.faq.inactive")}
@@ -575,14 +575,14 @@ export default function AdminFaq() {
                             <div className="inline-flex items-center gap-1">
                               <button
                                 onClick={() => openItemModal(item)}
-                                className="p-1.5 text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
+                                className="p-1.5 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-white/10 rounded-lg transition-colors"
                                 title={t("admin.faq.edit")}
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setDeleteItemTarget(item)}
-                                className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors"
                                 title={t("admin.faq.delete")}
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -626,9 +626,9 @@ export default function AdminFaq() {
                 <p className="font-semibold text-base">{t("admin.faq.emptyTopics")}</p>
               </div>
             ) : (
-              <div className="site-card rounded-2xl overflow-hidden border border-[#d8e6df]">
+              <div className="site-card rounded-2xl overflow-hidden border border-[#d8e6df] dark:border-white/10 dark:bg-[#0e1512]">
                 <table className="w-full text-left border-collapse text-sm">
-                  <thead className="bg-[#f4f9f6] text-[#283d36] font-bold text-xs uppercase tracking-wider border-b border-[#d8e6df]">
+                  <thead className="bg-[#f4f9f6] dark:bg-white/5 text-[#283d36] dark:text-gray-200 font-bold text-xs uppercase tracking-wider border-b border-[#d8e6df] dark:border-white/10">
                     <tr>
                       <th className="py-3 px-4">{t("admin.faq.colSlug")}</th>
                       <th className="py-3 px-4">{t("admin.faq.colTitle")}</th>
@@ -639,24 +639,24 @@ export default function AdminFaq() {
                       <th className="py-3 px-4 w-32 text-right">{t("admin.faq.colActions")}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#e9f2ee]">
+                  <tbody className="divide-y divide-[#e9f2ee] dark:divide-white/10">
                     {filteredTopics.map((top) => {
                       const name = getLocalizedText(top.names, language);
                       const badge = getLocalizedText(top.badge, language);
 
                       return (
-                        <tr key={top.id} className="hover:bg-[#fafdff] transition-colors">
+                        <tr key={top.id} className="hover:bg-teal-50/40 dark:hover:bg-white/5 transition-colors">
                           <td className="py-3 px-4">
-                            <span className="font-mono text-xs text-teal-800 font-semibold bg-teal-50 px-2 py-0.5 rounded">
+                            <span className="font-mono text-xs text-teal-800 dark:text-teal-300 font-semibold bg-teal-50 dark:bg-teal-950/40 px-2 py-0.5 rounded border border-teal-200/50 dark:border-teal-800/40">
                               /faq/{top.slug}
                             </span>
                           </td>
-                          <td className="py-3 px-4 font-bold text-[#142621]">{name}</td>
-                          <td className="py-3 px-4 text-xs text-[#526b64]">{badge}</td>
-                          <td className="py-3 px-4 text-xs text-[#526b64]">
+                          <td className="py-3 px-4 font-bold text-[#142621] dark:text-white">{name}</td>
+                          <td className="py-3 px-4 text-xs text-[#526b64] dark:text-gray-400">{badge}</td>
+                          <td className="py-3 px-4 text-xs text-[#526b64] dark:text-gray-400">
                             {(top.recommendedMaterials || []).join(", ")}
                           </td>
-                          <td className="py-3 px-4 text-center font-mono text-xs text-gray-600">
+                          <td className="py-3 px-4 text-center font-mono text-xs text-gray-600 dark:text-gray-400">
                             {top.sortOrder}
                           </td>
                           <td className="py-3 px-4 text-center">
@@ -664,8 +664,8 @@ export default function AdminFaq() {
                               onClick={() => handleToggleTopicActive(top)}
                               className={`px-2 py-0.5 rounded-full text-xs font-bold transition-all ${
                                 top.isActive
-                                  ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                  ? "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200"
+                                  : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-200"
                               }`}
                             >
                               {top.isActive ? t("admin.faq.active") : t("admin.faq.inactive")}
@@ -677,21 +677,21 @@ export default function AdminFaq() {
                                 href={localizePath(`/faq/${top.slug}`)}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                                className="p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                                 title={t("admin.faq.viewLive")}
                               >
                                 <ExternalLink className="w-4 h-4" />
                               </a>
                               <button
                                 onClick={() => openTopicModal(top)}
-                                className="p-1.5 text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
+                                className="p-1.5 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-white/10 rounded-lg transition-colors"
                                 title={t("admin.faq.edit")}
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setDeleteTopicTarget(top)}
-                                className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors"
                                 title={t("admin.faq.delete")}
                               >
                                 <Trash2 className="w-4 h-4" />

@@ -1051,9 +1051,20 @@ body:has(.admin-shell) {
 }
 
 :root[data-theme="dark"] .admin-shell .bg-white,
-.dark .admin-shell .bg-white {
+.dark .admin-shell .bg-white,
+:root[data-theme="dark"] .admin-shell .bg-white\/95,
+.dark .admin-shell .bg-white\/95,
+:root[data-theme="dark"] .admin-shell .bg-white\/90,
+.dark .admin-shell .bg-white\/90,
+:root[data-theme="dark"] .admin-shell .bg-white\/80,
+.dark .admin-shell .bg-white\/80,
+:root[data-theme="dark"] .admin-shell .site-card,
+.dark .admin-shell .site-card,
+:root[data-theme="dark"] .admin-shell .admin-panel,
+.dark .admin-shell .admin-panel {
   background-color: var(--admin-card-bg) !important;
-  color: var(--admin-heading);
+  color: var(--admin-heading) !important;
+  border-color: var(--admin-card-border) !important;
 }
 
 :root[data-theme="dark"] .admin-shell .bg-gray-50,
@@ -1066,22 +1077,162 @@ body:has(.admin-shell) {
 .dark .admin-shell .bg-gray-100,
 :root[data-theme="dark"] .admin-shell .bg-slate-50,
 .dark .admin-shell .bg-slate-50,
+:root[data-theme="dark"] .admin-shell .bg-slate-50\/40,
+.dark .admin-shell .bg-slate-50\/40,
+:root[data-theme="dark"] .admin-shell .bg-slate-50\/50,
+.dark .admin-shell .bg-slate-50\/50,
 :root[data-theme="dark"] .admin-shell .bg-slate-100,
-.dark .admin-shell .bg-slate-100 {
+.dark .admin-shell .bg-slate-100,
+:root[data-theme="dark"] .admin-shell .bg-slate-200,
+.dark .admin-shell .bg-slate-200,
+:root[data-theme="dark"] .admin-shell [class*="bg-[#f"],
+.dark .admin-shell [class*="bg-[#f"],
+:root[data-theme="dark"] .admin-shell [class*="bg-[#e"],
+.dark .admin-shell [class*="bg-[#e"],
+:root[data-theme="dark"] .admin-shell [class*="bg-[#d"],
+.dark .admin-shell [class*="bg-[#d"] {
   background-color: var(--admin-card-bg-subtle) !important;
+  color: var(--admin-text) !important;
 }
 
+/* Modals & Dialogs in Admin */
+:root[data-theme="dark"] .admin-shell .fixed .bg-white,
+.dark .admin-shell .fixed .bg-white {
+  background-color: #0e1512 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f3f4f6 !important;
+}
+
+/* Tables in Admin */
+:root[data-theme="dark"] .admin-shell table,
+.dark .admin-shell table {
+  color: var(--admin-text) !important;
+}
+
+:root[data-theme="dark"] .admin-shell thead,
+.dark .admin-shell thead,
+:root[data-theme="dark"] .admin-shell thead tr,
+.dark .admin-shell thead tr,
+:root[data-theme="dark"] .admin-shell thead th,
+.dark .admin-shell thead th {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: var(--admin-heading) !important;
+  border-color: var(--admin-card-border) !important;
+}
+
+:root[data-theme="dark"] .admin-shell tbody,
+.dark .admin-shell tbody,
+:root[data-theme="dark"] .admin-shell tbody tr,
+.dark .admin-shell tbody tr {
+  background-color: var(--admin-card-bg) !important;
+  color: var(--admin-text) !important;
+  border-color: var(--admin-card-border) !important;
+}
+
+:root[data-theme="dark"] .admin-shell tbody td,
+.dark .admin-shell tbody td {
+  border-color: var(--admin-card-border) !important;
+}
+
+/* Table row hover and general element hover in Admin */
+:root[data-theme="dark"] .admin-shell table tbody tr:hover,
+.dark .admin-shell table tbody tr:hover,
+:root[data-theme="dark"] .admin-shell table tbody tr:hover td,
+.dark .admin-shell table tbody tr:hover td,
+:root[data-theme="dark"] .admin-shell tr[class*="hover:"]:hover,
+.dark .admin-shell tr[class*="hover:"]:hover,
+:root[data-theme="dark"] .admin-shell tr[class*="hover:"]:hover td,
+.dark .admin-shell tr[class*="hover:"]:hover td,
+:root[data-theme="dark"] .admin-shell [class*="hover:bg-[#f"]:hover,
+.dark .admin-shell [class*="hover:bg-[#f"]:hover,
+:root[data-theme="dark"] .admin-shell [class*="hover:bg-[#e"]:hover,
+.dark .admin-shell [class*="hover:bg-[#e"]:hover,
+:root[data-theme="dark"] .admin-shell [class*="hover:bg-white"]:hover,
+.dark .admin-shell [class*="hover:bg-white"]:hover,
+:root[data-theme="dark"] .admin-shell [class*="hover:bg-gray-"]:hover,
+.dark .admin-shell [class*="hover:bg-gray-"]:hover,
+:root[data-theme="dark"] .admin-shell [class*="hover:bg-slate-"]:hover,
+.dark .admin-shell [class*="hover:bg-slate-"]:hover,
+:root[data-theme="dark"] .admin-shell [class*="hover:bg-teal-50"]:hover,
+.dark .admin-shell [class*="hover:bg-teal-50"]:hover,
+:root[data-theme="dark"] .admin-shell [class*="hover:bg-emerald-50"]:hover,
+.dark .admin-shell [class*="hover:bg-emerald-50"]:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+:root[data-theme="dark"] .admin-shell table tbody tr:hover [class*="text-[#"],
+.dark .admin-shell table tbody tr:hover [class*="text-[#"],
+:root[data-theme="dark"] .admin-shell table tbody tr:hover .text-gray-900,
+.dark .admin-shell table tbody tr:hover .text-gray-900,
+:root[data-theme="dark"] .admin-shell table tbody tr:hover .text-slate-900,
+.dark .admin-shell table tbody tr:hover .text-slate-900,
+:root[data-theme="dark"] .admin-shell table tbody tr:hover .text-slate-800,
+.dark .admin-shell table tbody tr:hover .text-slate-800 {
+  color: #ffffff !important;
+}
+
+/* Inputs, Selects, and Textareas */
+:root[data-theme="dark"] .admin-shell input:not([type="checkbox"]):not([type="radio"]),
+.dark .admin-shell input:not([type="checkbox"]):not([type="radio"]),
+:root[data-theme="dark"] .admin-shell select,
+.dark .admin-shell select,
+:root[data-theme="dark"] .admin-shell textarea,
+.dark .admin-shell textarea,
+:root[data-theme="dark"] .admin-shell .site-input,
+.dark .admin-shell .site-input {
+  background-color: #141e1a !important;
+  color: #f3f4f6 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+:root[data-theme="dark"] .admin-shell select option,
+.dark .admin-shell select option {
+  background-color: #0e1512 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Soft buttons */
+:root[data-theme="dark"] .admin-shell .site-btn-soft,
+.dark .admin-shell .site-btn-soft {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #e5e7eb !important;
+}
+:root[data-theme="dark"] .admin-shell .site-btn-soft:hover,
+.dark .admin-shell .site-btn-soft:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+/* Borders and Divides */
+:root[data-theme="dark"] .admin-shell [class*="border-[#"],
+.dark .admin-shell [class*="border-[#"],
+:root[data-theme="dark"] .admin-shell [class*="divide-[#"],
+.dark .admin-shell [class*="divide-[#"],
 :root[data-theme="dark"] .admin-shell .border-gray-100,
 .dark .admin-shell .border-gray-100,
 :root[data-theme="dark"] .admin-shell .border-gray-200,
 .dark .admin-shell .border-gray-200,
 :root[data-theme="dark"] .admin-shell .border-gray-300,
 .dark .admin-shell .border-gray-300,
+:root[data-theme="dark"] .admin-shell .border-slate-100,
+.dark .admin-shell .border-slate-100,
+:root[data-theme="dark"] .admin-shell .border-slate-150,
+.dark .admin-shell .border-slate-150,
 :root[data-theme="dark"] .admin-shell .border-slate-200,
-.dark .admin-shell .border-slate-200 {
+.dark .admin-shell .border-slate-200,
+:root[data-theme="dark"] .admin-shell .border-slate-300,
+.dark .admin-shell .border-slate-300,
+:root[data-theme="dark"] .admin-shell .divide-gray-100,
+.dark .admin-shell .divide-gray-100,
+:root[data-theme="dark"] .admin-shell .divide-slate-100,
+.dark .admin-shell .divide-slate-100,
+:root[data-theme="dark"] .admin-shell .divide-slate-200,
+.dark .admin-shell .divide-slate-200 {
   border-color: var(--admin-card-border) !important;
 }
 
+/* Headings and Primary Text */
 :root[data-theme="dark"] .admin-shell .text-gray-900,
 .dark .admin-shell .text-gray-900,
 :root[data-theme="dark"] .admin-shell .text-gray-800,
@@ -1090,15 +1241,16 @@ body:has(.admin-shell) {
 .dark .admin-shell .text-slate-800,
 :root[data-theme="dark"] .admin-shell .text-slate-900,
 .dark .admin-shell .text-slate-900,
-:root[data-theme="dark"] .admin-shell .text-\[\#16251f\],
-.dark .admin-shell .text-\[\#16251f\],
-:root[data-theme="dark"] .admin-shell .text-\[\#12211d\],
-.dark .admin-shell .text-\[\#12211d\],
-:root[data-theme="dark"] .admin-shell .text-\[\#1b2b25\],
-.dark .admin-shell .text-\[\#1b2b25\] {
+:root[data-theme="dark"] .admin-shell [class*="text-[#1"],
+.dark .admin-shell [class*="text-[#1"],
+:root[data-theme="dark"] .admin-shell [class*="text-[#2"],
+.dark .admin-shell [class*="text-[#2"],
+:root[data-theme="dark"] .admin-shell [class*="text-[#3"],
+.dark .admin-shell [class*="text-[#3"] {
   color: var(--admin-heading) !important;
 }
 
+/* Subheadings and Body Text */
 :root[data-theme="dark"] .admin-shell .text-gray-700,
 .dark .admin-shell .text-gray-700,
 :root[data-theme="dark"] .admin-shell .text-gray-600,
@@ -1107,15 +1259,14 @@ body:has(.admin-shell) {
 .dark .admin-shell .text-slate-600,
 :root[data-theme="dark"] .admin-shell .text-slate-700,
 .dark .admin-shell .text-slate-700,
-:root[data-theme="dark"] .admin-shell .text-\[\#314842\],
-.dark .admin-shell .text-\[\#314842\],
-:root[data-theme="dark"] .admin-shell .text-\[\#27443c\],
-.dark .admin-shell .text-\[\#27443c\],
-:root[data-theme="dark"] .admin-shell .text-\[\#22322d\],
-.dark .admin-shell .text-\[\#22322d\] {
+:root[data-theme="dark"] .admin-shell [class*="text-[#4"],
+.dark .admin-shell [class*="text-[#4"],
+:root[data-theme="dark"] .admin-shell [class*="text-[#5"],
+.dark .admin-shell [class*="text-[#5"] {
   color: var(--admin-subheading) !important;
 }
 
+/* Muted Text */
 :root[data-theme="dark"] .admin-shell .text-gray-500,
 .dark .admin-shell .text-gray-500,
 :root[data-theme="dark"] .admin-shell .text-gray-400,
@@ -1124,18 +1275,41 @@ body:has(.admin-shell) {
 .dark .admin-shell .text-slate-400,
 :root[data-theme="dark"] .admin-shell .text-slate-500,
 .dark .admin-shell .text-slate-500,
-:root[data-theme="dark"] .admin-shell .text-\[\#5f736d\],
-.dark .admin-shell .text-\[\#5f736d\],
-:root[data-theme="dark"] .admin-shell .text-\[\#60736d\],
-.dark .admin-shell .text-\[\#60736d\] {
+:root[data-theme="dark"] .admin-shell [class*="text-[#6"],
+.dark .admin-shell [class*="text-[#6"] {
   color: var(--admin-muted) !important;
 }
 
-:root[data-theme="dark"] .admin-shell .hover\:bg-gray-50:hover,
-.dark .admin-shell .hover\:bg-gray-50:hover,
-:root[data-theme="dark"] .admin-shell .hover\:bg-gray-100:hover,
-.dark .admin-shell .hover\:bg-gray-100:hover {
-  background-color: var(--admin-tab-hover-bg) !important;
+/* Color Pills and Badges */
+:root[data-theme="dark"] .admin-shell .bg-teal-50,
+.dark .admin-shell .bg-teal-50 {
+  background-color: rgba(15, 118, 110, 0.25) !important;
+  color: #5eead4 !important;
+  border-color: rgba(20, 184, 166, 0.3) !important;
+}
+
+:root[data-theme="dark"] .admin-shell .bg-emerald-50,
+.dark .admin-shell .bg-emerald-50,
+:root[data-theme="dark"] .admin-shell .bg-emerald-100,
+.dark .admin-shell .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  color: #6ee7b7 !important;
+}
+
+:root[data-theme="dark"] .admin-shell .bg-amber-50,
+.dark .admin-shell .bg-amber-50,
+:root[data-theme="dark"] .admin-shell .bg-amber-100,
+.dark .admin-shell .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+  color: #fcd34d !important;
+}
+
+:root[data-theme="dark"] .admin-shell .bg-rose-50,
+.dark .admin-shell .bg-rose-50,
+:root[data-theme="dark"] .admin-shell .bg-rose-100,
+.dark .admin-shell .bg-rose-100 {
+  background-color: rgba(244, 63, 94, 0.2) !important;
+  color: #fda4af !important;
 }
 
 @media (max-width: 768px) {

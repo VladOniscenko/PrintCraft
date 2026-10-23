@@ -161,17 +161,17 @@ export default function QuoteRequestedPanel({
   return (
     <div className="space-y-6">
       {/* Panel Banner */}
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-xs font-semibold bg-amber-200 text-amber-900 uppercase tracking-wide">
+            <span className="px-2 py-0.5 rounded text-xs font-semibold bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300 uppercase tracking-wide">
               {t("admin.orderDetail.panels.quoteRequested.badge")}
             </span>
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
               {t("admin.orderDetail.panels.quoteRequested.title")}
             </h2>
           </div>
-          <p className="text-xs text-slate-600 mt-1">
+          <p className="text-xs text-slate-600 dark:text-gray-400 mt-1">
             {t("admin.orderDetail.panels.quoteRequested.subtitle")}
           </p>
         </div>
@@ -180,7 +180,7 @@ export default function QuoteRequestedPanel({
           type="button"
           onClick={handleCalculateAllPrices}
           disabled={calculatingAll}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-amber-900 bg-amber-200 hover:bg-amber-300 transition-colors shadow-2xs disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-amber-900 dark:text-amber-200 bg-amber-200 dark:bg-amber-900/50 hover:bg-amber-300 dark:hover:bg-amber-900/80 transition-colors shadow-2xs disabled:opacity-50"
         >
           <Sparkles size={14} className={calculatingAll ? "animate-spin" : ""} />
           <span>
@@ -192,13 +192,13 @@ export default function QuoteRequestedPanel({
       </div>
 
       {/* Item List & Item Pricing Overrides */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-            <Layers size={16} className="text-teal-600" />
+      <div className="bg-white dark:bg-[#0e1512] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm p-5 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/10">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+            <Layers size={16} className="text-teal-600 dark:text-teal-400" />
             <span>{t("admin.orderDetail.panels.quoteRequested.itemsHeading", { count: order.items?.length || 0 })}</span>
           </h3>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-slate-500 dark:text-gray-400">
             {t("admin.orderDetail.panels.quoteRequested.itemsSubtitle")}
           </span>
         </div>
@@ -215,7 +215,7 @@ export default function QuoteRequestedPanel({
             return (
               <div
                 key={item.id}
-                className="p-4 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-slate-300 transition-all space-y-3"
+                className="p-4 rounded-xl border border-slate-200/90 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all space-y-3"
               >
                 {/* Item Header */}
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -398,79 +398,79 @@ export default function QuoteRequestedPanel({
       </div>
 
       {/* Global Fee Controls & Grand Total */}
-      <form onSubmit={handleFinalizeQuote} className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-5">
-        <h3 className="text-sm font-semibold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
-          <DollarSign size={16} className="text-emerald-600" />
+      <form onSubmit={handleFinalizeQuote} className="bg-white dark:bg-[#0e1512] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm p-5 space-y-5">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-white/10 flex items-center gap-2">
+          <DollarSign size={16} className="text-emerald-600 dark:text-emerald-400" />
           <span>{t("admin.orderDetail.panels.quoteRequested.feesHeading")}</span>
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           {/* Setup Fee */}
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1 flex items-center gap-1.5">
-              <Wrench size={13} className="text-slate-400" />
+            <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+              <Wrench size={13} className="text-slate-400 dark:text-gray-400" />
               <span>{t("admin.orderDetail.panels.quoteRequested.setupServiceFee")}</span>
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-2 text-xs text-slate-400">€</span>
+              <span className="absolute left-3 top-2 text-xs text-slate-400 dark:text-gray-400">€</span>
               <input
                 type="number"
                 step="0.01"
                 min="0"
                 value={serviceFee}
                 onChange={(e) => setServiceFee(parseFloat(e.target.value) || 0)}
-                className="w-full text-xs pl-7 pr-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-teal-500 font-mono"
+                className="w-full text-xs pl-7 pr-3 py-2 rounded-lg border border-slate-300 dark:border-white/15 bg-white dark:bg-[#141e1a] text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500 font-mono"
               />
             </div>
           </div>
 
           {/* Delivery Price */}
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1 flex items-center gap-1.5">
-              <Truck size={13} className="text-slate-400" />
+            <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+              <Truck size={13} className="text-slate-400 dark:text-gray-400" />
               <span>{t("admin.orderDetail.panels.quoteRequested.deliveryPrice")}</span>
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-2 text-xs text-slate-400">€</span>
+              <span className="absolute left-3 top-2 text-xs text-slate-400 dark:text-gray-400">€</span>
               <input
                 type="number"
                 step="0.01"
                 min="0"
                 value={deliveryPrice}
                 onChange={(e) => setDeliveryPrice(parseFloat(e.target.value) || 0)}
-                className="w-full text-xs pl-7 pr-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-teal-500 font-mono"
+                className="w-full text-xs pl-7 pr-3 py-2 rounded-lg border border-slate-300 dark:border-white/15 bg-white dark:bg-[#141e1a] text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500 font-mono"
               />
             </div>
           </div>
 
           {/* Order Discount */}
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1 flex items-center gap-1.5">
-              <Tag size={13} className="text-slate-400" />
+            <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+              <Tag size={13} className="text-slate-400 dark:text-gray-400" />
               <span>{t("admin.orderDetail.panels.quoteRequested.orderDiscount")}</span>
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-2 text-xs text-slate-400">€</span>
+              <span className="absolute left-3 top-2 text-xs text-slate-400 dark:text-gray-400">€</span>
               <input
                 type="number"
                 step="0.01"
                 min="0"
                 value={orderDiscount}
                 onChange={(e) => setOrderDiscount(parseFloat(e.target.value) || 0)}
-                className="w-full text-xs pl-7 pr-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-teal-500 font-mono"
+                className="w-full text-xs pl-7 pr-3 py-2 rounded-lg border border-slate-300 dark:border-white/15 bg-white dark:bg-[#141e1a] text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500 font-mono"
               />
             </div>
           </div>
 
           {/* Payment Flow */}
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">
+            <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 mb-1">
               {t("admin.orderDetail.panels.quoteRequested.paymentFlow")}
             </label>
             <select
               value={paymentFlow}
               onChange={(e) => setPaymentFlow(e.target.value)}
-              className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+              className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-white/15 bg-white dark:bg-[#141e1a] text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
             >
               <option value="bank_transfer">{t("admin.orderDetail.panels.quoteRequested.bankTransferManual")}</option>
             </select>
@@ -479,9 +479,9 @@ export default function QuoteRequestedPanel({
 
         {/* Quote Message (Gate for State Machine) */}
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1 flex items-center justify-between">
+          <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 mb-1 flex items-center justify-between">
             <span>{t("admin.orderDetail.panels.quoteRequested.customerQuoteMessageLabel")}</span>
-            <span className="text-[10px] text-amber-700 font-medium">{t("admin.orderDetail.panels.quoteRequested.requiredByStateMachine")}</span>
+            <span className="text-[10px] text-amber-700 dark:text-amber-400 font-medium">{t("admin.orderDetail.panels.quoteRequested.requiredByStateMachine")}</span>
           </label>
           <textarea
             value={quoteMessage}
@@ -489,33 +489,33 @@ export default function QuoteRequestedPanel({
             rows={3}
             required
             placeholder={t("admin.orderDetail.panels.quoteRequested.messagePlaceholder")}
-            className="w-full text-xs p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-teal-500 resize-none leading-relaxed"
+            className="w-full text-xs p-3 rounded-lg border border-slate-300 dark:border-white/15 bg-white dark:bg-[#141e1a] text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500 resize-none leading-relaxed"
           />
         </div>
 
         {/* Pricing Summary Calculation */}
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
-          <div className="flex justify-between text-slate-600">
+        <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-2 text-xs">
+          <div className="flex justify-between text-slate-600 dark:text-gray-300">
             <span>{t("admin.orderDetail.panels.quoteRequested.subtotalSummary")}</span>
             <span className="font-mono">{formatCurrencyAmount(subtotal)}</span>
           </div>
-          <div className="flex justify-between text-slate-600">
+          <div className="flex justify-between text-slate-600 dark:text-gray-300">
             <span>{t("admin.orderDetail.panels.quoteRequested.setupFeeSummary")}</span>
             <span className="font-mono">+{formatCurrencyAmount(serviceFee)}</span>
           </div>
-          <div className="flex justify-between text-slate-600">
+          <div className="flex justify-between text-slate-600 dark:text-gray-300">
             <span>{t("admin.orderDetail.panels.quoteRequested.deliveryFeeSummary")}</span>
             <span className="font-mono">+{formatCurrencyAmount(deliveryPrice)}</span>
           </div>
           {orderDiscount > 0 && (
-            <div className="flex justify-between text-emerald-700 font-medium">
+            <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-medium">
               <span>{t("admin.orderDetail.panels.quoteRequested.discountSummary")}</span>
               <span className="font-mono">-{formatCurrencyAmount(orderDiscount)}</span>
             </div>
           )}
-          <div className="flex justify-between items-center pt-2 border-t border-slate-200 text-sm font-bold text-slate-900">
+          <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-white/10 text-sm font-bold text-slate-900 dark:text-white">
             <span>{t("admin.orderDetail.panels.quoteRequested.finalTotalSummary")}</span>
-            <span className="text-base font-mono text-teal-800">
+            <span className="text-base font-mono text-teal-800 dark:text-teal-300">
               {formatCurrencyAmount(grandTotal)}
             </span>
           </div>

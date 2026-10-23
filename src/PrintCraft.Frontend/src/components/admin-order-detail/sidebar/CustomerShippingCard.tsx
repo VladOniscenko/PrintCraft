@@ -102,17 +102,17 @@ export default function CustomerShippingCard({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 transition-shadow hover:shadow">
-      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+    <div className="bg-white dark:bg-[#0e1512] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm p-5 transition-shadow hover:shadow">
+      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-white/10">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-teal-50 text-teal-700">
+          <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400">
             <User size={18} />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
               {t("admin.orderDetail.sidebar.customerShippingTitle")}
             </h3>
-            <p className="text-xs text-slate-500">{t("admin.orderDetail.sidebar.customerShippingSubtitle")}</p>
+            <p className="text-xs text-slate-500 dark:text-gray-400">{t("admin.orderDetail.sidebar.customerShippingSubtitle")}</p>
           </div>
         </div>
 
@@ -120,7 +120,7 @@ export default function CustomerShippingCard({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="text-xs font-medium text-slate-600 hover:text-teal-700 flex items-center gap-1 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+            className="text-xs font-medium text-slate-600 dark:text-gray-300 hover:text-teal-700 dark:hover:text-teal-400 flex items-center gap-1 p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-white/10 transition-colors"
           >
             <Edit2 size={13} />
             <span>{t("admin.orderDetail.sidebar.edit")}</span>

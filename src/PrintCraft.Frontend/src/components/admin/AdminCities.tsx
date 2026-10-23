@@ -262,9 +262,9 @@ export default function AdminCities() {
             <p className="font-semibold text-base">{t("admin.cities.emptyTitle")}</p>
           </div>
         ) : (
-          <div className="site-card rounded-2xl overflow-hidden border border-[#d8e6df]">
+          <div className="site-card rounded-2xl overflow-hidden border border-[#d8e6df] dark:border-white/10 dark:bg-[#0e1512]">
             <table className="w-full text-left border-collapse text-sm">
-              <thead className="bg-[#f4f9f6] text-[#283d36] font-bold text-xs uppercase tracking-wider border-b border-[#d8e6df]">
+              <thead className="bg-[#f4f9f6] dark:bg-white/5 text-[#283d36] dark:text-gray-200 font-bold text-xs uppercase tracking-wider border-b border-[#d8e6df] dark:border-white/10">
                 <tr>
                   <th className="py-3 px-4">{t("admin.cities.colSlug")}</th>
                   <th className="py-3 px-4">{t("admin.cities.colName")}</th>
@@ -275,25 +275,25 @@ export default function AdminCities() {
                   <th className="py-3 px-4 w-28 text-right">{t("admin.cities.colActions")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e9f2ee]">
+              <tbody className="divide-y divide-[#e9f2ee] dark:divide-white/10">
                 {filteredCities.map((city) => {
                   const cityName = getLocalizedText(city.names, language);
 
                   return (
-                    <tr key={city.id} className="hover:bg-[#fafdff] transition-colors">
+                    <tr key={city.id} className="hover:bg-teal-50/40 dark:hover:bg-white/5 transition-colors">
                       <td className="py-3 px-4">
-                        <span className="font-mono text-xs text-teal-800 font-semibold bg-teal-50 px-2 py-0.5 rounded">
+                        <span className="font-mono text-xs text-teal-800 dark:text-teal-300 font-semibold bg-teal-50 dark:bg-teal-950/40 px-2 py-0.5 rounded border border-teal-200/50 dark:border-teal-800/40">
                           /3d-print-service/{city.slug}
                         </span>
                       </td>
-                      <td className="py-3 px-4 font-bold text-[#142621]">{cityName}</td>
-                      <td className="py-3 px-4 text-xs text-[#526b64]">{city.province}</td>
-                      <td className="py-3 px-4 text-xs font-mono text-gray-500">
+                      <td className="py-3 px-4 font-bold text-[#142621] dark:text-white">{cityName}</td>
+                      <td className="py-3 px-4 text-xs text-[#526b64] dark:text-gray-400">{city.province}</td>
+                      <td className="py-3 px-4 text-xs font-mono text-gray-500 dark:text-gray-400">
                         {city.latitude != null && city.longitude != null
                           ? `${city.latitude.toFixed(4)}, ${city.longitude.toFixed(4)}`
                           : "—"}
                       </td>
-                      <td className="py-3 px-4 text-center font-mono text-xs text-gray-600">
+                      <td className="py-3 px-4 text-center font-mono text-xs text-gray-600 dark:text-gray-400">
                         {city.sortOrder}
                       </td>
                       <td className="py-3 px-4 text-center">
@@ -301,8 +301,8 @@ export default function AdminCities() {
                           onClick={() => handleToggleActive(city)}
                           className={`px-2 py-0.5 rounded-full text-xs font-bold transition-all ${
                             city.isActive
-                              ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              ? "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200"
+                              : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-200"
                           }`}
                         >
                           {city.isActive
@@ -316,21 +316,21 @@ export default function AdminCities() {
                             href={localizePath(`/3d-print-service/${city.slug}`)}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                             title={t("admin.cities.viewLive")}
                           >
                             <ExternalLink className="w-4 h-4" />
                           </a>
                           <button
                             onClick={() => openModal(city)}
-                            className="p-1.5 text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
+                            className="p-1.5 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-white/10 rounded-lg transition-colors"
                             title={t("admin.cities.edit")}
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => setDeleteTarget(city)}
-                            className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors"
                             title={t("admin.cities.delete")}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -348,10 +348,10 @@ export default function AdminCities() {
 
       {/* CREATE / EDIT CITY MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b">
-              <h2 className="text-lg font-bold text-gray-900">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                 {editingCity
                   ? t("admin.cities.modalTitleEdit", {
                       name: getLocalizedText(editingCity.names, language),
@@ -360,7 +360,7 @@ export default function AdminCities() {
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded-full"
+                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -386,8 +386,8 @@ export default function AdminCities() {
             </div>
 
             {/* Language Switcher Tabs for City Name */}
-            <div className="bg-[#f0f7f4] p-1.5 rounded-xl flex items-center gap-1">
-              <span className="text-xs font-semibold text-[#345148] px-2">
+            <div className="bg-[#f0f7f4] dark:bg-white/5 p-1.5 rounded-xl flex items-center gap-1 border border-gray-100 dark:border-white/10">
+              <span className="text-xs font-semibold text-[#345148] dark:text-gray-300 px-2">
                 {t("admin.cities.editingLanguage")}
               </span>
               {supportedLanguages.map((lang) => (
@@ -397,13 +397,13 @@ export default function AdminCities() {
                   onClick={() => setCityLangTab(lang)}
                   className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
                     cityLangTab === lang
-                      ? "bg-white text-teal-800 shadow-xs"
-                      : "text-[#4e6b62] hover:text-teal-900"
+                      ? "bg-white dark:bg-teal-700 text-teal-800 dark:text-white shadow-xs"
+                      : "text-[#4e6b62] dark:text-gray-400 hover:text-teal-900 dark:hover:text-white"
                   }`}
                 >
                   {lang.toUpperCase()}
                   {names[lang]?.trim() && (
-                    <Check className="w-3 h-3 inline ml-1 text-emerald-600" />
+                    <Check className="w-3 h-3 inline ml-1 text-emerald-600 dark:text-emerald-400" />
                   )}
                 </button>
               ))}
@@ -520,18 +520,18 @@ export default function AdminCities() {
 
       {/* CONFIRM DELETE MODAL */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h2 className="text-lg font-bold text-gray-900">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               {t("admin.cities.deleteConfirmTitle")}
             </h2>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               {t("admin.cities.deleteConfirmMessage")}
             </p>
-            <p className="text-xs font-semibold text-teal-900 bg-teal-50 p-2.5 rounded-xl border border-teal-100 font-mono">
+            <p className="text-xs font-semibold text-teal-900 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 p-2.5 rounded-xl border border-teal-100 dark:border-teal-800/40 font-mono">
               /3d-print-service/{deleteTarget.slug}
             </p>
-            <div className="flex items-center justify-end gap-2 pt-3 border-t">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-white/10">
               <button
                 onClick={() => setDeleteTarget(null)}
                 className="site-btn-soft px-4 py-2 text-xs font-semibold"
@@ -553,15 +553,15 @@ export default function AdminCities() {
 
       {/* CONFIRM SEED MODAL */}
       {seedConfirmOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h2 className="text-lg font-bold text-gray-900">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               {t("admin.cities.seedConfirmTitle")}
             </h2>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               {t("admin.cities.seedConfirmMessage")}
             </p>
-            <div className="flex items-center justify-end gap-2 pt-3 border-t">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-white/10">
               <button
                 onClick={() => setSeedConfirmOpen(false)}
                 className="site-btn-soft px-4 py-2 text-xs font-semibold"

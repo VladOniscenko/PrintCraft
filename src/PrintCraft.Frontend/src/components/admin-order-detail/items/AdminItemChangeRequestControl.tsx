@@ -77,17 +77,17 @@ export default function AdminItemChangeRequestControl({
   };
 
   return (
-    <div className="w-full pt-2 border-t border-slate-200/80 space-y-2.5">
+    <div className="w-full pt-2 border-t border-slate-200/80 dark:border-white/10 space-y-2.5">
       {/* ── Case 1: Active Change Request Pending Customer ── */}
       {isPendingCustomer && (
-        <div className="p-3.5 rounded-xl border border-amber-300 bg-amber-50/70 space-y-2.5">
+        <div className="p-3.5 rounded-xl border border-amber-300 dark:border-amber-800/50 bg-amber-50/70 dark:bg-amber-950/30 space-y-2.5">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-200 text-amber-900 border border-amber-300">
-                <Clock size={12} className="text-amber-700 animate-spin" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-800/50">
+                <Clock size={12} className="text-amber-700 dark:text-amber-400 animate-spin" />
                 {t("admin.orderDetail.changeRequests.awaitingRevision")}
               </span>
-              <span className="text-xs font-semibold text-slate-700">
+              <span className="text-xs font-semibold text-slate-700 dark:text-gray-200">
                 [{activeChangeRequest.reasonCategory.replace(/_/g, " ").toUpperCase()}]
               </span>
             </div>
@@ -95,17 +95,17 @@ export default function AdminItemChangeRequestControl({
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="text-xs font-bold text-amber-800 hover:text-amber-950 underline cursor-pointer"
+              className="text-xs font-bold text-amber-800 dark:text-amber-300 hover:text-amber-950 dark:hover:text-amber-100 underline cursor-pointer"
             >
               {t("admin.orderDetail.changeRequests.updateRerequest")}
             </button>
           </div>
 
-          <p className="text-xs text-slate-700 italic bg-white/70 p-2.5 rounded-lg border border-amber-200/60 whitespace-pre-wrap">
+          <p className="text-xs text-slate-700 dark:text-gray-300 italic bg-white/70 dark:bg-black/30 p-2.5 rounded-lg border border-amber-200/60 dark:border-amber-800/40 whitespace-pre-wrap">
             "{activeChangeRequest.adminNotes}"
           </p>
 
-          <div className="flex items-center justify-between text-[11px] text-slate-500">
+          <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-gray-400">
             <span>{t("admin.orderDetail.changeRequests.requested")} {new Date(activeChangeRequest.requestedAt).toLocaleString()}</span>
             <span>{t("admin.orderDetail.changeRequests.by")} {activeChangeRequest.requestedBy || t("breadcrumb.admin")}</span>
           </div>
@@ -114,14 +114,14 @@ export default function AdminItemChangeRequestControl({
 
       {/* ── Case 2: Customer Submitted Revision (Review Needed!) ── */}
       {isRevisionSubmitted && (
-        <div className="p-4 rounded-xl border-2 border-emerald-400 bg-emerald-50/70 shadow-2xs space-y-3">
+        <div className="p-4 rounded-xl border-2 border-emerald-400 dark:border-emerald-600 bg-emerald-50/70 dark:bg-emerald-950/30 shadow-2xs space-y-3">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-600 text-white tracking-wide uppercase shadow-2xs">
               <CheckCircle2 size={13} />
               {t("admin.orderDetail.changeRequests.newRevisionSubmitted")}
             </span>
 
-            <span className="text-xs text-emerald-800 font-semibold">
+            <span className="text-xs text-emerald-800 dark:text-emerald-300 font-semibold">
               {activeChangeRequest.submittedAt
                 ? new Date(activeChangeRequest.submittedAt).toLocaleString()
                 : ""}
@@ -130,18 +130,18 @@ export default function AdminItemChangeRequestControl({
 
           {/* Customer Explanation */}
           {activeChangeRequest.customerNotes && (
-            <div className="p-3 bg-white/90 border border-emerald-200 rounded-lg text-xs text-slate-800 space-y-1">
-              <span className="font-bold text-emerald-950 block">{t("admin.orderDetail.changeRequests.customerExplanation")}</span>
+            <div className="p-3 bg-white/90 dark:bg-black/40 border border-emerald-200 dark:border-emerald-800/50 rounded-lg text-xs text-slate-800 dark:text-gray-200 space-y-1">
+              <span className="font-bold text-emerald-950 dark:text-emerald-300 block">{t("admin.orderDetail.changeRequests.customerExplanation")}</span>
               <p className="italic whitespace-pre-wrap">"{activeChangeRequest.customerNotes}"</p>
             </div>
           )}
 
           {/* Submitted File Details & 3D Preview CTA */}
           {activeChangeRequest.submittedFileUrl && (
-            <div className="flex items-center justify-between gap-3 p-2.5 bg-white rounded-lg border border-emerald-200 flex-wrap">
+            <div className="flex items-center justify-between gap-3 p-2.5 bg-white dark:bg-black/30 rounded-lg border border-emerald-200 dark:border-emerald-800/50 flex-wrap">
               <div className="flex items-center gap-2 min-w-0">
-                <FileCheck size={18} className="text-emerald-600 shrink-0" />
-                <span className="text-xs font-bold text-slate-900 truncate max-w-xs">
+                <FileCheck size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-xs">
                   {activeChangeRequest.submittedFileName || t("admin.orderDetail.changeRequests.replacementModelFallback")}
                 </span>
               </div>
@@ -156,7 +156,7 @@ export default function AdminItemChangeRequestControl({
                         activeChangeRequest.submittedFileName || itemFileName || "model",
                       )
                     }
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-200 dark:border-indigo-800/50 transition-colors cursor-pointer"
                   >
                     <Eye size={13} />
                     <span>{t("admin.orderDetail.changeRequests.preview3d")}</span>
@@ -168,7 +168,7 @@ export default function AdminItemChangeRequestControl({
                   download
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-700 dark:text-gray-200 text-xs font-bold transition-colors cursor-pointer"
                 >
                   <Download size={13} />
                   <span>{t("admin.orderDetail.changeRequests.download")}</span>
@@ -179,8 +179,8 @@ export default function AdminItemChangeRequestControl({
 
           {/* Resolution Controls */}
           {showResolveInput ? (
-            <div className="p-3 bg-white rounded-xl border border-emerald-200 space-y-2">
-              <label className="block text-xs font-bold text-slate-800">
+            <div className="p-3 bg-white dark:bg-[#0e1512] rounded-xl border border-emerald-200 dark:border-emerald-800/50 space-y-2">
+              <label className="block text-xs font-bold text-slate-800 dark:text-gray-200">
                 {t("admin.orderDetail.changeRequests.acceptanceNote")}
               </label>
               <input
@@ -188,14 +188,14 @@ export default function AdminItemChangeRequestControl({
                 value={resolutionNotes}
                 onChange={(e) => setResolutionNotes(e.target.value)}
                 placeholder={t("admin.orderDetail.changeRequests.acceptancePlaceholder")}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-white/15 bg-white dark:bg-[#141e1a] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setShowResolveInput(false)}
                   disabled={isResolving}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 cursor-pointer"
                 >
                   {t("admin.orderDetail.changeRequests.cancel")}
                 </button>
@@ -203,7 +203,7 @@ export default function AdminItemChangeRequestControl({
                   type="button"
                   onClick={handleResolve}
                   disabled={isResolving}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs disabled:opacity-50 cursor-pointer"
                 >
                   {isResolving ? (
                     <Loader2 size={13} className="animate-spin" />
@@ -219,7 +219,7 @@ export default function AdminItemChangeRequestControl({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-50 text-amber-800 text-xs font-bold transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white dark:bg-[#141e1a] border border-amber-300 dark:border-amber-800/50 hover:bg-amber-50 dark:hover:bg-amber-950/30 text-amber-800 dark:text-amber-300 text-xs font-bold transition-all cursor-pointer"
               >
                 <RotateCcw size={13} />
                 <span>{t("admin.orderDetail.changeRequests.requestFurtherChanges")}</span>
@@ -244,9 +244,9 @@ export default function AdminItemChangeRequestControl({
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800/50 text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
-            <Wrench size={13} className="text-amber-700" />
+            <Wrench size={13} className="text-amber-700 dark:text-amber-400" />
             <span>{t("admin.orderDetail.changeRequests.requestChangesFromCustomer")}</span>
           </button>
 
@@ -254,7 +254,7 @@ export default function AdminItemChangeRequestControl({
             <button
               type="button"
               onClick={() => setShowHistory(!showHistory)}
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-slate-800"
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
             >
               <History size={12} />
               <span>
@@ -270,41 +270,41 @@ export default function AdminItemChangeRequestControl({
 
       {/* ── Expandable History Timeline for Admin ── */}
       {showHistory && changeRequests.length > 0 && (
-        <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200 space-y-2 text-xs">
-          <div className="font-bold text-slate-700 flex items-center gap-1.5 mb-1">
+        <div className="p-3 bg-slate-50/80 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 space-y-2 text-xs">
+          <div className="font-bold text-slate-700 dark:text-gray-200 flex items-center gap-1.5 mb-1">
             <History size={13} />
             <span>{t("admin.orderDetail.changeRequests.auditTrail")}</span>
           </div>
 
-          <div className="space-y-2 border-l-2 border-slate-200 pl-3">
+          <div className="space-y-2 border-l-2 border-slate-200 dark:border-white/10 pl-3">
             {changeRequests.map((cr, idx) => {
               const roundNum = changeRequests.length - idx;
               return (
                 <div key={cr.id || idx} className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-[10px] bg-slate-200 px-1.5 py-0.5 rounded text-slate-800">
+                    <span className="font-mono font-bold text-[10px] bg-slate-200 dark:bg-white/10 px-1.5 py-0.5 rounded text-slate-800 dark:text-gray-200">
                       {t("admin.orderDetail.changeRequests.round")}{roundNum}
                     </span>
-                    <span className="font-bold text-[10px] uppercase tracking-wide text-slate-600">
+                    <span className="font-bold text-[10px] uppercase tracking-wide text-slate-600 dark:text-gray-400">
                       {cr.status}
                     </span>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-slate-400 dark:text-gray-500">
                       {new Date(cr.requestedAt).toLocaleDateString()}
                     </span>
                   </div>
 
-                  <p className="text-slate-700">
+                  <p className="text-slate-700 dark:text-gray-200">
                     <strong>{t("admin.orderDetail.changeRequests.reason")}</strong> [{cr.reasonCategory}] "{cr.adminNotes}"
                   </p>
 
                   {cr.customerNotes && (
-                    <p className="text-slate-600 italic">
+                    <p className="text-slate-600 dark:text-gray-400 italic">
                       {t("admin.orderDetail.changeRequests.customerResponse")} "{cr.customerNotes}"
                     </p>
                   )}
 
                   {cr.submittedFileUrl && (
-                    <div className="flex items-center gap-2 text-[11px] text-teal-700">
+                    <div className="flex items-center gap-2 text-[11px] text-teal-700 dark:text-teal-300">
                       <span>
                         {t("admin.orderDetail.changeRequests.file")}{" "}
                         {cr.submittedFileName || t("admin.orderDetail.changeRequests.updatedModelFallback")}
@@ -320,7 +320,7 @@ export default function AdminItemChangeRequestControl({
                   )}
 
                   {cr.resolutionNotes && (
-                    <p className="text-emerald-700 font-medium">
+                    <p className="text-emerald-700 dark:text-emerald-400 font-medium">
                       {t("admin.orderDetail.changeRequests.resolved")} {cr.resolutionNotes}
                     </p>
                   )}
