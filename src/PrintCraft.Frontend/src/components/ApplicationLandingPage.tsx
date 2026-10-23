@@ -144,7 +144,7 @@ export default function ApplicationLandingPage({
   ];
 
   return (
-    <div className="site-shell font-sans text-gray-900 flex flex-col min-h-screen bg-gray-50/50">
+    <div className="site-shell font-sans text-gray-900 flex flex-col min-h-screen">
       <Navbar />
 
       {/* Apple-Style Minimalist Hero Header */}

@@ -156,253 +156,257 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="site-navbar px-5 py-3.5 flex items-center justify-between">
-      <Logo className="scale-[0.98]" />
+    <nav className="site-navbar">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between w-full">
+        {/* Logo and Primary Navigation */}
+        <div className="flex items-center gap-8">
+          <Link to={localizePath("/")} className="flex items-center">
+            <Logo className="scale-[0.98]" />
+          </Link>
 
-      {/* Desktop Links (Fixed & Stable to prevent CLS / jumping) */}
-      <div className="hidden lg:flex items-center gap-2 text-sm font-medium text-gray-600">
-        <Link
-          to={localizePath("/")}
-          onMouseEnter={() => prefetchRoute(localizePath("/"))}
-          onFocus={() => prefetchRoute(localizePath("/"))}
-          className={`rounded-lg px-3 py-2 transition-colors ${
-            isLinkActive(localizePath("/"))
-              ? "bg-[#ecf6f2] text-[#0f766e]"
-              : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
-          }`}
-        >
-          {t("nav.home")}
-        </Link>
-
-        {/* Solutions Dropdown */}
-        <div
-          ref={dropdownRef}
-          className="relative"
-          onMouseEnter={() => setSolutionsOpen(true)}
-          onMouseLeave={() => setSolutionsOpen(false)}
-        >
-          <button
-            type="button"
-            onClick={() => setSolutionsOpen(!solutionsOpen)}
-            className={`rounded-lg px-3 py-2 transition-colors inline-flex items-center gap-1 ${
-              pathname.includes("/faq/") && pathname.replace(/\/$/, "") !== localizePath("/faq")
-                ? "bg-[#ecf6f2] text-[#0f766e]"
-                : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
-            }`}
-          >
-            <span>{t("nav.solutions")}</span>
-            <ChevronDown
-              size={14}
-              className={`transition-transform duration-200 ${solutionsOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-
-          {solutionsOpen && (
-            <div className="absolute top-full left-0 pt-2 w-72 z-50">
-              <div className="bg-white rounded-2xl shadow-xl border border-[#d8e6df] p-2 space-y-1">
-                {seoApplications.map((app) => (
-                  <Link
-                    key={app.slug}
-                    to={localizePath(`/faq/${app.slug}`)}
-                    onClick={() => setSolutionsOpen(false)}
-                    className="block p-2.5 rounded-xl hover:bg-[#f3faf7] transition-all group"
-                  >
-                    <p className="text-xs font-bold text-[#142621] group-hover:text-emerald-700 transition-colors">
-                      {getApplicationName(app, language)}
-                    </p>
-                    <p className="text-[11px] text-[#637973] mt-0.5 line-clamp-1">
-                      {app.badge[language] || app.badge.nl}
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <Link
-          to={localizePath("/faq")}
-          onMouseEnter={() => prefetchRoute(localizePath("/faq"))}
-          onFocus={() => prefetchRoute(localizePath("/faq"))}
-          className={`rounded-lg px-3 py-2 transition-colors ${
-            isLinkActive(localizePath("/faq"))
-              ? "bg-[#ecf6f2] text-[#0f766e]"
-              : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
-          }`}
-        >
-          {t("nav.faq")}
-        </Link>
-
-        <Link
-          to={localizePath("/checkout")}
-          onMouseEnter={() => prefetchRoute(localizePath("/checkout"))}
-          onFocus={() => prefetchRoute(localizePath("/checkout"))}
-          className={`rounded-lg px-3 py-2 transition-colors ${
-            isLinkActive(localizePath("/checkout"))
-              ? "bg-[#ecf6f2] text-[#0f766e]"
-              : "text-[#445852] hover:bg-[#f3faf7] hover:text-[#0f766e]"
-          }`}
-        >
-          {t("nav.instantQuote")}
-        </Link>
-      </div>
-
-      {/* Right Desktop Section */}
-      <div className="hidden lg:flex items-center gap-4">
-        {/* Language Switcher */}
-        <div className="flex items-center gap-1 border border-[#d4e3dd] rounded-lg p-1 bg-[#f7fbf9]">
-          {languageOptions.map((option) => (
-            <button
-              key={option.code}
-              onClick={() => setLanguage(option.code)}
-              className={`px-2 py-1 text-xs font-bold rounded ${
-                language === option.code
-                  ? "bg-[#0f766e] text-white"
-                  : "text-[#5f736d] hover:text-[#213630]"
+          {/* Desktop Navigation Links */}
+          <div className="hidden lg:flex items-center gap-1 text-[13px] font-medium text-gray-600">
+            <Link
+              to={localizePath("/")}
+              onMouseEnter={() => prefetchRoute(localizePath("/"))}
+              onFocus={() => prefetchRoute(localizePath("/"))}
+              className={`rounded-full px-3.5 py-1.5 transition-colors ${
+                isLinkActive(localizePath("/"))
+                  ? "bg-gray-200/70 text-gray-950 font-semibold"
+                  : "text-gray-600 hover:text-gray-950 hover:bg-gray-100/70"
               }`}
             >
-              {option.label}
-            </button>
-          ))}
-        </div>
+              {t("nav.home")}
+            </Link>
 
-        {/* Auth action slot with stable container */}
-        <div className="flex items-center shrink-0">
-          {/* Guest: Log In Button */}
-          <div className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}>
-            <Link
-              to={localizePath("/login")}
-              onMouseEnter={() => prefetchRoute(localizePath("/login"))}
-              onFocus={() => prefetchRoute(localizePath("/login"))}
-              className="site-btn-soft min-w-[95px] justify-center text-center"
+            {/* Solutions Dropdown */}
+            <div
+              ref={dropdownRef}
+              className="relative"
+              onMouseEnter={() => setSolutionsOpen(true)}
+              onMouseLeave={() => setSolutionsOpen(false)}
             >
-              {t("nav.logIn")}
+              <button
+                type="button"
+                onClick={() => setSolutionsOpen(!solutionsOpen)}
+                className={`rounded-full px-3.5 py-1.5 transition-colors inline-flex items-center gap-1 cursor-pointer ${
+                  pathname.includes("/faq/") && pathname.replace(/\/$/, "") !== localizePath("/faq")
+                    ? "bg-gray-200/70 text-gray-950 font-semibold"
+                    : "text-gray-600 hover:text-gray-950 hover:bg-gray-100/70"
+                }`}
+              >
+                <span>{t("nav.solutions")}</span>
+                <ChevronDown
+                  size={13}
+                  className={`transition-transform duration-200 ${solutionsOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {solutionsOpen && (
+                <div className="absolute top-full left-0 pt-2 w-72 z-50">
+                  <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/80 p-2 space-y-1">
+                    {seoApplications.map((app) => (
+                      <Link
+                        key={app.slug}
+                        to={localizePath(`/faq/${app.slug}`)}
+                        onClick={() => setSolutionsOpen(false)}
+                        className="block p-2.5 rounded-xl hover:bg-gray-50/80 transition-all group"
+                      >
+                        <p className="text-xs font-semibold text-gray-900 group-hover:text-emerald-800 transition-colors">
+                          {getApplicationName(app, language)}
+                        </p>
+                        <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">
+                          {app.badge[language] || app.badge.nl}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Link
+              to={localizePath("/faq")}
+              onMouseEnter={() => prefetchRoute(localizePath("/faq"))}
+              onFocus={() => prefetchRoute(localizePath("/faq"))}
+              className={`rounded-full px-3.5 py-1.5 transition-colors ${
+                isLinkActive(localizePath("/faq"))
+                  ? "bg-gray-200/70 text-gray-950 font-semibold"
+                  : "text-gray-600 hover:text-gray-950 hover:bg-gray-100/70"
+              }`}
+            >
+              {t("nav.faq")}
             </Link>
           </div>
-
-          {/* Authenticated: Account Dropdown Menu */}
-          <div
-            ref={accountDropdownRef}
-            className={`nav-auth-only relative ${isLoggedIn ? "block" : "hidden"}`}
-          >
-            <button
-              type="button"
-              onClick={() => setAccountOpen(!accountOpen)}
-              className={`site-btn-soft inline-flex items-center justify-center gap-1.5 min-w-[95px] ${
-                accountOpen ||
-                isLinkActive(localizePath("/orders")) ||
-                isLinkActive(localizePath("/profile")) ||
-                isLinkActive(localizePath("/admin"))
-                  ? "bg-[#ecf6f2] text-[#0f766e] border-[#0f766e]"
-                  : ""
-              }`}
-              aria-expanded={accountOpen}
-              aria-haspopup="true"
-            >
-              <User size={16} />
-              <span>{t("nav.account")}</span>
-              <ChevronDown
-                size={14}
-                className={`transition-transform duration-200 ${accountOpen ? "rotate-180" : ""}`}
-              />
-            </button>
-
-          {accountOpen && (
-            <div className="absolute right-0 top-full pt-2 w-56 z-50">
-              <div className="bg-white rounded-2xl shadow-xl border border-[#d8e6df] p-2 space-y-1">
-                {userName && (
-                  <div className="px-3 py-2 text-xs font-semibold text-[#5f736d] border-b border-[#eaf2ee] truncate">
-                    {userName}
-                  </div>
-                )}
-
-                <Link
-                  to={localizePath("/orders")}
-                  onClick={() => setAccountOpen(false)}
-                  onMouseEnter={() => prefetchRoute(localizePath("/orders"))}
-                  onFocus={() => prefetchRoute(localizePath("/orders"))}
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                    isLinkActive(localizePath("/orders"))
-                      ? "bg-[#ecf6f2] text-[#0f766e]"
-                      : "text-[#3f554e] hover:bg-[#f3faf7] hover:text-[#0f766e]"
-                  }`}
-                >
-                  <Package size={15} />
-                  <span>{t("nav.myOrders")}</span>
-                </Link>
-
-                <Link
-                  to={localizePath("/profile")}
-                  onClick={() => setAccountOpen(false)}
-                  onMouseEnter={() => prefetchRoute(localizePath("/profile"))}
-                  onFocus={() => prefetchRoute(localizePath("/profile"))}
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                    isLinkActive(localizePath("/profile"))
-                      ? "bg-[#ecf6f2] text-[#0f766e]"
-                      : "text-[#3f554e] hover:bg-[#f3faf7] hover:text-[#0f766e]"
-                  }`}
-                >
-                  <User size={15} />
-                  <span>{t("nav.myProfile")}</span>
-                </Link>
-
-                {userRole === "admin" && (
-                  <Link
-                    to={localizePath("/admin")}
-                    onClick={() => setAccountOpen(false)}
-                    onMouseEnter={() => prefetchRoute(localizePath("/admin"))}
-                    onFocus={() => prefetchRoute(localizePath("/admin"))}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                      isLinkActive(localizePath("/admin"))
-                        ? "bg-[#ecf6f2] text-[#0f766e]"
-                        : "text-[#3f554e] hover:bg-[#f3faf7] hover:text-[#0f766e]"
-                    }`}
-                  >
-                    <ShieldCheck size={15} />
-                    <span>{t("nav.admin")}</span>
-                  </Link>
-                )}
-
-                <div className="border-t border-[#eaf2ee] my-1" />
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAccountOpen(false);
-                    handleLogout();
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  <LogOut size={15} />
-                  <span>{t("nav.logOut")}</span>
-                </button>
-              </div>
-            </div>
-          )}
         </div>
+
+        {/* Right Desktop Section */}
+        <div className="hidden lg:flex items-center gap-3">
+          {/* Segmented Language Switcher */}
+          <div className="flex items-center gap-0.5 p-1 rounded-full bg-gray-100/90 border border-gray-200/60">
+            {languageOptions.map((option) => (
+              <button
+                key={option.code}
+                onClick={() => setLanguage(option.code)}
+                className={`px-2.5 py-0.5 text-[11px] font-semibold rounded-full transition-all cursor-pointer ${
+                  language === option.code
+                    ? "bg-white text-gray-950 shadow-2xs font-bold"
+                    : "text-gray-500 hover:text-gray-900"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Primary Instant Quote Pill CTA */}
+          <Link
+            to={localizePath("/quote")}
+            onMouseEnter={() => prefetchRoute(localizePath("/quote"))}
+            onFocus={() => prefetchRoute(localizePath("/quote"))}
+            className="rounded-full px-4 py-2 text-xs font-semibold bg-[#133827] text-white hover:bg-[#0f2d1f] shadow-2xs transition-all inline-flex items-center gap-1.5"
+          >
+            <span>{t("nav.instantQuote")}</span>
+          </Link>
+
+          {/* Auth Action Slot */}
+          <div className="flex items-center shrink-0">
+            {/* Guest: Log In Button */}
+            <div className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}>
+              <Link
+                to={localizePath("/login")}
+                onMouseEnter={() => prefetchRoute(localizePath("/login"))}
+                onFocus={() => prefetchRoute(localizePath("/login"))}
+                className="site-btn-soft min-w-[85px] justify-center text-center"
+              >
+                {t("nav.logIn")}
+              </Link>
+            </div>
+
+            {/* Authenticated: Account Dropdown Menu */}
+            <div
+              ref={accountDropdownRef}
+              className={`nav-auth-only relative ${isLoggedIn ? "block" : "hidden"}`}
+            >
+              <button
+                type="button"
+                onClick={() => setAccountOpen(!accountOpen)}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold bg-gray-100/80 hover:bg-gray-100 text-gray-800 inline-flex items-center gap-1.5 border border-gray-200/60 transition-colors cursor-pointer ${
+                  accountOpen ||
+                  isLinkActive(localizePath("/orders")) ||
+                  isLinkActive(localizePath("/profile")) ||
+                  isLinkActive(localizePath("/admin"))
+                    ? "bg-gray-200 text-gray-950"
+                    : ""
+                }`}
+                aria-expanded={accountOpen}
+                aria-haspopup="true"
+              >
+                <User size={14} className="text-gray-600" />
+                <span className="max-w-[100px] truncate">{userName || t("nav.account")}</span>
+                <ChevronDown
+                  size={13}
+                  className={`transition-transform duration-200 ${accountOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {accountOpen && (
+                <div className="absolute right-0 top-full pt-2 w-56 z-50">
+                  <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/80 p-2 space-y-1">
+                    {userName && (
+                      <div className="px-3 py-2 text-xs font-semibold text-gray-500 border-b border-gray-100 truncate">
+                        {userName}
+                      </div>
+                    )}
+
+                    <Link
+                      to={localizePath("/orders")}
+                      onClick={() => setAccountOpen(false)}
+                      onMouseEnter={() => prefetchRoute(localizePath("/orders"))}
+                      onFocus={() => prefetchRoute(localizePath("/orders"))}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
+                        isLinkActive(localizePath("/orders"))
+                          ? "bg-emerald-50 text-emerald-800"
+                          : "text-gray-700 hover:bg-gray-50 hover:text-gray-950"
+                      }`}
+                    >
+                      <Package size={15} className="text-gray-500" />
+                      <span>{t("nav.myOrders")}</span>
+                    </Link>
+
+                    <Link
+                      to={localizePath("/profile")}
+                      onClick={() => setAccountOpen(false)}
+                      onMouseEnter={() => prefetchRoute(localizePath("/profile"))}
+                      onFocus={() => prefetchRoute(localizePath("/profile"))}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
+                        isLinkActive(localizePath("/profile"))
+                          ? "bg-emerald-50 text-emerald-800"
+                          : "text-gray-700 hover:bg-gray-50 hover:text-gray-950"
+                      }`}
+                    >
+                      <User size={15} className="text-gray-500" />
+                      <span>{t("nav.myProfile")}</span>
+                    </Link>
+
+                    {userRole === "admin" && (
+                      <Link
+                        to={localizePath("/admin")}
+                        onClick={() => setAccountOpen(false)}
+                        onMouseEnter={() => prefetchRoute(localizePath("/admin"))}
+                        onFocus={() => prefetchRoute(localizePath("/admin"))}
+                        className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
+                          isLinkActive(localizePath("/admin"))
+                            ? "bg-emerald-50 text-emerald-800"
+                            : "text-gray-700 hover:bg-gray-50 hover:text-gray-950"
+                        }`}
+                      >
+                        <ShieldCheck size={15} className="text-emerald-700" />
+                        <span>{t("nav.admin")}</span>
+                      </Link>
+                    )}
+
+                    <div className="border-t border-gray-100 my-1" />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAccountOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                    >
+                      <LogOut size={15} />
+                      <span>{t("nav.logOut")}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          type="button"
+          className="lg:hidden p-2 text-gray-700 hover:text-gray-950 rounded-lg"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label={t("nav.toggleMenu")}
+          aria-expanded={isOpen}
+        >
+          {isOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </div>
-    </div>
 
-      {/* Mobile Menu Toggle */}
-      <button
-        type="button"
-        className="lg:hidden p-2 text-[#3f5851]"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label={t("nav.toggleMenu")}
-        aria-expanded={isOpen}
-      >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
-
-      {/* Mobile Menu */}
+      {/* Mobile Menu Dropdown */}
       {isOpen && (
-        <div className="lg:hidden bg-white/95 border-t border-[#d8e6df] p-4 flex flex-col gap-4 absolute top-full left-0 w-full z-40 shadow-lg backdrop-blur-md rounded-b-2xl">
+        <div className="lg:hidden bg-white/98 backdrop-blur-2xl border-b border-gray-200/80 p-5 flex flex-col gap-3 absolute top-full left-0 w-full z-40 shadow-xl rounded-b-3xl">
           <Link
             to={localizePath("/")}
-            className={`font-medium py-2 px-2 rounded-lg ${
+            className={`font-semibold text-sm py-2 px-3 rounded-xl ${
               isLinkActive(localizePath("/"))
-                ? "bg-[#ecf6f2] text-[#0f766e]"
-                : "text-[#3d534c]"
+                ? "bg-gray-100 text-gray-950"
+                : "text-gray-700 hover:bg-gray-50"
             }`}
             onClick={() => setIsOpen(false)}
           >
@@ -414,10 +418,10 @@ const Navbar = () => {
             <button
               type="button"
               onClick={() => setMobileSolutionsOpen(!mobileSolutionsOpen)}
-              className={`w-full flex items-center justify-between font-medium py-2 px-2 rounded-lg ${
+              className={`w-full flex items-center justify-between font-semibold text-sm py-2 px-3 rounded-xl cursor-pointer ${
                 pathname.includes("/faq/") && pathname !== localizePath("/faq")
-                  ? "bg-[#ecf6f2] text-[#0f766e]"
-                  : "text-[#3d534c]"
+                  ? "bg-gray-100 text-gray-950"
+                  : "text-gray-700 hover:bg-gray-50"
               }`}
             >
               <span>{t("nav.solutions")}</span>
@@ -432,7 +436,7 @@ const Navbar = () => {
                   <Link
                     key={app.slug}
                     to={localizePath(`/faq/${app.slug}`)}
-                    className="block py-1.5 px-2.5 rounded-lg text-sm text-[#445b54] hover:bg-[#ecf6f2] hover:text-[#0f766e]"
+                    className="block py-2 px-3 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     onClick={() => {
                       setIsOpen(false);
                       setMobileSolutionsOpen(false);
@@ -447,10 +451,10 @@ const Navbar = () => {
 
           <Link
             to={localizePath("/faq")}
-            className={`font-medium py-2 px-2 rounded-lg ${
+            className={`font-semibold text-sm py-2 px-3 rounded-xl ${
               isLinkActive(localizePath("/faq"))
-                ? "bg-[#ecf6f2] text-[#0f766e]"
-                : "text-[#3d534c]"
+                ? "bg-gray-100 text-gray-950"
+                : "text-gray-700 hover:bg-gray-50"
             }`}
             onClick={() => setIsOpen(false)}
           >
@@ -458,12 +462,8 @@ const Navbar = () => {
           </Link>
 
           <Link
-            to={localizePath("/checkout")}
-            className={`font-medium py-2 px-2 rounded-lg ${
-              isLinkActive(localizePath("/checkout"))
-                ? "bg-[#ecf6f2] text-[#0f766e]"
-                : "text-[#3d534c]"
-            }`}
+            to={localizePath("/quote")}
+            className="rounded-full px-5 py-2.5 text-center text-sm font-semibold bg-[#133827] text-white hover:bg-[#0f2d1f] shadow-xs"
             onClick={() => setIsOpen(false)}
           >
             {t("nav.instantQuote")}
@@ -471,13 +471,13 @@ const Navbar = () => {
 
           {/* Mobile Authenticated Routes */}
           {isLoggedIn && (
-            <div className="nav-auth-only flex flex-col gap-1 border-t border-[#deebe6] pt-2">
+            <div className="nav-auth-only flex flex-col gap-1 border-t border-gray-100 pt-3">
               <Link
                 to={localizePath("/orders")}
-                className={`font-medium py-2 px-2 rounded-lg flex items-center gap-2 ${
+                className={`font-semibold text-sm py-2 px-3 rounded-xl flex items-center gap-2 ${
                   isLinkActive(localizePath("/orders"))
-                    ? "bg-[#ecf6f2] text-[#0f766e]"
-                    : "text-[#3d534c]"
+                    ? "bg-gray-100 text-gray-950"
+                    : "text-gray-700 hover:bg-gray-50"
                 }`}
                 onClick={() => setIsOpen(false)}
               >
@@ -486,10 +486,10 @@ const Navbar = () => {
               </Link>
               <Link
                 to={localizePath("/profile")}
-                className={`font-medium py-2 px-2 rounded-lg flex items-center gap-2 ${
+                className={`font-semibold text-sm py-2 px-3 rounded-xl flex items-center gap-2 ${
                   isLinkActive(localizePath("/profile"))
-                    ? "bg-[#ecf6f2] text-[#0f766e]"
-                    : "text-[#3d534c]"
+                    ? "bg-gray-100 text-gray-950"
+                    : "text-gray-700 hover:bg-gray-50"
                 }`}
                 onClick={() => setIsOpen(false)}
               >
@@ -499,31 +499,32 @@ const Navbar = () => {
               {userRole === "admin" && (
                 <Link
                   to={localizePath("/admin")}
-                  className={`font-medium py-2 px-2 rounded-lg flex items-center gap-2 ${
+                  className={`font-semibold text-sm py-2 px-3 rounded-xl flex items-center gap-2 ${
                     isLinkActive(localizePath("/admin"))
-                      ? "bg-[#ecf6f2] text-[#0f766e]"
-                      : "text-[#3d534c]"
+                      ? "bg-emerald-50 text-emerald-800"
+                      : "text-gray-700 hover:bg-gray-50"
                   }`}
                   onClick={() => setIsOpen(false)}
                 >
-                  <ShieldCheck size={16} />
+                  <ShieldCheck size={16} className="text-emerald-700" />
                   <span>{t("nav.admin")}</span>
                 </Link>
               )}
             </div>
           )}
 
-          <hr className="border-[#deebe6]" />
+          <hr className="border-gray-100" />
 
-          <div className="flex items-center gap-2">
+          {/* Mobile Language Selector */}
+          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-full w-fit">
             {languageOptions.map((option) => (
               <button
                 key={option.code}
                 onClick={() => setLanguage(option.code)}
-                className={`px-3 py-1 text-xs font-bold rounded-lg border ${
+                className={`px-3 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
                   language === option.code
-                    ? "bg-[#0f766e] text-white border-[#0f766e]"
-                    : "text-[#586d67] border-[#d4e3dd]"
+                    ? "bg-white text-gray-950 shadow-2xs font-bold"
+                    : "text-gray-500"
                 }`}
               >
                 {option.label}
@@ -548,9 +549,10 @@ const Navbar = () => {
                 handleLogout();
                 setIsOpen(false);
               }}
-              className="w-full px-5 py-2.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg flex items-center justify-center gap-2"
+              className="w-full px-5 py-2.5 text-sm font-semibold text-red-600 bg-red-50 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
             >
-              <LogOut size={18} /> {t("nav.logOut")}
+              <LogOut size={16} />
+              <span>{t("nav.logOut")}</span>
             </button>
           </div>
         </div>

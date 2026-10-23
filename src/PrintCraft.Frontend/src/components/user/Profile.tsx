@@ -253,7 +253,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="site-shell bg-gray-50/30 min-h-screen flex flex-col">
+    <div className="site-shell min-h-screen flex flex-col">
       <Navbar />
 
       <main className="site-main max-w-7xl mx-auto px-4 sm:px-6 py-12 flex-grow w-full">
