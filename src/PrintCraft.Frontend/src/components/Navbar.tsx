@@ -1,13 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  Menu,
-  X,
-  LogOut,
-  ChevronDown,
-  User,
-  Package,
-  ShieldCheck,
-} from "lucide-react";
+import { Menu, X, LogOut, ChevronDown, User, Package, ShieldCheck } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./logos/Logo";
 import { useI18n } from "../i18n/I18nContext";
@@ -90,10 +82,8 @@ const Navbar = () => {
   // Sync auth state on mount, route changes, or cross-tab storage events
   useEffect(() => {
     const updateAuth = () => {
-      const token =
-        typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      const userStr =
-        typeof window !== "undefined" ? localStorage.getItem("user") : null;
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const userStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
       const isAuth = !!token;
       setIsLoggedIn(isAuth);
 
@@ -150,7 +140,10 @@ const Navbar = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target)
+      ) {
         setSolutionsOpen(false);
       }
       if (
@@ -220,8 +213,7 @@ const Navbar = () => {
                 type="button"
                 onClick={() => setSolutionsOpen(!solutionsOpen)}
                 className={`rounded-full px-3.5 py-1.5 transition-colors inline-flex items-center gap-1 cursor-pointer ${
-                  pathname.includes("/faq/") &&
-                  pathname.replace(/\/$/, "") !== localizePath("/faq")
+                  pathname.includes("/faq/") && pathname.replace(/\/$/, "") !== localizePath("/faq")
                     ? "bg-gray-200/70 dark:bg-white/15 text-gray-950 dark:text-white font-semibold"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100/70 dark:hover:bg-white/10"
                 }`}
@@ -306,9 +298,7 @@ const Navbar = () => {
           {/* Auth Action Slot */}
           <div className="flex items-center shrink-0">
             {/* Guest: Log In Button */}
-            <div
-              className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}
-            >
+            <div className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}>
               <Link
                 to={localizePath("/login")}
                 onMouseEnter={() => prefetchRoute(localizePath("/login"))}
@@ -339,9 +329,7 @@ const Navbar = () => {
                 aria-haspopup="true"
               >
                 <User size={14} className="text-gray-600 dark:text-gray-300" />
-                <span className="max-w-[100px] truncate">
-                  {userName || t("nav.account")}
-                </span>
+                <span className="max-w-[100px] truncate">{userName || t("nav.account")}</span>
                 <ChevronDown
                   size={13}
                   className={`transition-transform duration-200 ${accountOpen ? "rotate-180" : ""}`}
@@ -360,9 +348,7 @@ const Navbar = () => {
                     <Link
                       to={localizePath("/orders")}
                       onClick={() => setAccountOpen(false)}
-                      onMouseEnter={() =>
-                        prefetchRoute(localizePath("/orders"))
-                      }
+                      onMouseEnter={() => prefetchRoute(localizePath("/orders"))}
                       onFocus={() => prefetchRoute(localizePath("/orders"))}
                       className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                         isLinkActive(localizePath("/orders"))
@@ -370,19 +356,14 @@ const Navbar = () => {
                           : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-950 dark:hover:text-white"
                       }`}
                     >
-                      <Package
-                        size={15}
-                        className="text-gray-500 dark:text-gray-400"
-                      />
+                      <Package size={15} className="text-gray-500 dark:text-gray-400" />
                       <span>{t("nav.myOrders")}</span>
                     </Link>
 
                     <Link
                       to={localizePath("/profile")}
                       onClick={() => setAccountOpen(false)}
-                      onMouseEnter={() =>
-                        prefetchRoute(localizePath("/profile"))
-                      }
+                      onMouseEnter={() => prefetchRoute(localizePath("/profile"))}
                       onFocus={() => prefetchRoute(localizePath("/profile"))}
                       className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                         isLinkActive(localizePath("/profile"))
@@ -390,10 +371,7 @@ const Navbar = () => {
                           : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-950 dark:hover:text-white"
                       }`}
                     >
-                      <User
-                        size={15}
-                        className="text-gray-500 dark:text-gray-400"
-                      />
+                      <User size={15} className="text-gray-500 dark:text-gray-400" />
                       <span>{t("nav.myProfile")}</span>
                     </Link>
 
@@ -401,9 +379,7 @@ const Navbar = () => {
                       <Link
                         to={localizePath("/admin")}
                         onClick={() => setAccountOpen(false)}
-                        onMouseEnter={() =>
-                          prefetchRoute(localizePath("/admin"))
-                        }
+                        onMouseEnter={() => prefetchRoute(localizePath("/admin"))}
                         onFocus={() => prefetchRoute(localizePath("/admin"))}
                         className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                           isLinkActive(localizePath("/admin"))
@@ -411,10 +387,7 @@ const Navbar = () => {
                             : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-950 dark:hover:text-white"
                         }`}
                       >
-                        <ShieldCheck
-                          size={15}
-                          className="text-emerald-700 dark:text-emerald-400"
-                        />
+                        <ShieldCheck size={15} className="text-emerald-700 dark:text-emerald-400" />
                         <span>{t("nav.admin")}</span>
                       </Link>
                     )}
@@ -559,10 +532,7 @@ const Navbar = () => {
                   }`}
                   onClick={() => setIsOpen(false)}
                 >
-                  <ShieldCheck
-                    size={16}
-                    className="text-emerald-700 dark:text-emerald-400"
-                  />
+                  <ShieldCheck size={16} className="text-emerald-700 dark:text-emerald-400" />
                   <span>{t("nav.admin")}</span>
                 </Link>
               )}

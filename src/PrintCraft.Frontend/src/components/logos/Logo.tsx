@@ -39,10 +39,7 @@ const Logo: React.FC<LogoProps> = ({ className = "", isLink = true }) => {
   // 2. If isLink is true, wrap the content in a Link to home ('/')
   if (isLink) {
     return (
-      <Link
-        to={localizePath("/")}
-        className="hover:opacity-80 transition-opacity block"
-      >
+      <Link to={localizePath("/")} className="hover:opacity-80 transition-opacity block">
         {content}
       </Link>
     );

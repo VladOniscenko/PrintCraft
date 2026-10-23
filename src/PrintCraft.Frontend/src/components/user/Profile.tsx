@@ -66,8 +66,7 @@ export default function Profile() {
   const [savingAddress, setSavingAddress] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [savingLanguage, setSavingLanguage] = useState(false);
-  const [activePrefLang, setActivePrefLang] =
-    useState<SupportedLanguage>(language);
+  const [activePrefLang, setActivePrefLang] = useState<SupportedLanguage>(language);
 
   const [userData, setUserData] = useState<UserData>({
     id: "",
@@ -92,7 +91,9 @@ export default function Profile() {
       // 1. Fetch User Data (using client-side cached auth session)
       const user = await getCurrentUser();
       if (user) {
-        const prefLang = resolveLanguage(user.preferredLanguage || language);
+        const prefLang = resolveLanguage(
+          user.preferredLanguage || language,
+        );
         setUserData({
           id: user.id,
           name: user.name,
@@ -267,10 +268,7 @@ export default function Profile() {
             </p>
           </div>
           <div className="hidden sm:block p-4 bg-white dark:bg-[#0e1512] rounded-2xl shadow-sm border border-gray-100 dark:border-white/10">
-            <User
-              size={32}
-              className="text-emerald-600 dark:text-emerald-400"
-            />
+            <User size={32} className="text-emerald-600 dark:text-emerald-400" />
           </div>
         </div>
 
@@ -287,10 +285,7 @@ export default function Profile() {
               <div className="bg-white dark:bg-[#0e1512] border border-gray-100 dark:border-white/10 rounded-3xl shadow-sm overflow-hidden">
                 <div className="p-8 border-b border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 flex items-center gap-3">
                   <div className="bg-white dark:bg-white/10 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-white/10">
-                    <User
-                      size={20}
-                      className="text-emerald-600 dark:text-emerald-400"
-                    />
+                    <User size={20} className="text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                     {t("profile.personalDetails")}
@@ -311,10 +306,7 @@ export default function Profile() {
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                        <Mail
-                          size={14}
-                          className="text-gray-400 dark:text-gray-500"
-                        />{" "}
+                        <Mail size={14} className="text-gray-400 dark:text-gray-500" />{" "}
                         {t("profile.email")}
                       </label>
                       <input
@@ -333,10 +325,7 @@ export default function Profile() {
                 <div className="p-8 border-b border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="bg-white dark:bg-white/10 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-white/10">
-                      <MapPin
-                        size={20}
-                        className="text-emerald-600 dark:text-emerald-400"
-                      />
+                      <MapPin size={20} className="text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                       {t("profile.addressBook")}
@@ -347,7 +336,8 @@ export default function Profile() {
                       onClick={openNewAddressForm}
                       className="flex items-center gap-2 text-sm font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-800/40 px-4 py-2 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors cursor-pointer"
                     >
-                      <Plus size={16} /> {t("profile.addNewAddress")}
+                      <Plus size={16} />{" "}
+                      {t("profile.addNewAddress")}
                     </button>
                   )}
                 </div>
@@ -388,10 +378,7 @@ export default function Profile() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                            <Phone
-                              size={14}
-                              className="text-gray-400 dark:text-gray-500"
-                            />{" "}
+                            <Phone size={14} className="text-gray-400 dark:text-gray-500" />{" "}
                             {t("profile.phone")}
                           </label>
                           <input
@@ -508,8 +495,7 @@ export default function Profile() {
                               <div>
                                 <div className="flex items-center gap-3 mb-1">
                                   <h4 className="font-bold text-gray-900 dark:text-white">
-                                    {address.label ||
-                                      t("profile.defaultAddressLabel")}
+                                    {address.label || t("profile.defaultAddressLabel")}
                                   </h4>
                                   {address.isDefault && (
                                     <span className="bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/40 text-[10px] uppercase font-black px-2 py-0.5 rounded-md flex items-center gap-1">
@@ -575,10 +561,7 @@ export default function Profile() {
               <div className="bg-white dark:bg-[#0e1512] border border-gray-100 dark:border-white/10 rounded-3xl shadow-sm overflow-hidden">
                 <div className="p-8 border-b border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 flex items-center gap-3">
                   <div className="bg-white dark:bg-white/10 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-white/10">
-                    <Globe
-                      size={20}
-                      className="text-emerald-600 dark:text-emerald-400"
-                    />
+                    <Globe size={20} className="text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -611,11 +594,7 @@ export default function Profile() {
                           }`}
                         >
                           <div className="flex items-center gap-3">
-                            <span
-                              className="text-2xl leading-none"
-                              role="img"
-                              aria-hidden="true"
-                            >
+                            <span className="text-2xl leading-none" role="img" aria-hidden="true">
                               {languageFlagMap[code]}
                             </span>
                             <div>
@@ -659,10 +638,7 @@ export default function Profile() {
               >
                 <div className="p-8 border-b border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 flex items-center gap-3">
                   <div className="bg-white dark:bg-white/10 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-white/10">
-                    <Lock
-                      size={20}
-                      className="text-emerald-600 dark:text-emerald-400"
-                    />
+                    <Lock size={20} className="text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                     {t("profile.security")}

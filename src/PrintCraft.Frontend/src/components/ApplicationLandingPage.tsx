@@ -66,7 +66,7 @@ export default function ApplicationLandingPage({
   const resolveText = (
     dynDict?: Record<string, string> | null,
     fbDict?: Record<string, string> | null,
-    fb = "",
+    fb = ""
   ): string => {
     if (dynDict && dynDict[language]?.trim()) return dynDict[language].trim();
     if (fbDict && fbDict[language]?.trim()) return fbDict[language].trim();
@@ -80,81 +80,39 @@ export default function ApplicationLandingPage({
   const resolveList = (
     dynDict?: Record<string, string[]> | null,
     fbDict?: Record<string, string[]> | null,
-    fb: string[] = [],
+    fb: string[] = []
   ): string[] => {
-    if (
-      dynDict &&
-      Array.isArray(dynDict[language]) &&
-      dynDict[language].length > 0
-    )
-      return dynDict[language];
-    if (
-      fbDict &&
-      Array.isArray(fbDict[language]) &&
-      fbDict[language].length > 0
-    )
-      return fbDict[language];
-    if (dynDict && Array.isArray(dynDict["en"]) && dynDict["en"].length > 0)
-      return dynDict["en"];
-    if (fbDict && Array.isArray(fbDict["en"]) && fbDict["en"].length > 0)
-      return fbDict["en"];
-    if (dynDict && Array.isArray(dynDict["nl"]) && dynDict["nl"].length > 0)
-      return dynDict["nl"];
-    if (fbDict && Array.isArray(fbDict["nl"]) && fbDict["nl"].length > 0)
-      return fbDict["nl"];
+    if (dynDict && Array.isArray(dynDict[language]) && dynDict[language].length > 0) return dynDict[language];
+    if (fbDict && Array.isArray(fbDict[language]) && fbDict[language].length > 0) return fbDict[language];
+    if (dynDict && Array.isArray(dynDict["en"]) && dynDict["en"].length > 0) return dynDict["en"];
+    if (fbDict && Array.isArray(fbDict["en"]) && fbDict["en"].length > 0) return fbDict["en"];
+    if (dynDict && Array.isArray(dynDict["nl"]) && dynDict["nl"].length > 0) return dynDict["nl"];
+    if (fbDict && Array.isArray(fbDict["nl"]) && fbDict["nl"].length > 0) return fbDict["nl"];
     return fb;
   };
 
   const resolveFaqs = (
     dynDict?: Record<string, { q: string; a: string }[]> | null,
     fbDict?: Record<string, { q: string; a: string }[]> | null,
-    fb: { q: string; a: string }[] = [],
+    fb: { q: string; a: string }[] = []
   ): { q: string; a: string }[] => {
-    if (
-      dynDict &&
-      Array.isArray(dynDict[language]) &&
-      dynDict[language].length > 0
-    )
-      return dynDict[language];
-    if (
-      fbDict &&
-      Array.isArray(fbDict[language]) &&
-      fbDict[language].length > 0
-    )
-      return fbDict[language];
-    if (dynDict && Array.isArray(dynDict["en"]) && dynDict["en"].length > 0)
-      return dynDict["en"];
-    if (fbDict && Array.isArray(fbDict["en"]) && fbDict["en"].length > 0)
-      return fbDict["en"];
-    if (dynDict && Array.isArray(dynDict["nl"]) && dynDict["nl"].length > 0)
-      return dynDict["nl"];
-    if (fbDict && Array.isArray(fbDict["nl"]) && fbDict["nl"].length > 0)
-      return fbDict["nl"];
+    if (dynDict && Array.isArray(dynDict[language]) && dynDict[language].length > 0) return dynDict[language];
+    if (fbDict && Array.isArray(fbDict[language]) && fbDict[language].length > 0) return fbDict[language];
+    if (dynDict && Array.isArray(dynDict["en"]) && dynDict["en"].length > 0) return dynDict["en"];
+    if (fbDict && Array.isArray(fbDict["en"]) && fbDict["en"].length > 0) return fbDict["en"];
+    if (dynDict && Array.isArray(dynDict["nl"]) && dynDict["nl"].length > 0) return dynDict["nl"];
+    if (fbDict && Array.isArray(fbDict["nl"]) && fbDict["nl"].length > 0) return fbDict["nl"];
     return fb;
   };
 
-  const appName = resolveText(
-    dynamicTopic?.names,
-    fallbackApp?.names,
-    activeSlug,
-  );
+  const appName = resolveText(dynamicTopic?.names, fallbackApp?.names, activeSlug);
   const heroBadge = resolveText(dynamicTopic?.badge, fallbackApp?.badge);
-  const heroTitle = resolveText(
-    dynamicTopic?.heroTitle,
-    fallbackApp?.heroTitle,
-  );
-  const heroSubtitle = resolveText(
-    dynamicTopic?.heroSubtitle,
-    fallbackApp?.heroSubtitle,
-  );
-  const description = resolveText(
-    dynamicTopic?.description,
-    fallbackApp?.description,
-  );
+  const heroTitle = resolveText(dynamicTopic?.heroTitle, fallbackApp?.heroTitle);
+  const heroSubtitle = resolveText(dynamicTopic?.heroSubtitle, fallbackApp?.heroSubtitle);
+  const description = resolveText(dynamicTopic?.description, fallbackApp?.description);
   const benefits = resolveList(dynamicTopic?.benefits, fallbackApp?.benefits);
   const faqs = resolveFaqs(dynamicTopic?.faqs, fallbackApp?.faqs);
-  const recommendedMaterials = dynamicTopic?.recommendedMaterials ||
-    fallbackApp?.recommendedMaterials || ["PETG", "TPU", "PLA"];
+  const recommendedMaterials = dynamicTopic?.recommendedMaterials || fallbackApp?.recommendedMaterials || ["PETG", "TPU", "PLA"];
 
   const localizedCountry =
     businessInfo.address.countryName[language] ||
@@ -193,10 +151,7 @@ export default function ApplicationLandingPage({
       <section className="pt-16 pb-12 sm:pt-20 sm:pb-16 px-4 sm:px-6 max-w-4xl mx-auto text-center">
         {heroBadge && (
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/50 mb-6">
-            <Sparkles
-              size={14}
-              className="text-emerald-700 dark:text-emerald-400"
-            />
+            <Sparkles size={14} className="text-emerald-700 dark:text-emerald-400" />
             <span>{heroBadge}</span>
           </div>
         )}
@@ -228,24 +183,15 @@ export default function ApplicationLandingPage({
         {/* High-Trust Reassurance Chips */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-white/5 border border-gray-200/80 dark:border-white/10 shadow-2xs">
-            <Truck
-              size={15}
-              className="text-emerald-700 dark:text-emerald-400"
-            />
+            <Truck size={15} className="text-emerald-700 dark:text-emerald-400" />
             <span>{t("faq.trustBadgeFastDelivery")}</span>
           </div>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-white/5 border border-gray-200/80 dark:border-white/10 shadow-2xs">
-            <ShieldCheck
-              size={15}
-              className="text-emerald-700 dark:text-emerald-400"
-            />
+            <ShieldCheck size={15} className="text-emerald-700 dark:text-emerald-400" />
             <span>{t("faq.trustBadgeInspection")}</span>
           </div>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-white/5 border border-gray-200/80 dark:border-white/10 shadow-2xs">
-            <Layers
-              size={15}
-              className="text-emerald-700 dark:text-emerald-400"
-            />
+            <Layers size={15} className="text-emerald-700 dark:text-emerald-400" />
             <span>{recommendedMaterials.join(", ")}</span>
           </div>
         </div>
@@ -269,19 +215,13 @@ export default function ApplicationLandingPage({
             </div>
             <div className="lg:col-span-5 bg-gray-50/80 dark:bg-white/5 p-6 sm:p-8 rounded-2xl border border-gray-100 dark:border-white/10 space-y-4">
               <h3 className="font-semibold text-gray-900 dark:text-white text-sm tracking-wide flex items-center gap-2">
-                <Cpu
-                  size={16}
-                  className="text-emerald-700 dark:text-emerald-400"
-                />
+                <Cpu size={16} className="text-emerald-700 dark:text-emerald-400" />
                 <span>{t("home.showcase.eyebrow")}</span>
               </h3>
               <ul className="space-y-3 text-sm text-gray-700 dark:text-gray-300 font-medium">
                 {benefits.map((benefit, idx) => (
                   <li key={idx} className="flex items-start gap-2.5">
-                    <CheckCircle2
-                      size={16}
-                      className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
-                    />
+                    <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                     <span>{benefit}</span>
                   </li>
                 ))}
@@ -309,16 +249,12 @@ export default function ApplicationLandingPage({
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-bold text-xl text-gray-900 dark:text-white">
-                      {mat.name}
-                    </h3>
+                    <h3 className="font-bold text-xl text-gray-900 dark:text-white">{mat.name}</h3>
                   </div>
                   <p className="font-semibold text-sm text-emerald-800 dark:text-emerald-400 mb-2">
                     {mat.tagline}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                    {mat.desc}
-                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{mat.desc}</p>
                 </div>
               </div>
             ))}
@@ -355,9 +291,7 @@ export default function ApplicationLandingPage({
                   >
                     <h3
                       className={`font-semibold text-base sm:text-lg pr-4 transition-colors ${
-                        isOpen
-                          ? "text-emerald-950 dark:text-emerald-300 font-bold"
-                          : "text-gray-900 dark:text-white"
+                        isOpen ? "text-emerald-950 dark:text-emerald-300 font-bold" : "text-gray-900 dark:text-white"
                       }`}
                     >
                       {item.q}
@@ -416,10 +350,7 @@ export default function ApplicationLandingPage({
                 className="p-4 rounded-2xl border border-gray-200/80 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 bg-white dark:bg-[#0e1512] hover:bg-gray-50/80 dark:hover:bg-white/5 transition-all text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center justify-between shadow-2xs"
               >
                 <span>{getApplicationName(other, language)}</span>
-                <ArrowRight
-                  size={14}
-                  className="text-emerald-700 dark:text-emerald-400"
-                />
+                <ArrowRight size={14} className="text-emerald-700 dark:text-emerald-400" />
               </Link>
             ))}
           </div>

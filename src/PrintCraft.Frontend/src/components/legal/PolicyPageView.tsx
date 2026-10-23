@@ -20,9 +20,7 @@ function resolveDictText(
   if (dict["en"]?.trim()) return dict["en"].trim();
   if (dict["nl"]?.trim()) return dict["nl"].trim();
 
-  const values = Object.values(dict).filter(
-    (v) => typeof v === "string" && v.trim().length > 0,
-  );
+  const values = Object.values(dict).filter((v) => typeof v === "string" && v.trim().length > 0);
   if (values.length > 0) return values[0].trim();
 
   return fallback;
@@ -90,130 +88,53 @@ export default function PolicyPageView({ slug }: PolicyPageViewProps) {
   const fallbackSections = (() => {
     if (slug === "privacy") {
       return [
-        {
-          id: "f-1",
-          title: t("legal.privacy.section1Title"),
-          body: t("legal.privacy.section1Body"),
-        },
-        {
-          id: "f-2",
-          title: t("legal.privacy.section2Title"),
-          body: t("legal.privacy.section2Body"),
-        },
-        {
-          id: "f-3",
-          title: t("legal.privacy.section3Title"),
-          body: t("legal.privacy.section3Body"),
-        },
-        {
-          id: "f-4",
-          title: t("legal.privacy.section4Title"),
-          body: t("legal.privacy.section4Body"),
-        },
+        { id: "f-1", title: t("legal.privacy.section1Title"), body: t("legal.privacy.section1Body") },
+        { id: "f-2", title: t("legal.privacy.section2Title"), body: t("legal.privacy.section2Body") },
+        { id: "f-3", title: t("legal.privacy.section3Title"), body: t("legal.privacy.section3Body") },
+        { id: "f-4", title: t("legal.privacy.section4Title"), body: t("legal.privacy.section4Body") },
       ];
     }
     if (slug === "terms") {
       return [
-        {
-          id: "f-1",
-          title: t("legal.terms.section1Title"),
-          body: t("legal.terms.section1Body"),
-        },
-        {
-          id: "f-2",
-          title: t("legal.terms.section2Title"),
-          body: t("legal.terms.section2Body"),
-        },
-        {
-          id: "f-3",
-          title: t("legal.terms.pricingDisclaimerTitle"),
-          body: t("legal.terms.pricingDisclaimerBody"),
-        },
-        {
-          id: "f-4",
-          title: t("legal.terms.section3Title"),
-          body: t("legal.terms.section3Body"),
-        },
-        {
-          id: "f-5",
-          title: t("legal.terms.section4Title"),
-          body: t("legal.terms.section4Body"),
-        },
+        { id: "f-1", title: t("legal.terms.section1Title"), body: t("legal.terms.section1Body") },
+        { id: "f-2", title: t("legal.terms.section2Title"), body: t("legal.terms.section2Body") },
+        { id: "f-3", title: t("legal.terms.pricingDisclaimerTitle"), body: t("legal.terms.pricingDisclaimerBody") },
+        { id: "f-4", title: t("legal.terms.section3Title"), body: t("legal.terms.section3Body") },
+        { id: "f-5", title: t("legal.terms.section4Title"), body: t("legal.terms.section4Body") },
       ];
     }
     if (slug === "refunds") {
       return [
-        {
-          id: "f-1",
-          title: t("legal.refunds.section1Title"),
-          body: t("legal.refunds.section1Body"),
-        },
-        {
-          id: "f-2",
-          title: t("legal.refunds.section2Title"),
-          body: t("legal.refunds.section2Body"),
-        },
-        {
-          id: "f-3",
-          title: t("legal.refunds.section3Title"),
-          body: t("legal.refunds.section3Body"),
-        },
-        {
-          id: "f-4",
-          title: t("legal.refunds.section4Title"),
-          body: t("legal.refunds.section4Body"),
-        },
+        { id: "f-1", title: t("legal.refunds.section1Title"), body: t("legal.refunds.section1Body") },
+        { id: "f-2", title: t("legal.refunds.section2Title"), body: t("legal.refunds.section2Body") },
+        { id: "f-3", title: t("legal.refunds.section3Title"), body: t("legal.refunds.section3Body") },
+        { id: "f-4", title: t("legal.refunds.section4Title"), body: t("legal.refunds.section4Body") },
       ];
     }
     if (slug === "shipping") {
       return [
-        {
-          id: "f-1",
-          title: t("legal.shipping.section1Title"),
-          body: t("legal.shipping.section1Body"),
-        },
-        {
-          id: "f-2",
-          title: t("legal.shipping.section2Title"),
-          body: t("legal.shipping.section2Body"),
-        },
-        {
-          id: "f-3",
-          title: t("legal.shipping.section3Title"),
-          body: t("legal.shipping.section3Body"),
-        },
-        {
-          id: "f-4",
-          title: t("legal.shipping.section4Title"),
-          body: t("legal.shipping.section4Body"),
-        },
+        { id: "f-1", title: t("legal.shipping.section1Title"), body: t("legal.shipping.section1Body") },
+        { id: "f-2", title: t("legal.shipping.section2Title"), body: t("legal.shipping.section2Body") },
+        { id: "f-3", title: t("legal.shipping.section3Title"), body: t("legal.shipping.section3Body") },
+        { id: "f-4", title: t("legal.shipping.section4Title"), body: t("legal.shipping.section4Body") },
       ];
     }
     return [];
   })();
 
-  const title = template
-    ? resolveDictText(template.title, language, fallbackTitle)
-    : fallbackTitle;
-  const updated = template
-    ? resolveDictText(template.lastUpdated, language, fallbackUpdated)
-    : fallbackUpdated;
-  const contactTitle = template
-    ? resolveDictText(template.contactTitle, language, fallbackContactTitle)
-    : fallbackContactTitle;
-  const contactBody = template
-    ? resolveDictText(template.contactBody, language, fallbackContactBody)
-    : fallbackContactBody;
+  const title = template ? resolveDictText(template.title, language, fallbackTitle) : fallbackTitle;
+  const updated = template ? resolveDictText(template.lastUpdated, language, fallbackUpdated) : fallbackUpdated;
+  const contactTitle = template ? resolveDictText(template.contactTitle, language, fallbackContactTitle) : fallbackContactTitle;
+  const contactBody = template ? resolveDictText(template.contactBody, language, fallbackContactBody) : fallbackContactBody;
 
   const rawSections: PolicySection[] = template?.sections || [];
-  const sections =
-    rawSections.length > 0
-      ? rawSections.map((sec: PolicySection, index: number) => ({
-          id: sec.id || `sec-${index}`,
-          title: resolveDictText(sec.title, language),
-          body: resolveDictText(sec.body, language),
-        }))
-      : fallbackSections;
+  const sections = rawSections.length > 0
+    ? rawSections.map((sec: PolicySection, index: number) => ({
+        id: sec.id || `sec-${index}`,
+        title: resolveDictText(sec.title, language),
+        body: resolveDictText(sec.body, language),
+      }))
+    : fallbackSections;
 
   if (!loading && !template && fallbackSections.length === 0) {
     return <NotFound />;

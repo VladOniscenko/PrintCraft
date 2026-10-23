@@ -16,11 +16,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import NotFound from "./NotFound";
 import { useI18n } from "../i18n/I18nContext";
-import {
-  dutchCities,
-  getDutchCityBySlug,
-  getCityName,
-} from "../config/dutchCities";
+import { dutchCities, getDutchCityBySlug, getCityName } from "../config/dutchCities";
 import { getCity, getCachedCity } from "../services/api";
 import type { ManagedCity } from "../types/city";
 import { getLocalizedText } from "../utils/i18nHelpers";
@@ -29,9 +25,7 @@ interface CityLandingPageProps {
   citySlug?: string;
 }
 
-export default function CityLandingPage({
-  citySlug: propSlug,
-}: CityLandingPageProps = {}) {
+export default function CityLandingPage({ citySlug: propSlug }: CityLandingPageProps = {}) {
   const params = useParams<{ city: string }>();
   const location = useLocation();
   const { t, language, localizePath } = useI18n();
@@ -76,9 +70,7 @@ export default function CityLandingPage({
 
   const cityName = dynamicCity
     ? getLocalizedText(dynamicCity.names, language, dynamicCity.slug)
-    : fallbackCity
-      ? getCityName(fallbackCity, language)
-      : "";
+    : (fallbackCity ? getCityName(fallbackCity, language) : "");
   const activeSlug = dynamicCity?.slug || fallbackCity?.slug || "";
   const otherCities = dutchCities.filter((c) => c.slug !== activeSlug);
 
@@ -150,10 +142,7 @@ export default function CityLandingPage({
         <section className="site-section p-6 sm:p-12 relative overflow-hidden bg-gradient-to-br from-white/90 via-emerald-50/30 to-amber-50/20 dark:from-[#0e1512] dark:via-[#0e1512] dark:to-[#13221b] border border-[#d8e6df] dark:border-white/10 rounded-3xl shadow-sm">
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/80 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-300 text-xs sm:text-sm font-semibold tracking-wide">
-              <MapPin
-                className="w-4 h-4 text-emerald-700 dark:text-emerald-400"
-                aria-hidden="true"
-              />
+              <MapPin className="w-4 h-4 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
               <span>{t("cityPage.badge")}</span>
               <span className="text-emerald-500">•</span>
               <span>{cityName}</span>
@@ -170,24 +159,15 @@ export default function CityLandingPage({
             {/* Trust Badges */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 dark:bg-white/5 border border-[#d8e6df] dark:border-white/10 text-xs sm:text-sm text-gray-800 dark:text-gray-200 font-medium shadow-2xs">
-                <Truck
-                  className="w-4 h-4 text-emerald-600 dark:text-emerald-400"
-                  aria-hidden="true"
-                />
+                <Truck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                 {t("cityPage.deliveryBadge", { city: cityName })}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 dark:bg-white/5 border border-[#d8e6df] dark:border-white/10 text-xs sm:text-sm text-gray-800 dark:text-gray-200 font-medium shadow-2xs">
-                <ShieldCheck
-                  className="w-4 h-4 text-emerald-600 dark:text-emerald-400"
-                  aria-hidden="true"
-                />
+                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                 {t("cityPage.precisionBadge")}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 dark:bg-white/5 border border-[#d8e6df] dark:border-white/10 text-xs sm:text-sm text-gray-800 dark:text-gray-200 font-medium shadow-2xs">
-                <Layers
-                  className="w-4 h-4 text-emerald-600 dark:text-emerald-400"
-                  aria-hidden="true"
-                />
+                <Layers className="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                 {t("cityPage.materialsBadge")}
               </span>
             </div>
@@ -207,10 +187,7 @@ export default function CityLandingPage({
                 className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-white/90 dark:bg-white/10 hover:bg-white dark:hover:bg-white/15 border border-[#d8e6df] dark:border-white/10 rounded-2xl shadow-xs transition-colors inline-flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>{t("cityPage.viewFaq")}</span>
-                <ChevronDown
-                  className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                  aria-hidden="true"
-                />
+                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" />
               </a>
             </div>
           </div>
@@ -241,12 +218,8 @@ export default function CityLandingPage({
                   <div className="w-12 h-12 rounded-xl bg-emerald-100/70 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-center text-emerald-800 dark:text-emerald-300">
                     <IconComp className="w-6 h-6" aria-hidden="true" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {cap.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                    {cap.desc}
-                  </p>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">{cap.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{cap.desc}</p>
                 </div>
               );
             })}
@@ -273,12 +246,8 @@ export default function CityLandingPage({
                 <div className="inline-block px-3 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-mono font-bold text-sm border border-emerald-200 dark:border-emerald-800/60">
                   {mat.name}
                 </div>
-                <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                  {mat.tagline}
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-                  {mat.desc}
-                </p>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">{mat.tagline}</h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{mat.desc}</p>
               </div>
             ))}
           </div>
@@ -314,15 +283,9 @@ export default function CityLandingPage({
                   >
                     <span className="text-sm sm:text-base">{faq.question}</span>
                     {isOpen ? (
-                      <ChevronUp
-                        className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0"
-                        aria-hidden="true"
-                      />
+                      <ChevronUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
                     ) : (
-                      <ChevronDown
-                        className="w-5 h-5 text-gray-400 dark:text-gray-500 shrink-0"
-                        aria-hidden="true"
-                      />
+                      <ChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500 shrink-0" aria-hidden="true" />
                     )}
                   </button>
 
@@ -393,3 +356,4 @@ export default function CityLandingPage({
     </div>
   );
 }
+
