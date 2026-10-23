@@ -34,6 +34,9 @@ import {
   RefreshCw,
   CheckCircle2,
   ArrowRight,
+  Check,
+  Truck,
+  ShieldCheck,
 } from "lucide-react";
 import Navbar from "./Navbar";
 const Interactive3DViewer = lazy(() => import("./Interactive3DViewer"));
@@ -1856,68 +1859,73 @@ export default function Quote() {
     <div className="site-shell">
       <Navbar />
 
-      <main className="site-main px-4 sm:px-6 py-12 max-w-7xl mx-auto">
-        <div className="mb-10 text-center">
-          <h2 className="site-heading text-4xl font-bold mb-2">
+      <main className="site-main px-4 sm:px-6 py-10 md:py-16 max-w-5xl mx-auto">
+        {/* Apple-Style Clean Header */}
+        <div className="mb-8 md:mb-12 text-center max-w-3xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-3">
             {t("quote.title")}
-          </h2>
-          <p className="site-subheading text-lg">{t("quote.subtitle")}</p>
+          </h1>
+          <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
+            {t("quote.subtitle")}
+          </p>
+
+          {/* High-Trust Reassurance Badges */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-medium text-gray-600">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 border border-gray-200/60 shadow-2xs">
+              <Truck size={14} className="text-[#133827]" />
+              {t("quote.trustBadgePostNl")}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 border border-gray-200/60 shadow-2xs">
+              <ShieldCheck size={14} className="text-[#133827]" />
+              {t("quote.trustBadgeReview")}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 border border-gray-200/60 shadow-2xs">
+              <MapPin size={14} className="text-[#133827]" />
+              {t("quote.trustBadgeRotterdam")}
+            </span>
+          </div>
         </div>
 
-        {/* Improved Step Progress Indicator */}
-        <div className="mb-10">
-          <div className="flex items-center justify-center max-w-3xl mx-auto">
+        {/* Apple-Style Segmented Stepper Pill Bar */}
+        <div className="flex justify-center mb-10 sm:mb-12">
+          <div className="inline-flex items-center p-1.5 bg-gray-100/90 rounded-full border border-gray-200/80 shadow-2xs gap-1 max-w-full overflow-x-auto">
             {steps.map((step, index) => {
               const stepNumber = index + 1;
               const isActive = currentStepId === step.id;
               const isComplete = currentStepIndex > index;
 
               return (
-                <div
+                <button
                   key={step.id}
-                  className="flex items-center flex-1 last:flex-none"
+                  type="button"
+                  disabled={!isComplete}
+                  onClick={() => {
+                    if (isComplete) {
+                      setCurrentStepId(step.id);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
+                  className={`rounded-full px-3.5 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
+                    isActive
+                      ? "bg-white text-gray-900 shadow-xs border border-gray-200/60"
+                      : isComplete
+                        ? "text-emerald-800 hover:text-emerald-950 hover:bg-white/60 cursor-pointer"
+                        : "text-gray-400 cursor-default"
+                  }`}
                 >
-                  <div className="flex flex-col items-center relative z-10 w-24">
-                    <button
-                      type="button"
-                      disabled={!isComplete}
-                      onClick={() => {
-                        if (isComplete) {
-                          setCurrentStepId(step.id);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }
-                      }}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
-                        isActive
-                          ? "border-emerald-600 bg-emerald-600 text-white shadow-md"
-                          : isComplete
-                            ? "border-emerald-500 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 cursor-pointer"
-                            : "border-gray-200 bg-white text-gray-400 cursor-default"
-                      }`}
-                    >
-                      {isComplete ? <CheckCircle size={18} /> : stepNumber}
-                    </button>
-                    <span
-                      className={`absolute top-12 mt-1 text-xs font-semibold whitespace-nowrap transition-colors duration-300 ${
-                        isActive
-                          ? "text-emerald-800"
-                          : isComplete
-                            ? "text-emerald-600"
-                            : "text-gray-400"
-                      }`}
-                    >
-                      {step.label}
-                    </span>
-                  </div>
-                  {index < steps.length - 1 && (
-                    <div className="flex-1 mx-2 h-1 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500 transition-all duration-500 ease-in-out"
-                        style={{ width: isComplete ? "100%" : "0%" }}
-                      />
-                    </div>
-                  )}
-                </div>
+                  <span
+                    className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center transition-colors ${
+                      isActive
+                        ? "bg-[#133827] text-white"
+                        : isComplete
+                          ? "bg-emerald-100 text-emerald-800"
+                          : "bg-gray-200 text-gray-500"
+                    }`}
+                  >
+                    {isComplete ? <Check size={12} strokeWidth={2.5} /> : stepNumber}
+                  </span>
+                  <span>{step.label}</span>
+                </button>
               );
             })}
           </div>
@@ -1952,14 +1960,14 @@ export default function Quote() {
         <div className="max-w-4xl mx-auto space-y-6">
             {/* STEP 1: MODELS */}
             {currentStepId === "models" && (
-              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+              <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                   <div>
-                    <h3 className="text-xl font-bold flex items-center gap-2 text-gray-800">
-                      <Package className="text-emerald-600" size={24} />
+                    <h3 className="text-xl sm:text-2xl font-extrabold flex items-center gap-2.5 text-gray-900">
+                      <Package className="text-emerald-700" size={26} />
                       {t("quote.models")}
                     </h3>
-                    <p className="mt-1 text-sm text-[#5f736d]">
+                    <p className="mt-1 text-xs sm:text-sm text-gray-500">
                       {t("quote.allowedFilesInline")}
                     </p>
                   </div>
@@ -2055,17 +2063,17 @@ export default function Quote() {
 
                 {/* Dual-Option Starter View when no items are added yet */}
                 {items.length === 0 && !activeCreatorFlow && editingItemIndex === null && (
-                  <div className="space-y-4 my-2">
-                    <div className="text-center py-2">
-                      <h4 className="text-base font-bold text-gray-800">
+                  <div className="space-y-6 my-4">
+                    <div className="text-center py-2 max-w-md mx-auto">
+                      <h4 className="text-lg font-bold text-gray-900">
                         {t("quote.startOrderQuestion")}
                       </h4>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs sm:text-sm text-gray-500 mt-1">
                         {t("quote.startOrderSubtitle")}
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Path 1: 3D CAD Print / Custom Quote Dropzone */}
                       <div
                         onDragOver={handleDragOver}
@@ -2079,30 +2087,30 @@ export default function Quote() {
                           setEditingItemIndex(0);
                           await uploadSelectedFilesForItem(droppedFiles, 0);
                         }}
-                        className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all flex flex-col justify-between ${
+                        className={`border-2 border-dashed rounded-3xl p-8 sm:p-10 text-center transition-all flex flex-col justify-between ${
                           isDragOver
-                            ? "border-emerald-500 bg-emerald-50/50 scale-[0.99]"
-                            : "border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-gray-300"
+                            ? "border-emerald-600 bg-emerald-50/60 scale-[0.99]"
+                            : "border-gray-200 bg-gray-50/40 hover:bg-white hover:border-gray-300 hover:shadow-xs"
                         } ${isUploading ? "opacity-70" : ""}`}
                       >
                         <div>
-                          <div className="bg-white w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xs border border-gray-100 text-indigo-600">
-                            <Layers size={26} />
+                          <div className="bg-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xs border border-gray-100 text-indigo-600">
+                            <Layers size={28} />
                           </div>
-                          <h4 className="text-base font-bold text-gray-900">
+                          <h4 className="text-base sm:text-lg font-bold text-gray-900">
                             {t("quote.startPath3dTitle")}
                           </h4>
-                          <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                          <p className="text-xs sm:text-sm text-gray-500 mt-1.5 max-w-xs mx-auto leading-relaxed">
                             {t("quote.startPath3dSubtitle")}
                           </p>
                         </div>
 
-                        <div className="mt-5 flex justify-center">
-                          <label className="cursor-pointer bg-[#133827] text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-xs">
+                        <div className="mt-6 flex justify-center">
+                          <label className="cursor-pointer bg-[#133827] text-white px-7 py-3 rounded-full text-xs sm:text-sm font-semibold hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-xs">
                             {isUploading ? (
-                              <Loader2 className="animate-spin" size={15} />
+                              <Loader2 className="animate-spin" size={16} />
                             ) : (
-                              <Upload size={15} />
+                              <Upload size={16} />
                             )}
                             <span>{t("quote.browse3dModelFiles")}</span>
                             <input
@@ -2124,29 +2132,29 @@ export default function Quote() {
                       </div>
 
                       {/* Path 2: HueForge Filament Painting */}
-                      <div className="border-2 border-dashed border-emerald-300 bg-emerald-50/30 rounded-2xl p-6 text-center transition-all flex flex-col justify-between hover:bg-emerald-50/50">
+                      <div className="border-2 border-dashed border-emerald-300/80 bg-emerald-50/20 rounded-3xl p-8 sm:p-10 text-center transition-all flex flex-col justify-between hover:bg-emerald-50/40 hover:border-emerald-400 hover:shadow-xs">
                         <div>
-                          <div className="bg-white w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xs border border-emerald-100 text-emerald-600">
-                            <Sparkles size={26} />
+                          <div className="bg-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-2xs border border-emerald-100 text-emerald-700">
+                            <Sparkles size={28} />
                           </div>
-                          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase mb-1">
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase mb-2">
                             HueForge
                           </div>
-                          <h4 className="text-base font-bold text-gray-900">
+                          <h4 className="text-base sm:text-lg font-bold text-gray-900">
                             {t("quote.startPathPaintingTitle")}
                           </h4>
-                          <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                          <p className="text-xs sm:text-sm text-gray-500 mt-1.5 max-w-xs mx-auto leading-relaxed">
                             {t("quote.startPathPaintingSubtitle")}
                           </p>
                         </div>
 
-                        <div className="mt-5 flex justify-center">
+                        <div className="mt-6 flex justify-center">
                           <button
                             type="button"
                             onClick={() => openFilamentPaintingCreator()}
-                            className="bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-emerald-800 transition-all flex items-center gap-2 shadow-xs"
+                            className="bg-emerald-800 text-white px-7 py-3 rounded-full text-xs sm:text-sm font-semibold hover:bg-emerald-900 transition-all flex items-center gap-2 shadow-xs cursor-pointer"
                           >
-                            <Sparkles size={15} />
+                            <Sparkles size={16} />
                             <span>{t("quote.createFilamentPainting")}</span>
                           </button>
                         </div>
@@ -3151,7 +3159,7 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={() => handleConfirmItem(idx)}
-                            className="w-full sm:flex-1 py-4 px-6 rounded-2xl bg-[#133827] hover:bg-[#1c4d37] text-white font-bold text-base shadow-sm flex items-center justify-center gap-2.5 transition-all"
+                            className="w-full sm:flex-1 py-4 px-8 rounded-full bg-[#133827] hover:bg-[#1c4d37] text-white font-semibold text-base shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer"
                           >
                             <CheckCircle2 size={20} />
                             <span>
@@ -3163,7 +3171,7 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={handleCancelEdit}
-                            className="py-3 px-5 rounded-xl text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors"
+                            className="py-3 px-6 rounded-full text-sm font-semibold text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer"
                           >
                             {t("quote.cancel")}
                           </button>
@@ -3327,16 +3335,16 @@ export default function Quote() {
                         <button
                           type="button"
                           onClick={() => setShowAddItemChoiceModal(true)}
-                          className="w-full py-3.5 px-5 rounded-2xl border-2 border-dashed border-gray-300 hover:border-emerald-500 hover:bg-emerald-50/30 text-gray-700 hover:text-emerald-800 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-2xs"
+                          className="w-full py-4 px-6 rounded-full border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-800 font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-2xs cursor-pointer"
                         >
-                          <Plus size={18} className="text-emerald-600" />
+                          <Plus size={18} className="text-emerald-700" />
                           <span>{t("quote.addAnotherItem")}</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={goToNextStep}
-                          className="w-full py-3.5 px-5 rounded-2xl bg-[#133827] hover:bg-[#1c4d37] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
+                          className="w-full py-4 px-8 rounded-full bg-[#133827] hover:bg-[#1c4d37] text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
                         >
                           <span>{t("quote.proceedToCheckout")}</span>
                           <ArrowRight size={18} />
@@ -3476,7 +3484,7 @@ export default function Quote() {
                     type="button"
                     onClick={goToNextStep}
                     disabled={items.length === 0}
-                    className="bg-[#133827] text-white px-7 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm ml-auto"
+                    className="bg-[#133827] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm ml-auto cursor-pointer"
                   >
                     <span>{t("quote.nextStep")}</span>
                     <ChevronRight size={18} />
@@ -3487,16 +3495,16 @@ export default function Quote() {
 
             {/* STEP: ACCOUNT */}
             {currentStepId === "account" && (
-              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+              <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80 space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="bg-emerald-50 p-2.5 rounded-xl text-emerald-600">
+                  <div className="bg-emerald-50 p-2.5 rounded-2xl text-emerald-700">
                     <User size={26} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-800">
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900">
                       {t("quote.authTitle")}
                     </h3>
-                    <p className="text-sm text-[#5f736d]">
+                    <p className="text-xs sm:text-sm text-gray-500">
                       {t("quote.authSubtitle")}
                     </p>
                   </div>
@@ -3522,7 +3530,7 @@ export default function Quote() {
                       <button
                         type="button"
                         onClick={handleSwitchAccount}
-                        className="text-xs font-semibold text-gray-500 hover:text-red-600 underline ml-auto transition-colors"
+                        className="text-xs font-semibold text-gray-500 hover:text-red-600 underline ml-auto transition-colors cursor-pointer"
                       >
                         {t("quote.switchAccount")}
                       </button>
@@ -3532,7 +3540,7 @@ export default function Quote() {
                       <button
                         type="button"
                         onClick={goToPreviousStep}
-                        className="border border-gray-200 bg-white text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2"
+                        className="border border-gray-200 bg-white text-gray-700 px-6 py-3 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer"
                       >
                         <ChevronLeft size={16} />
                         <span>{t("quote.backToModels")}</span>
@@ -3540,7 +3548,7 @@ export default function Quote() {
                       <button
                         type="button"
                         onClick={goToNextStep}
-                        className="bg-[#133827] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-sm"
+                        className="bg-[#133827] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-sm cursor-pointer"
                       >
                         <span>{t("quote.continueToShipping")}</span>
                         <ChevronRight size={16} />
@@ -3549,21 +3557,21 @@ export default function Quote() {
                   </div>
                 ) : (
                   <div>
-                    {/* Tab Navigation */}
-                    <div className="flex border-b border-gray-100 mb-6">
+                    {/* Tab Navigation: Apple Pill Bar */}
+                    <div className="inline-flex p-1 bg-gray-100/90 rounded-full border border-gray-200/60 shadow-2xs gap-1 mb-6">
                       <button
                         type="button"
                         onClick={() => {
                           setAuthMode("register");
                           setAuthError("");
                         }}
-                        className={`pb-3 px-5 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${
+                        className={`rounded-full py-2 px-5 text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
                           authMode === "register"
-                            ? "border-emerald-600 text-emerald-800"
-                            : "border-transparent text-gray-400 hover:text-gray-600"
+                            ? "bg-white text-gray-900 shadow-xs"
+                            : "text-gray-500 hover:text-gray-900"
                         }`}
                       >
-                        <UserPlus size={18} />
+                        <UserPlus size={16} />
                         {t("quote.registerTab")}
                       </button>
                       <button
@@ -3572,19 +3580,19 @@ export default function Quote() {
                           setAuthMode("login");
                           setAuthError("");
                         }}
-                        className={`pb-3 px-5 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${
+                        className={`rounded-full py-2 px-5 text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
                           authMode === "login"
-                            ? "border-emerald-600 text-emerald-800"
-                            : "border-transparent text-gray-400 hover:text-gray-600"
+                            ? "bg-white text-gray-900 shadow-xs"
+                            : "text-gray-500 hover:text-gray-900"
                         }`}
                       >
-                        <LogIn size={18} />
+                        <LogIn size={16} />
                         {t("quote.signInTab")}
                       </button>
                     </div>
 
                     {authError && (
-                      <div className="mb-6 flex items-center gap-2.5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                      <div className="mb-6 flex items-center gap-2.5 p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm">
                         <AlertCircle size={18} className="shrink-0" />
                         <span>{authError}</span>
                       </div>
@@ -3602,7 +3610,7 @@ export default function Quote() {
                             htmlFor="register-name"
                             className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
                           >
-                            <User size={14} className="text-emerald-600" />
+                            <User size={14} className="text-emerald-700" />
                             {t("quote.fullName")}
                           </label>
                           <input
@@ -3616,7 +3624,7 @@ export default function Quote() {
                               setGuestName(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/20 focus:border-[#133827] focus:bg-white transition-all"
                             placeholder={t("quote.placeholderName")}
                           />
                         </div>
@@ -3626,7 +3634,7 @@ export default function Quote() {
                             htmlFor="register-email"
                             className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
                           >
-                            <Mail size={14} className="text-emerald-600" />
+                            <Mail size={14} className="text-emerald-700" />
                             {t("quote.email")}
                           </label>
                           <input
@@ -3640,7 +3648,7 @@ export default function Quote() {
                               setGuestEmail(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/20 focus:border-[#133827] focus:bg-white transition-all"
                             placeholder={t("quote.placeholderEmail") || "jane@example.com"}
                           />
                         </div>
@@ -3651,7 +3659,7 @@ export default function Quote() {
                               htmlFor="register-password"
                               className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
                             >
-                              <Lock size={14} className="text-emerald-600" />
+                              <Lock size={14} className="text-emerald-700" />
                               {t("quote.password")}
                             </label>
                             <span className="text-[11px] text-gray-400">
@@ -3668,7 +3676,7 @@ export default function Quote() {
                               setRegPassword(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/20 focus:border-[#133827] focus:bg-white transition-all"
                             placeholder="••••••••"
                           />
                         </div>
@@ -3677,7 +3685,7 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={goToPreviousStep}
-                            className="border border-gray-200 bg-white text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2"
+                            className="border border-gray-200 bg-white text-gray-700 px-6 py-3 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer"
                           >
                             <ChevronLeft size={16} />
                             <span>{t("quote.backToModels")}</span>
@@ -3685,7 +3693,7 @@ export default function Quote() {
                           <button
                             type="submit"
                             disabled={authLoading}
-                            className="bg-[#133827] text-white px-6 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                            className="bg-[#133827] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
                           >
                             {authLoading ? (
                               <Loader2 className="animate-spin" size={18} />
@@ -3710,7 +3718,7 @@ export default function Quote() {
                             htmlFor="login-email"
                             className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
                           >
-                            <Mail size={14} className="text-emerald-600" />
+                            <Mail size={14} className="text-emerald-700" />
                             {t("quote.email")}
                           </label>
                           <input
@@ -3724,7 +3732,7 @@ export default function Quote() {
                               setGuestEmail(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/20 focus:border-[#133827] focus:bg-white transition-all"
                             placeholder={t("quote.placeholderEmail") || "jane@example.com"}
                           />
                         </div>
@@ -3734,7 +3742,7 @@ export default function Quote() {
                             htmlFor="login-password"
                             className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5"
                           >
-                            <Lock size={14} className="text-emerald-600" />
+                            <Lock size={14} className="text-emerald-700" />
                             {t("quote.password")}
                           </label>
                           <input
@@ -3747,7 +3755,7 @@ export default function Quote() {
                               setLoginPassword(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/20 focus:border-[#133827] focus:bg-white transition-all"
                             placeholder="••••••••"
                           />
                         </div>
@@ -3756,7 +3764,7 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={goToPreviousStep}
-                            className="border border-gray-200 bg-white text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2"
+                            className="border border-gray-200 bg-white text-gray-700 px-6 py-3 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer"
                           >
                             <ChevronLeft size={16} />
                             <span>{t("quote.backToModels")}</span>
@@ -3764,7 +3772,7 @@ export default function Quote() {
                           <button
                             type="submit"
                             disabled={authLoading}
-                            className="bg-[#133827] text-white px-6 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                            className="bg-[#133827] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
                           >
                             {authLoading ? (
                               <Loader2 className="animate-spin" size={18} />
@@ -3787,16 +3795,16 @@ export default function Quote() {
             {currentStepId === "shipping" && (
               <div className="space-y-6">
 
-                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+                <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="bg-emerald-50 p-2 rounded-lg text-emerald-600">
+                    <div className="bg-emerald-50 p-2.5 rounded-2xl text-emerald-700">
                       <MapPin size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-800">
+                      <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900">
                         {t("quote.shippingDetailsTitle")}
                       </h3>
-                      <p className="text-sm text-[#5f736d]">
+                      <p className="text-xs sm:text-sm text-gray-500">
                         {t("quote.shippingDetailsSubtitle")}
                       </p>
                     </div>
@@ -4045,7 +4053,7 @@ export default function Quote() {
                     <button
                       type="button"
                       onClick={goToPreviousStep}
-                      className="border border-gray-200 bg-white text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2"
+                      className="border border-gray-200 bg-white text-gray-700 px-6 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer"
                     >
                       <ChevronLeft size={16} />
                       <span>{t("quote.backStep")}</span>
@@ -4053,7 +4061,7 @@ export default function Quote() {
                     <button
                       type="button"
                       onClick={goToNextStep}
-                      className="bg-[#133827] text-white px-7 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-sm"
+                      className="bg-[#133827] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-sm cursor-pointer"
                     >
                       <span>{t("quote.reviewStep")}</span>
                       <ChevronRight size={18} />
@@ -4066,23 +4074,23 @@ export default function Quote() {
             {/* STEP: REVIEW */}
             {currentStepId === "review" && (
               <div className="space-y-6">
-                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                    <CheckCircle className="text-emerald-500" size={28} />
+                <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80">
+                  <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 mb-6 flex items-center gap-3">
+                    <CheckCircle className="text-emerald-600" size={28} />
                     {t("quote.reviewTitle")}
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Models Review */}
                     <div>
-                      <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100 pb-2 mb-4">
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100 pb-2 mb-4">
                         {t("quote.models")} ({items.length})
                       </h4>
                       <ul className="space-y-4">
                         {items.map((item, idx) => (
                           <li
                             key={idx}
-                            className="bg-gray-50 p-4 rounded-xl border border-gray-100"
+                            className="bg-gray-50/70 p-5 rounded-2xl border border-gray-200/70"
                           >
                             <p className="font-bold text-gray-800 text-sm truncate mb-1">
                               {item.fileName || t("quote.textDescription")}
@@ -4274,7 +4282,7 @@ export default function Quote() {
                         type="button"
                         onClick={goToPreviousStep}
                         disabled={isSubmitting}
-                        className="border border-gray-200 bg-white text-gray-700 px-5 py-3.5 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 disabled:opacity-50"
+                        className="border border-gray-200 bg-white text-gray-700 px-6 py-4 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                       >
                         <ChevronLeft size={16} />
                         <span>{t("quote.backStep")}</span>
@@ -4283,7 +4291,7 @@ export default function Quote() {
                         type="button"
                         onClick={handleSubmit}
                         disabled={isSubmitting}
-                        className="bg-[#133827] text-white px-7 py-3.5 rounded-xl font-bold text-sm hover:bg-[#1c4d37] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
+                        className="bg-[#133827] text-white px-9 py-4 rounded-full font-bold text-base hover:bg-[#1c4d37] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 shadow-sm cursor-pointer"
                       >
                         {isSubmitting ? (
                           <Loader2 className="animate-spin" size={18} />
