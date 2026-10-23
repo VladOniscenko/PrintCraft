@@ -204,7 +204,7 @@ export default function FAQ() {
         )}
 
         {/* Apple-Style High-Trust Contact Box */}
-        <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-b from-gray-50/70 to-white p-8 sm:p-12 text-center shadow-xs mt-12">
+        <div className="rounded-3xl border border-gray-200/80 bg-white p-8 sm:p-12 text-center shadow-xs mt-12">
           <div className="w-12 h-12 rounded-2xl bg-emerald-100/70 text-emerald-800 flex items-center justify-center mx-auto mb-4">
             <Mail size={22} />
           </div>

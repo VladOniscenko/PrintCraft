@@ -1960,19 +1960,7 @@ export default function Quote() {
         <div className="max-w-4xl mx-auto space-y-6">
             {/* STEP 1: MODELS */}
             {currentStepId === "models" && (
-              <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-extrabold flex items-center gap-2.5 text-gray-900">
-                      <Package className="text-emerald-700" size={26} />
-                      {t("quote.models")}
-                    </h3>
-                    <p className="mt-1 text-xs sm:text-sm text-gray-500">
-                      {t("quote.allowedFilesInline")}
-                    </p>
-                  </div>
-                </div>
-
+              <div className="space-y-6">
                 {/* Hidden File Input for adding standard 3D CAD files to a new item */}
                 <input
                   ref={new3dFileInputRef}
@@ -2010,11 +1998,11 @@ export default function Quote() {
                 {activeCreatorFlow === "filament-painting" && (
                   <div
                     id="filament-painting-configurator"
-                    className="mb-8 rounded-3xl border border-emerald-300/80 bg-emerald-50/20 p-6 md:p-8 shadow-xs space-y-6"
+                    className="rounded-3xl border border-gray-200/80 bg-white p-6 md:p-8 shadow-xs space-y-6"
                   >
-                    <div className="flex items-center justify-between pb-4 border-b border-emerald-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-gray-100">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shadow-2xs">
+                        <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-800 border border-amber-100/70 flex items-center justify-center shadow-2xs">
                           <Sparkles size={18} />
                         </div>
                         <div>
@@ -2036,7 +2024,7 @@ export default function Quote() {
                           setActiveCreatorFlow(null);
                           setPendingPaintingFile(null);
                         }}
-                        className="text-xs font-semibold text-gray-500 hover:text-gray-800 px-3.5 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                        className="text-xs font-semibold text-gray-500 hover:text-gray-900 px-4 py-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
                       >
                         {t("quote.cancelAndBack")}
                       </button>
@@ -2063,12 +2051,12 @@ export default function Quote() {
 
                 {/* Dual-Option Starter View when no items are added yet */}
                 {items.length === 0 && !activeCreatorFlow && editingItemIndex === null && (
-                  <div className="space-y-6 my-4">
+                  <div className="space-y-6 my-2">
                     <div className="text-center py-2 max-w-md mx-auto">
-                      <h4 className="text-lg font-bold text-gray-900">
+                      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">
                         {t("quote.startOrderQuestion")}
-                      </h4>
-                      <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                      </h2>
+                      <p className="text-sm text-gray-500 mt-2">
                         {t("quote.startOrderSubtitle")}
                       </p>
                     </div>
@@ -2087,26 +2075,32 @@ export default function Quote() {
                           setEditingItemIndex(0);
                           await uploadSelectedFilesForItem(droppedFiles, 0);
                         }}
-                        className={`border-2 border-dashed rounded-3xl p-8 sm:p-10 text-center transition-all flex flex-col justify-between ${
+                        className={`rounded-3xl border bg-white p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 hover:shadow-sm ${
                           isDragOver
-                            ? "border-emerald-600 bg-emerald-50/60 scale-[0.99]"
-                            : "border-gray-200 bg-gray-50/40 hover:bg-white hover:border-gray-300 hover:shadow-xs"
+                            ? "border-emerald-600 bg-emerald-50/40 scale-[0.99]"
+                            : "border-gray-200/80"
                         } ${isUploading ? "opacity-70" : ""}`}
                       >
                         <div>
-                          <div className="bg-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xs border border-gray-100 text-indigo-600">
-                            <Layers size={28} />
+                          <div className="w-14 h-14 rounded-2xl bg-gray-100 text-[#133827] border border-gray-200/60 flex items-center justify-center mx-auto mb-4 shadow-2xs">
+                            <Layers size={26} />
                           </div>
-                          <h4 className="text-base sm:text-lg font-bold text-gray-900">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200 text-[11px] font-bold uppercase mb-2">
+                            {t("quote.badgeCadPrint")}
+                          </div>
+                          <h3 className="text-xl font-bold text-gray-900">
                             {t("quote.startPath3dTitle")}
-                          </h4>
-                          <p className="text-xs sm:text-sm text-gray-500 mt-1.5 max-w-xs mx-auto leading-relaxed">
+                          </h3>
+                          <p className="text-sm text-gray-500 mt-2 max-w-xs mx-auto leading-relaxed">
                             {t("quote.startPath3dSubtitle")}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-2 font-medium">
+                            {t("quote.allowedFilesInline")}
                           </p>
                         </div>
 
-                        <div className="mt-6 flex justify-center">
-                          <label className="cursor-pointer bg-[#133827] text-white px-7 py-3 rounded-full text-xs sm:text-sm font-semibold hover:bg-[#1c4d37] transition-all flex items-center gap-2 shadow-xs">
+                        <div className="mt-8 flex justify-center">
+                          <label className="cursor-pointer bg-[#133827] text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-[#0f2d1f] transition-all flex items-center gap-2 shadow-xs">
                             {isUploading ? (
                               <Loader2 className="animate-spin" size={16} />
                             ) : (
@@ -2132,29 +2126,30 @@ export default function Quote() {
                       </div>
 
                       {/* Path 2: HueForge Filament Painting */}
-                      <div className="border-2 border-dashed border-emerald-300/80 bg-emerald-50/20 rounded-3xl p-8 sm:p-10 text-center transition-all flex flex-col justify-between hover:bg-emerald-50/40 hover:border-emerald-400 hover:shadow-xs">
+                      <div className="rounded-3xl border border-gray-200/80 bg-white p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 hover:shadow-sm">
                         <div>
-                          <div className="bg-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-2xs border border-emerald-100 text-emerald-700">
-                            <Sparkles size={28} />
+                          <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center justify-center mx-auto mb-4 shadow-2xs">
+                            <Sparkles size={26} />
                           </div>
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase mb-2">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-100 text-[11px] font-bold uppercase mb-2">
+                            <Sparkles size={12} className="text-emerald-700" />
                             HueForge
                           </div>
-                          <h4 className="text-base sm:text-lg font-bold text-gray-900">
+                          <h3 className="text-xl font-bold text-gray-900">
                             {t("quote.startPathPaintingTitle")}
-                          </h4>
-                          <p className="text-xs sm:text-sm text-gray-500 mt-1.5 max-w-xs mx-auto leading-relaxed">
+                          </h3>
+                          <p className="text-sm text-gray-500 mt-2 max-w-xs mx-auto leading-relaxed">
                             {t("quote.startPathPaintingSubtitle")}
                           </p>
                         </div>
 
-                        <div className="mt-6 flex justify-center">
+                        <div className="mt-8 flex justify-center">
                           <button
                             type="button"
                             onClick={() => openFilamentPaintingCreator()}
-                            className="bg-emerald-800 text-white px-7 py-3 rounded-full text-xs sm:text-sm font-semibold hover:bg-emerald-900 transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+                            className="bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 px-8 py-3.5 rounded-full text-sm font-semibold transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
                           >
-                            <Sparkles size={16} />
+                            <Sparkles size={16} className="text-emerald-700" />
                             <span>{t("quote.createFilamentPainting")}</span>
                           </button>
                         </div>
@@ -2172,7 +2167,7 @@ export default function Quote() {
 
                   return (
                     <div
-                      className="p-6 md:p-8 border border-gray-200 rounded-3xl bg-white shadow-xs space-y-7"
+                      className="p-6 sm:p-8 md:p-10 border border-gray-200/80 rounded-3xl bg-white shadow-xs space-y-7"
                       {...(!isPainting
                         ? {
                             onDragOver: handleDragOver,
@@ -2187,13 +2182,13 @@ export default function Quote() {
                             {item.fileName || t("quote.textDescription")}
                           </span>
                           {isPainting ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80 shrink-0">
                               <Sparkles size={13} className="text-emerald-600" />
                               {t("quote.badgeFilamentPainting")}
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
-                              <Layers size={13} className="text-indigo-600" />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
+                              <Layers size={13} className="text-gray-600" />
                               {t("quote.flowCadTitle")}
                             </span>
                           )}
@@ -2201,7 +2196,7 @@ export default function Quote() {
                         <div className="flex items-center gap-2.5">
                           {!isPainting && (
                             hasFiles ? (
-                              <label className="cursor-pointer bg-amber-50 text-amber-800 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-amber-100 transition-colors flex items-center gap-1.5 border border-amber-200 shadow-2xs">
+                              <label className="cursor-pointer bg-white text-gray-700 hover:text-gray-900 px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 transition-colors flex items-center gap-1.5 border border-gray-200 shadow-2xs">
                                 {isUploading ? (
                                   <Loader2 className="animate-spin" size={15} />
                                 ) : (
@@ -2218,7 +2213,7 @@ export default function Quote() {
                                 />
                               </label>
                             ) : (
-                              <label className="cursor-pointer bg-emerald-50 text-emerald-700 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1.5 border border-emerald-100 shadow-2xs">
+                              <label className="cursor-pointer bg-white text-emerald-800 hover:text-emerald-950 px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 transition-colors flex items-center gap-1.5 border border-gray-200 shadow-2xs">
                                 {isUploading ? (
                                   <Loader2 className="animate-spin" size={15} />
                                 ) : (
@@ -2239,7 +2234,7 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={() => removeItem(idx)}
-                            className="text-gray-400 hover:text-red-600 bg-gray-50 hover:bg-red-50 p-2 rounded-xl transition-colors border border-transparent hover:border-red-100"
+                            className="p-2 rounded-full text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                             title={t("quote.removeItemTitle")}
                           >
                             <Trash2 size={17} />
@@ -2247,7 +2242,7 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={handleCancelEdit}
-                            className="text-xs font-semibold text-gray-500 hover:text-gray-800 px-3 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                            className="text-xs font-semibold text-gray-500 hover:text-gray-800 px-3.5 py-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
                           >
                             {t("quote.cancel")}
                           </button>
@@ -2292,10 +2287,10 @@ export default function Quote() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
                           <div className="space-y-1.5">
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                              <Layers size={14} /> {t("quote.material")}
+                              <Layers size={14} className="text-emerald-700" /> {t("quote.material")}
                             </label>
                             {item.uploadType === "filament-painting" ? (
-                              <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 flex items-center justify-between">
+                              <div className="p-3 bg-[#fbfbfd] border border-gray-200/90 rounded-xl text-sm font-medium text-gray-700 flex items-center justify-between">
                                 <span>{item.material || "PLA"}</span>
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
                                   {t("quote.multiColor")}
@@ -2303,7 +2298,7 @@ export default function Quote() {
                               </div>
                             ) : (
                               <select
-                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all cursor-pointer"
+                                className="w-full p-3 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all cursor-pointer"
                                 value={item.material}
                                 onChange={(e) => {
                                   const newMaterial = e.target.value;
@@ -2331,11 +2326,11 @@ export default function Quote() {
                           {item.uploadType === "filament-painting" ? (
                             <div className="space-y-1.5">
                               <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                                <Sparkles size={14} className="text-emerald-600" /> {t("quote.filamentPalette")}
+                                <Sparkles size={14} className="text-emerald-700" /> {t("quote.filamentPalette")}
                               </label>
-                              <div className="p-2.5 bg-emerald-50/70 border border-emerald-200/80 rounded-xl text-xs font-bold text-emerald-950 flex items-center justify-between">
+                              <div className="p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-xl text-xs font-bold text-emerald-950 flex items-center justify-between">
                                 <span className="truncate">{translateColorText(item.color, t)}</span>
-                                <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10px] uppercase tracking-wider shrink-0 ml-1">
+                                <span className="px-2 py-0.5 rounded-md bg-emerald-700 text-white text-[10px] uppercase tracking-wider shrink-0 ml-1">
                                   {t("quote.tdBlended")}
                                 </span>
                               </div>
@@ -2343,10 +2338,10 @@ export default function Quote() {
                           ) : (
                             <div className="space-y-1.5">
                               <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                                <Palette size={14} /> {t("quote.color")}
+                                <Palette size={14} className="text-emerald-700" /> {t("quote.color")}
                               </label>
                               <select
-                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all cursor-pointer"
+                                className="w-full p-3 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all cursor-pointer"
                                 value={
                                   item.color ||
                                   getColorsForMaterial(item.material)[0] ||
@@ -2368,9 +2363,9 @@ export default function Quote() {
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
                               <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                                <Hash size={14} /> {t("quote.quantity")}
+                                <Hash size={14} className="text-emerald-700" /> {t("quote.quantity")}
                               </label>
-                              <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                              <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
                                 {t("quote.maxQuantityHint")}
                               </span>
                             </div>
@@ -2378,7 +2373,7 @@ export default function Quote() {
                               type="number"
                               min="1"
                               max={MAX_ITEM_QUANTITY}
-                              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                              className="w-full p-3 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
                               value={item.count}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
@@ -2518,11 +2513,11 @@ export default function Quote() {
 
 
                         {/* 3D Slicing & Print Specifications */}
-                        <div className="mb-5 rounded-2xl border border-gray-200/90 bg-gradient-to-b from-gray-50/90 to-white p-5 shadow-sm space-y-4">
+                        <div className="mb-5 rounded-2xl border border-gray-200/70 bg-[#fbfbfd] p-5 sm:p-6 shadow-2xs space-y-4">
                           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                             <div>
                               <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
-                                <Gauge size={15} className="text-emerald-600" />
+                                <Gauge size={15} className="text-emerald-700" />
                                 {t("quote.printSpecs")}
                               </h4>
                               <p className="text-[11px] text-gray-500 mt-0.5">
@@ -2725,7 +2720,7 @@ export default function Quote() {
                                               !canFit
                                                 ? "bg-gray-100 border-gray-200 text-gray-400 opacity-60 cursor-not-allowed"
                                                 : isCurrent
-                                                  ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                                                  ? "bg-[#133827] text-white border-[#133827] shadow-xs"
                                                   : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
                                             }`}
                                             title={
@@ -2786,7 +2781,7 @@ export default function Quote() {
                                       max={hasBaseDimensions ? maxScale : 3.0}
                                       step={SCALE_STEP}
                                       value={currentScale}
-                                      className="w-full accent-emerald-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                      className="w-full accent-[#133827] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                                       onChange={(val) =>
                                         updateItemScale(idx, val)
                                       }
@@ -2876,7 +2871,7 @@ export default function Quote() {
                                         }
                                         className={`p-2.5 rounded-xl text-left border transition-all ${
                                           isCurrent
-                                            ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                                            ? "bg-[#133827] text-white border-[#133827] shadow-xs"
                                             : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
                                         }`}
                                       >
@@ -3182,11 +3177,11 @@ export default function Quote() {
 
                 {/* 3. Cart Summary: Minimized State */}
                 {items.length > 0 && editingItemIndex === null && !activeCreatorFlow && (
-                  <div className="space-y-6">
+                  <div className="rounded-3xl border border-gray-200/80 bg-white p-6 sm:p-8 md:p-10 shadow-xs space-y-6">
                     <div className="flex items-center justify-between pb-3 border-b border-gray-100">
                       <div>
-                        <h4 className="text-base font-bold text-gray-900 flex items-center gap-2.5">
-                          <Package size={20} className="text-emerald-600" />
+                        <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2.5">
+                          <Package size={20} className="text-[#133827]" />
                           <span>
                             {items.length === 1
                               ? t("quote.orderSummaryCount", {
@@ -3210,7 +3205,7 @@ export default function Quote() {
                         return (
                           <div
                             key={idx}
-                            className="p-4 sm:p-5 border border-gray-200 rounded-2xl bg-white shadow-2xs hover:shadow-xs hover:border-gray-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                            className="p-4 sm:p-5 border border-gray-200/80 rounded-2xl bg-[#fbfbfd] hover:bg-white hover:border-gray-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
                           >
                             <div className="flex items-center gap-4 flex-1 min-w-0">
                               {/* Thumbnail / Icon */}
@@ -3223,11 +3218,11 @@ export default function Quote() {
                                   className="w-14 h-14 rounded-xl object-cover border border-gray-200 bg-gray-50 shrink-0 shadow-2xs"
                                 />
                               ) : isPainting ? (
-                                <div className="w-14 h-14 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 shadow-2xs">
+                                <div className="w-14 h-14 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700 shrink-0 shadow-2xs">
                                   <Sparkles size={24} />
                                 </div>
                               ) : (
-                                <div className="w-14 h-14 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0 shadow-2xs">
+                                <div className="w-14 h-14 rounded-xl bg-gray-100 border border-gray-200/80 flex items-center justify-center text-[#133827] shrink-0 shadow-2xs">
                                   <Layers size={24} />
                                 </div>
                               )}
@@ -3239,12 +3234,12 @@ export default function Quote() {
                                     {item.fileName || t("quote.textDescription")}
                                   </h5>
                                   {isPainting ? (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80 shrink-0">
                                       <Sparkles size={10} />
                                       {t("quote.badgeFilamentPainting")}
                                     </span>
                                   ) : (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 shrink-0">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
                                       {t("quote.badgeCadPrint")}
                                     </span>
                                   )}
@@ -3254,7 +3249,7 @@ export default function Quote() {
                                   <span className="font-semibold text-gray-800">
                                     {item.material} · {translateColorText(item.color, t)}
                                   </span>
-                                  <span className="text-gray-400">|</span>
+                                  <span className="text-gray-300">|</span>
                                   <span className="text-gray-600">
                                     {t("quote.qty")}{" "}
                                     <span className="font-bold text-gray-800">{item.count}</span>
@@ -3263,25 +3258,25 @@ export default function Quote() {
                                     hasDimensionValue(item.dimensionY) &&
                                     hasDimensionValue(item.dimensionZ) && (
                                       <>
-                                        <span className="text-gray-400">|</span>
+                                        <span className="text-gray-300">|</span>
                                         <span className="text-gray-600">
                                           {item.dimensionX} × {item.dimensionY} × {item.dimensionZ} mm
                                         </span>
                                       </>
                                     )}
-                                  <span className="text-gray-400">|</span>
+                                  <span className="text-gray-300">|</span>
                                   <span className="text-gray-500 font-medium">
                                     {formatPrintQuality(item.printQuality, t)}
                                   </span>
                                   {isPainting && (
                                     <>
-                                      <span className="text-gray-400">|</span>
+                                      <span className="text-gray-300">|</span>
                                       <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded text-[11px] border border-emerald-100">
                                         {t("quote.solidInfill100")}
                                       </span>
                                       {item.layerSwaps && item.layerSwaps.length > 0 && (
                                         <>
-                                          <span className="text-gray-400">|</span>
+                                          <span className="text-gray-300">|</span>
                                           <span className="text-gray-700 font-medium">
                                             {item.layerSwaps.length - 1 === 1
                                               ? t("quote.colorSwapCount", {
@@ -3307,24 +3302,24 @@ export default function Quote() {
 
                             {/* Action Buttons */}
                             <div className="flex items-center gap-1.5 self-end sm:self-center shrink-0">
-                                <button
-                                  type="button"
-                                  onClick={() => setEditingItemIndex(idx)}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gray-50 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 border border-gray-200 transition-colors shadow-2xs"
-                                >
-                                  <Pencil size={13} />
-                                  <span>{t("quote.edit")}</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => removeItem(idx)}
-                                  className="p-1.5 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 transition-colors"
-                                  title={t("quote.removeItemTitle")}
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setEditingItemIndex(idx)}
+                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 border border-gray-200 transition-colors shadow-2xs cursor-pointer"
+                              >
+                                <Pencil size={13} />
+                                <span>{t("quote.edit")}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeItem(idx)}
+                                className="p-2 rounded-full text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                title={t("quote.removeItemTitle")}
+                              >
+                                <Trash2 size={16} />
+                              </button>
                             </div>
+                          </div>
                         );
                       })}
                     </div>
@@ -3337,7 +3332,7 @@ export default function Quote() {
                           onClick={() => setShowAddItemChoiceModal(true)}
                           className="w-full py-4 px-6 rounded-full border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-800 font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-2xs cursor-pointer"
                         >
-                          <Plus size={18} className="text-emerald-700" />
+                          <Plus size={18} className="text-[#133827]" />
                           <span>{t("quote.addAnotherItem")}</span>
                         </button>
 
@@ -3356,12 +3351,12 @@ export default function Quote() {
               </div>
             )}
 
-            {/* Modal: Select which flow/item type to add (Point 6) */}
+            {/* Modal: Select which flow/item type to add */}
             {showAddItemChoiceModal && (
               <div
                 role="dialog"
                 aria-modal="true"
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150"
                 onClick={() => setShowAddItemChoiceModal(false)}
               >
                 <div
@@ -3380,7 +3375,7 @@ export default function Quote() {
                     <button
                       type="button"
                       onClick={() => setShowAddItemChoiceModal(false)}
-                      className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                      className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors cursor-pointer"
                     >
                       <X size={18} />
                     </button>
@@ -3388,9 +3383,9 @@ export default function Quote() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Flow 1: 3D CAD Print / Custom Quote */}
-                    <div className="p-5 rounded-2xl border-2 border-gray-200 hover:border-indigo-400 hover:bg-indigo-50/20 transition-all flex flex-col justify-between space-y-4">
+                    <div className="p-6 rounded-2xl border border-gray-200/90 hover:border-gray-300 hover:shadow-xs transition-all flex flex-col justify-between space-y-4 bg-[#fbfbfd]">
                       <div className="space-y-2.5">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shadow-xs">
+                        <div className="w-11 h-11 rounded-2xl bg-gray-100 text-[#133827] border border-gray-200/60 flex items-center justify-center shadow-2xs">
                           <Layers size={20} />
                         </div>
                         <div>
@@ -3410,7 +3405,7 @@ export default function Quote() {
                             setShowAddItemChoiceModal(false);
                             new3dFileInputRef.current?.click();
                           }}
-                          className="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
+                          className="w-full py-2.5 px-3 rounded-full bg-[#133827] hover:bg-[#1c4d37] text-white text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Upload size={14} />
                           <span>{t("quote.browse3dModels")}</span>
@@ -3423,7 +3418,7 @@ export default function Quote() {
                             addTextOnlyItem();
                             setEditingItemIndex(newIndex);
                           }}
-                          className="w-full py-2 px-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold transition-all"
+                          className="w-full py-2 px-3 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-xs font-semibold transition-all cursor-pointer"
                         >
                           {t("quote.addBlankCustomItem")}
                         </button>
@@ -3431,9 +3426,9 @@ export default function Quote() {
                     </div>
 
                     {/* Flow 2: HueForge Filament Painting */}
-                    <div className="p-5 rounded-2xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all flex flex-col justify-between space-y-4">
+                    <div className="p-6 rounded-2xl border border-emerald-100 hover:border-emerald-200 hover:shadow-xs transition-all flex flex-col justify-between space-y-4 bg-emerald-50/20">
                       <div className="space-y-2.5">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shadow-xs">
+                        <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center justify-center shadow-2xs">
                           <Sparkles size={20} />
                         </div>
                         <div>
@@ -3457,7 +3452,7 @@ export default function Quote() {
                           onClick={() => {
                             newPaintingImageInputRef.current?.click();
                           }}
-                          className="w-full py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
+                          className="w-full py-2.5 px-3 rounded-full bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Upload size={14} />
                           <span>{t("quote.browseImageRender3d")}</span>
@@ -3467,7 +3462,7 @@ export default function Quote() {
                           onClick={() => {
                             openFilamentPaintingCreator();
                           }}
-                          className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                          className="w-full py-2 px-3 rounded-full bg-white hover:bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Sparkles size={13} />
                           <span>{t("quote.open2dConfigurator")}</span>
@@ -3476,20 +3471,6 @@ export default function Quote() {
                     </div>
                   </div>
                 </div>
-
-                {/* Step Navigation */}
-                <div className="pt-6 mt-8 border-t border-gray-100 flex items-center justify-between gap-4">
-                  <div />
-                  <button
-                    type="button"
-                    onClick={goToNextStep}
-                    disabled={items.length === 0}
-                    className="bg-[#133827] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#1c4d37] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm ml-auto cursor-pointer"
-                  >
-                    <span>{t("quote.nextStep")}</span>
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
               </div>
             )}
 
@@ -3497,8 +3478,8 @@ export default function Quote() {
             {currentStepId === "account" && (
               <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80 space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="bg-emerald-50 p-2.5 rounded-2xl text-emerald-700">
-                    <User size={26} />
+                  <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-100/70 flex items-center justify-center shadow-2xs">
+                    <User size={22} />
                   </div>
                   <div>
                     <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900">
@@ -3511,19 +3492,19 @@ export default function Quote() {
                 </div>
 
                 {isLoggedIn ? (
-                  <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-6">
+                  <div className="bg-[#fbfbfd] border border-emerald-200/80 rounded-2xl p-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                      <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
                         <CheckCircle size={22} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-emerald-950 text-base">
+                        <h4 className="font-bold text-gray-900 text-base">
                           {t("quote.loggedInAs")}:{" "}
-                          <span className="text-emerald-700">
+                          <span className="text-emerald-800">
                             {currentUser?.name || currentUser?.email}
                           </span>
                         </h4>
-                        <p className="text-xs text-emerald-800 mt-0.5">
+                        <p className="text-xs text-gray-500 mt-0.5">
                           {currentUser?.email}
                         </p>
                       </div>
@@ -3536,11 +3517,11 @@ export default function Quote() {
                       </button>
                     </div>
 
-                    <div className="mt-6 flex items-center justify-between gap-3 pt-6 border-t border-emerald-100">
+                    <div className="mt-6 flex items-center justify-between gap-3 pt-6 border-t border-gray-200/80">
                       <button
                         type="button"
                         onClick={goToPreviousStep}
-                        className="border border-gray-200 bg-white text-gray-700 px-6 py-3 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer"
+                        className="border border-gray-200 bg-white text-gray-700 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
                       >
                         <ChevronLeft size={16} />
                         <span>{t("quote.backToModels")}</span>
@@ -3624,7 +3605,7 @@ export default function Quote() {
                               setGuestName(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/20 focus:border-[#133827] focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
                             placeholder={t("quote.placeholderName")}
                           />
                         </div>
@@ -3648,7 +3629,7 @@ export default function Quote() {
                               setGuestEmail(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/20 focus:border-[#133827] focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
                             placeholder={t("quote.placeholderEmail") || "jane@example.com"}
                           />
                         </div>
@@ -3676,7 +3657,7 @@ export default function Quote() {
                               setRegPassword(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/20 focus:border-[#133827] focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
                             placeholder="••••••••"
                           />
                         </div>
@@ -3685,7 +3666,7 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={goToPreviousStep}
-                            className="border border-gray-200 bg-white text-gray-700 px-6 py-3 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer"
+                            className="border border-gray-200 bg-white text-gray-700 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
                           >
                             <ChevronLeft size={16} />
                             <span>{t("quote.backToModels")}</span>
@@ -3732,7 +3713,7 @@ export default function Quote() {
                               setGuestEmail(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/20 focus:border-[#133827] focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
                             placeholder={t("quote.placeholderEmail") || "jane@example.com"}
                           />
                         </div>
@@ -3755,7 +3736,7 @@ export default function Quote() {
                               setLoginPassword(e.target.value);
                               if (authError) setAuthError("");
                             }}
-                            className="w-full p-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/20 focus:border-[#133827] focus:bg-white transition-all"
+                            className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
                             placeholder="••••••••"
                           />
                         </div>
@@ -3764,7 +3745,7 @@ export default function Quote() {
                           <button
                             type="button"
                             onClick={goToPreviousStep}
-                            className="border border-gray-200 bg-white text-gray-700 px-6 py-3 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer"
+                            className="border border-gray-200 bg-white text-gray-700 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
                           >
                             <ChevronLeft size={16} />
                             <span>{t("quote.backToModels")}</span>
@@ -3797,8 +3778,8 @@ export default function Quote() {
 
                 <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="bg-emerald-50 p-2.5 rounded-2xl text-emerald-700">
-                      <MapPin size={24} />
+                    <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-100/70 flex items-center justify-center shadow-2xs">
+                      <MapPin size={22} />
                     </div>
                     <div>
                       <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900">
@@ -3823,7 +3804,7 @@ export default function Quote() {
                       <button
                         type="button"
                         onClick={handleSwitchAccount}
-                        className="font-bold text-emerald-700 hover:text-red-600 underline transition-colors ml-auto"
+                        className="font-bold text-emerald-700 hover:text-red-600 underline transition-colors ml-auto cursor-pointer"
                       >
                         {t("quote.switchAccount")}
                       </button>
@@ -3841,10 +3822,10 @@ export default function Quote() {
                           <div
                             key={addr.id}
                             onClick={() => handleSelectSavedAddress(addr)}
-                            className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                            className={`p-4 rounded-2xl border transition-all cursor-pointer shadow-2xs ${
                               selectedAddressId === addr.id
-                                ? "border-emerald-500 bg-emerald-50/50"
-                                : "border-gray-200 hover:border-emerald-300 bg-white"
+                                ? "border-[#133827] bg-emerald-50/40"
+                                : "border-gray-200/90 hover:border-gray-300 bg-white hover:bg-gray-50/50"
                             }`}
                           >
                             <div className="flex items-center gap-2 mb-1">
@@ -3852,7 +3833,7 @@ export default function Quote() {
                                 size={14}
                                 className={
                                   selectedAddressId === addr.id
-                                    ? "text-emerald-600"
+                                    ? "text-[#133827]"
                                     : "text-gray-400"
                                 }
                               />
@@ -3876,8 +3857,6 @@ export default function Quote() {
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative">
-                    {/* Visual overlay if a saved address is selected, optional based on UX preference, but simply updating states works well. */}
-
                     <div className="space-y-1.5 md:col-span-2">
                       <label
                         htmlFor="shipping-name"
@@ -3900,7 +3879,7 @@ export default function Quote() {
                         onChange={(e) =>
                           handleManualShippingChange("fullName", e.target.value)
                         }
-                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                        className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
                         placeholder={t("quote.placeholderShippingName")}
                       />
                       {shippingErrors.fullName && (
@@ -3935,7 +3914,7 @@ export default function Quote() {
                             e.target.value,
                           )
                         }
-                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                        className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
                         placeholder={t("quote.placeholderShippingPhone")}
                       />
                       {shippingErrors.phoneNumber && (
@@ -3970,7 +3949,7 @@ export default function Quote() {
                             e.target.value,
                           )
                         }
-                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                        className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
                         placeholder={t("quote.placeholderStreet")}
                       />
                       {shippingErrors.addressLine1 && (
@@ -4002,7 +3981,7 @@ export default function Quote() {
                         onChange={(e) =>
                           handleManualShippingChange("city", e.target.value)
                         }
-                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                        className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
                         placeholder={t("quote.placeholderCity")}
                       />
                       {shippingErrors.city && (
@@ -4037,7 +4016,7 @@ export default function Quote() {
                             e.target.value,
                           )
                         }
-                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                        className="w-full p-3.5 bg-[#fbfbfd] border border-gray-200/90 hover:border-gray-300 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white transition-all"
                         placeholder={t("quote.placeholderPostalCode")}
                       />
                       {shippingErrors.postalCode && (
@@ -4053,7 +4032,7 @@ export default function Quote() {
                     <button
                       type="button"
                       onClick={goToPreviousStep}
-                      className="border border-gray-200 bg-white text-gray-700 px-6 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer"
+                      className="border border-gray-200 bg-white text-gray-700 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
                     >
                       <ChevronLeft size={16} />
                       <span>{t("quote.backStep")}</span>
@@ -4075,10 +4054,14 @@ export default function Quote() {
             {currentStepId === "review" && (
               <div className="space-y-6">
                 <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80">
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 mb-6 flex items-center gap-3">
-                    <CheckCircle className="text-emerald-600" size={28} />
-                    {t("quote.reviewTitle")}
-                  </h3>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-100/70 flex items-center justify-center shadow-2xs">
+                      <CheckCircle2 size={22} />
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900">
+                      {t("quote.reviewTitle")}
+                    </h3>
+                  </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Models Review */}
@@ -4090,7 +4073,7 @@ export default function Quote() {
                         {items.map((item, idx) => (
                           <li
                             key={idx}
-                            className="bg-gray-50/70 p-5 rounded-2xl border border-gray-200/70"
+                            className="bg-[#fbfbfd] p-5 rounded-2xl border border-gray-200/80"
                           >
                             <p className="font-bold text-gray-800 text-sm truncate mb-1">
                               {item.fileName || t("quote.textDescription")}
@@ -4199,7 +4182,7 @@ export default function Quote() {
                         <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100 pb-2 mb-4">
                           {t("quote.contactInfo")}
                         </h4>
-                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 text-sm text-gray-700 space-y-1">
+                        <div className="bg-[#fbfbfd] p-5 rounded-2xl border border-gray-200/80 text-sm text-gray-700 space-y-1">
                           {isLoggedIn ? (
                             <div>
                               <p className="font-bold text-emerald-800">
@@ -4228,7 +4211,7 @@ export default function Quote() {
                         <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100 pb-2 mb-4">
                           {t("quote.shippingDetailsTitle")}
                         </h4>
-                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 text-sm text-gray-700 space-y-1">
+                        <div className="bg-[#fbfbfd] p-5 rounded-2xl border border-gray-200/80 text-sm text-gray-700 space-y-1">
                           <p className="font-bold text-gray-800">
                             {shippingDetails.fullName || "-"}
                           </p>
@@ -4245,14 +4228,14 @@ export default function Quote() {
 
                   {/* Pricing Disclaimer & Terms & Conditions agreement */}
                   <div className="mt-8 pt-6 border-t border-gray-100 space-y-4">
-                    <label className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 text-left text-sm text-emerald-950 cursor-pointer">
+                    <label className="flex items-start gap-3 rounded-2xl border border-gray-200/80 bg-[#fbfbfd] p-4 text-left text-sm text-gray-800 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={agreementAccepted}
                         onChange={(event) =>
                           setAgreementAccepted(event.target.checked)
                         }
-                        className="mt-1 h-4 w-4 shrink-0 accent-emerald-600 rounded"
+                        className="mt-1 h-4 w-4 shrink-0 accent-[#133827] rounded"
                       />
                       <span>
                         {t("orderDetail.agreementText")}{" "}
@@ -4282,7 +4265,7 @@ export default function Quote() {
                         type="button"
                         onClick={goToPreviousStep}
                         disabled={isSubmitting}
-                        className="border border-gray-200 bg-white text-gray-700 px-6 py-4 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                        className="border border-gray-200 bg-white text-gray-700 px-7 py-4 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-2xs"
                       >
                         <ChevronLeft size={16} />
                         <span>{t("quote.backStep")}</span>
