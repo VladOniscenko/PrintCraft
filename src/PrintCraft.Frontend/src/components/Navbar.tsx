@@ -1,13 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  Menu,
-  X,
-  LogOut,
-  ChevronDown,
-  User,
-  Package,
-  ShieldCheck,
-} from "lucide-react";
+import { Menu, X, LogOut, ChevronDown, User, Package, ShieldCheck } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./logos/Logo";
 import { useI18n } from "../i18n/I18nContext";
@@ -67,10 +59,8 @@ const Navbar = () => {
   // Sync auth state on mount, route changes, or cross-tab storage events
   useEffect(() => {
     const updateAuth = () => {
-      const token =
-        typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      const userStr =
-        typeof window !== "undefined" ? localStorage.getItem("user") : null;
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const userStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
       const isAuth = !!token;
       setIsLoggedIn(isAuth);
 
@@ -127,7 +117,10 @@ const Navbar = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target)
+      ) {
         setSolutionsOpen(false);
       }
       if (
@@ -197,8 +190,7 @@ const Navbar = () => {
                 type="button"
                 onClick={() => setSolutionsOpen(!solutionsOpen)}
                 className={`rounded-full px-3.5 py-1.5 transition-colors inline-flex items-center gap-1 cursor-pointer ${
-                  pathname.includes("/faq/") &&
-                  pathname.replace(/\/$/, "") !== localizePath("/faq")
+                  pathname.includes("/faq/") && pathname.replace(/\/$/, "") !== localizePath("/faq")
                     ? "bg-gray-200/70 text-gray-950 font-semibold"
                     : "text-gray-600 hover:text-gray-950 hover:bg-gray-100/70"
                 }`}
@@ -280,9 +272,7 @@ const Navbar = () => {
           {/* Auth Action Slot */}
           <div className="flex items-center shrink-0">
             {/* Guest: Log In Button */}
-            <div
-              className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}
-            >
+            <div className={`nav-guest-only ${isLoggedIn ? "hidden" : "block"}`}>
               <Link
                 to={localizePath("/login")}
                 onMouseEnter={() => prefetchRoute(localizePath("/login"))}
@@ -313,9 +303,7 @@ const Navbar = () => {
                 aria-haspopup="true"
               >
                 <User size={14} className="text-gray-600" />
-                <span className="max-w-[100px] truncate">
-                  {userName || t("nav.account")}
-                </span>
+                <span className="max-w-[100px] truncate">{userName || t("nav.account")}</span>
                 <ChevronDown
                   size={13}
                   className={`transition-transform duration-200 ${accountOpen ? "rotate-180" : ""}`}
@@ -334,9 +322,7 @@ const Navbar = () => {
                     <Link
                       to={localizePath("/orders")}
                       onClick={() => setAccountOpen(false)}
-                      onMouseEnter={() =>
-                        prefetchRoute(localizePath("/orders"))
-                      }
+                      onMouseEnter={() => prefetchRoute(localizePath("/orders"))}
                       onFocus={() => prefetchRoute(localizePath("/orders"))}
                       className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                         isLinkActive(localizePath("/orders"))
@@ -351,9 +337,7 @@ const Navbar = () => {
                     <Link
                       to={localizePath("/profile")}
                       onClick={() => setAccountOpen(false)}
-                      onMouseEnter={() =>
-                        prefetchRoute(localizePath("/profile"))
-                      }
+                      onMouseEnter={() => prefetchRoute(localizePath("/profile"))}
                       onFocus={() => prefetchRoute(localizePath("/profile"))}
                       className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                         isLinkActive(localizePath("/profile"))
@@ -369,9 +353,7 @@ const Navbar = () => {
                       <Link
                         to={localizePath("/admin")}
                         onClick={() => setAccountOpen(false)}
-                        onMouseEnter={() =>
-                          prefetchRoute(localizePath("/admin"))
-                        }
+                        onMouseEnter={() => prefetchRoute(localizePath("/admin"))}
                         onFocus={() => prefetchRoute(localizePath("/admin"))}
                         className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                           isLinkActive(localizePath("/admin"))

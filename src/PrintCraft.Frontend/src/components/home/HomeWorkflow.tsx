@@ -1,13 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowRight,
-  FileUp,
-  Layers,
-  Loader2,
-  Truck,
-  UploadCloud,
-} from "lucide-react";
+import { ArrowRight, FileUp, Layers, Loader2, Truck, UploadCloud } from "lucide-react";
 import { useI18n } from "../../i18n/I18nContext";
 import api from "../../services/api";
 
@@ -47,8 +40,9 @@ export default function HomeWorkflow() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const { detectModelDimensions } =
-        await import("../../utils/modelDimensions");
+      const { detectModelDimensions } = await import(
+        "../../utils/modelDimensions"
+      );
       const [uploadResponse, dims] = await Promise.all([
         api.post("/upload", form),
         detectModelDimensions(file).catch(() => null),
