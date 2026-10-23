@@ -254,16 +254,16 @@ function OrderCardView({
 
   return (
     <div
-      className={`bg-white p-2.5 rounded-lg border shadow-sm transition-all flex flex-col gap-1.5 overflow-hidden ${
+      className={`bg-white dark:bg-[#141e1a] p-2.5 rounded-lg border shadow-sm transition-all flex flex-col gap-1.5 overflow-hidden ${
         isOverlay
           ? "border-emerald-500 ring-2 ring-emerald-500/40 shadow-2xl rotate-1 scale-105 pointer-events-none z-[9999]"
-          : "border-gray-200 hover:border-emerald-400 hover:shadow-md cursor-grab active:cursor-grabbing mb-2 group"
+          : "border-gray-200 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:shadow-md cursor-grab active:cursor-grabbing mb-2 group"
       }`}
     >
       <div className="flex justify-between items-center gap-1.5 min-w-0">
         <Link
           to={localizePath(`/admin/orders/${order.id}`)}
-          className="font-black text-emerald-700 hover:text-emerald-900 hover:underline text-xs shrink-0"
+          className="font-black text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 hover:underline text-xs shrink-0"
           onPointerDown={(e) => e.stopPropagation()}
         >
           #{order.id.slice(0, 8)}
@@ -280,7 +280,7 @@ function OrderCardView({
 
       <div className="flex justify-between items-center gap-1">
         <p
-          className="text-xs text-gray-800 font-bold truncate leading-tight flex-1"
+          className="text-xs text-gray-800 dark:text-gray-100 font-bold truncate leading-tight flex-1"
           title={order.fullName}
         >
           {order.fullName}
@@ -288,7 +288,7 @@ function OrderCardView({
         {!isOverlay && onShowInfo && (
           <button
             type="button"
-            className="text-gray-400 hover:text-emerald-600 p-0.5 rounded cursor-pointer shrink-0"
+            className="text-gray-400 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 p-0.5 rounded cursor-pointer shrink-0"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -305,11 +305,11 @@ function OrderCardView({
         )}
       </div>
 
-      <div className="flex justify-between items-center pt-1 border-t border-gray-100 text-[10px] text-gray-500">
-        <span className="font-medium text-gray-400">
+      <div className="flex justify-between items-center pt-1 border-t border-gray-100 dark:border-white/10 text-[10px] text-gray-500 dark:text-gray-400">
+        <span className="font-medium text-gray-400 dark:text-gray-400">
           {new Date(order.createdAt).toLocaleDateString()}
         </span>
-        <span className="font-bold text-gray-900">
+        <span className="font-bold text-gray-900 dark:text-white">
           {total != null ? `€${total.toFixed(2)}` : "-"}
         </span>
       </div>
@@ -345,7 +345,7 @@ function SortableOrderCard({
       <div
         ref={setNodeRef}
         style={style}
-        className="opacity-30 border-2 border-dashed border-emerald-400 bg-emerald-50/50 rounded-lg p-3 mb-2 h-20"
+        className="opacity-30 border-2 border-dashed border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/40 rounded-lg p-3 mb-2 h-20"
       />
     );
   }
@@ -387,39 +387,39 @@ function QuickDropColumn({
     }
   > = {
     sky: {
-      border: "border-sky-200",
-      bg: "bg-sky-50/50",
-      activeBg: "bg-sky-100 ring-2 ring-sky-500 border-sky-400",
-      text: "text-sky-900",
-      icon: "text-sky-600",
+      border: "border-sky-200 dark:border-sky-800/60",
+      bg: "bg-sky-50/50 dark:bg-sky-950/40",
+      activeBg: "bg-sky-100 dark:bg-sky-900/60 ring-2 ring-sky-500 border-sky-400 dark:border-sky-500",
+      text: "text-sky-900 dark:text-sky-200",
+      icon: "text-sky-600 dark:text-sky-400",
     },
     amber: {
-      border: "border-amber-200",
-      bg: "bg-amber-50/50",
-      activeBg: "bg-amber-100 ring-2 ring-amber-500 border-amber-400",
-      text: "text-amber-900",
-      icon: "text-amber-600",
+      border: "border-amber-200 dark:border-amber-800/60",
+      bg: "bg-amber-50/50 dark:bg-amber-950/40",
+      activeBg: "bg-amber-100 dark:bg-amber-900/60 ring-2 ring-amber-500 border-amber-400 dark:border-amber-500",
+      text: "text-amber-900 dark:text-amber-200",
+      icon: "text-amber-600 dark:text-amber-400",
     },
     emerald: {
-      border: "border-emerald-200",
-      bg: "bg-emerald-50/50",
-      activeBg: "bg-emerald-100 ring-2 ring-emerald-500 border-emerald-400",
-      text: "text-emerald-900",
-      icon: "text-emerald-600",
+      border: "border-emerald-200 dark:border-emerald-800/60",
+      bg: "bg-emerald-50/50 dark:bg-emerald-950/40",
+      activeBg: "bg-emerald-100 dark:bg-emerald-900/60 ring-2 ring-emerald-500 border-emerald-400 dark:border-emerald-500",
+      text: "text-emerald-900 dark:text-emerald-200",
+      icon: "text-emerald-600 dark:text-emerald-400",
     },
     rose: {
-      border: "border-rose-200",
-      bg: "bg-rose-50/50",
-      activeBg: "bg-rose-100 ring-2 ring-rose-500 border-rose-400",
-      text: "text-rose-900",
-      icon: "text-rose-600",
+      border: "border-rose-200 dark:border-rose-800/60",
+      bg: "bg-rose-50/50 dark:bg-rose-950/40",
+      activeBg: "bg-rose-100 dark:bg-rose-900/60 ring-2 ring-rose-500 border-rose-400 dark:border-rose-500",
+      text: "text-rose-900 dark:text-rose-200",
+      icon: "text-rose-600 dark:text-rose-400",
     },
     purple: {
-      border: "border-purple-200",
-      bg: "bg-purple-50/50",
-      activeBg: "bg-purple-100 ring-2 ring-purple-500 border-purple-400",
-      text: "text-purple-900",
-      icon: "text-purple-600",
+      border: "border-purple-200 dark:border-purple-800/60",
+      bg: "bg-purple-50/50 dark:bg-purple-950/40",
+      activeBg: "bg-purple-100 dark:bg-purple-900/60 ring-2 ring-purple-500 border-purple-400 dark:border-purple-500",
+      text: "text-purple-900 dark:text-purple-200",
+      icon: "text-purple-600 dark:text-purple-400",
     },
   };
 
@@ -441,11 +441,11 @@ function QuickDropColumn({
         <span className={`font-bold text-xs ${style.text}`}>
           {t(`orderStatus.${id}` as TranslationKey) || label}
         </span>
-        <span className="bg-white/80 border border-gray-200 text-gray-700 text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+        <span className="bg-white/80 dark:bg-white/10 border border-gray-200 dark:border-white/15 text-gray-700 dark:text-gray-200 text-[10px] font-bold px-1.5 py-0.2 rounded-full">
           {count}
         </span>
       </div>
-      <p className="text-[10px] text-gray-500 font-medium">
+      <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">
         {isOver
           ? `✓ ${t("admin.orders.kanbanDropAction")}`
           : activeDragItem
@@ -472,13 +472,15 @@ function Column({
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col rounded-xl bg-gray-50/90 p-3 min-w-[270px] w-[270px] border transition-colors ${
-        isOver ? "border-emerald-500 ring-2 ring-emerald-400/30 bg-emerald-50/20" : "border-gray-200"
+      className={`flex flex-col rounded-xl bg-gray-50/90 dark:bg-[#0e1512] p-3 min-w-[270px] w-[270px] border transition-colors ${
+        isOver
+          ? "border-emerald-500 ring-2 ring-emerald-400/30 bg-emerald-50/20 dark:bg-emerald-950/30"
+          : "border-gray-200 dark:border-white/10"
       }`}
     >
       <div className="flex justify-between items-center mb-3 px-1">
-        <h3 className="font-bold text-sm text-gray-800">{title}</h3>
-        <span className="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded-full">
+        <h3 className="font-bold text-sm text-gray-800 dark:text-white">{title}</h3>
+        <span className="bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-200 text-xs font-bold px-2 py-0.5 rounded-full">
           {orders.length}
         </span>
       </div>
@@ -490,7 +492,7 @@ function Column({
         >
           <div className="min-h-[120px]">
             {orders.length === 0 ? (
-              <div className="h-24 border border-dashed border-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400 italic">
+              <div className="h-24 border border-dashed border-gray-200 dark:border-white/10 rounded-lg flex items-center justify-center text-xs text-gray-400 dark:text-gray-500 italic">
                 {t("admin.orders.kanbanEmptyColumn")}
               </div>
             ) : (
@@ -744,10 +746,10 @@ export default function AdminOrders() {
         {/* Quick-drop action columns row above kanban */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2 px-1">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
               {t("admin.orders.kanbanQuickActionsTitle")}
             </h2>
-            <span className="text-[11px] text-gray-400">
+            <span className="text-[11px] text-gray-400 dark:text-gray-500">
               {t("admin.orders.kanbanQuickActionsSubtitle")}
             </span>
           </div>
@@ -774,28 +776,28 @@ export default function AdminOrders() {
         {/* Backlog accordion */}
         <details
           id="backlog-details"
-          className="mb-6 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
+          className="mb-6 bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-xl shadow-sm overflow-hidden"
         >
-          <summary className="cursor-pointer p-3.5 font-bold text-gray-800 bg-gray-50/80 hover:bg-gray-100 flex justify-between items-center transition-colors">
+          <summary className="cursor-pointer p-3.5 font-bold text-gray-800 dark:text-gray-100 bg-gray-50/80 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 flex justify-between items-center transition-colors">
             <span className="text-sm">
               {t("admin.orders.kanbanOrdersBacklog")} ({orders.length}{" "}
               {t("admin.orders.kanbanTotal")})
             </span>
-            <span className="text-xs text-gray-500 font-normal">
+            <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">
               {t("admin.orders.kanbanClickToExpand")}
             </span>
           </summary>
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 dark:border-white/10">
             <div className="flex gap-4 mb-4">
               <input
                 type="text"
                 placeholder={t("admin.orders.searchPlaceholder")}
-                className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm flex-1 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="border border-gray-300 dark:border-white/15 bg-white dark:bg-[#141e1a] text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm flex-1 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <select
-                className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="border border-gray-300 dark:border-white/15 bg-white dark:bg-[#141e1a] text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -891,7 +893,7 @@ export default function AdminOrders() {
 
         {/* Main Production Pipeline Kanban */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 px-1">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 px-1">
             {t("admin.orders.kanbanActivePipeline")}
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-6 px-1 items-start min-h-[460px]">
@@ -926,17 +928,17 @@ export default function AdminOrders() {
           onClick={() => setInfoDialogOrder(null)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[88vh] flex flex-col p-6 relative border border-gray-100 animate-in zoom-in-95 duration-150"
+            className="bg-white dark:bg-[#0e1512] rounded-2xl shadow-2xl w-full max-w-2xl max-h-[88vh] flex flex-col p-6 relative border border-gray-100 dark:border-white/10 animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-gray-100">
+            <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-gray-100 dark:border-white/10">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 truncate">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
                     {t("admin.orders.kanbanOrderInfoTitle")}
                   </h3>
-                  <span className="font-mono text-emerald-700 font-black text-sm bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shrink-0">
+                  <span className="font-mono text-emerald-700 dark:text-emerald-300 font-black text-sm bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800/60 shrink-0">
                     #{infoDialogOrder.id.slice(0, 8)}
                   </span>
                   <span
@@ -954,13 +956,13 @@ export default function AdminOrders() {
                       : formatOrderStatusLabel(infoDialogOrder.status)}
                   </span>
                   {dialogOrderTotal != null && dialogOrderTotal > 0 && (
-                    <span className="font-mono text-emerald-800 font-black text-xs sm:text-sm bg-emerald-100 px-2.5 py-0.5 rounded-lg border border-emerald-300 shrink-0">
+                    <span className="font-mono text-emerald-800 dark:text-emerald-300 font-black text-xs sm:text-sm bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded-lg border border-emerald-300 dark:border-emerald-700/60 shrink-0">
                       {t("admin.orders.totalLabel", { amount: dialogOrderTotal.toFixed(2) })}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 mt-1 truncate">
-                  <span className="font-medium text-gray-700">{infoDialogOrder.fullName}</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
+                  <span className="font-medium text-gray-700 dark:text-gray-200">{infoDialogOrder.fullName}</span>
                   <span className="mx-1.5">•</span>
                   <span>{new Date(infoDialogOrder.createdAt).toLocaleDateString()}</span>
                   {infoDialogOrder.items && (
@@ -978,7 +980,7 @@ export default function AdminOrders() {
               <button
                 type="button"
                 onClick={() => setInfoDialogOrder(null)}
-                className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors shrink-0"
+                className="p-2 rounded-xl text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
                 aria-label={t("common.closeDialog")}
               >
                 <X size={18} />
@@ -995,56 +997,56 @@ export default function AdminOrders() {
                   return (
                     <div
                       key={item.id || idx}
-                      className="p-3.5 rounded-xl border border-gray-200 bg-gray-50/60 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      className="p-3.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/60 dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-gray-400">
+                          <span className="font-mono text-xs font-bold text-gray-400 dark:text-gray-500">
                             #{String(idx + 1).padStart(2, "0")}
                           </span>
                           <h4
-                            className="text-sm font-semibold text-gray-900 truncate"
+                            className="text-sm font-semibold text-gray-900 dark:text-white truncate"
                             title={item.fileName || t("orderDetail.customItem")}
                           >
                             {item.fileName || t("orderDetail.customItem")}
                           </h4>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-1.5 mt-2 text-xs text-gray-600">
-                          <span className="px-2 py-0.5 rounded bg-white border border-gray-200 font-semibold text-gray-700">
+                        <div className="flex flex-wrap items-center gap-1.5 mt-2 text-xs text-gray-600 dark:text-gray-300">
+                          <span className="px-2 py-0.5 rounded bg-white dark:bg-[#141e1a] border border-gray-200 dark:border-white/15 font-semibold text-gray-700 dark:text-gray-200">
                             {item.count || 1}x
                           </span>
-                          <span className="px-2 py-0.5 rounded bg-white border border-gray-200 font-medium">
+                          <span className="px-2 py-0.5 rounded bg-white dark:bg-[#141e1a] border border-gray-200 dark:border-white/15 font-medium text-gray-700 dark:text-gray-200">
                             {item.material || "PLA"}
                           </span>
-                          <span className="px-2 py-0.5 rounded bg-white border border-gray-200 font-medium">
+                          <span className="px-2 py-0.5 rounded bg-white dark:bg-[#141e1a] border border-gray-200 dark:border-white/15 font-medium text-gray-700 dark:text-gray-200">
                             {item.color || t("orderDetail.defaultColor")}
                           </span>
                           {item.size && (
-                            <span className="px-2 py-0.5 rounded bg-white border border-gray-200 text-gray-500">
+                            <span className="px-2 py-0.5 rounded bg-white dark:bg-[#141e1a] border border-gray-200 dark:border-white/15 text-gray-500 dark:text-gray-400">
                               {item.size}
                             </span>
                           )}
                           <span className="text-gray-400">•</span>
                           {pricing.isPendingQuote ? (
-                            <span className="text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                            <span className="text-amber-700 dark:text-amber-400 font-semibold bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800/60">
                               {t("orderDetail.pendingQuote")}
                             </span>
                           ) : (
                             <>
-                              <span className="text-gray-700 font-medium">
+                              <span className="text-gray-700 dark:text-gray-300 font-medium">
                                 {t("admin.orders.unit", { amount: pricing.unitPrice.toFixed(2) })}
                               </span>
                               {pricing.plateCost > 0 && (
                                 <>
                                   <span className="text-gray-400">•</span>
-                                  <span className="text-gray-500">
+                                  <span className="text-gray-500 dark:text-gray-400">
                                     {t("admin.orders.plate", { amount: pricing.plateCost.toFixed(2) })}
                                   </span>
                                 </>
                               )}
                               <span className="text-gray-400">•</span>
-                              <span className="text-emerald-700 font-bold">
+                              <span className="text-emerald-700 dark:text-emerald-400 font-bold">
                                 {t("admin.orders.totalLabel", { amount: pricing.itemTotal.toFixed(2) })}
                               </span>
                             </>
@@ -1053,7 +1055,7 @@ export default function AdminOrders() {
                       </div>
 
                       {/* Actions / 3D Preview */}
-                      <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-200/60">
+                      <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-200/60 dark:border-white/10">
                         {modelFiles.length > 0 ? (
                           <div className="flex flex-wrap items-center gap-1.5">
                             {modelFiles.map((m, mIdx) => (
@@ -1074,7 +1076,7 @@ export default function AdminOrders() {
                                       itemIndex: idx,
                                     })
                                   }
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 transition-colors shadow-2xs cursor-pointer"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white transition-colors shadow-2xs cursor-pointer"
                                   title={m.fileName}
                                 >
                                   <Box size={14} />
@@ -1089,7 +1091,7 @@ export default function AdminOrders() {
                                   download={m.fileName}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="p-1.5 text-gray-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg border border-transparent hover:border-emerald-200 transition-colors"
+                                  className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-white/10 rounded-lg border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800/60 transition-colors"
                                   title={t("admin.orders.downloadTitle", { fileName: m.fileName })}
                                 >
                                   <Download size={14} />
@@ -1098,7 +1100,7 @@ export default function AdminOrders() {
                             ))}
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-400 italic flex items-center gap-1">
+                          <span className="text-xs text-gray-400 dark:text-gray-500 italic flex items-center gap-1">
                             <FileText size={13} />
                             {t("admin.orders.no3dModel")}
                           </span>
@@ -1108,7 +1110,7 @@ export default function AdminOrders() {
                   );
                 })
               ) : (
-                <div className="py-8 text-center text-sm text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-white/5 rounded-xl border border-dashed border-gray-200 dark:border-white/10">
                   {t("admin.orders.kanbanNoItems")}
                 </div>
               )}
@@ -1116,27 +1118,27 @@ export default function AdminOrders() {
 
             {/* Order Financial Breakdown Summary */}
             {dialogOrderTotal != null && dialogOrderTotal > 0 && (
-              <div className="mt-3.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs flex flex-wrap items-center justify-between gap-2.5">
-                <div className="flex flex-wrap items-center gap-2.5 text-slate-600">
+              <div className="mt-3.5 p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs flex flex-wrap items-center justify-between gap-2.5">
+                <div className="flex flex-wrap items-center gap-2.5 text-slate-600 dark:text-gray-300">
                   {infoDialogOrder.deliveryPrice != null && infoDialogOrder.deliveryPrice > 0 && (
-                    <span className="bg-white px-2 py-0.5 rounded border border-slate-200">
+                    <span className="bg-white dark:bg-[#141e1a] px-2 py-0.5 rounded border border-slate-200 dark:border-white/15 text-slate-700 dark:text-gray-200">
                       {t("admin.orders.delivery", { amount: infoDialogOrder.deliveryPrice.toFixed(2) })}
                     </span>
                   )}
                   {infoDialogOrder.serviceFeePrice != null && infoDialogOrder.serviceFeePrice > 0 && (
-                    <span className="bg-white px-2 py-0.5 rounded border border-slate-200">
+                    <span className="bg-white dark:bg-[#141e1a] px-2 py-0.5 rounded border border-slate-200 dark:border-white/15 text-slate-700 dark:text-gray-200">
                       {t("admin.orders.serviceFee", { amount: infoDialogOrder.serviceFeePrice.toFixed(2) })}
                     </span>
                   )}
                   {infoDialogOrder.orderDiscountAmount != null && infoDialogOrder.orderDiscountAmount > 0 && (
-                    <span className="bg-white px-2 py-0.5 rounded border border-emerald-200 text-emerald-700 font-semibold">
+                    <span className="bg-white dark:bg-[#141e1a] px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-400 font-semibold">
                       {t("admin.orders.discount", { amount: infoDialogOrder.orderDiscountAmount.toFixed(2) })}
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2 font-bold text-slate-900 ml-auto">
+                <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white ml-auto">
                   <span>{t("admin.orders.orderTotal")}</span>
-                  <span className="text-sm font-mono text-emerald-700 font-black">
+                  <span className="text-sm font-mono text-emerald-700 dark:text-emerald-400 font-black">
                     €{dialogOrderTotal.toFixed(2)}
                   </span>
                 </div>
@@ -1144,10 +1146,10 @@ export default function AdminOrders() {
             )}
 
             {/* Footer */}
-            <div className="mt-4 pt-3.5 border-t border-gray-100 flex items-center justify-between gap-3">
+            <div className="mt-4 pt-3.5 border-t border-gray-100 dark:border-white/10 flex items-center justify-between gap-3">
               <Link
                 to={localizePath(`/admin/orders/${infoDialogOrder.id}`)}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-800 hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:underline"
               >
                 {t("admin.orders.openOrderDetails")} →
               </Link>

@@ -1067,24 +1067,18 @@ body:has(.admin-shell) {
   border-color: var(--admin-card-border) !important;
 }
 
-:root[data-theme="dark"] .admin-shell .bg-gray-50,
-.dark .admin-shell .bg-gray-50,
-:root[data-theme="dark"] .admin-shell .bg-gray-50\/70,
-.dark .admin-shell .bg-gray-50\/70,
-:root[data-theme="dark"] .admin-shell .bg-gray-50\/80,
-.dark .admin-shell .bg-gray-50\/80,
-:root[data-theme="dark"] .admin-shell .bg-gray-100,
-.dark .admin-shell .bg-gray-100,
-:root[data-theme="dark"] .admin-shell .bg-slate-50,
-.dark .admin-shell .bg-slate-50,
-:root[data-theme="dark"] .admin-shell .bg-slate-50\/40,
-.dark .admin-shell .bg-slate-50\/40,
-:root[data-theme="dark"] .admin-shell .bg-slate-50\/50,
-.dark .admin-shell .bg-slate-50\/50,
-:root[data-theme="dark"] .admin-shell .bg-slate-100,
-.dark .admin-shell .bg-slate-100,
-:root[data-theme="dark"] .admin-shell .bg-slate-200,
-.dark .admin-shell .bg-slate-200,
+:root[data-theme="dark"] .admin-shell [class*="bg-gray-50"],
+.dark .admin-shell [class*="bg-gray-50"],
+:root[data-theme="dark"] .admin-shell [class*="bg-gray-100"],
+.dark .admin-shell [class*="bg-gray-100"],
+:root[data-theme="dark"] .admin-shell [class*="bg-gray-200"],
+.dark .admin-shell [class*="bg-gray-200"],
+:root[data-theme="dark"] .admin-shell [class*="bg-slate-50"],
+.dark .admin-shell [class*="bg-slate-50"],
+:root[data-theme="dark"] .admin-shell [class*="bg-slate-100"],
+.dark .admin-shell [class*="bg-slate-100"],
+:root[data-theme="dark"] .admin-shell [class*="bg-slate-200"],
+.dark .admin-shell [class*="bg-slate-200"],
 :root[data-theme="dark"] .admin-shell [class*="bg-[#f"],
 .dark .admin-shell [class*="bg-[#f"],
 :root[data-theme="dark"] .admin-shell [class*="bg-[#e"],
@@ -1281,35 +1275,59 @@ body:has(.admin-shell) {
 }
 
 /* Color Pills and Badges */
-:root[data-theme="dark"] .admin-shell .bg-teal-50,
-.dark .admin-shell .bg-teal-50 {
+:root[data-theme="dark"] .admin-shell [class*="bg-teal-50"],
+.dark .admin-shell [class*="bg-teal-50"] {
   background-color: rgba(15, 118, 110, 0.25) !important;
   color: #5eead4 !important;
   border-color: rgba(20, 184, 166, 0.3) !important;
 }
 
-:root[data-theme="dark"] .admin-shell .bg-emerald-50,
-.dark .admin-shell .bg-emerald-50,
-:root[data-theme="dark"] .admin-shell .bg-emerald-100,
-.dark .admin-shell .bg-emerald-100 {
+:root[data-theme="dark"] .admin-shell [class*="bg-emerald-50"],
+.dark .admin-shell [class*="bg-emerald-50"],
+:root[data-theme="dark"] .admin-shell [class*="bg-emerald-100"],
+.dark .admin-shell [class*="bg-emerald-100"] {
   background-color: rgba(16, 185, 129, 0.2) !important;
   color: #6ee7b7 !important;
 }
 
-:root[data-theme="dark"] .admin-shell .bg-amber-50,
-.dark .admin-shell .bg-amber-50,
-:root[data-theme="dark"] .admin-shell .bg-amber-100,
-.dark .admin-shell .bg-amber-100 {
+:root[data-theme="dark"] .admin-shell [class*="bg-amber-50"],
+.dark .admin-shell [class*="bg-amber-50"],
+:root[data-theme="dark"] .admin-shell [class*="bg-amber-100"],
+.dark .admin-shell [class*="bg-amber-100"] {
   background-color: rgba(245, 158, 11, 0.2) !important;
   color: #fcd34d !important;
 }
 
-:root[data-theme="dark"] .admin-shell .bg-rose-50,
-.dark .admin-shell .bg-rose-50,
-:root[data-theme="dark"] .admin-shell .bg-rose-100,
-.dark .admin-shell .bg-rose-100 {
+:root[data-theme="dark"] .admin-shell [class*="bg-rose-50"],
+.dark .admin-shell [class*="bg-rose-50"],
+:root[data-theme="dark"] .admin-shell [class*="bg-rose-100"],
+.dark .admin-shell [class*="bg-rose-100"] {
   background-color: rgba(244, 63, 94, 0.2) !important;
   color: #fda4af !important;
+}
+
+:root[data-theme="dark"] .admin-shell [class*="bg-sky-50"],
+.dark .admin-shell [class*="bg-sky-50"],
+:root[data-theme="dark"] .admin-shell [class*="bg-sky-100"],
+.dark .admin-shell [class*="bg-sky-100"] {
+  background-color: rgba(14, 165, 233, 0.2) !important;
+  color: #7dd3fc !important;
+}
+
+:root[data-theme="dark"] .admin-shell [class*="bg-purple-50"],
+.dark .admin-shell [class*="bg-purple-50"],
+:root[data-theme="dark"] .admin-shell [class*="bg-purple-100"],
+.dark .admin-shell [class*="bg-purple-100"] {
+  background-color: rgba(168, 85, 247, 0.2) !important;
+  color: #d8b4fe !important;
+}
+
+:root[data-theme="dark"] .admin-shell [class*="bg-orange-50"],
+.dark .admin-shell [class*="bg-orange-50"],
+:root[data-theme="dark"] .admin-shell [class*="bg-orange-100"],
+.dark .admin-shell [class*="bg-orange-100"] {
+  background-color: rgba(249, 115, 22, 0.2) !important;
+  color: #fdba74 !important;
 }
 
 @media (max-width: 768px) {
