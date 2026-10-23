@@ -120,11 +120,11 @@ public class SeederTests
         var result = await HeroSlideSeeder.EnsureDatabaseSeededAsync(db);
 
         Assert.Equal(0, result.TotalBefore);
-        Assert.Equal(4, result.Inserted);
-        Assert.Equal(4, result.TotalAfter);
+        Assert.Equal(3, result.Inserted);
+        Assert.Equal(3, result.TotalAfter);
 
         var slides = await db.HeroSlides.ToListAsync();
-        Assert.Equal(4, slides.Count);
+        Assert.Equal(3, slides.Count);
     }
 
     [Fact]

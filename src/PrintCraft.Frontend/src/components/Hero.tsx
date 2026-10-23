@@ -7,18 +7,7 @@ import {
   useState,
 } from "react";
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  Box,
-  CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  HelpCircle,
-  Image as ImageIcon,
-  RotateCcw,
-  Sparkles,
-  Tag,
-} from "lucide-react";
+import { ArrowRight, RotateCcw } from "lucide-react";
 import { getActiveHeroSlides, getCachedActiveHeroSlides } from "../services/api";
 import type { HeroSlide } from "../types";
 import { resolveAssetUrl } from "../utils/assetUrl";
@@ -27,7 +16,6 @@ import {
   getHeroSlideTitle,
   getHeroSlideSubtext,
   getHeroSlidePrice,
-  getHeroSlideTooltip,
 } from "../utils/hero";
 
 const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
@@ -35,134 +23,40 @@ const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
 const FALLBACK_SLIDES: HeroSlide[] = [
   {
     id: "00000000-0000-0000-0000-000000000101",
-    title: "50% Off Black & White PETG Prints",
-    titleNl: "50% Korting op Zwart & Wit PETG Prints",
+    title: "Your idea, 3D printed in days.",
+    titleNl: "Jouw idee, binnen enkele dagen 3D-geprint.",
     subtext:
-      "Special promotion: Get an automatic 50% discount on all custom 3D prints ordered in high-durability Black or White PETG. UV-resistant, impact-proof, and heat tolerant.",
+      "From a single replacement part for home to business series. Upload your file and get it delivered via PostNL in 2 to 5 business days.",
     subtextNl:
-      "Speciale actie: Profiteer van 50% korting op alle 3D-prints in oersterk zwart of wit PETG. Weerbestendig, slagvast en hittebestendig.",
-    priceText: "50% Off Black & White PETG",
-    priceTextNl: "50% Korting op PETG",
+      "Van één vervangend onderdeel voor thuis tot zakelijke series. Upload je bestand en ontvang het binnen 2 tot 5 werkdagen via PostNL.",
+    priceText: "3D Printing in Rotterdam & Across the Netherlands",
+    priceTextNl: "3D-printen in Rotterdam & heel Nederland",
     mediaUrl: "/uploads/hero/cable-holder.stl",
-    mediaType: "model3d",
-    instructionTooltip:
-      "50% discount applies automatically to all functional prints in Black or White PETG.",
-    instructionTooltipNl:
-      "50% korting wordt automatisch verrekend bij selectie van zwart of wit PETG.",
-    titles: {
-      en: "50% Off Black & White PETG Prints",
-      nl: "50% Korting op Zwart & Wit PETG Prints",
-      tr: "Siyah ve Beyaz PETG Baskılarda %50 İndirim",
-      ru: "Скидка 50% на печать из черного и белого PETG",
-      ar: "خصم 50% على طباعة PETG باللونين الأسود والأبيض",
-    },
-    subtexts: {
-      en: "Special promotion: Get an automatic 50% discount on all custom 3D prints ordered in high-durability Black or White PETG. UV-resistant, impact-proof, and heat tolerant.",
-      nl: "Speciale actie: Profiteer van 50% korting op alle 3D-prints in oersterk zwart of wit PETG. Weerbestendig, slagvast en hittebestendig.",
-      tr: "Özel promosyon: Yüksek dayanımlı Siyah veya Beyaz PETG ile sipariş edilen tüm özel 3D baskılarda otomatik %50 indirim. UV ışınlarına, darbelere ve ısıya dayanıklıdır.",
-      ru: "Специальная акция: автоматическая скидка 50% на все индивидуальные 3D-отпечатки из прочного черного или белого PETG. Устойчив к УФ, ударам и перепадам температур.",
-      ar: "عرض خاص: احصل على خصم تلقائي بنسبة 50% على جميع المطبوعات ثلاثية الأبعاد المصنوعة من خيوط PETG المتينة باللونين الأسود أو الأبيض. مقاوم للأشعة فوق البنفسجية والصدمات والحرارة.",
-    },
-    priceTexts: {
-      en: "50% Off Black & White PETG",
-      nl: "50% Korting op PETG",
-      tr: "PETG'de %50 İndirim",
-      ru: "Скидка 50% на PETG",
-      ar: "خصم 50% على PETG",
-    },
-    instructionTooltips: {
-      en: "50% discount applies automatically to all functional prints in Black or White PETG.",
-      nl: "50% korting wordt automatisch verrekend bij selectie van zwart of wit PETG.",
-      tr: "Siyah veya Beyaz PETG'deki tüm fonksiyonel baskılara %50 indirim otomatik olarak uygulanır.",
-      ru: "Скидка 50% автоматически применяется ко всем функциональным деталям из черного или белого PETG.",
-      ar: "ينطبق خصم 50% تلقائيًا على جميع المطبوعات الوظيفية باللونين الأسود أو الأبيض من خامة PETG.",
-    },
-    isActive: true,
-    sortOrder: 1,
-  },
-  {
-    id: "00000000-0000-0000-0000-000000000102",
-    title: "HueForge Filament Painting: Turn Pictures into 3D Art",
-    titleNl: "HueForge Filament Painting: Maak van je Foto 3D Kunst",
-    subtext:
-      "Upload any photo or illustration to transform it into a vibrant, multi-color 3D relief print using optical layer blending. No painting required!",
-    subtextNl:
-      "Upload een 2D foto of illustratie en verander deze in een tactiel, meerkleurig 3D reliëf schilderij met optische laagmenging.",
-    priceText: "From €14.95 / Painting",
-    priceTextNl: "Vanaf €14,95 / Schilderij",
-    mediaUrl: "/uploads/hero/materials.svg",
-    mediaType: "image",
-    instructionTooltip:
-      "Drop any picture in our configurator for an instant 3D relief preview with color swaps.",
-    instructionTooltipNl:
-      "Sleep je afbeelding in onze configurator voor een directe full-color 3D reliëf weergave.",
-    titles: {
-      en: "HueForge Filament Painting: Turn Pictures into 3D Art",
-      nl: "HueForge Filament Painting: Maak van je Foto 3D Kunst",
-      tr: "HueForge Filament Tablosu: Resimleri 3D Sanata Dönüştürün",
-      ru: "HueForge Filament Painting: превратите картины в 3D-арт",
-      ar: "لوحات خيوط HueForge: حوّل صورك إلى فن ثلاثي الأبعاد",
-    },
-    subtexts: {
-      en: "Upload any photo or illustration to transform it into a vibrant, multi-color 3D relief print using optical layer blending. No painting required!",
-      nl: "Upload een 2D foto of illustratie en verander deze in een tactiel, meerkleurig 3D reliëf schilderij met optische laagmenging.",
-      tr: "Optik katman harmanlama kullanarak herhangi bir fotoğrafı veya çizimi canlı, çok renkli bir 3D kabartma baskıya dönüştürün. Boyama gerekmez!",
-      ru: "Загрузите любую фотографию или иллюстрацию, чтобы превратить ее в яркую многоцветную 3D-рельефную картину с помощью оптического смешивания слоев.",
-      ar: "ارفع أي صورة أو رسم توضيحي لتحويله إلى لوحة بارزة ثلاثية الأبعاد متعددة الألوان باستخدام مزج الطبقات البصري. بدون الحاجة إلى طلاء يدوي!",
-    },
-    priceTexts: {
-      en: "From €14.95 / Painting",
-      nl: "Vanaf €14,95 / Schilderij",
-      tr: "Tablo Başına €14,95'ten Başlayan Fiyatlarla",
-      ru: "От €14.95 / картина",
-      ar: "ابتداءً من €14.95 / لوحة",
-    },
-    instructionTooltips: {
-      en: "Drop any picture in our configurator for an instant 3D relief preview with color swaps.",
-      nl: "Sleep je afbeelding in onze configurator voor een directe full-color 3D reliëf weergave.",
-      tr: "Renk geçişleriyle anında 3D rölyef önizlemesi için herhangi bir resmi konfigüratörümüze bırakın.",
-      ru: "Перетащите изображение в конфигуратор для мгновенного предпросмотра 3D-рельефа со сменой цветов.",
-      ar: "قم بسحب أي صورة إلى أداتنا للحصول على معاينة فورية للوحة البارزة ثلاثية الأبعاد.",
-    },
-    isActive: true,
-    sortOrder: 2,
-  },
-  {
-    id: "00000000-0000-0000-0000-000000000103",
-    title: "Rapid Prototyping & Custom Parts",
-    titleNl: "Snelle Prototyping & Maatwerk Onderdelen",
-    subtext:
-      "High-precision FDM 3D printing for functional prototypes, replacement parts, and custom enclosures in 2-5 working days.",
-    subtextNl:
-      "Precisie FDM 3D-printen voor functionele prototypes, vervangende onderdelen en behuizingen binnen 2-5 werkdagen.",
-    priceText: "Starting from €9.95",
-    priceTextNl: "Vanaf €9,95",
-    mediaUrl: "/uploads/hero/snowflake.stl",
     mediaType: "model3d",
     instructionTooltip:
       "Interactive 3D model: drag to rotate 360°, scroll to zoom in and inspect geometry.",
     instructionTooltipNl:
       "Interactief 3D-model: sleep om 360° te draaien, scroll om in te zoomen op details.",
     titles: {
-      en: "Rapid Prototyping & Custom Parts",
-      nl: "Snelle Prototyping & Maatwerk Onderdelen",
-      tr: "Hızlı Prototipleme ve Özel Parçalar",
-      ru: "Быстрое прототипирование и детали на заказ",
-      ar: "النماذج الأولية السريعة وقطع الغيار المخصصة",
+      en: "Your idea, 3D printed in days.",
+      nl: "Jouw idee, binnen enkele dagen 3D-geprint.",
+      tr: "Fikriniz, günler içinde 3D basılsın.",
+      ru: "Ваша идея, напечатанная на 3D-принтере за считанные дни.",
+      ar: "فكرتك، مطبوعة ثلاثية الأبعاد في أيام معدودة.",
     },
     subtexts: {
-      en: "High-precision FDM 3D printing for functional prototypes, replacement parts, and custom enclosures in 2-5 working days.",
-      nl: "Precisie FDM 3D-printen voor functionele prototypes, vervangende onderdelen en behuizingen binnen 2-5 werkdagen.",
-      tr: "Fonksiyonel prototipler, yedek parçalar ve özel muhafazalar için 2-5 iş günü içinde yüksek hassasiyetli FDM 3D baskı.",
-      ru: "Высокоточная FDM 3D-печать для функциональных прототипов, запасных частей и корпусов за 2–5 рабочих дней.",
-      ar: "طباعة ثلاثية الأبعاد عالية الدقة بتقنية FDM للنماذج الأولية الوظيفية وقطع الغيار والحافظات المخصصة خلال 2-5 أيام عمل.",
+      en: "From a single replacement part for home to business series. Upload your file and get it delivered via PostNL in 2 to 5 business days.",
+      nl: "Van één vervangend onderdeel voor thuis tot zakelijke series. Upload je bestand en ontvang het binnen 2 tot 5 werkdagen via PostNL.",
+      tr: "Ev için tek bir yedek parçadan kurumsal serilere kadar. Dosyanızı yükleyin ve PostNL ile 2 ila 5 iş günü içinde teslim alın.",
+      ru: "От одной запасной детали для дома до коммерческих партий. Загрузите свой файл и получите доставку через PostNL за 2–5 рабочих дней.",
+      ar: "من قطعة غيار منزلية واحدة إلى دفعات تجارية. ارفع ملفك واستلمه عبر PostNL خلال 2 إلى 5 أيام عمل.",
     },
     priceTexts: {
-      en: "Starting from €9.95",
-      nl: "Vanaf €9,95",
-      tr: "€9,95'ten Başlayan Fiyatlarla",
-      ru: "От €9.95",
-      ar: "ابتداءً من €9.95",
+      en: "3D Printing in Rotterdam & Across the Netherlands",
+      nl: "3D-printen in Rotterdam & heel Nederland",
+      tr: "Rotterdam ve Tüm Hollanda'da 3D Baskı",
+      ru: "3D-печать в Роттердаме и по всем Нидерландам",
+      ar: "طباعة ثلاثية الأبعاد في روتردام وجميع أنحاء هولندا",
     },
     instructionTooltips: {
       en: "Interactive 3D model: drag to rotate 360°, scroll to zoom in and inspect geometry.",
@@ -172,54 +66,101 @@ const FALLBACK_SLIDES: HeroSlide[] = [
       ar: "نموذج تفاعلي ثلاثي الأبعاد: اسحب للتدوير بزاوية 360 درجة، ومرر للتكبير وفحص التفاصيل.",
     },
     isActive: true,
-    sortOrder: 3,
+    sortOrder: 1,
   },
   {
-    id: "00000000-0000-0000-0000-000000000104",
-    title: "Detailed Figurines & Art Collectibles",
-    titleNl: "Gedetailleerde Figuren & Kunstobjecten",
+    id: "00000000-0000-0000-0000-000000000102",
+    title: "Extra strong in Black & White.",
+    titleNl: "Extra sterk in Zwart & Wit.",
     subtext:
-      "Ultra-fine 0.12mm layer height reproducing intricate curves, character meshes, and miniatures with silky smoothness.",
+      "Need a part that can handle heat, outdoor weather, or heavy use? Our Black and White PETG is always in stock for fast, affordable production.",
     subtextNl:
-      "Fijne 0.12mm laaghoogte voor vloeiende rondingen, miniaturen en artistieke modellen met hoge precisie.",
-    priceText: "Starting at €14.50",
-    priceTextNl: "Vanaf €14,50",
+      "Een onderdeel nodig dat tegen hitte, buitenweer of een stootje kan? Onze zwarte en witte PETG is altijd op voorraad voor snelle levering.",
+    priceText: "Most Popular Choice",
+    priceTextNl: "Meest gekozen materiaal",
     mediaUrl: "/uploads/hero/dino.stl",
     mediaType: "model3d",
     instructionTooltip:
-      "Rotate the model to check fine organic curves and surface layer fidelity.",
+      "High-durability PETG is UV-stable, weatherproof, and impact-resistant for demanding environments.",
     instructionTooltipNl:
-      "Draai het model om organische vormen en oppervlaktekwaliteit te inspecteren.",
+      "Duurzaam PETG is UV-bestendig, weerbestendig en slagvast voor veeleisende omgevingen.",
     titles: {
-      en: "Detailed Figurines & Art Collectibles",
-      nl: "Gedetailleerde Figuren & Kunstobjecten",
-      tr: "Ayrıntılı Figürler ve Sanat Koleksiyonları",
-      ru: "Детализированные фигурки и арт-коллекции",
-      ar: "مجسمات مفصلة ومقتنيات فنية",
+      en: "Extra strong in Black & White.",
+      nl: "Extra sterk in Zwart & Wit.",
+      tr: "Siyah ve Beyazda Ekstra Güçlü.",
+      ru: "Особая прочность в черном и белом цвете.",
+      ar: "قوة فائقة باللونين الأسود والأبيض.",
     },
     subtexts: {
-      en: "Ultra-fine 0.12mm layer height reproducing intricate curves, character meshes, and miniatures with silky smoothness.",
-      nl: "Fijne 0.12mm laaghoogte voor vloeiende rondingen, miniaturen en artistieke modellen met hoge precisie.",
-      tr: "Karmaşık kıvrımları, karakter ağlarını ve minyatürleri ipeksi bir pürüzsüzlükle yeniden üreten ultra ince 0,12 mm katman yüksekliği.",
-      ru: "Сверхтонкая высота слоя 0,12 мм для точного воспроизведения сложных изгибов, персонажей и миниатюр с шелковистой гладкостью.",
-      ar: "ارتفاع طبقة فائق الدقة يبلغ 0.12 مم يعيد إنتاج المنحنيات المعقدة ونماذج الشخصيات والمجسمات الصغيرة بنعومة وسلاسة.",
+      en: "Need a part that can handle heat, outdoor weather, or heavy use? Our Black and White PETG is always in stock for fast, affordable production.",
+      nl: "Een onderdeel nodig dat tegen hitte, buitenweer of een stootje kan? Onze zwarte en witte PETG is altijd op voorraad voor snelle levering.",
+      tr: "Isıya, dış hava koşullarına veya zorlu kullanıma dayanıklı bir parçaya mı ihtiyacınız var? Siyah ve Beyaz PETG malzememiz hızlı ve uygun maliyetli üretim için daima stokta.",
+      ru: "Нужна деталь, устойчивая к нагреву, погодным условиям или нагрузкам? Наш черный и белый PETG всегда в наличии для быстрого и надежного производства.",
+      ar: "هل تحتاج إلى قطعة تتحمل الحرارة، والطقس الخارجي، أو الاستخدام الشاق؟ خامة PETG باللونين الأسود والأبيض متوفرة دائماً في المخزون لإنتاج سريع وتكلفة مناسبة.",
     },
     priceTexts: {
-      en: "Starting at €14.50",
-      nl: "Vanaf €14,50",
-      tr: "€14,50'den Başlayan Fiyatlarla",
-      ru: "От €14.50",
-      ar: "ابتداءً من €14.50",
+      en: "Most Popular Choice",
+      nl: "Meest gekozen materiaal",
+      tr: "En Çok Tercih Edilen Malzeme",
+      ru: "Самый популярный материал",
+      ar: "الخامة الأكثر طلباً",
     },
     instructionTooltips: {
-      en: "Rotate the model to check fine organic curves and surface layer fidelity.",
-      nl: "Draai het model om organische vormen en oppervlaktekwaliteit te inspecteren.",
-      tr: "İnce organik kıvrımları ve yüzey katmanı kalitesini kontrol etmek için modeli döndürün.",
-      ru: "Вращайте модель, чтобы проверить тонкие органические линии и качество слоев.",
-      ar: "قم بتدوير النموذج للتحقق من المنحنيات الدقيقة ودقة طبقات السطح.",
+      en: "High-durability PETG is UV-stable, weatherproof, and impact-resistant for demanding environments.",
+      nl: "Duurzaam PETG is UV-bestendig, weerbestendig en slagvast voor veeleisende omgevingen.",
+      tr: "Yüksek dayanımlı PETG zorlu ortamlar için UV ışınlarına, hava şartlarına ve darbelere dayanıklıdır.",
+      ru: "Прочный PETG устойчив к ультрафиолету, атмосферным воздействиям и ударам в сложных условиях.",
+      ar: "مادة PETG عالية المتانة مقاومة للأشعة فوق البنفسجية والطقس والصدمات في الظروف الصعبة.",
     },
     isActive: true,
-    sortOrder: 4,
+    sortOrder: 2,
+  },
+  {
+    id: "00000000-0000-0000-0000-000000000103",
+    title: "Turn your favorite photo into 3D art.",
+    titleNl: "Maak van je favoriete foto een 3D-kunstwerk.",
+    subtext:
+      "Upload any picture and we print it layer by layer into a detailed, touchable relief painting.",
+    subtextNl:
+      "Upload een foto en wij printen hem laag voor laag tot een tastbaar schilderij met diepte.",
+    priceText: "3D Photo Painting",
+    priceTextNl: "3D Foto Schilderij",
+    mediaUrl: "/uploads/hero/snowflake.stl",
+    mediaType: "model3d",
+    instructionTooltip:
+      "Upload any photo in our configurator to preview layered optical relief and color blends.",
+    instructionTooltipNl:
+      "Upload je foto in onze configurator voor een voorbeeld van optische reliëflagen en kleurovergangen.",
+    titles: {
+      en: "Turn your favorite photo into 3D art.",
+      nl: "Maak van je favoriete foto een 3D-kunstwerk.",
+      tr: "En sevdiğiniz fotoğrafı 3D sanata dönüştürün.",
+      ru: "Превратите любимую фотографию в объемное 3D-искусство.",
+      ar: "حوّل صورتك المفضلة إلى عمل فني ثلاثي الأبعاد.",
+    },
+    subtexts: {
+      en: "Upload any picture and we print it layer by layer into a detailed, touchable relief painting.",
+      nl: "Upload een foto en wij printen hem laag voor laag tot een tastbaar schilderij met diepte.",
+      tr: "Herhangi bir fotoğrafı yükleyin, katman katman dokunulabilir ve detaylı bir kabartma tabloya dönüştürelim.",
+      ru: "Загрузите любое изображение, и мы напечатаем его слой за слоем в виде осязаемой рельефной картины.",
+      ar: "ارفع أي صورة وسنقوم بطباعتها طبقة تلو الأخرى إلى لوحة بارزة ملموسة ومليئة بالتفاصيل.",
+    },
+    priceTexts: {
+      en: "3D Photo Painting",
+      nl: "3D Foto Schilderij",
+      tr: "3D Fotoğraf Tablosu",
+      ru: "3D-картины по фото",
+      ar: "لوحات ثلاثية الأبعاد من الصور",
+    },
+    instructionTooltips: {
+      en: "Upload any photo in our configurator to preview layered optical relief and color blends.",
+      nl: "Upload je foto in onze configurator voor een voorbeeld van optische reliëflagen en kleurovergangen.",
+      tr: "Katmanlı optik rölyef ve renk geçişlerini önizlemek için konfigüratörümüze herhangi bir fotoğraf yükleyin.",
+      ru: "Загрузите фото в конфигуратор для предпросмотра оптических слоев рельефа и цветовых переходов.",
+      ar: "ارفع أي صورة في أداتنا لمعاينة الطبقات البصرية البارزة وتدرجات الألوان.",
+    },
+    isActive: true,
+    sortOrder: 3,
   },
 ];
 
@@ -238,7 +179,6 @@ export default function Hero() {
   });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [tooltipOpen, setTooltipOpen] = useState(false);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
   const timerRef = useRef<number | null>(null);
 
@@ -300,17 +240,22 @@ export default function Hero() {
 
   const slideTitle = getHeroSlideTitle(currentSlide, language);
   const slideSubtext = getHeroSlideSubtext(currentSlide, language);
-  const slidePrice = getHeroSlidePrice(currentSlide, language);
-  const slideTooltip = getHeroSlideTooltip(currentSlide, language);
+  const slideEyebrow = getHeroSlidePrice(currentSlide, language);
+
+  const primaryCtaPath =
+    currentIndex === 2
+      ? localizePath("/filament-painting")
+      : localizePath("/quote");
+
+  const primaryCtaText =
+    currentIndex === 2
+      ? t("hero.ctaPhoto")
+      : currentIndex === 1
+        ? t("hero.ctaStart")
+        : t("hero.ctaUpload");
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (totalSlides > 0 ? (prev + 1) % totalSlides : 0));
-  }, [totalSlides]);
-
-  const prevSlide = useCallback(() => {
-    setCurrentIndex((prev) =>
-      totalSlides > 0 ? (prev - 1 + totalSlides) % totalSlides : 0,
-    );
   }, [totalSlides]);
 
   const goToSlide = useCallback((index: number) => {
@@ -350,156 +295,67 @@ export default function Hero() {
   return (
     <section
       aria-label={t("hero.slideshowAria")}
-      className="relative w-full rounded-[2.2rem] overflow-hidden bg-gradient-to-br from-[#061e16] via-[#0b3326] to-[#041611] border border-emerald-500/25 shadow-[0_28px_60px_-15px_rgba(4,22,17,0.7)] text-white"
+      className="relative w-full rounded-[2.5rem] overflow-hidden bg-gradient-to-b from-[#071c15] via-[#05140f] to-[#030d0a] border border-emerald-500/20 shadow-[0_32px_64px_-16px_rgba(2,12,9,0.8)] text-white"
     >
-      {/* Background Accent Gradients & Glows */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none transform-gpu" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-400/15 rounded-full blur-2xl pointer-events-none transform-gpu" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[70%] bg-emerald-400/5 rounded-full blur-2xl pointer-events-none transform-gpu" />
+      {/* Background Accent Gradients */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none transform-gpu" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-400/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[65%] bg-emerald-400/5 rounded-full blur-3xl pointer-events-none transform-gpu" />
 
       {/* Main Split Layout Container */}
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center p-6 sm:p-10 lg:p-14">
-        {/* ================= LEFT SIDE: Text, Price, Tooltip, Actions ================= */}
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center py-16 md:py-24 px-6 sm:px-10 lg:px-16">
+        {/* ================= LEFT SIDE: Apple-Style Typography & Primary CTA ================= */}
         <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
-          {/* Top Tag & Indicator */}
+          {/* Eyebrow */}
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{t("hero.promotionalBadge")}</span>
-            </span>
-            <span className="text-xs font-mono text-emerald-200/60 tracking-wider">
-              {String(currentIndex + 1).padStart(2, "0")} /{" "}
-              {String(totalSlides).padStart(2, "0")}
+            <span className="text-xs sm:text-sm font-semibold tracking-wider uppercase text-emerald-400">
+              {slideEyebrow || t("hero.mainHeading")}
             </span>
           </div>
 
-          {/* Dynamic Slide Heading & Subtext from CMS */}
-          <div className="space-y-3">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.08] text-white">
+          {/* Dynamic Slide Heading & Subtext */}
+          <div className="space-y-4">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.08]">
               {slideTitle}
             </h1>
-            <p className="text-base sm:text-lg text-emerald-50/80 leading-relaxed max-w-xl font-normal">
+            <p className="text-lg sm:text-xl text-emerald-100/75 leading-relaxed max-w-xl font-normal">
               {slideSubtext}
             </p>
           </div>
 
-          {/* Price & Instruction Tooltip Accents */}
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1">
-            {/* Price Badge */}
-            {slidePrice ? (
-              <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-[#06241b] border border-emerald-500/40 text-emerald-300 shadow-inner">
-                <Tag className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="text-xs uppercase font-bold tracking-wider text-emerald-400/90">
-                  {t("hero.priceLabel")}
-                </span>
-                <span className="text-base sm:text-lg font-extrabold text-white">
-                  {slidePrice}
-                </span>
-              </div>
-            ) : null}
-
-            {/* Instruction Tooltip */}
-            {slideTooltip ? (
-              <div className="relative inline-flex items-center">
-                <button
-                  type="button"
-                  onClick={() => setTooltipOpen((prev) => !prev)}
-                  onMouseEnter={() => setTooltipOpen(true)}
-                  onMouseLeave={() => setTooltipOpen(false)}
-                  onFocus={() => setTooltipOpen(true)}
-                  onBlur={() => setTooltipOpen(false)}
-                  aria-label={t("hero.guideAria")}
-                  className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-emerald-100 bg-white/5 border border-emerald-500/25 hover:border-emerald-400/60 hover:bg-white/10 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
-                >
-                  <HelpCircle className="w-4 h-4 text-emerald-400" />
-                  <span>{t("hero.guideButton")}</span>
-                </button>
-
-                {/* Floating Tooltip Card */}
-                {tooltipOpen ? (
-                  <div
-                    role="tooltip"
-                    className="absolute left-0 bottom-full mb-3 w-72 sm:w-80 p-4 rounded-2xl bg-[#07241c] border border-emerald-400/40 shadow-[0_15px_30px_rgba(0,0,0,0.6)] text-xs text-emerald-50 z-50 animate-in fade-in zoom-in-95 duration-150"
-                  >
-                    <div className="flex items-center gap-2 pb-2 mb-2 border-b border-emerald-500/20 font-semibold text-emerald-300">
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>{t("hero.specsTitle")}</span>
-                    </div>
-                    <p className="leading-relaxed text-emerald-100/90">
-                      {slideTooltip}
-                    </p>
-                    {/* Tooltip caret */}
-                    <div className="absolute left-6 -bottom-1.5 w-3 h-3 bg-[#07241c] border-r border-b border-emerald-400/40 rotate-45" />
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-4 pt-2">
+          {/* Actions: 1 pill button + 1 simple text link */}
+          <div className="flex flex-wrap items-center gap-6 pt-3">
             <Link
-              to={localizePath("/checkout")}
-              className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl font-bold text-sm bg-gradient-to-r from-emerald-500 to-teal-400 text-gray-950 hover:from-emerald-400 hover:to-teal-300 shadow-[0_8px_20px_rgba(16,185,129,0.35)] transition-transform transition-colors hover:scale-[1.02] active:scale-[0.98]"
+              to={primaryCtaPath}
+              className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 font-semibold text-sm sm:text-base bg-emerald-400 text-gray-950 hover:bg-emerald-300 transition-all shadow-lg hover:shadow-emerald-500/25 active:scale-[0.98]"
             >
-              <span>{t("hero.ctaQuote")}</span>
+              <span>{primaryCtaText}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link
-              to={localizePath("/faq")}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-semibold text-sm bg-white/10 hover:bg-white/15 border border-white/20 text-white transition-transform transition-colors hover:scale-[1.02]"
-            >
-              <span>{t("hero.viewFaq")}</span>
-            </Link>
-          </div>
 
-          {/* Feature Badges Row */}
-          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-emerald-500/15 max-w-lg">
-            <div className="flex items-center gap-2 text-xs text-emerald-100/80">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>{t("hero.leadTimeBadge")}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-emerald-100/80">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>{t("hero.precisionBadge")}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-emerald-100/80">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>{t("hero.materialsBadge")}</span>
-            </div>
+            <a
+              href="#solutions"
+              className="inline-flex items-center gap-1.5 text-sm sm:text-base font-medium text-emerald-300 hover:text-white transition-colors"
+            >
+              <span>{t("hero.seeExamples")}</span>
+            </a>
           </div>
         </div>
 
-        {/* ================= RIGHT SIDE: Dynamic Media Container ================= */}
+        {/* ================= RIGHT SIDE: Clean 3D Model Display ================= */}
         <div className="lg:col-span-5 flex flex-col items-center justify-center">
           <div
-            className="relative w-full h-[340px] sm:h-[400px] lg:h-[450px] rounded-3xl overflow-hidden border border-emerald-500/30 bg-gradient-to-b from-[#08231b] to-[#03130e] shadow-[0_20px_50px_rgba(0,0,0,0.55)] flex items-center justify-center group"
+            className="relative w-full h-[360px] sm:h-[420px] lg:h-[480px] rounded-3xl overflow-hidden bg-white/[0.02] border border-white/10 flex items-center justify-center group"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
             onPointerDown={handleInteractionStart}
             onPointerUp={handleInteractionEnd}
           >
             {/* Ambient Media Aura */}
-            <div className="absolute inset-8 rounded-full bg-emerald-400/15 blur-xl pointer-events-none transform-gpu" />
-
-            {/* Media Type Tag Badge */}
-            <div className="absolute top-4 right-4 z-40">
-              {currentSlide.mediaType === "model3d" ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/85 border border-emerald-400/40 text-emerald-300 backdrop-blur-md shadow-lg">
-                  <Box className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{t("hero.interactive3d")}</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-950/85 border border-teal-400/40 text-teal-300 backdrop-blur-md shadow-lg">
-                  <ImageIcon className="w-3.5 h-3.5 text-teal-400" />
-                  <span>{t("hero.featuredImage")}</span>
-                </span>
-              )}
-            </div>
+            <div className="absolute inset-8 rounded-full bg-emerald-400/10 blur-2xl pointer-events-none transform-gpu" />
 
             {/* CONDITIONAL MEDIA RENDERING */}
-            {/* 3D Canvas rendering (Three.js) - only mounted for 3D slides to defer heavy Three.js execution */}
-            {currentSlide.mediaType === "model3d" && (
+            {currentSlide.mediaType === "model3d" ? (
               <div className="relative w-full h-full flex items-center justify-center">
                 <Suspense
                   fallback={
@@ -517,19 +373,16 @@ export default function Hero() {
                   />
                 </Suspense>
 
-                {/* 3D Interactive Instruction Tag */}
+                {/* Subtle Interactive Instruction */}
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/60 text-emerald-200/90 border border-emerald-500/20 backdrop-blur-md shadow-sm">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/40 text-emerald-200/80 backdrop-blur-md border border-white/10">
                     <RotateCcw className="w-3 h-3 text-emerald-400" />
                     <span>{t("hero.dragToRotate")}</span>
                   </span>
                 </div>
               </div>
-            )}
-
-            {/* Image rendering for non-3D slides */}
-            {currentSlide.mediaType !== "model3d" && (
-              <div className="relative w-full h-full flex items-center justify-center p-4">
+            ) : (
+              <div className="relative w-full h-full flex items-center justify-center p-6">
                 {!imageError[currentSlide.id] ? (
                   <img
                     key={currentSlide.id + currentSlide.mediaUrl}
@@ -543,11 +396,10 @@ export default function Hero() {
                         [currentSlide.id]: true,
                       }))
                     }
-                    className="w-full h-full object-contain rounded-2xl drop-shadow-[0_12px_24px_rgba(0,0,0,0.6)] select-none transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-contain drop-shadow-[0_16px_32px_rgba(0,0,0,0.5)] select-none transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 bg-emerald-950/40 rounded-2xl border border-emerald-500/20 text-emerald-200 space-y-3">
-                    <ImageIcon className="w-12 h-12 text-emerald-400/60" />
+                  <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 text-emerald-200 space-y-3">
                     <p className="text-sm font-semibold text-white">
                       {slideTitle}
                     </p>
@@ -562,70 +414,31 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ================= BOTTOM BAR: Stationary Controls ================= */}
-      <div className="relative z-20 grid grid-cols-3 items-center px-6 sm:px-10 lg:px-14 pb-6 pt-3 border-t border-emerald-500/15">
-        {/* Navigation Arrows (Fixed Left) */}
-        <div className="flex items-center gap-2 justify-self-start">
-          <button
-            type="button"
-            onClick={prevSlide}
-            aria-label={t("hero.prevSlideAria")}
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/40 text-emerald-200 transition-colors cursor-pointer"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={nextSlide}
-            aria-label={t("hero.nextSlideAria")}
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/40 text-emerald-200 transition-colors cursor-pointer"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Clickable Navigation Dots / Boliens (Strictly Centered & Fixed Position) */}
-        <div
-          className="flex items-center justify-center gap-2.5 justify-self-center"
-          role="tablist"
-          aria-label={t("hero.paginationAria")}
-        >
-          {slides.map((slide, idx) => {
-            const isActive = idx === currentIndex;
-            const slideItemTitle = getHeroSlideTitle(slide, language);
-            return (
-              <button
-                key={slide.id || idx}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
-                onClick={() => goToSlide(idx)}
-                className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
-              >
-                <span
-                  className={`block h-2.5 w-8 rounded-full transition-transform transition-opacity duration-300 origin-center will-change-transform ${
-                    isActive
-                      ? "scale-x-100 bg-gradient-to-r from-emerald-400 to-teal-300 shadow-sm opacity-100"
-                      : "scale-x-[0.3125] bg-white/40 hover:bg-white/70 opacity-60"
-                  }`}
-                />
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Status indicator (Fixed Right, never pushes middle dots) */}
-        <div className="flex items-center justify-end gap-2 text-[11px] font-medium text-emerald-200/60 justify-self-end w-28">
-          <span
-            className={`w-2 h-2 rounded-full shrink-0 ${
-              isPaused ? "bg-amber-400" : "bg-emerald-400 animate-pulse"
-            }`}
-          />
-          <span className="text-right">
-            {isPaused ? t("hero.paused") : t("hero.auto")}
-          </span>
-        </div>
+      {/* ================= BOTTOM BAR: Minimal Pagination Dots ================= */}
+      <div className="relative z-20 flex items-center justify-center gap-2.5 pb-8">
+        {slides.map((slide, idx) => {
+          const isActive = idx === currentIndex;
+          const slideItemTitle = getHeroSlideTitle(slide, language);
+          return (
+            <button
+              key={slide.id || idx}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
+              onClick={() => goToSlide(idx)}
+              className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
+            >
+              <span
+                className={`block h-2 rounded-full transition-all duration-300 ${
+                  isActive
+                    ? "w-8 bg-emerald-400 opacity-100 shadow-sm"
+                    : "w-2 bg-white/40 hover:bg-white/70 opacity-60"
+                }`}
+              />
+            </button>
+          );
+        })}
       </div>
     </section>
   );

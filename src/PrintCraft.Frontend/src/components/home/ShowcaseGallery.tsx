@@ -6,58 +6,72 @@ const pieces = [
     title: "home.showcase.partTitle",
     tag: "home.showcase.partTag",
     icon: Box,
-    tone: "from-emerald-900 to-teal-600",
+    tone: "from-[#08221b] via-[#051712] to-[#020b08]",
+    accent: "text-emerald-400",
+    badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
   },
   {
     title: "home.showcase.prototypeTitle",
     tag: "home.showcase.prototypeTag",
     icon: Sparkles,
-    tone: "from-slate-900 to-cyan-700",
+    tone: "from-[#091b29] via-[#05111c] to-[#02080e]",
+    accent: "text-sky-400",
+    badge: "bg-sky-500/20 text-sky-300 border-sky-500/30",
   },
   {
     title: "home.showcase.caseTitle",
     tag: "home.showcase.caseTag",
     icon: ShieldCheck,
-    tone: "from-amber-900 to-orange-600",
+    tone: "from-[#24170a] via-[#170e06] to-[#0c0702]",
+    accent: "text-amber-400",
+    badge: "bg-amber-500/20 text-amber-300 border-amber-500/30",
   },
   {
     title: "home.showcase.detailTitle",
     tag: "home.showcase.detailTag",
     icon: Layers3,
-    tone: "from-stone-900 to-rose-700",
+    tone: "from-[#1d0e24] via-[#120817] to-[#09040c]",
+    accent: "text-purple-400",
+    badge: "bg-purple-500/20 text-purple-300 border-purple-500/30",
   },
 ] as const;
 
 export default function ShowcaseGallery() {
   const { t } = useI18n();
+
   return (
-    <section className="space-y-6">
-      <div className="flex flex-col justify-between gap-3 md:flex-row md:items-end">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-700">
+    <section id="showcase" className="space-y-8 sm:space-y-10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600">
             {t("home.showcase.eyebrow")}
           </p>
-          <h2 className="site-heading mt-2 text-4xl font-black">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950">
             {t("home.showcase.title")}
           </h2>
         </div>
-        <p className="max-w-md text-sm leading-6 text-[#5f736d]">
+        <p className="max-w-md text-base text-gray-600 leading-relaxed">
           {t("home.showcase.subtitle")}
         </p>
       </div>
-      <div className="grid auto-cols-[minmax(240px,1fr)] grid-flow-col gap-4 overflow-x-auto pb-3 sm:grid-flow-row sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible">
-        {pieces.map(({ title, tag, icon: Icon, tone }) => (
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {pieces.map(({ title, tag, icon: Icon, tone, accent, badge }) => (
           <article
             key={title}
-            className={`group relative min-w-0 min-h-64 overflow-hidden rounded-2xl bg-gradient-to-br ${tone} p-5 text-white shadow-lg transition-transform duration-200 hover:-translate-y-1`}
+            className={`group relative min-h-[280px] overflow-hidden rounded-3xl bg-gradient-to-b ${tone} p-8 text-white border border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between`}
           >
-            <div className="absolute -right-8 -top-8 h-36 w-36 rounded-full border-[18px] border-white/10 pointer-events-none" />
-            <Icon size={32} className="relative text-white/80" />
-            <div className="relative mt-24">
-              <span className="inline-block rounded-full bg-white/20 border border-white/20 px-3 py-1 text-xs font-bold">
+            <div className="flex items-center justify-between">
+              <span className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${badge}`}>
                 {t(tag)}
               </span>
-              <h3 className="mt-3 text-xl font-black break-words hyphens-auto [overflow-wrap:anywhere]">{t(title)}</h3>
+              <Icon className={`w-6 h-6 ${accent} group-hover:scale-110 transition-transform`} />
+            </div>
+
+            <div className="pt-12 space-y-2">
+              <h3 className="text-xl font-bold text-white tracking-tight leading-snug">
+                {t(title)}
+              </h3>
             </div>
           </article>
         ))}

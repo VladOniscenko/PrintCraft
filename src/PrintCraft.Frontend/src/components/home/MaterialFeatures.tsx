@@ -1,4 +1,4 @@
-import { Ban, Bolt, CircleDot } from "lucide-react";
+import { Bolt, CircleDot, Waves } from "lucide-react";
 import { useI18n } from "../../i18n/I18nContext";
 
 const materials = [
@@ -7,48 +7,69 @@ const materials = [
     label: "home.materials.plaTitle",
     text: "home.materials.plaText",
     icon: CircleDot,
-    color: "bg-emerald-50 text-emerald-950 border-emerald-300",
+    badgeColor: "bg-emerald-100 text-emerald-800",
+    hoverBorder: "hover:border-emerald-300",
   },
   {
     name: "PETG",
     label: "home.materials.petgTitle",
     text: "home.materials.petgText",
     icon: Bolt,
-    color: "bg-sky-50 text-sky-950 border-sky-300",
+    badgeColor: "bg-sky-100 text-sky-800",
+    hoverBorder: "hover:border-sky-300",
   },
   {
     name: "TPU",
     label: "home.materials.tpuTitle",
     text: "home.materials.tpuText",
-    icon: Ban,
-    color: "bg-amber-50 text-amber-950 border-amber-300",
+    icon: Waves,
+    badgeColor: "bg-amber-100 text-amber-800",
+    hoverBorder: "hover:border-amber-300",
   },
 ] as const;
 
 export default function MaterialFeatures() {
   const { t } = useI18n();
+
   return (
-    <section className="rounded-[2rem] bg-[#102b25] p-6 text-white sm:p-10">
-      <div className="max-w-xl">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">
+    <section id="materials" className="space-y-8 sm:space-y-10">
+      <div className="text-center max-w-2xl mx-auto space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600">
           {t("home.materials.eyebrow")}
         </p>
-        <h2 className="mt-2 text-4xl font-black">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-950">
           {t("home.materials.title")}
         </h2>
-        <p className="mt-3 text-sm leading-6 text-white/65">
+        <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
           {t("home.materials.subtitle")}
         </p>
       </div>
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
-        {materials.map(({ name, label, text, icon: Icon, color }) => (
-          <article key={name} className={`rounded-2xl border p-5 ${color}`}>
-            <Icon size={25} />
-            <p className="mt-6 text-xs font-black uppercase tracking-widest">
-              {name}
-            </p>
-            <h3 className="mt-1 text-xl font-black">{t(label)}</h3>
-            <p className="mt-3 text-sm leading-6 font-medium">{t(text)}</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        {materials.map(({ name, label, text, icon: Icon, badgeColor, hoverBorder }) => (
+          <article
+            key={name}
+            className={`flex flex-col justify-between p-8 rounded-3xl bg-white border border-gray-200/80 ${hoverBorder} hover:shadow-xl transition-all duration-300 group`}
+          >
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <span className={`text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full ${badgeColor}`}>
+                  {name}
+                </span>
+                <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-700 group-hover:scale-110 transition-transform">
+                  <Icon className="w-6 h-6" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-gray-950 tracking-tight">
+                  {t(label)}
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {t(text)}
+                </p>
+              </div>
+            </div>
           </article>
         ))}
       </div>
