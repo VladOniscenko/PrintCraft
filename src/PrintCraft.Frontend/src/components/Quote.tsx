@@ -366,6 +366,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
   const new3dFileInputRef = useRef<HTMLInputElement | null>(null);
   const newPaintingImageInputRef = useRef<HTMLInputElement | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const submittedRef = useRef(false);
@@ -986,7 +987,13 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     itemIndex: number,
     isReplacement: boolean = false,
   ) => {
-    if (selectedFiles.length === 0) return;
+    if (selectedFiles.length === 0) {
+      if (items.length === 0) {
+        setEditingItemIndex(null);
+      }
+      setIsProcessing(false);
+      return;
+    }
 
     const nonModelFiles: File[] = [];
     const validModelFiles: File[] = [];
@@ -1004,10 +1011,20 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
       notifyError(t("quote.errorOnly3dFiles"));
     }
 
-    if (validModelFiles.length === 0) return;
+    if (validModelFiles.length === 0) {
+      if (items.length === 0) {
+        setEditingItemIndex(null);
+      }
+      setIsProcessing(false);
+      return;
+    }
 
     if (items[itemIndex]?.uploadType === "filament-painting") {
       notifyError(t("quote.errorPaintingBundleLocked"));
+      if (items.length === 0) {
+        setEditingItemIndex(null);
+      }
+      setIsProcessing(false);
       return;
     }
 
@@ -1024,6 +1041,10 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     const remainingSlots = MAX_FILES_PER_ITEM - currentFileCount;
     if (remainingSlots <= 0) {
       notifyError(t("quote.errorMaxFilesPerItem", { max: MAX_FILES_PER_ITEM }));
+      if (items.length === 0) {
+        setEditingItemIndex(null);
+      }
+      setIsProcessing(false);
       return;
     }
 
@@ -1059,9 +1080,16 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
       );
     }
 
-    if (filesToUpload.length === 0) return;
+    if (filesToUpload.length === 0) {
+      if (items.length === 0) {
+        setEditingItemIndex(null);
+      }
+      setIsProcessing(false);
+      return;
+    }
 
     setIsUploading(true);
+    setIsProcessing(true);
     let failedCount = 0;
     let firstErrorMessage: string | null = null;
     let detectedDimensions: { x: number; y: number; z: number } | null = null;
@@ -1108,9 +1136,13 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
       }
 
       if (!detectedDimensions && uploadedEntries.length > 0) {
-        detectedDimensions = await detectModelDimensions(
-          uploadedEntries[0].file,
-        );
+        try {
+          detectedDimensions = await detectModelDimensions(
+            uploadedEntries[0].file,
+          );
+        } catch (dimErr) {
+          console.warn("Failed to detect model dimensions:", dimErr);
+        }
       }
 
       if (uploadedEntries.length > 0) {
@@ -1204,8 +1236,18 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
           notifyError(firstErrorMessage || t("quote.uploadFailed"));
         }
       }
+    } catch (err: any) {
+      console.error("Upload/processing failed:", err);
+      notifyError(err?.message || t("quote.uploadFailed"));
     } finally {
       setIsUploading(false);
+      setIsProcessing(false);
+      setItems((latest) => {
+        if (latest.length === 0 || !latest[itemIndex]) {
+          setEditingItemIndex(null);
+        }
+        return latest;
+      });
     }
   };
 
@@ -1213,9 +1255,11 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     e: React.ChangeEvent<HTMLInputElement>,
     itemIndex: number,
   ) => {
+    if (isUploading || isProcessing) return;
     const selectedFiles = Array.from(e.target.files ?? []);
     if (selectedFiles.length === 0) return;
     e.target.value = "";
+    setIsProcessing(true);
     await uploadSelectedFilesForItem(selectedFiles, itemIndex, true);
     notifySuccess(t("quote.successFileReplaced"));
   };
@@ -1364,14 +1408,17 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     e: React.ChangeEvent<HTMLInputElement>,
     itemIndex: number,
   ) => {
+    if (isUploading || isProcessing) return;
     const selectedFiles = Array.from(e.target.files ?? []);
-    await uploadSelectedFilesForItem(selectedFiles, itemIndex);
+    if (selectedFiles.length === 0) return;
     e.target.value = "";
+    setIsProcessing(true);
+    await uploadSelectedFilesForItem(selectedFiles, itemIndex);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    if (!isUploading) {
+    if (!isUploading && !isProcessing) {
       setIsDragOver(true);
     }
   };
@@ -1387,9 +1434,11 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
   ) => {
     e.preventDefault();
     setIsDragOver(false);
-    if (isUploading) return;
+    if (isUploading || isProcessing) return;
 
     const droppedFiles = Array.from(e.dataTransfer.files ?? []);
+    if (droppedFiles.length === 0) return;
+    setIsProcessing(true);
     await uploadSelectedFilesForItem(droppedFiles, itemIndex);
   };
 
@@ -1994,14 +2043,17 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                   accept={ALLOWED_UPLOAD_ACCEPT}
                   className="hidden"
                   onChange={async (e) => {
+                    if (isUploading || isProcessing) return;
                     const selectedFiles = Array.from(e.target.files ?? []);
                     if (selectedFiles.length === 0) return;
                     e.target.value = "";
                     setShowAddItemChoiceModal(false);
                     const newIndex = items.length;
+                    setIsProcessing(true);
                     setEditingItemIndex(newIndex);
                     await uploadSelectedFilesForItem(selectedFiles, newIndex);
                   }}
+                  disabled={isUploading || isProcessing}
                 />
 
                 {/* Hidden File Input for adding 2D images for HueForge filament painting */}
@@ -2011,12 +2063,14 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                   accept="image/png,image/jpeg,image/webp"
                   className="hidden"
                   onChange={(e) => {
+                    if (isUploading || isProcessing) return;
                     const file = e.target.files?.[0];
                     if (file) {
                       openFilamentPaintingCreator(file);
                     }
                     e.target.value = "";
                   }}
+                  disabled={isUploading || isProcessing}
                 />
 
                 {/* Active Creator Panel: HueForge Filament Painting */}
@@ -2075,110 +2129,158 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                 )}
 
                 {/* Dual-Option Starter View when no items are added yet */}
-                {items.length === 0 && !activeCreatorFlow && editingItemIndex === null && (
-                  <div className="space-y-6 my-2">
-                    <div className="text-center py-2 max-w-md mx-auto">
-                      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        {t("quote.startOrderQuestion")}
-                      </h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                        {t("quote.startOrderSubtitle")}
-                      </p>
+                {items.length === 0 && !activeCreatorFlow && (editingItemIndex === null || isProcessing) && (
+                  isProcessing ? (
+                    <div className="rounded-3xl border border-emerald-600/30 dark:border-emerald-500/30 bg-white dark:bg-[#0e1512] p-10 sm:p-14 text-center transition-all flex flex-col items-center justify-center shadow-md my-4 space-y-5 animate-in fade-in duration-200">
+                      <div className="relative">
+                        <div className="w-16 h-16 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/50 flex items-center justify-center shadow-xs">
+                          <Loader2 className="w-8 h-8 animate-spin text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                      </div>
+                      <div className="max-w-md space-y-2">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40 text-[11px] font-bold uppercase tracking-wider">
+                          <Layers size={13} className="text-emerald-600 dark:text-emerald-400 animate-pulse" />
+                          <span>{t("quote.uploadProcessingAnalyzing")}</span>
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                          {t("quote.uploadProcessingTitle")}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                          {t("quote.uploadProcessingSubtitle")}
+                        </p>
+                      </div>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Path 1: 3D CAD Print / Custom Quote Dropzone */}
-                      <div
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={async (e) => {
-                          e.preventDefault();
-                          setIsDragOver(false);
-                          if (isUploading) return;
-                          const droppedFiles = Array.from(e.dataTransfer.files ?? []);
-                          if (droppedFiles.length === 0) return;
-                          setEditingItemIndex(0);
-                          await uploadSelectedFilesForItem(droppedFiles, 0);
-                        }}
-                        className={`rounded-3xl border bg-white dark:bg-[#0e1512] p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm ${
-                          isDragOver
-                            ? "border-emerald-600 dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 scale-[0.99]"
-                            : "border-gray-200/80 dark:border-white/10"
-                        } ${isUploading ? "opacity-70" : ""}`}
-                      >
-                        <div>
-                          <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/10 text-[#133827] dark:text-emerald-400 border border-gray-200/60 dark:border-white/10 flex items-center justify-center mx-auto mb-4 shadow-2xs">
-                            <Layers size={26} />
-                          </div>
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 text-[11px] font-bold uppercase mb-2">
-                            {t("quote.badgeCadPrint")}
-                          </div>
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                            {t("quote.startPath3dTitle")}
-                          </h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
-                            {t("quote.startPath3dSubtitle")}
-                          </p>
-                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 font-medium">
-                            {t("quote.allowedFilesInline")}
-                          </p>
-                        </div>
-
-                        <div className="mt-8 flex justify-center">
-                          <label className="cursor-pointer bg-[#133827] dark:bg-emerald-600 text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-[#0f2d1f] dark:hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-xs">
-                            {isUploading ? (
-                              <Loader2 className="animate-spin" size={16} />
-                            ) : (
-                              <Upload size={16} />
-                            )}
-                            <span>{t("quote.browse3dModelFiles")}</span>
-                            <input
-                              type="file"
-                              multiple
-                              accept={ALLOWED_UPLOAD_ACCEPT}
-                              className="hidden"
-                              onChange={async (e) => {
-                                const selectedFiles = Array.from(e.target.files ?? []);
-                                if (selectedFiles.length === 0) return;
-                                e.target.value = "";
-                                setEditingItemIndex(0);
-                                await uploadSelectedFilesForItem(selectedFiles, 0);
-                              }}
-                              disabled={isUploading}
-                            />
-                          </label>
-                        </div>
+                  ) : (
+                    <div className="space-y-6 my-2">
+                      <div className="text-center py-2 max-w-md mx-auto">
+                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                          {t("quote.startOrderQuestion")}
+                        </h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                          {t("quote.startOrderSubtitle")}
+                        </p>
                       </div>
 
-                      {/* Path 2: HueForge Filament Painting */}
-                      <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm">
-                        <div>
-                          <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center mx-auto mb-4 shadow-2xs">
-                            <Sparkles size={26} />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Path 1: 3D CAD Print / Custom Quote Dropzone */}
+                        <div
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={async (e) => {
+                            e.preventDefault();
+                            setIsDragOver(false);
+                            if (isUploading || isProcessing) return;
+                            const droppedFiles = Array.from(e.dataTransfer.files ?? []);
+                            if (droppedFiles.length === 0) return;
+                            setIsProcessing(true);
+                            setEditingItemIndex(0);
+                            await uploadSelectedFilesForItem(droppedFiles, 0);
+                          }}
+                          className={`rounded-3xl border bg-white dark:bg-[#0e1512] p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm ${
+                            isDragOver
+                              ? "border-emerald-600 dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 scale-[0.99]"
+                              : "border-gray-200/80 dark:border-white/10"
+                          } ${isUploading || isProcessing ? "opacity-70 pointer-events-none" : ""}`}
+                        >
+                          <div>
+                            <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/10 text-[#133827] dark:text-emerald-400 border border-gray-200/60 dark:border-white/10 flex items-center justify-center mx-auto mb-4 shadow-2xs">
+                              <Layers size={26} />
+                            </div>
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 text-[11px] font-bold uppercase mb-2">
+                              {t("quote.badgeCadPrint")}
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                              {t("quote.startPath3dTitle")}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
+                              {t("quote.startPath3dSubtitle")}
+                            </p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 font-medium">
+                              {t("quote.allowedFilesInline")}
+                            </p>
                           </div>
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 text-[11px] font-bold uppercase mb-2">
-                            <Sparkles size={12} className="text-emerald-700 dark:text-emerald-400" />
-                            HueForge
+
+                          <div className="mt-8 flex justify-center">
+                            <label className={`bg-[#133827] dark:bg-emerald-600 text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-[#0f2d1f] dark:hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-xs ${isUploading || isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}>
+                              {isUploading || isProcessing ? (
+                                <Loader2 className="animate-spin" size={16} />
+                              ) : (
+                                <Upload size={16} />
+                              )}
+                              <span>{t("quote.browse3dModelFiles")}</span>
+                              <input
+                                type="file"
+                                multiple
+                                accept={ALLOWED_UPLOAD_ACCEPT}
+                                className="hidden"
+                                onChange={async (e) => {
+                                  if (isUploading || isProcessing) return;
+                                  const selectedFiles = Array.from(e.target.files ?? []);
+                                  if (selectedFiles.length === 0) return;
+                                  e.target.value = "";
+                                  setIsProcessing(true);
+                                  setEditingItemIndex(0);
+                                  await uploadSelectedFilesForItem(selectedFiles, 0);
+                                }}
+                                disabled={isUploading || isProcessing}
+                              />
+                            </label>
                           </div>
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                            {t("quote.startPathPaintingTitle")}
-                          </h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
-                            {t("quote.startPathPaintingSubtitle")}
-                          </p>
                         </div>
 
-                        <div className="mt-8 flex justify-center">
-                          <button
-                            type="button"
-                            onClick={() => openFilamentPaintingCreator()}
-                            className="bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10 px-8 py-3.5 rounded-full text-sm font-semibold transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
-                          >
-                            <Sparkles size={16} className="text-emerald-700 dark:text-emerald-400" />
-                            <span>{t("quote.createFilamentPainting")}</span>
-                          </button>
+                        {/* Path 2: HueForge Filament Painting */}
+                        <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm">
+                          <div>
+                            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center mx-auto mb-4 shadow-2xs">
+                              <Sparkles size={26} />
+                            </div>
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 text-[11px] font-bold uppercase mb-2">
+                              <Sparkles size={12} className="text-emerald-700 dark:text-emerald-400" />
+                              HueForge
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                              {t("quote.startPathPaintingTitle")}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
+                              {t("quote.startPathPaintingSubtitle")}
+                            </p>
+                          </div>
+
+                          <div className="mt-8 flex justify-center">
+                            <button
+                              type="button"
+                              onClick={() => openFilamentPaintingCreator()}
+                              className="bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10 px-8 py-3.5 rounded-full text-sm font-semibold transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
+                            >
+                              <Sparkles size={16} className="text-emerald-700 dark:text-emerald-400" />
+                              <span>{t("quote.createFilamentPainting")}</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
+                    </div>
+                  )
+                )}
+
+                {/* Loading state when adding a new item before it exists in items array */}
+                {items.length > 0 && !activeCreatorFlow && editingItemIndex !== null && !items[editingItemIndex] && isProcessing && (
+                  <div className="rounded-3xl border border-emerald-600/30 dark:border-emerald-500/30 bg-white dark:bg-[#0e1512] p-10 sm:p-14 text-center transition-all flex flex-col items-center justify-center shadow-md my-4 space-y-5 animate-in fade-in duration-200">
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/50 flex items-center justify-center shadow-xs">
+                        <Loader2 className="w-8 h-8 animate-spin text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                    </div>
+                    <div className="max-w-md space-y-2">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40 text-[11px] font-bold uppercase tracking-wider">
+                        <Layers size={13} className="text-emerald-600 dark:text-emerald-400 animate-pulse" />
+                        <span>{t("quote.uploadProcessingAnalyzing")}</span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                        {t("quote.uploadProcessingTitle")}
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {t("quote.uploadProcessingSubtitle")}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -2192,7 +2294,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
 
                   return (
                     <div
-                      className="p-6 sm:p-8 md:p-10 border border-gray-200/80 dark:border-white/10 rounded-3xl bg-white dark:bg-[#0e1512] shadow-xs space-y-7"
+                      className="relative p-6 sm:p-8 md:p-10 border border-gray-200/80 dark:border-white/10 rounded-3xl bg-white dark:bg-[#0e1512] shadow-xs space-y-7"
                       {...(!isPainting
                         ? {
                             onDragOver: handleDragOver,
@@ -2201,6 +2303,24 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                           }
                         : {})}
                     >
+                      {/* Loading Overlay when uploading/processing within existing item */}
+                      {isProcessing && (
+                        <div className="absolute inset-0 z-20 rounded-3xl bg-white/85 dark:bg-[#0e1512]/90 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-150">
+                          <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/50 flex items-center justify-center shadow-xs mb-4">
+                            <Loader2 className="w-7 h-7 animate-spin text-emerald-600 dark:text-emerald-400" />
+                          </div>
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40 text-[11px] font-bold uppercase tracking-wider mb-2">
+                            <Layers size={13} className="text-emerald-600 dark:text-emerald-400 animate-pulse" />
+                            <span>{t("quote.uploadProcessingAnalyzing")}</span>
+                          </div>
+                          <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                            {t("quote.uploadProcessingTitle")}
+                          </h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm">
+                            {t("quote.uploadProcessingSubtitle")}
+                          </p>
+                        </div>
+                      )}
                       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-gray-100 dark:border-white/10 pb-5">
                         <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
                           <span className="font-extrabold text-gray-900 dark:text-white text-xl truncate">
@@ -2221,8 +2341,8 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                         <div className="flex items-center gap-2.5">
                           {!isPainting && (
                             hasFiles ? (
-                              <label className="cursor-pointer bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-colors flex items-center gap-1.5 border border-gray-200 dark:border-white/10 shadow-2xs">
-                                {isUploading ? (
+                              <label className={`cursor-pointer bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-colors flex items-center gap-1.5 border border-gray-200 dark:border-white/10 shadow-2xs ${isUploading || isProcessing ? "opacity-50 pointer-events-none" : ""}`}>
+                                {isUploading || isProcessing ? (
                                   <Loader2 className="animate-spin" size={15} />
                                 ) : (
                                   <RefreshCw size={15} />
@@ -2234,12 +2354,12 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                                   accept={ALLOWED_UPLOAD_ACCEPT}
                                   className="hidden"
                                   onChange={(e) => handleReplaceFile(e, idx)}
-                                  disabled={isUploading}
+                                  disabled={isUploading || isProcessing}
                                 />
                               </label>
                             ) : (
-                              <label className="cursor-pointer bg-white dark:bg-white/5 text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-200 px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-colors flex items-center gap-1.5 border border-gray-200 dark:border-white/10 shadow-2xs">
-                                {isUploading ? (
+                              <label className={`cursor-pointer bg-white dark:bg-white/5 text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-200 px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-colors flex items-center gap-1.5 border border-gray-200 dark:border-white/10 shadow-2xs ${isUploading || isProcessing ? "opacity-50 pointer-events-none" : ""}`}>
+                                {isUploading || isProcessing ? (
                                   <Loader2 className="animate-spin" size={15} />
                                 ) : (
                                   <Plus size={15} />
@@ -2251,7 +2371,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                                   accept={ALLOWED_UPLOAD_ACCEPT}
                                   className="hidden"
                                   onChange={(e) => handleFileUpload(e, idx)}
-                                  disabled={isUploading}
+                                  disabled={isUploading || isProcessing}
                                 />
                               </label>
                             )
