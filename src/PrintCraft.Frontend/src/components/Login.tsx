@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./logos/Logo";
+import ThemeToggle from "./ThemeToggle";
 import api from "../services/api"; // Import your axios service
 import { useI18n } from "../i18n/I18nContext";
 
@@ -72,20 +73,23 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-white dark:bg-[#070b09] text-gray-900 dark:text-gray-100 flex transition-colors">
       {/* Left Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 md:px-24">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 md:px-24 py-12">
         <div className="max-w-md w-full mx-auto">
-          <Logo />
+          <div className="flex items-center justify-between mb-8">
+            <Logo />
+            <ThemeToggle />
+          </div>
 
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             {t("login.welcome")}
           </h2>
-          <p className="text-gray-500 mb-8">{t("login.subtitle")}</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">{t("login.subtitle")}</p>
 
           {/* Error Alert */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-700 rounded-lg flex items-center gap-2 text-sm">
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 text-red-700 dark:text-red-300 rounded-lg flex items-center gap-2 text-sm">
               <AlertCircle size={18} />
               {error}
             </div>
@@ -95,13 +99,13 @@ export default function Login() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 {t("login.email")}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail size={18} className="text-gray-400" />
+                  <Mail size={18} className="text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   id="email"
@@ -111,7 +115,7 @@ export default function Login() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-2.5 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:focus:border-emerald-400 outline-none transition-all sm:text-sm"
                   placeholder={t("login.emailPlaceholder")}
                 />
               </div>
@@ -120,13 +124,13 @@ export default function Login() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 {t("login.password")}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock size={18} className="text-gray-400" />
+                  <Lock size={18} className="text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   id="password"
@@ -136,7 +140,7 @@ export default function Login() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-2.5 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:focus:border-emerald-400 outline-none transition-all sm:text-sm"
                   placeholder={t("login.passwordPlaceholder")}
                 />
               </div>
@@ -147,18 +151,18 @@ export default function Login() {
                 <input
                   id="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 dark:border-white/20 dark:bg-white/5 rounded"
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-700"
+                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
                 >
                   {t("login.remember")}
                 </label>
               </div>
               <Link
                 to={localizePath("/forgot-password")}
-                className="text-sm font-medium text-emerald-700 hover:text-emerald-600"
+                className="text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300"
               >
                 {t("login.forgot")}
               </Link>
@@ -167,7 +171,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-[#133827] hover:bg-[#1c4d37] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors mt-6 disabled:opacity-70"
+              className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-[#133827] dark:bg-emerald-600 hover:bg-[#1c4d37] dark:hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors mt-6 disabled:opacity-70 cursor-pointer"
             >
               {loading ? (
                 <Loader2 className="animate-spin" size={20} />
@@ -179,11 +183,11 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-gray-600">
+          <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
             {t("login.noAccount")}{" "}
             <Link
               to={localizePath("/signup")}
-              className="font-semibold text-emerald-700 hover:text-emerald-600 transition-colors"
+              className="font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors"
             >
               {t("login.signUpFree")}
             </Link>
@@ -192,7 +196,7 @@ export default function Login() {
       </div>
 
       {/* Right Side - Visual Branding */}
-      <div className="hidden lg:flex w-1/2 bg-[#133827] relative overflow-hidden items-center justify-center">
+      <div className="hidden lg:flex w-1/2 bg-[#133827] dark:bg-[#071c15] border-l border-emerald-950/20 dark:border-white/10 relative overflow-hidden items-center justify-center">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-900/40 rounded-full blur-3xl"></div>
 

@@ -276,7 +276,11 @@ interface SavedAddress {
   isDefault: boolean;
 }
 
-export default function Quote() {
+export type QuoteProps = {
+  initialMode?: "filament-painting";
+};
+
+export default function Quote({ initialMode }: QuoteProps = {}) {
   const { t, localizePath, language } = useI18n();
   const { notifyError, notifySuccess } = useNotify();
   const navigate = useNavigate();
@@ -335,7 +339,28 @@ export default function Quote() {
   });
   const [filaments, setFilaments] = useState<Filament[]>([]);
   const [showAddItemChoiceModal, setShowAddItemChoiceModal] = useState<boolean>(false);
-  const [activeCreatorFlow, setActiveCreatorFlow] = useState<"filament-painting" | null>(null);
+  const [activeCreatorFlow, setActiveCreatorFlow] = useState<"filament-painting" | null>(() => {
+    if (initialMode === "filament-painting") return "filament-painting";
+    if (typeof window !== "undefined") {
+      const isPaintingPath = window.location.pathname.endsWith("/filament-painting");
+      const hasPaintingParam =
+        new URLSearchParams(window.location.search).get("mode") === "filament-painting";
+      if (isPaintingPath || hasPaintingParam) return "filament-painting";
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    if (activeCreatorFlow === "filament-painting") {
+      const timer = setTimeout(() => {
+        document.getElementById("filament-painting-configurator")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [activeCreatorFlow]);
   const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
   const [pendingPaintingFile, setPendingPaintingFile] = useState<File | null>(null);
   const new3dFileInputRef = useRef<HTMLInputElement | null>(null);

@@ -193,10 +193,10 @@ export default function Footer() {
         onClick={() => setIsReportModalOpen(true)}
         aria-label={t("common.support.floatingButtonLabel")}
         title={t("common.support.floatingButtonLabel")}
-        className="fixed bottom-6 right-6 z-40 group flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white shadow-lg shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+        className="fixed bottom-6 right-6 z-40 group flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 dark:bg-[#111815]/90 backdrop-blur-xl border border-gray-200/80 dark:border-white/10 text-gray-700 dark:text-gray-200 shadow-lg shadow-black/5 dark:shadow-black/40 hover:shadow-xl hover:border-amber-500/50 dark:hover:border-amber-400/40 hover:scale-105 active:scale-95 transition-all cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-emerald-500/50"
       >
-        <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
-        <span className="absolute right-full mr-3 px-3 py-1.5 rounded-xl bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity pointer-events-none shadow-md backdrop-blur-xs">
+        <AlertTriangle className="w-5 h-5 text-amber-500 dark:text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
+        <span className="absolute right-full mr-3 px-3 py-1.5 rounded-xl bg-gray-900/95 dark:bg-[#111815]/95 text-white dark:text-gray-100 text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity pointer-events-none shadow-xl border border-gray-200/20 dark:border-white/10 backdrop-blur-md">
           {t("common.support.floatingButtonLabel")}
         </span>
       </button>

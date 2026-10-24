@@ -68,14 +68,14 @@ export default function ResetPassword() {
           <p className="site-subheading mb-6">{t("reset.subtitle")}</p>
 
           {error && (
-            <div className="mb-4 p-3 rounded-lg border border-red-200 bg-red-50 text-red-700 text-sm flex items-center gap-2">
+            <div className="mb-4 p-3 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-sm flex items-center gap-2">
               <AlertCircle size={16} /> {error}
             </div>
           )}
 
           {done ? (
             <div className="space-y-5">
-              <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-sm flex items-center gap-2">
+              <div className="p-4 rounded-lg border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-sm flex items-center gap-2">
                 <CheckCircle2 size={18} /> {t("reset.successMessage")}
               </div>
               <Link to={localizePath("/login")} className="site-btn-primary inline-flex">
@@ -85,40 +85,40 @@ export default function ResetPassword() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <label className="block">
-                <span className="text-sm font-semibold text-[#2a403a]">
+                <span className="text-sm font-semibold text-[#2a403a] dark:text-gray-200">
                   {t("login.password")}
                 </span>
                 <div className="relative mt-1">
                   <Lock
                     size={16}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a8f89]"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a8f89] dark:text-gray-400"
                   />
                   <input
                     type="password"
                     required
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full rounded-lg border border-[#d4e3dd] bg-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full rounded-lg border border-[#d4e3dd] dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 px-10 py-2.5 outline-none focus:ring-2 focus:ring-emerald-500"
                     placeholder={t("reset.passwordPlaceholder")}
                   />
                 </div>
               </label>
 
               <label className="block">
-                <span className="text-sm font-semibold text-[#2a403a]">
+                <span className="text-sm font-semibold text-[#2a403a] dark:text-gray-200">
                   {t("login.password")}
                 </span>
                 <div className="relative mt-1">
                   <Lock
                     size={16}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a8f89]"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a8f89] dark:text-gray-400"
                   />
                   <input
                     type="password"
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full rounded-lg border border-[#d4e3dd] bg-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full rounded-lg border border-[#d4e3dd] dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 px-10 py-2.5 outline-none focus:ring-2 focus:ring-emerald-500"
                     placeholder={t("reset.confirmPlaceholder")}
                   />
                 </div>

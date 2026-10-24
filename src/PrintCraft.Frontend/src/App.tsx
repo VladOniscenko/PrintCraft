@@ -23,7 +23,7 @@ function lazyWithI18n<P extends object>(
 
 import Home from "./components/Home.tsx";
 const Login = lazyWithI18n(() => import("./components/Login.tsx"), ["login"]);
-const Quote = lazyWithI18n(
+const Quote = lazyWithI18n<{ initialMode?: "filament-painting" }>(
   () => import("./components/Quote.tsx"),
   ["quote", "viewer3d", "filamentPainting", "modelViewer"],
 );
@@ -337,6 +337,10 @@ export default function App() {
             element={<LegacyPathRedirect target="/checkout" />}
           />
           <Route
+            path="/filament-painting"
+            element={<LegacyPathRedirect target="/filament-painting" />}
+          />
+          <Route
             path="/3d-print-service/:city"
             element={<LegacyCityRedirect />}
           />
@@ -367,6 +371,10 @@ export default function App() {
           />
           <Route
             path="/signup"
+            element={<LegacyPathRedirect target="/signup" />}
+          />
+          <Route
+            path="/register"
             element={<LegacyPathRedirect target="/signup" />}
           />
           <Route
@@ -416,9 +424,17 @@ export default function App() {
               element={<Navigate to="../checkout" replace />}
             />
             <Route path="checkout" element={<Quote />} />
+            <Route
+              path="filament-painting"
+              element={<Quote initialMode="filament-painting" />}
+            />
 
             <Route path="login" element={<Login />} />
             <Route path="signup" element={<Signup />} />
+            <Route
+              path="register"
+              element={<Navigate to="../signup" replace />}
+            />
             <Route path="forgot-password" element={<ForgotPassword />} />
             <Route path="reset-password" element={<ResetPassword />} />
 
