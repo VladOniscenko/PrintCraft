@@ -1987,8 +1987,8 @@ export default function AdminHeroSlides() {
 
         {/* Holiday Hero Full Live Preview Modal */}
         {previewHolidayKey && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-            <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-6xl w-full p-4 sm:p-6 shadow-2xl flex flex-col max-h-[96vh]">
+          <div className="fixed inset-0 z-[999] bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+            <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-6xl w-full p-4 sm:p-6 shadow-2xl flex flex-col max-h-[92vh] my-auto">
               {/* Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-200 dark:border-white/10 shrink-0">
                 <div>
@@ -2069,7 +2069,7 @@ export default function AdminHeroSlides() {
               </div>
 
               {/* Live Hero Component Viewport */}
-              <div className="mt-4 flex-1 overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 shadow-inner bg-slate-950 relative min-h-[480px]">
+              <div className="mt-4 flex-1 overflow-y-auto rounded-2xl border border-gray-200 dark:border-white/10 shadow-inner bg-slate-950 relative max-h-[72vh]">
                 <Hero
                   previewHolidayId={previewHolidayKey}
                   previewLanguage={previewHolidayLang}

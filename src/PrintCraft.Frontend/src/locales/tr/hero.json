@@ -14,7 +14,7 @@
   "ctaUpload": "3D Dosya Yükle",
   "ctaStart": "Baskını Başlat",
   "ctaPhoto": "3D Fotoğraf Oluştur",
-  "seeExamples": "Örnekleri gör →",
+  "seeExamples": "Hizmetlerimizi gör →",
   "fastTurnaround": "Hızlı Teslimat",
   "fastTurnaroundValue": "2-5 iş günü",
   "highQuality": "Yüksek Kalite",
@@ -48,13 +48,13 @@
     "halloween": {
       "title": "Cadılar Bayramı için Ürkütücü ve Özel 3D Baskılar",
       "subtitle": "Balkabaklarınızı, dekorasyonlarınızı ve kostüm aksesuarlarınızı bastırın. PostNL ile 2 ila 5 iş gününde teslimat.",
-      "cta": "Cadılar Bayramı Baskılarını Keşfet",
+      "cta": "Cadılar Bayramı Projeni Bas",
       "eyebrow": "Cadılar Bayramı Özel"
     },
     "sinterklaas": {
       "title": "Sinterklaas için Eşsiz 3D Sürprizler ve Hediyeler",
       "subtitle": "Sürprizlerinizi tamamlayın veya özel hediyeler üretin. Zamanında sipariş verin: 2 ila 5 iş gününde teslimat.",
-      "cta": "Sinterklaas Hediyelerini Sipariş Et",
+      "cta": "Sinterklaas Hediyeni Bas",
       "eyebrow": "Sinterklaas Özel"
     },
     "christmas": {
@@ -66,25 +66,25 @@
     "newYear": {
       "title": "Yeni Yıla Yenilikçi 3D Baskılarla Başlayın",
       "subtitle": "Yeni projelerinizi, prototiplerinizi veya parti ürünlerinizi hemen başlatın. 2 ila 5 iş gününde teslimat.",
-      "cta": "Yeni Yıl Projesini Başlat",
+      "cta": "Yeni Yıl Projeni Bas",
       "eyebrow": "Yılbaşı Özel"
     },
     "valentines": {
       "title": "Sevgilinize Özel Kişiselleştirilmiş 3D Baskı Hediye",
       "subtitle": "3D fotoğraflardan unutulmaz anılara kadar. Sevgililer Günü için zamanında sipariş edin: 2-5 iş gününde teslimat.",
-      "cta": "Sevgililer Günü Hediyeni Tasarla",
+      "cta": "Sevgililer Günü Hediyeni Bas",
       "eyebrow": "Sevgililer Günü Özel"
     },
     "kingsDay": {
       "title": "Kral Günü'nü Turuncu 3D Baskılarla Kutlayın",
       "subtitle": "Taçlardan parti aksesuarlarına ve turuncu aletlere kadar. PostNL ile 2 ila 5 iş gününde kapınızda.",
-      "cta": "Turuncu Baskıları Sipariş Et",
+      "cta": "Turuncu Tasarımını Bas",
       "eyebrow": "Kral Günü Özel"
     },
     "easter": {
       "title": "Özel 3D Bahar Baskıları ile Mutlu Paskalyalar",
       "subtitle": "Özel paskalya yumurtaları, masa ve bahar dekorasyonları bastırın. PostNL ile 2 ila 5 iş gününde teslimat.",
-      "cta": "Paskalya Baskılarını Keşfet",
+      "cta": "Paskalya Tasarımını Bas",
       "eyebrow": "Paskalya Özel"
     },
     "mothersDay": {
@@ -96,19 +96,19 @@
     "fathersDay": {
       "title": "Babalar Günü için Dayanıklı 3D Düzenleyiciler ve Aletler",
       "subtitle": "Masaüstü düzenleyicilerden özel aparatlara kadar her şey. PostNL ile 2 ila 5 iş gününde teslimat.",
-      "cta": "Babalar Günü Hediyelerini Gör",
+      "cta": "Babalar Günü Hediyeni Bas",
       "eyebrow": "Babalar Günü Özel"
     },
     "backToWork": {
       "title": "İşe Dönüş: Akıllı 3D Ofis ve Çalışma Çözümleri",
       "subtitle": "Kablo kanalları, masa aksesuarları ve profesyonel seriler. 2 ila 5 iş gününde hızlı teslimat.",
-      "cta": "Çalışma Alanını Geliştir",
+      "cta": "Ofis Çözümünü Bas",
       "eyebrow": "İşe Dönüş Özel"
     },
     "animalDay": {
       "title": "Hayvanları Koruma Günü'nde Evcil Dostunuza Özel 3D Baskı",
       "subtitle": "Ekstra dayanıklı PETG ile kişiselleştirilmiş tasmalar ve aksesuarlar. 2 ila 5 iş gününde teslimat.",
-      "cta": "Evcil Hayvan Ürünlerini Sipariş Et",
+      "cta": "Evcil Hayvan Aksesuarı Bas",
       "eyebrow": "Hayvanlar Günü Özel"
     }
   }

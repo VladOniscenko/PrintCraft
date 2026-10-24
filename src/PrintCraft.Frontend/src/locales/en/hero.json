@@ -14,7 +14,7 @@
   "ctaUpload": "Upload 3D File",
   "ctaStart": "Start Your Print",
   "ctaPhoto": "Create 3D Photo",
-  "seeExamples": "See examples →",
+  "seeExamples": "Explore capabilities →",
   "fastTurnaround": "Fast Turnaround",
   "fastTurnaroundValue": "2-5 business days",
   "highQuality": "High Quality",
@@ -48,13 +48,13 @@
     "halloween": {
       "title": "Spooktacular 3D Prints for Halloween",
       "subtitle": "Custom 3D print your pumpkins, decor, and cosplay props. Delivered in 2 to 5 business days via PostNL.",
-      "cta": "Explore Halloween Prints",
+      "cta": "Print Your Halloween Project",
       "eyebrow": "Halloween Special"
     },
     "sinterklaas": {
       "title": "Unique 3D Surprises & Gifts for Sinterklaas",
       "subtitle": "Level up your festive surprise or print custom shoe gifts. Order in time: delivered in 2 to 5 business days.",
-      "cta": "Order Holiday Gifts",
+      "cta": "Print Your Sinterklaas Gift",
       "eyebrow": "Sinterklaas Special"
     },
     "christmas": {
@@ -66,25 +66,25 @@
     "newYear": {
       "title": "Ring in the New Year with Innovative 3D Prints",
       "subtitle": "Kickstart your new projects, prototypes, or party gear. Delivered across the Netherlands in 2 to 5 business days.",
-      "cta": "Start New Year Project",
+      "cta": "Print Your New Year Project",
       "eyebrow": "New Year Special"
     },
     "valentines": {
       "title": "Surprise Your Valentine with a Personalized 3D Gift",
       "subtitle": "From 3D lithophane photos to custom keepsakes. Order in time for Valentine's Day: delivered in 2 to 5 business days.",
-      "cta": "Design Valentine's Gift",
+      "cta": "Print Your Valentine's Gift",
       "eyebrow": "Valentine's Special"
     },
     "kingsDay": {
       "title": "Celebrate King's Day with Custom Orange 3D Prints",
       "subtitle": "From crowns and festival accessories to bright orange gadgets. Delivered in 2 to 5 business days via PostNL.",
-      "cta": "Order King's Day Prints",
+      "cta": "Print Your Orange Design",
       "eyebrow": "King's Day Special"
     },
     "easter": {
       "title": "Happy Easter with Custom 3D Spring Prints",
       "subtitle": "Print festive Easter eggs, spring decor, and table centerpieces. Delivered in 2 to 5 business days via PostNL.",
-      "cta": "Explore Easter Prints",
+      "cta": "Print Your Easter Decor",
       "eyebrow": "Easter Special"
     },
     "mothersDay": {
@@ -96,19 +96,19 @@
     "fathersDay": {
       "title": "Rugged 3D Printed Gadgets & Organizers for Dad",
       "subtitle": "From sleek desk organizers to precision tool mounts and custom gear. Delivered in 2 to 5 business days via PostNL.",
-      "cta": "Explore Father's Day Gifts",
+      "cta": "Print Your Father's Day Gift",
       "eyebrow": "Father's Day Special"
     },
     "backToWork": {
       "title": "Back to Work: Smart 3D Workplace & Office Gear",
       "subtitle": "Cable management, desk organizers, and batch parts for professionals. Delivered in 2 to 5 business days.",
-      "cta": "Upgrade Your Desk Setup",
+      "cta": "Print Workspace Setup",
       "eyebrow": "Back to Work Special"
     },
     "animalDay": {
       "title": "Celebrate World Animal Day with Custom Pet Gear",
       "subtitle": "Personalized dog tags and pet accessories printed in ultra-tough PETG. Delivered in 2 to 5 business days via PostNL.",
-      "cta": "Order Pet Accessories",
+      "cta": "Print Pet Accessories",
       "eyebrow": "Animal Day Special"
     }
   }

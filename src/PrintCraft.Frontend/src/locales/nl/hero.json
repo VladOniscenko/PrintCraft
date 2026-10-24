@@ -14,7 +14,7 @@
   "ctaUpload": "Upload 3D-bestand",
   "ctaStart": "Start je bestelling",
   "ctaPhoto": "Maak een 3D-foto",
-  "seeExamples": "Bekijk voorbeelden →",
+  "seeExamples": "Bekijk mogelijkheden →",
   "fastTurnaround": "Snelle Levering",
   "fastTurnaroundValue": "2-5 werkdagen",
   "highQuality": "Hoge Kwaliteit",
@@ -48,13 +48,13 @@
     "halloween": {
       "title": "Griezelig goede 3D-prints voor Halloween",
       "subtitle": "Print je pompoenen, decoraties en cosplay accessoires op maat. Binnen 2 tot 5 werkdagen bezorgd met PostNL.",
-      "cta": "Ontdek Halloween Prints",
+      "cta": "Print Jouw Halloween Project",
       "eyebrow": "Halloween Special"
     },
     "sinterklaas": {
       "title": "Unieke 3D-surprises & cadeaus voor Sinterklaas",
       "subtitle": "Maak je surprise compleet of print een uniek schoencadeautje. Bestel op tijd: geleverd binnen 2 tot 5 werkdagen.",
-      "cta": "Bestel Sinterklaas Prints",
+      "cta": "Print Jouw Sinterklaas Surprise",
       "eyebrow": "Sinterklaas Special"
     },
     "christmas": {
@@ -66,25 +66,25 @@
     "newYear": {
       "title": "Knal het nieuwe jaar in met innovatieve 3D-prints",
       "subtitle": "Start je nieuwe projecten, prototypes of feestartikelen direct. Binnen 2 tot 5 werkdagen bezorgd door PostNL.",
-      "cta": "Start Nieuwjaarsproject",
+      "cta": "Print Jouw Nieuwjaarsproject",
       "eyebrow": "Oud & Nieuw Special"
     },
     "valentines": {
       "title": "Verras je geliefde met een persoonlijk 3D-geprint cadeau",
       "subtitle": "Van 3D-fotolijsten tot tastbare herinneringen. Bestel op tijd voor Valentijn: geleverd binnen 2 tot 5 werkdagen.",
-      "cta": "Ontwerp Jouw Valentijnscadeau",
+      "cta": "Print Jouw Valentijnscadeau",
       "eyebrow": "Valentijnsdag Special"
     },
     "kingsDay": {
       "title": "Vier Koningsdag in stijl met oranje 3D-prints",
       "subtitle": "Van feestkronen en festivalaccessoires tot oranje gadgets. Binnen 2 tot 5 werkdagen in huis via PostNL.",
-      "cta": "Bestel Oranje Prints",
+      "cta": "Print Jouw Oranje Ontwerp",
       "eyebrow": "Koningsdag Special"
     },
     "easter": {
       "title": "Vrolijk Pasen met unieke 3D-lenteprints",
       "subtitle": "Print vrolijke paaseieren, decoraties en tafelaccessoires op maat. Binnen 2 tot 5 werkdagen bezorgd met PostNL.",
-      "cta": "Ontdek Paasprints",
+      "cta": "Print Jouw Paasdecoratie",
       "eyebrow": "Pasen Special"
     },
     "mothersDay": {
@@ -96,19 +96,19 @@
     "fathersDay": {
       "title": "Stoere 3D-geprinte gadgets & organizers voor vader",
       "subtitle": "Van slimme desk organizers tot gereedschapshouders op maat. Binnen 2 tot 5 werkdagen bezorgd door PostNL.",
-      "cta": "Bekijk Vaderdag Gadgets",
+      "cta": "Print Jouw Vaderdagcadeau",
       "eyebrow": "Vaderdag Special"
     },
     "backToWork": {
       "title": "Start georganiseerd: slimme 3D-kantooroplossingen",
       "subtitle": "Kabelmanagement, bureau-organizers en prototypes voor professionals. Binnen 2 tot 5 werkdagen geleverd.",
-      "cta": "Optimaliseer Je Werkplek",
+      "cta": "Print Kantooroplossing",
       "eyebrow": "Back to Work Special"
     },
     "animalDay": {
       "title": "Verwen je trouwe viervoeter op Dierendag",
       "subtitle": "Gepersonaliseerde penningen en handige voeraccessoires in oersterk PETG. Binnen 2 tot 5 werkdagen bezorgd via PostNL.",
-      "cta": "Bestel Huisdier Accessoires",
+      "cta": "Print Huisdier Accessoires",
       "eyebrow": "Dierendag Special"
     }
   }

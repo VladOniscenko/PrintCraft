@@ -656,6 +656,28 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
         CREATE UNIQUE INDEX IF NOT EXISTS ""IX_PolicyTemplates_Slug"" ON ""PolicyTemplates"" (""Slug"");
         CREATE INDEX IF NOT EXISTS ""IX_PolicyTemplates_IsActive"" ON ""PolicyTemplates"" (""IsActive"");
     ", "PolicyTemplates table");
+
+    await SafeExecAsync(db, @"
+        CREATE TABLE IF NOT EXISTS ""SupportTickets"" (
+            ""Id"" uuid NOT NULL PRIMARY KEY,
+            ""UserId"" uuid NULL,
+            ""UserEmail"" character varying(256) NOT NULL DEFAULT '',
+            ""OrderId"" uuid NULL,
+            ""Category"" character varying(64) NOT NULL DEFAULT 'general',
+            ""Subject"" character varying(256) NOT NULL DEFAULT '',
+            ""Description"" text NOT NULL DEFAULT '',
+            ""Status"" character varying(64) NOT NULL DEFAULT 'open',
+            ""AttachmentUrls"" text NOT NULL DEFAULT '',
+            ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT NOW(),
+            ""UpdatedAt"" timestamp with time zone NOT NULL DEFAULT NOW(),
+            CONSTRAINT ""FK_SupportTickets_Orders_OrderId"" FOREIGN KEY (""OrderId"") REFERENCES ""Orders""(""Id"") ON DELETE SET NULL,
+            CONSTRAINT ""FK_SupportTickets_Users_UserId"" FOREIGN KEY (""UserId"") REFERENCES ""Users""(""Id"") ON DELETE SET NULL
+        );
+        CREATE INDEX IF NOT EXISTS ""IX_SupportTickets_CreatedAt"" ON ""SupportTickets"" (""CreatedAt"");
+        CREATE INDEX IF NOT EXISTS ""IX_SupportTickets_OrderId"" ON ""SupportTickets"" (""OrderId"");
+        CREATE INDEX IF NOT EXISTS ""IX_SupportTickets_Status"" ON ""SupportTickets"" (""Status"");
+        CREATE INDEX IF NOT EXISTS ""IX_SupportTickets_UserId"" ON ""SupportTickets"" (""UserId"");
+    ", "SupportTickets table");
 }
 
 static void LoadDotEnv(params string[] candidatePaths)

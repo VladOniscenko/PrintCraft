@@ -137,7 +137,7 @@ export const holidayConfig: HolidayConfig = {
       title: "Vrolijk Pasen met unieke 3D-lenteprints",
       subtitle:
         "Print vrolijke paaseieren, decoraties en tafelaccessoires op maat. Binnen 2 tot 5 werkdagen bezorgd met PostNL.",
-      ctaText: "Ontdek Paasprints",
+      ctaText: "Print Jouw Paasdecoratie",
       titleKey: "hero.holidays.easter.title",
       subtitleKey: "hero.holidays.easter.subtitle",
       ctaTextKey: "hero.holidays.easter.cta",
@@ -156,11 +156,11 @@ export const holidayConfig: HolidayConfig = {
         ar: "اطبع بيض الفصح وديكورات المائدة الربيعية المخصصة. التوصيل خلال 2 إلى 5 أيام عمل عبر PostNL.",
       },
       ctaTexts: {
-        nl: "Ontdek Paasprints",
-        en: "Explore Easter Prints",
-        tr: "Paskalya Baskılarını Keşfet",
-        ru: "Смотреть пасхальную печать",
-        ar: "استكشف تصاميم الفصح",
+        nl: "Print Jouw Paasdecoratie",
+        en: "Print Your Easter Decor",
+        tr: "Paskalya Tasarımını Bas",
+        ru: "Напечатать пасхальный декор",
+        ar: "اطبع ديكور الفصح الخاص بك",
       },
     },
     modelUrl: "/uploads/hero/egg.stl",
@@ -229,7 +229,7 @@ export const holidayConfig: HolidayConfig = {
       title: "Vier Koningsdag in stijl met oranje 3D-prints",
       subtitle:
         "Van feestkronen en festivalaccessoires tot oranje gadgets. Binnen 2 tot 5 werkdagen in huis via PostNL.",
-      ctaText: "Bestel Oranje Prints",
+      ctaText: "Print Jouw Oranje Ontwerp",
       titleKey: "hero.holidays.kingsDay.title",
       subtitleKey: "hero.holidays.kingsDay.subtitle",
       ctaTextKey: "hero.holidays.kingsDay.cta",
@@ -248,11 +248,11 @@ export const holidayConfig: HolidayConfig = {
         ar: "من التيجان وإكسسوارات الاحتفال إلى المجسمات البرتقالية. التوصيل خلال 2 إلى 5 أيام عمل عبر PostNL.",
       },
       ctaTexts: {
-        nl: "Bestel Oranje Prints",
-        en: "Order King's Day Prints",
-        tr: "Turuncu Baskıları Sipariş Et",
-        ru: "Заказать оранжевые принты",
-        ar: "اطلب التصاميم البرتقالية",
+        nl: "Print Jouw Oranje Ontwerp",
+        en: "Print Your Orange Design",
+        tr: "Turuncu Tasarımını Bas",
+        ru: "Напечатать оранжевый дизайн",
+        ar: "اطبع تصميمك البرتقالي",
       },
     },
     modelUrl: "/uploads/hero/crown.stl",
@@ -413,7 +413,7 @@ export const holidayConfig: HolidayConfig = {
       title: "Stoere 3D-geprinte gadgets & organizers voor vader",
       subtitle:
         "Van slimme desk organizers tot gereedschapshouders op maat. Binnen 2 tot 5 werkdagen bezorgd door PostNL.",
-      ctaText: "Bekijk Vaderdag Gadgets",
+      ctaText: "Print Jouw Vaderdagcadeau",
       titleKey: "hero.holidays.fathersDay.title",
       subtitleKey: "hero.holidays.fathersDay.subtitle",
       ctaTextKey: "hero.holidays.fathersDay.cta",
@@ -432,11 +432,11 @@ export const holidayConfig: HolidayConfig = {
         ar: "من منظمات المكاتب الذكية إلى حوامل الأدوات الدقيقة. التوصيل خلال 2 إلى 5 أيام عمل عبر PostNL.",
       },
       ctaTexts: {
-        nl: "Bekijk Vaderdag Gadgets",
-        en: "Explore Father's Day Gifts",
-        tr: "Babalar Günü Hediyelerini Gör",
-        ru: "Подарки ко Дню отца",
-        ar: "استعرض هدايا عيد الأب",
+        nl: "Print Jouw Vaderdagcadeau",
+        en: "Print Your Father's Day Gift",
+        tr: "Babalar Günü Hediyeni Bas",
+        ru: "Напечатать подарок на День отца",
+        ar: "اطبع هدية عيد الأب",
       },
     },
     modelUrl: "/uploads/hero/fathers-day.stl",
@@ -505,7 +505,7 @@ export const holidayConfig: HolidayConfig = {
       title: "Start georganiseerd: slimme 3D-kantooroplossingen",
       subtitle:
         "Kabelmanagement, bureau-organizers en prototypes voor professionals. Binnen 2 tot 5 werkdagen geleverd.",
-      ctaText: "Optimaliseer Je Werkplek",
+      ctaText: "Print Kantooroplossing",
       titleKey: "hero.holidays.backToWork.title",
       subtitleKey: "hero.holidays.backToWork.subtitle",
       ctaTextKey: "hero.holidays.backToWork.cta",
@@ -524,11 +524,11 @@ export const holidayConfig: HolidayConfig = {
         ar: "تنظيم الأسلاك، منظمات المكاتب، ودفعات الإنتاج التجاري. التوصيل خلال 2 إلى 5 أيام عمل.",
       },
       ctaTexts: {
-        nl: "Optimaliseer Je Werkplek",
-        en: "Upgrade Your Desk Setup",
-        tr: "Çalışma Alanını Geliştir",
-        ru: "Обустроить рабочее место",
-        ar: "طور مساحة عملك",
+        nl: "Print Kantooroplossing",
+        en: "Print Workspace Setup",
+        tr: "Ofis Çözümünü Bas",
+        ru: "Напечатать органайзеры для офиса",
+        ar: "اطبع حلول مكتبك",
       },
     },
     modelUrl: "/uploads/hero/cable-holder.stl",
@@ -597,7 +597,7 @@ export const holidayConfig: HolidayConfig = {
       title: "Verwen je trouwe viervoeter op Dierendag",
       subtitle:
         "Gepersonaliseerde penningen en handige voeraccessoires in oersterk PETG. Binnen 2 tot 5 werkdagen bezorgd via PostNL.",
-      ctaText: "Bestel Huisdier Accessoires",
+      ctaText: "Print Huisdier Accessoires",
       titleKey: "hero.holidays.animalDay.title",
       subtitleKey: "hero.holidays.animalDay.subtitle",
       ctaTextKey: "hero.holidays.animalDay.cta",
@@ -616,11 +616,11 @@ export const holidayConfig: HolidayConfig = {
         ar: "قلائد أسماء مخصصة وإكسسوارات قوية مصنوعة من PETG. التوصيل خلال 2 إلى 5 أيام عمل عبر PostNL.",
       },
       ctaTexts: {
-        nl: "Bestel Huisdier Accessoires",
-        en: "Order Pet Accessories",
-        tr: "Evcil Hayvan Ürünlerini Sipariş Et",
-        ru: "Заказать товары для питомцев",
-        ar: "اطلب مستلزمات الحيوانات",
+        nl: "Print Huisdier Accessoires",
+        en: "Print Pet Accessories",
+        tr: "Evcil Hayvan Aksesuarı Bas",
+        ru: "Напечатать аксессуары для питомцев",
+        ar: "اطبع إكسسوارات الحيوانات",
       },
     },
     modelUrl: "/uploads/hero/dog-tag.stl",
@@ -689,7 +689,7 @@ export const holidayConfig: HolidayConfig = {
       title: "Griezelig goede 3D-prints voor Halloween",
       subtitle:
         "Print je pompoenen, decoraties en cosplay accessoires op maat. Binnen 2 tot 5 werkdagen bezorgd met PostNL.",
-      ctaText: "Ontdek Halloween Prints",
+      ctaText: "Print Jouw Halloween Project",
       titleKey: "hero.holidays.halloween.title",
       subtitleKey: "hero.holidays.halloween.subtitle",
       ctaTextKey: "hero.holidays.halloween.cta",
@@ -708,11 +708,11 @@ export const holidayConfig: HolidayConfig = {
         ar: "اطبع مجسمات القرع والديكورات وإكسسوارات التنكر بدقة. التوصيل خلال 2 إلى 5 أيام عمل عبر PostNL.",
       },
       ctaTexts: {
-        nl: "Ontdek Halloween Prints",
-        en: "Explore Halloween Prints",
-        tr: "Cadılar Bayramı Baskılarını Keşfet",
-        ru: "Смотреть печать на Хэллоуин",
-        ar: "استكشف تصاميم الهالوين",
+        nl: "Print Jouw Halloween Project",
+        en: "Print Your Halloween Project",
+        tr: "Cadılar Bayramı Projeni Bas",
+        ru: "Напечатать к Хэллоуину",
+        ar: "اطبع مشروع الهالوين الخاص بك",
       },
     },
     modelUrl: "/uploads/hero/pumpkin.stl",
@@ -781,7 +781,7 @@ export const holidayConfig: HolidayConfig = {
       title: "Unieke 3D-surprises & cadeaus voor Sinterklaas",
       subtitle:
         "Maak je surprise compleet of print een uniek schoencadeautje. Bestel op tijd: geleverd binnen 2 tot 5 werkdagen.",
-      ctaText: "Bestel Sinterklaas Prints",
+      ctaText: "Print Jouw Sinterklaas Surprise",
       titleKey: "hero.holidays.sinterklaas.title",
       subtitleKey: "hero.holidays.sinterklaas.subtitle",
       ctaTextKey: "hero.holidays.sinterklaas.cta",
@@ -800,11 +800,11 @@ export const holidayConfig: HolidayConfig = {
         ar: "اجعل هديتك الاحتفالية استثنائية. اطلب مسبقاً: التوصيل خلال 2 إلى 5 أيام عمل.",
       },
       ctaTexts: {
-        nl: "Bestel Sinterklaas Prints",
-        en: "Order Holiday Gifts",
-        tr: "Sinterklaas Hediyelerini Sipariş Et",
-        ru: "Заказать подарки к Синтерклаасу",
-        ar: "طلب هدايا المناسبات",
+        nl: "Print Jouw Sinterklaas Surprise",
+        en: "Print Your Sinterklaas Gift",
+        tr: "Sinterklaas Hediyeni Bas",
+        ru: "Напечатать подарок на Синтерклаас",
+        ar: "اطبع هدية سينتركلاس",
       },
     },
     modelUrl: "/uploads/hero/sinterklaas.stl",
@@ -965,7 +965,7 @@ export const holidayConfig: HolidayConfig = {
       title: "Knal het nieuwe jaar in met innovatieve 3D-prints",
       subtitle:
         "Start je nieuwe projecten, prototypes of feestartikelen direct. Binnen 2 tot 5 werkdagen bezorgd door PostNL.",
-      ctaText: "Start Nieuwjaarsproject",
+      ctaText: "Print Jouw Nieuwjaarsproject",
       titleKey: "hero.holidays.newYear.title",
       subtitleKey: "hero.holidays.newYear.subtitle",
       ctaTextKey: "hero.holidays.newYear.cta",
@@ -984,11 +984,11 @@ export const holidayConfig: HolidayConfig = {
         ar: "ابدأ مشاريعك ونماذجك الأولية أو أدوات الحفلات فوراً. التوصيل خلال 2 إلى 5 أيام عمل.",
       },
       ctaTexts: {
-        nl: "Start Nieuwjaarsproject",
-        en: "Start New Year Project",
-        tr: "Yeni Yıl Projesini Başlat",
-        ru: "Начать новогодний проект",
-        ar: "ابدأ مشروع العام الجديد",
+        nl: "Print Jouw Nieuwjaarsproject",
+        en: "Print Your New Year Project",
+        tr: "Yeni Yıl Projeni Bas",
+        ru: "Напечатать новогодний проект",
+        ar: "اطبع مشروع العام الجديد",
       },
     },
     modelUrl: "/uploads/hero/new-year.stl",
@@ -1057,7 +1057,7 @@ export const holidayConfig: HolidayConfig = {
       title: "Verras je geliefde met een persoonlijk 3D-geprint cadeau",
       subtitle:
         "Van 3D-fotolijsten tot tastbare herinneringen. Bestel op tijd voor Valentijn: geleverd binnen 2 tot 5 werkdagen.",
-      ctaText: "Ontwerp Jouw Valentijnscadeau",
+      ctaText: "Print Jouw Valentijnscadeau",
       titleKey: "hero.holidays.valentines.title",
       subtitleKey: "hero.holidays.valentines.subtitle",
       ctaTextKey: "hero.holidays.valentines.cta",
@@ -1076,11 +1076,11 @@ export const holidayConfig: HolidayConfig = {
         ar: "من لوحات الصور البارزة إلى التذكارات الملموسة. اطلب لعيد الحب: توصيل خلال 2 إلى 5 أيام عمل.",
       },
       ctaTexts: {
-        nl: "Ontwerp Jouw Valentijnscadeau",
-        en: "Design Valentine's Gift",
-        tr: "Sevgililer Günü Hediyeni Tasarla",
-        ru: "Создать подарок ко Дню Валентина",
-        ar: "صمم هدية عيد الحب",
+        nl: "Print Jouw Valentijnscadeau",
+        en: "Print Your Valentine's Gift",
+        tr: "Sevgililer Günü Hediyeni Bas",
+        ru: "Напечатать подарок к 14 февраля",
+        ar: "اطبع هدية عيد الحب",
       },
     },
     modelUrl: "/uploads/hero/heart.stl",
@@ -1222,17 +1222,26 @@ export const HOLIDAY_PRIORITY: HolidayKey[] = [
   "valentines",
 ];
 
+export function getActiveHolidays(
+  date: Date = new Date(),
+  config: HolidayConfig = holidayConfig
+): HolidayConfigItem[] {
+  const active: HolidayConfigItem[] = [];
+  for (const key of HOLIDAY_PRIORITY) {
+    const holiday = config[key];
+    if (holiday && isDateInHoliday(date, holiday)) {
+      active.push(holiday);
+    }
+  }
+  return active;
+}
+
 export function getActiveHoliday(
   date: Date = new Date(),
   config: HolidayConfig = holidayConfig
 ): HolidayConfigItem | null {
-  for (const key of HOLIDAY_PRIORITY) {
-    const holiday = config[key];
-    if (holiday && isDateInHoliday(date, holiday)) {
-      return holiday;
-    }
-  }
-  return null;
+  const all = getActiveHolidays(date, config);
+  return all.length > 0 ? all[0] : null;
 }
 
 export function getHolidayName(

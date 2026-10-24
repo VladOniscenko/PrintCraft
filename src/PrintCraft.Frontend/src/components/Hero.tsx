@@ -22,6 +22,7 @@ import HolidayEffects from "./HolidayEffects";
 import {
   holidayConfig,
   getActiveHoliday,
+  getActiveHolidays,
   getHolidayName,
   getHolidayDateLabel,
   getHolidayTitle,
@@ -43,6 +44,7 @@ import type { SupportedLanguage } from "../i18n/translations";
 export {
   holidayConfig,
   getActiveHoliday,
+  getActiveHolidays,
   getHolidayName,
   getHolidayDateLabel,
   getHolidayTitle,
@@ -59,6 +61,36 @@ export {
   type HolidayEffect,
   type HolidayKey,
 };
+
+function isPhotoPainting(
+  slide: HeroSlide,
+  isHoliday: boolean,
+  holidayId?: string | null
+): boolean {
+  if (isHoliday) {
+    return holidayId === "mothersDay";
+  }
+  const media = (slide.mediaUrl || "").toLowerCase();
+  if (
+    media.includes("materials.svg") ||
+    media.includes("painting") ||
+    media.includes("hueforge")
+  ) {
+    return true;
+  }
+  const combined = `${slide.title || ""} ${slide.titleNl || ""} ${slide.subtext || ""} ${slide.subtextNl || ""} ${slide.priceText || ""} ${slide.priceTextNl || ""}`.toLowerCase();
+  return (
+    combined.includes("hueforge") ||
+    combined.includes("photo painting") ||
+    combined.includes("foto schilderij") ||
+    combined.includes("fotoschilderij") ||
+    combined.includes("3d photo") ||
+    combined.includes("3d foto") ||
+    combined.includes("3d-foto") ||
+    combined.includes("relief painting") ||
+    combined.includes("reliëf")
+  );
+}
 
 const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
 
@@ -244,34 +276,35 @@ export default function Hero({
     }
   }, [previewHolidayId]);
 
-  // Active holiday detection based on preview prop or current calendar date
-  const activeHoliday = useMemo(() => {
+  // Active holidays detection:
+  // - If previewHolidayId is provided: ONLY that selected holiday is active.
+  // - Otherwise: find all holidays active today (multiple can overlap).
+  const activeHolidays = useMemo<HolidayConfigItem[]>(() => {
     if (previewHolidayId && holidayConfig[previewHolidayId]) {
-      return holidayConfig[previewHolidayId];
+      return [holidayConfig[previewHolidayId]];
     }
-    return getActiveHoliday();
+    return getActiveHolidays();
   }, [previewHolidayId]);
 
-  // Construct dynamic holiday slide when active holiday is detected
-  const holidaySlide = useMemo<HeroSlide | null>(() => {
-    if (!activeHoliday) return null;
-    return {
-      id: `holiday-${activeHoliday.id}`,
-      title: activeHoliday.content.title,
-      titleNl: activeHoliday.content.titles?.nl,
-      subtext: activeHoliday.content.subtitle,
-      subtextNl: activeHoliday.content.subtitles?.nl,
-      priceText: activeHoliday.eyebrow || "Holiday Special",
-      priceTextNl: activeHoliday.eyebrows?.nl,
-      mediaUrl: activeHoliday.modelUrl,
+  // Construct dynamic holiday slides for all currently active holidays
+  const holidaySlides = useMemo<HeroSlide[]>(() => {
+    return activeHolidays.map((holiday, idx) => ({
+      id: `holiday-${holiday.id}`,
+      title: holiday.content.title,
+      titleNl: holiday.content.titles?.nl,
+      subtext: holiday.content.subtitle,
+      subtextNl: holiday.content.subtitles?.nl,
+      priceText: holiday.eyebrow || "Holiday Special",
+      priceTextNl: holiday.eyebrows?.nl,
+      mediaUrl: holiday.modelUrl,
       mediaType: "model3d",
       instructionTooltip:
         "Interactive 3D model: drag to rotate 360°, scroll to zoom in and inspect geometry.",
       instructionTooltipNl:
         "Interactief 3D-model: sleep om 360° te draaien, scroll om in te zoomen op details.",
-      titles: activeHoliday.content.titles,
-      subtexts: activeHoliday.content.subtitles,
-      priceTexts: activeHoliday.eyebrows,
+      titles: holiday.content.titles,
+      subtexts: holiday.content.subtitles,
+      priceTexts: holiday.eyebrows,
       instructionTooltips: {
         en: "Interactive 3D model: drag to rotate 360°, scroll to zoom in and inspect geometry.",
         nl: "Interactief 3D-model: sleep om 360° te draaien, scroll om in te zoomen op details.",
@@ -280,16 +313,22 @@ export default function Hero({
         ar: "نموذج تفاعلي ثلاثي الأبعاد: اسحب للتدوير بزاوية 360 درجة، ومرر للتكبير وفحص التفاصيل.",
       },
       isActive: true,
-      sortOrder: 0,
-    };
-  }, [activeHoliday]);
+      sortOrder: idx,
+    }));
+  }, [activeHolidays]);
 
-  // Combined slide list with active holiday at index 0
+  // Combined slide list:
+  // - In preview mode (previewHolidayId): ONLY the selected holiday slide is shown!
+  // - In normal storefront mode: all active overlapping holiday slides appear first, followed by database slides.
   const allSlides = useMemo<HeroSlide[]>(() => {
-    if (!holidaySlide) return slides;
-    const filtered = slides.filter((s) => s.id !== holidaySlide.id);
-    return [holidaySlide, ...filtered];
-  }, [holidaySlide, slides]);
+    if (previewHolidayId && holidaySlides.length > 0) {
+      return [holidaySlides[0]];
+    }
+    if (holidaySlides.length === 0) return slides;
+    const holidayIds = new Set(holidaySlides.map((s) => s.id));
+    const filtered = slides.filter((s) => !holidayIds.has(s.id));
+    return [...holidaySlides, ...filtered];
+  }, [previewHolidayId, holidaySlides, slides]);
 
   // Mark user interaction to activate auto-play & prefetching without degrading initial LCP
   useEffect(() => {
@@ -353,49 +392,57 @@ export default function Hero({
   const totalSlides = allSlides.length;
   const currentSlide = allSlides[currentIndex] || allSlides[0] || FALLBACK_SLIDES[0];
 
-  const isCurrentSlideHoliday = Boolean(
-    activeHoliday && currentSlide.id.startsWith("holiday-"),
-  );
+  const currentHoliday = useMemo<HolidayConfigItem | null>(() => {
+    if (!currentSlide.id.startsWith("holiday-")) return null;
+    const holidayId = currentSlide.id.replace("holiday-", "");
+    return (
+      activeHolidays.find((h) => h.id === holidayId) ||
+      holidayConfig[holidayId as HolidayKey] ||
+      null
+    );
+  }, [currentSlide.id, activeHolidays]);
+
+  const isCurrentSlideHoliday = Boolean(currentHoliday);
 
   const activePalette =
-    isCurrentSlideHoliday && activeHoliday
-      ? activeHoliday.colorPalette
+    isCurrentSlideHoliday && currentHoliday
+      ? currentHoliday.colorPalette
       : DEFAULT_HERO_PALETTE;
 
   const activeEffect =
-    isCurrentSlideHoliday && activeHoliday ? activeHoliday.effect : null;
+    isCurrentSlideHoliday && currentHoliday ? currentHoliday.effect : null;
 
   const slideTitle =
-    isCurrentSlideHoliday && activeHoliday
-      ? getHolidayTitle(activeHoliday, language, t)
+    isCurrentSlideHoliday && currentHoliday
+      ? getHolidayTitle(currentHoliday, language, t)
       : getHeroSlideTitle(currentSlide, language);
 
   const slideSubtext =
-    isCurrentSlideHoliday && activeHoliday
-      ? getHolidaySubtitle(activeHoliday, language, t)
+    isCurrentSlideHoliday && currentHoliday
+      ? getHolidaySubtitle(currentHoliday, language, t)
       : getHeroSlideSubtext(currentSlide, language);
 
   const slideEyebrow =
-    isCurrentSlideHoliday && activeHoliday
-      ? getHolidayEyebrow(activeHoliday, language, t)
+    isCurrentSlideHoliday && currentHoliday
+      ? getHolidayEyebrow(currentHoliday, language, t)
       : getHeroSlidePrice(currentSlide, language);
 
-  const isPhotoPaintingSlide =
-    (isCurrentSlideHoliday && activeHoliday?.id === "mothersDay") ||
-    (!isCurrentSlideHoliday && currentSlide.mediaUrl.includes("snowflake"));
+  const isCurrentPhotoPainting = isPhotoPainting(
+    currentSlide,
+    isCurrentSlideHoliday,
+    currentHoliday?.id,
+  );
 
-  const primaryCtaPath = isPhotoPaintingSlide
+  const primaryCtaPath = isCurrentPhotoPainting
     ? localizePath("/filament-painting")
     : localizePath("/quote");
 
   const primaryCtaText =
-    isCurrentSlideHoliday && activeHoliday
-      ? getHolidayCtaText(activeHoliday, language, t)
-      : isPhotoPaintingSlide
+    isCurrentSlideHoliday && currentHoliday
+      ? getHolidayCtaText(currentHoliday, language, t)
+      : isCurrentPhotoPainting
         ? t("hero.ctaPhoto")
-        : currentIndex === 1
-          ? t("hero.ctaStart")
-          : t("hero.ctaUpload");
+        : t("hero.ctaUpload");
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (totalSlides > 0 ? (prev + 1) % totalSlides : 0));
@@ -631,43 +678,47 @@ export default function Hero({
       </div>
 
       {/* ================= BOTTOM BAR: Minimal Pagination Dots ================= */}
-      <div
-        role="group"
-        aria-label={t("hero.paginationAria")}
-        className="relative z-20 flex items-center justify-center gap-2 pb-8"
-      >
-        {allSlides.map((slide, idx) => {
-          const isActive = idx === currentIndex;
-          const slideItemTitle =
-            activeHoliday && slide.id.startsWith("holiday-")
-              ? getHolidayTitle(activeHoliday, language, t)
+      {allSlides.length > 1 && (
+        <div
+          role="group"
+          aria-label={t("hero.paginationAria")}
+          className="relative z-20 flex items-center justify-center gap-2 pb-8"
+        >
+          {allSlides.map((slide, idx) => {
+            const isActive = idx === currentIndex;
+            const holidayForSlide = slide.id.startsWith("holiday-")
+              ? holidayConfig[slide.id.replace("holiday-", "") as HolidayKey] || null
+              : null;
+            const slideItemTitle = holidayForSlide
+              ? getHolidayTitle(holidayForSlide, language, t)
               : getHeroSlideTitle(slide, language);
-          return (
-            <button
-              key={slide.id || idx}
-              type="button"
-              aria-current={isActive ? "true" : undefined}
-              aria-label={t("hero.goToSlide", {
-                index: idx + 1,
-                title: slideItemTitle,
-              })}
-              onClick={() => {
-                setHasInteracted(true);
-                goToSlide(idx);
-              }}
-              className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 ${activePalette.focusRing || "focus:ring-emerald-400"} rounded-full`}
-            >
-              <span
-                className={`block h-2 rounded-full transition-all duration-300 ${
-                  isActive
-                    ? `w-8 ${activePalette.paginationDotActive || "bg-emerald-400"} opacity-100 shadow-sm`
-                    : "w-2 bg-white/40 hover:bg-white/70 opacity-60"
-                }`}
-              />
-            </button>
-          );
-        })}
-      </div>
+            return (
+              <button
+                key={slide.id || idx}
+                type="button"
+                aria-current={isActive ? "true" : undefined}
+                aria-label={t("hero.goToSlide", {
+                  index: idx + 1,
+                  title: slideItemTitle,
+                })}
+                onClick={() => {
+                  setHasInteracted(true);
+                  goToSlide(idx);
+                }}
+                className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 ${activePalette.focusRing || "focus:ring-emerald-400"} rounded-full`}
+              >
+                <span
+                  className={`block h-2 rounded-full transition-all duration-300 ${
+                    isActive
+                      ? `w-8 ${activePalette.paginationDotActive || "bg-emerald-400"} opacity-100 shadow-sm`
+                      : "w-2 bg-white/40 hover:bg-white/70 opacity-60"
+                  }`}
+                />
+              </button>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }
