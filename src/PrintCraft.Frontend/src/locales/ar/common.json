@@ -11,6 +11,7 @@
   "themeSystem": "سمة النظام",
   "toggleTheme": "تبديل سمة الألوان",
   "support": {
+    "floatingButtonLabel": "الإبلاغ عن مشكلة أو خطأ",
     "modalTitle": "الإبلاغ عن مشكلة / استفسار",
     "modalSubtitle": "أخبرنا عن مشكلة في الطلب أو خطأ في الموقع أو أي سؤال عام.",
     "category": "الفئة",

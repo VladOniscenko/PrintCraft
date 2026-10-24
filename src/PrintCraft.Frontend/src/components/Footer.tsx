@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Phone, MapPin, Clock3, ExternalLink, MessageSquare } from "lucide-react";
+import { Phone, MapPin, Clock3, ExternalLink, AlertTriangle } from "lucide-react";
 import { useI18n } from "../i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { businessInfo } from "../config/businessInfo";
@@ -131,16 +131,6 @@ export default function Footer() {
                   </a>
                 </div>
               )}
-              <div className="pt-1">
-                <button
-                  type="button"
-                  onClick={() => setIsReportModalOpen(true)}
-                  className="inline-flex items-center gap-2 hover:text-gray-900 dark:hover:text-white transition-colors py-1 min-h-[32px] cursor-pointer text-left"
-                >
-                  <MessageSquare size={14} className="text-gray-500 dark:text-gray-400 shrink-0" />
-                  <span>{t("footer.reportIssue")}</span>
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -193,17 +183,23 @@ export default function Footer() {
             <Link to={localizePath("/faq")} className="hover:text-gray-900 dark:hover:text-white transition-colors py-2 px-1 min-h-[44px] inline-flex items-center">
               {t("footer.faq")}
             </Link>
-            <span className="text-gray-300 dark:text-gray-600 select-none">•</span>
-            <button
-              type="button"
-              onClick={() => setIsReportModalOpen(true)}
-              className="hover:text-gray-900 dark:hover:text-white transition-colors py-2 px-1 min-h-[44px] inline-flex items-center cursor-pointer"
-            >
-              {t("footer.reportIssue")}
-            </button>
           </div>
         </div>
       </div>
+
+      {/* Floating Issue Report Button */}
+      <button
+        type="button"
+        onClick={() => setIsReportModalOpen(true)}
+        aria-label={t("common.support.floatingButtonLabel")}
+        title={t("common.support.floatingButtonLabel")}
+        className="fixed bottom-6 right-6 z-40 group flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white shadow-lg shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+      >
+        <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
+        <span className="absolute right-full mr-3 px-3 py-1.5 rounded-xl bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity pointer-events-none shadow-md backdrop-blur-xs">
+          {t("common.support.floatingButtonLabel")}
+        </span>
+      </button>
 
       {isReportModalOpen && (
         <ReportIssueModal

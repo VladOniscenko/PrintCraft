@@ -11,6 +11,7 @@
   "themeSystem": "Systeemthema",
   "toggleTheme": "Wissel kleurthema",
   "support": {
+    "floatingButtonLabel": "Probleem of bug melden",
     "modalTitle": "Probleem Melden / Vraag",
     "modalSubtitle": "Laat ons weten over een probleem met een bestelling, een bug of een algemene vraag.",
     "category": "Categorie",

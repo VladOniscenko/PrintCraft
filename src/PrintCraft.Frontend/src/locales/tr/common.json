@@ -11,6 +11,7 @@
   "themeSystem": "Sistem Teması",
   "toggleTheme": "Renk temasını değiştir",
   "support": {
+    "floatingButtonLabel": "Sorun veya Hata Bildir",
     "modalTitle": "Sorun Bildir / Talep",
     "modalSubtitle": "Siparişinizle ilgili bir sorun, web sitesi hatası veya genel bir soru bildirin.",
     "category": "Kategori",

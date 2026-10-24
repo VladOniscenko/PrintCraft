@@ -11,6 +11,7 @@
   "themeSystem": "System Theme",
   "toggleTheme": "Toggle color theme",
   "support": {
+    "floatingButtonLabel": "Report an Issue / Bug",
     "modalTitle": "Report an Issue / Inquiry",
     "modalSubtitle": "Let us know about an issue with an order, a bug, or general question.",
     "category": "Category",
