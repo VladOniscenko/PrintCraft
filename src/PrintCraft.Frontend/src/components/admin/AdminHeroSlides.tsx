@@ -35,6 +35,7 @@ import {
   supportedLanguages,
   type SupportedLanguage,
 } from "../../i18n/translations";
+import { loadLanguage } from "../../i18n/loader";
 import Hero from "../Hero";
 import {
   holidayConfig,
@@ -95,7 +96,7 @@ function Model3dPreviewModal({
   if (!isOpen || !modelUrl) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10">
           <div className="flex items-center gap-2">
@@ -238,7 +239,7 @@ function MediaSelectorModal({
   });
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-4xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10 shrink-0">
@@ -1637,7 +1638,7 @@ export default function AdminHeroSlides() {
 
         {/* Create Slide Modal */}
         {showCreateModal && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -1987,10 +1988,20 @@ export default function AdminHeroSlides() {
 
         {/* Holiday Hero Full Live Preview Modal */}
         {previewHolidayKey && (
-          <div className="fixed inset-0 z-[999] bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-            <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-6xl w-full p-4 sm:p-6 shadow-2xl flex flex-col max-h-[92vh] my-auto">
+          <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+            <div className="relative bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-6xl w-full p-4 sm:p-6 shadow-2xl flex flex-col max-h-[92vh] my-auto">
+              {/* Absolute Top-Right Close Button */}
+              <button
+                type="button"
+                onClick={() => setPreviewHolidayKey(null)}
+                className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition cursor-pointer z-20"
+                aria-label={t("admin.heroSlides.closeModal")}
+              >
+                <X size={20} />
+              </button>
+
               {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-200 dark:border-white/10 shrink-0">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-200 dark:border-white/10 shrink-0 pr-10 sm:pr-12">
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
@@ -2043,7 +2054,10 @@ export default function AdminHeroSlides() {
                       <button
                         key={lang}
                         type="button"
-                        onClick={() => setPreviewHolidayLang(lang)}
+                        onClick={() => {
+                          setPreviewHolidayLang(lang);
+                          void loadLanguage(lang);
+                        }}
                         className={`px-2 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
                           previewHolidayLang === lang
                             ? "bg-white dark:bg-emerald-600 text-emerald-800 dark:text-white shadow-xs"
@@ -2056,20 +2070,11 @@ export default function AdminHeroSlides() {
                       </button>
                     ))}
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setPreviewHolidayKey(null)}
-                    className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition cursor-pointer"
-                    aria-label={t("admin.heroSlides.closeModal")}
-                  >
-                    <X size={20} />
-                  </button>
                 </div>
               </div>
 
               {/* Live Hero Component Viewport */}
-              <div className="mt-4 flex-1 overflow-y-auto rounded-2xl border border-gray-200 dark:border-white/10 shadow-inner bg-slate-950 relative max-h-[72vh]">
+              <div className="mt-4 flex-1 overflow-y-auto rounded-[2.5rem] border border-gray-200/60 dark:border-white/10 shadow-inner bg-transparent relative max-h-[72vh] overflow-hidden">
                 <Hero
                   previewHolidayId={previewHolidayKey}
                   previewLanguage={previewHolidayLang}

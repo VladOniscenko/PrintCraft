@@ -1274,12 +1274,12 @@ export function getHolidayTitle(
   const holiday =
     typeof holidayOrKey === "string" ? holidayConfig[holidayOrKey] : holidayOrKey;
   if (!holiday) return "";
+  if (holiday.content.titles?.[language]) {
+    return holiday.content.titles[language];
+  }
   if (t && holiday.content.titleKey) {
     const val = t(holiday.content.titleKey);
     if (val && val !== holiday.content.titleKey) return val;
-  }
-  if (holiday.content.titles?.[language]) {
-    return holiday.content.titles[language];
   }
   return holiday.content.title;
 }
@@ -1292,12 +1292,12 @@ export function getHolidaySubtitle(
   const holiday =
     typeof holidayOrKey === "string" ? holidayConfig[holidayOrKey] : holidayOrKey;
   if (!holiday) return "";
+  if (holiday.content.subtitles?.[language]) {
+    return holiday.content.subtitles[language];
+  }
   if (t && holiday.content.subtitleKey) {
     const val = t(holiday.content.subtitleKey);
     if (val && val !== holiday.content.subtitleKey) return val;
-  }
-  if (holiday.content.subtitles?.[language]) {
-    return holiday.content.subtitles[language];
   }
   return holiday.content.subtitle;
 }
@@ -1310,12 +1310,12 @@ export function getHolidayCtaText(
   const holiday =
     typeof holidayOrKey === "string" ? holidayConfig[holidayOrKey] : holidayOrKey;
   if (!holiday) return "";
+  if (holiday.content.ctaTexts?.[language]) {
+    return holiday.content.ctaTexts[language];
+  }
   if (t && holiday.content.ctaTextKey) {
     const val = t(holiday.content.ctaTextKey);
     if (val && val !== holiday.content.ctaTextKey) return val;
-  }
-  if (holiday.content.ctaTexts?.[language]) {
-    return holiday.content.ctaTexts[language];
   }
   return holiday.content.ctaText;
 }
@@ -1328,12 +1328,12 @@ export function getHolidayEyebrow(
   const holiday =
     typeof holidayOrKey === "string" ? holidayConfig[holidayOrKey] : holidayOrKey;
   if (!holiday) return "";
+  if (holiday.eyebrows?.[language]) {
+    return holiday.eyebrows[language];
+  }
   if (t && holiday.eyebrowKey) {
     const val = t(holiday.eyebrowKey);
     if (val && val !== holiday.eyebrowKey) return val;
-  }
-  if (holiday.eyebrows?.[language]) {
-    return holiday.eyebrows[language];
   }
   return holiday.eyebrow || "";
 }

@@ -11,35 +11,38 @@ const CONFETTI_COLORS = [
   "bg-orange-500",
   "bg-rose-500",
   "bg-teal-400",
-  "bg-blue-400",
+  "bg-sky-400",
   "bg-yellow-300",
   "bg-emerald-400",
-  "bg-white/90",
+  "bg-purple-500",
+  "bg-pink-400",
+  "bg-white",
 ];
 
 const HEART_COLORS = [
-  "text-pink-400/80",
-  "text-rose-400/85",
-  "text-red-400/75",
-  "text-pink-300/80",
-  "text-purple-300/70",
+  "text-pink-400",
+  "text-rose-500",
+  "text-red-500",
+  "text-pink-300",
+  "text-rose-400",
+  "text-purple-400",
 ];
 
 const BLOSSOM_COLORS = [
-  "text-pink-300/85",
-  "text-rose-200/90",
-  "text-pink-200/80",
-  "text-rose-300/75",
-  "text-white/85",
-  "text-pink-100/90",
+  "text-pink-300",
+  "text-rose-300",
+  "text-pink-200",
+  "text-rose-200",
+  "text-white",
+  "text-pink-100",
 ];
 
 const PAW_COLORS = [
-  "text-amber-400/50",
-  "text-amber-300/40",
-  "text-orange-400/45",
-  "text-amber-200/40",
-  "text-white/35",
+  "text-amber-400/90",
+  "text-amber-300/85",
+  "text-orange-400/90",
+  "text-amber-200/80",
+  "text-white/75",
 ];
 
 function BatSvg() {
@@ -58,7 +61,7 @@ function HeartSvg() {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="w-full h-full fill-current filter drop-shadow-[0_2px_6px_rgba(244,63,94,0.4)]"
+      className="w-full h-full fill-current filter drop-shadow-[0_2px_8px_rgba(244,63,94,0.55)]"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -70,7 +73,7 @@ function SnowflakeSvg() {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="w-full h-full fill-white/80 filter drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]"
+      className="w-full h-full fill-white filter drop-shadow-[0_0_8px_rgba(255,255,255,0.95)]"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M11 2v4.07a8.03 8.03 0 0 0-3.5 1.45L4.85 4.85 3.44 6.26l2.67 2.67A8.06 8.06 0 0 0 4.66 11H1v2h3.66c.26 1.05.8 2 1.45 2.82l-2.67 2.67 1.41 1.41 2.67-2.67A8.03 8.03 0 0 0 11 18.26V22h2v-3.74a8.03 8.03 0 0 0 3.5-1.45l2.67 2.67 1.41-1.41-2.67-2.67c.65-.82 1.19-1.77 1.45-2.82H23v-2h-3.64a8.06 8.06 0 0 0-1.45-2.07l2.67-2.67-1.41-1.41-2.67 2.67A8.03 8.03 0 0 0 13 6.07V2h-2z" />
@@ -82,7 +85,7 @@ function BlossomPetalSvg() {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="w-full h-full fill-current filter drop-shadow-[0_2px_4px_rgba(244,114,182,0.35)]"
+      className="w-full h-full fill-current filter drop-shadow-[0_2px_6px_rgba(244,114,182,0.45)]"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M12 2C10 5.5 6 8.5 6 13a6 6 0 0 0 12 0c0-4.5-4-7.5-6-11z" />
@@ -94,7 +97,7 @@ function PawPrintSvg() {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="w-full h-full fill-current filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]"
+      className="w-full h-full fill-current filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M12 11c-2.2 0-4 1.8-4 4 0 2 1.6 3.5 4 3.5s4-1.5 4-3.5c0-2.2-1.8-4-4-4z" />
@@ -112,96 +115,98 @@ function HolidayEffectsComponent({
 }: HolidayEffectsProps) {
   const bats = useMemo(
     () => [
-      { id: 1, left: "4%", top: "72%", delay: "0s", duration: "7.5s", scale: 0.7, flap: "0.22s" },
-      { id: 2, left: "14%", top: "82%", delay: "1.8s", duration: "8.2s", scale: 0.9, flap: "0.26s" },
-      { id: 3, left: "26%", top: "66%", delay: "3.4s", duration: "6.8s", scale: 0.65, flap: "0.2s" },
-      { id: 4, left: "40%", top: "80%", delay: "0.9s", duration: "9s", scale: 0.85, flap: "0.25s" },
-      { id: 5, left: "54%", top: "68%", delay: "2.6s", duration: "7.2s", scale: 0.75, flap: "0.23s" },
-      { id: 6, left: "67%", top: "84%", delay: "4.1s", duration: "8.5s", scale: 1.0, flap: "0.28s" },
-      { id: 7, left: "80%", top: "62%", delay: "1.3s", duration: "6.5s", scale: 0.6, flap: "0.19s" },
-      { id: 8, left: "10%", top: "52%", delay: "5.0s", duration: "7.8s", scale: 0.8, flap: "0.24s" },
-      { id: 9, left: "34%", top: "88%", delay: "2.1s", duration: "8.0s", scale: 0.7, flap: "0.21s" },
-      { id: 10, left: "58%", top: "56%", delay: "4.7s", duration: "7.1s", scale: 0.95, flap: "0.27s" },
-      { id: 11, left: "74%", top: "76%", delay: "3.0s", duration: "8.8s", scale: 0.65, flap: "0.2s" },
-      { id: 12, left: "20%", top: "70%", delay: "5.8s", duration: "7.4s", scale: 0.85, flap: "0.23s" },
+      { id: 1, left: "4%", top: "72%", delay: "-0.5s", duration: "7.2s", scale: 0.9, flap: "0.22s" },
+      { id: 2, left: "14%", top: "82%", delay: "-2.1s", duration: "8.0s", scale: 1.1, flap: "0.26s" },
+      { id: 3, left: "26%", top: "66%", delay: "-3.8s", duration: "6.8s", scale: 0.85, flap: "0.2s" },
+      { id: 4, left: "40%", top: "80%", delay: "-1.2s", duration: "8.5s", scale: 1.05, flap: "0.25s" },
+      { id: 5, left: "54%", top: "68%", delay: "-3.0s", duration: "7.4s", scale: 0.95, flap: "0.23s" },
+      { id: 6, left: "67%", top: "84%", delay: "-4.6s", duration: "8.2s", scale: 1.15, flap: "0.28s" },
+      { id: 7, left: "80%", top: "62%", delay: "-1.8s", duration: "6.6s", scale: 0.85, flap: "0.19s" },
+      { id: 8, left: "10%", top: "52%", delay: "-5.3s", duration: "7.6s", scale: 1.0, flap: "0.24s" },
+      { id: 9, left: "34%", top: "88%", delay: "-2.7s", duration: "8.0s", scale: 0.9, flap: "0.21s" },
+      { id: 10, left: "58%", top: "56%", delay: "-4.2s", duration: "7.1s", scale: 1.1, flap: "0.27s" },
+      { id: 11, left: "74%", top: "76%", delay: "-3.4s", duration: "8.6s", scale: 0.85, flap: "0.2s" },
+      { id: 12, left: "20%", top: "70%", delay: "-5.9s", duration: "7.5s", scale: 1.05, flap: "0.23s" },
+      { id: 13, left: "48%", top: "78%", delay: "-0.8s", duration: "7.9s", scale: 0.95, flap: "0.22s" },
+      { id: 14, left: "88%", top: "64%", delay: "-4.0s", duration: "8.3s", scale: 1.0, flap: "0.25s" },
     ],
     []
   );
 
   const snow = useMemo(
     () =>
-      Array.from({ length: 26 }, (_, i) => ({
+      Array.from({ length: 38 }, (_, i) => ({
         id: i,
-        left: `${(i * 3.7 + (i % 3) * 1.8) % 96 + 2}%`,
-        delay: `${((i * 1.3) % 7).toFixed(1)}s`,
-        duration: `${(5.5 + (i % 5) * 1.3).toFixed(1)}s`,
-        isSvg: i % 4 === 0,
+        left: `${(i * 2.6 + (i % 3) * 1.5) % 96 + 2}%`,
+        delay: `-${((i * 0.8) % 6).toFixed(1)}s`,
+        duration: `${(5.0 + (i % 5) * 1.1).toFixed(1)}s`,
+        isSvg: i % 3 === 0,
         size:
-          i % 4 === 0
-            ? "w-3 h-3"
-            : i % 3 === 0
-              ? "w-2 h-2 rounded-full bg-white/85 shadow-[0_0_8px_rgba(255,255,255,0.7)]"
-              : "w-1.5 h-1.5 rounded-full bg-white/70 shadow-[0_0_4px_rgba(255,255,255,0.5)]",
-        opacity: 0.5 + (i % 5) * 0.1,
-        swayDuration: `${(3.2 + (i % 3) * 0.8).toFixed(1)}s`,
+          i % 3 === 0
+            ? "w-4 h-4"
+            : i % 2 === 0
+              ? "w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]"
+              : "w-2 h-2 rounded-full bg-white/90 shadow-[0_0_6px_rgba(255,255,255,0.75)]",
+        opacity: 0.75 + (i % 4) * 0.08,
+        swayDuration: `${(3.0 + (i % 3) * 0.8).toFixed(1)}s`,
       })),
     []
   );
 
   const confetti = useMemo(
     () =>
-      Array.from({ length: 30 }, (_, i) => ({
+      Array.from({ length: 48 }, (_, i) => ({
         id: i,
-        left: `${(i * 3.3 + (i % 4) * 2.1) % 96 + 2}%`,
-        delay: `${((i * 0.9) % 6).toFixed(1)}s`,
-        duration: `${(4.8 + (i % 4) * 1.2).toFixed(1)}s`,
+        left: `${(i * 2.1 + (i % 4) * 1.7) % 96 + 2}%`,
+        delay: `-${((i * 0.6) % 5).toFixed(1)}s`,
+        duration: `${(4.2 + (i % 4) * 1.0).toFixed(1)}s`,
         colorClass: CONFETTI_COLORS[i % CONFETTI_COLORS.length] ?? "bg-amber-400",
         sizeClass:
           i % 3 === 0
-            ? "w-2 h-3.5 rounded-sm"
+            ? "w-3 h-4 rounded-xs"
             : i % 2 === 0
-              ? "w-2.5 h-2 rounded-sm"
-              : "w-1.5 h-3 rounded-full",
+              ? "w-3.5 h-3 rounded-xs"
+              : "w-2.5 h-4.5 rounded-full",
       })),
     []
   );
 
   const hearts = useMemo(
     () =>
-      Array.from({ length: 18 }, (_, i) => ({
+      Array.from({ length: 24 }, (_, i) => ({
         id: i,
-        left: `${(i * 5.2 + (i % 3) * 3.1) % 94 + 3}%`,
-        delay: `${((i * 1.1) % 7).toFixed(1)}s`,
-        duration: `${(6.0 + (i % 4) * 1.4).toFixed(1)}s`,
-        colorClass: HEART_COLORS[i % HEART_COLORS.length] ?? "text-pink-400/80",
-        sizeClass: i % 3 === 0 ? "w-6 h-6" : i % 2 === 0 ? "w-5 h-5" : "w-4 h-4",
+        left: `${(i * 4.1 + (i % 3) * 2.3) % 94 + 3}%`,
+        delay: `-${((i * 0.9) % 6).toFixed(1)}s`,
+        duration: `${(5.4 + (i % 4) * 1.2).toFixed(1)}s`,
+        colorClass: HEART_COLORS[i % HEART_COLORS.length] ?? "text-pink-400",
+        sizeClass: i % 3 === 0 ? "w-7 h-7" : i % 2 === 0 ? "w-6 h-6" : "w-5 h-5",
       })),
     []
   );
 
   const blossoms = useMemo(
     () =>
-      Array.from({ length: 22 }, (_, i) => ({
+      Array.from({ length: 30 }, (_, i) => ({
         id: i,
-        left: `${(i * 4.4 + (i % 3) * 2.3) % 95 + 2}%`,
-        delay: `${((i * 1.2) % 6.5).toFixed(1)}s`,
-        duration: `${(5.8 + (i % 4) * 1.3).toFixed(1)}s`,
-        colorClass: BLOSSOM_COLORS[i % BLOSSOM_COLORS.length] ?? "text-pink-300/85",
-        sizeClass: i % 3 === 0 ? "w-5 h-5" : i % 2 === 0 ? "w-4 h-4" : "w-3.5 h-3.5",
-        swayDuration: `${(3.0 + (i % 3) * 0.7).toFixed(1)}s`,
+        left: `${(i * 3.3 + (i % 3) * 1.9) % 95 + 2}%`,
+        delay: `-${((i * 0.8) % 5.5).toFixed(1)}s`,
+        duration: `${(5.2 + (i % 4) * 1.1).toFixed(1)}s`,
+        colorClass: BLOSSOM_COLORS[i % BLOSSOM_COLORS.length] ?? "text-pink-300",
+        sizeClass: i % 3 === 0 ? "w-6 h-6" : i % 2 === 0 ? "w-5 h-5" : "w-4 h-4",
+        swayDuration: `${(2.8 + (i % 3) * 0.6).toFixed(1)}s`,
       })),
     []
   );
 
   const pawprints = useMemo(
     () =>
-      Array.from({ length: 16 }, (_, i) => ({
+      Array.from({ length: 22 }, (_, i) => ({
         id: i,
-        left: `${(i * 6.1 + (i % 3) * 2.8) % 92 + 4}%`,
-        delay: `${((i * 1.4) % 7).toFixed(1)}s`,
-        duration: `${(6.5 + (i % 4) * 1.2).toFixed(1)}s`,
-        colorClass: PAW_COLORS[i % PAW_COLORS.length] ?? "text-amber-400/50",
-        sizeClass: i % 3 === 0 ? "w-7 h-7" : i % 2 === 0 ? "w-6 h-6" : "w-5 h-5",
+        left: `${(i * 4.6 + (i % 3) * 2.1) % 92 + 4}%`,
+        delay: `-${((i * 1.0) % 6).toFixed(1)}s`,
+        duration: `${(5.8 + (i % 4) * 1.0).toFixed(1)}s`,
+        colorClass: PAW_COLORS[i % PAW_COLORS.length] ?? "text-amber-400/90",
+        sizeClass: i % 3 === 0 ? "w-8 h-8" : i % 2 === 0 ? "w-7 h-7" : "w-6 h-6",
       })),
     []
   );
@@ -210,55 +215,56 @@ function HolidayEffectsComponent({
 
   return (
     <div
-      className={`holiday-effect-layer absolute inset-0 overflow-hidden pointer-events-none select-none z-0 ${className}`}
+      className={`holiday-effect-layer absolute inset-0 overflow-hidden pointer-events-none select-none z-[2] ${className}`}
       aria-hidden="true"
     >
       <style>{`
         @keyframes holiday-snow-fall {
-          0% { transform: translateY(-24px); opacity: 0; }
-          12% { opacity: 0.9; }
-          88% { opacity: 0.9; }
-          100% { transform: translateY(115vh); opacity: 0.15; }
+          0% { top: -6%; opacity: 0; }
+          10% { opacity: 0.95; }
+          90% { opacity: 0.95; }
+          100% { top: 106%; opacity: 0.3; }
         }
         @keyframes holiday-snow-sway {
-          0%, 100% { margin-left: 0; }
-          50% { margin-left: 22px; }
+          0%, 100% { transform: translateX(0); }
+          50% { transform: translateX(20px); }
         }
         @keyframes holiday-confetti-fall {
-          0% { transform: translateY(-20px) rotateX(0deg) rotateZ(0deg); opacity: 0.95; }
-          100% { transform: translateY(115vh) rotateX(720deg) rotateZ(360deg); opacity: 0.55; }
+          0% { top: -8%; transform: translateX(0) rotateX(0deg) rotateZ(0deg); opacity: 1; }
+          50% { transform: translateX(25px) rotateX(360deg) rotateZ(180deg); opacity: 1; }
+          100% { top: 108%; transform: translateX(-15px) rotateX(720deg) rotateZ(360deg); opacity: 0.85; }
         }
         @keyframes holiday-bat-flight {
           0% { transform: translate(0, 0) rotate(-10deg); opacity: 0; }
-          15% { opacity: 0.75; }
-          85% { opacity: 0.75; }
-          100% { transform: translate(240px, -280px) rotate(16deg); opacity: 0; }
+          12% { opacity: 0.9; }
+          88% { opacity: 0.9; }
+          100% { transform: translate(320px, -240px) rotate(16deg); opacity: 0; }
         }
         @keyframes holiday-bat-flap {
           0%, 100% { transform: scaleY(1); }
           50% { transform: scaleY(0.35); }
         }
         @keyframes holiday-heart-float {
-          0% { transform: translateY(115%) scale(0.65) rotate(-8deg); opacity: 0; }
-          15% { opacity: 0.85; }
-          85% { opacity: 0.8; }
-          100% { transform: translateY(-25%) scale(1.1) rotate(14deg); opacity: 0; }
+          0% { bottom: -10%; transform: scale(0.7) rotate(-8deg); opacity: 0; }
+          12% { opacity: 0.95; }
+          88% { opacity: 0.9; }
+          100% { bottom: 110%; transform: scale(1.15) rotate(14deg); opacity: 0; }
         }
         @keyframes holiday-blossom-fall {
-          0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
-          12% { opacity: 0.85; }
-          88% { opacity: 0.8; }
-          100% { transform: translateY(115vh) translateX(55px) rotate(360deg); opacity: 0.2; }
+          0% { top: -6%; transform: translateX(0); opacity: 0; }
+          12% { opacity: 0.95; }
+          88% { opacity: 0.9; }
+          100% { top: 106%; transform: translateX(50px); opacity: 0.25; }
         }
         @keyframes holiday-blossom-sway {
           0%, 100% { transform: rotateY(0deg) rotateZ(0deg); }
-          50% { transform: rotateY(70deg) rotateZ(20deg); }
+          50% { transform: rotateY(70deg) rotateZ(25deg); }
         }
         @keyframes holiday-paw-float {
-          0% { transform: translateY(115%) rotate(-12deg) scale(0.7); opacity: 0; }
-          15% { opacity: 0.65; }
-          85% { opacity: 0.65; }
-          100% { transform: translateY(-20%) rotate(12deg) scale(1.05); opacity: 0; }
+          0% { bottom: -10%; transform: rotate(-12deg) scale(0.75); opacity: 0; }
+          15% { opacity: 0.85; }
+          85% { opacity: 0.85; }
+          100% { bottom: 110%; transform: rotate(12deg) scale(1.1); opacity: 0; }
         }
         @media (prefers-reduced-motion: reduce) {
           .holiday-effect-layer {
@@ -272,14 +278,15 @@ function HolidayEffectsComponent({
         bats.map((b) => (
           <div
             key={b.id}
-            className="absolute transform-gpu will-change-transform text-orange-950/70"
+            className="absolute transform-gpu will-change-transform text-orange-950/85"
             style={{
               left: b.left,
               top: b.top,
-              width: `${Math.round(44 * b.scale)}px`,
-              height: `${Math.round(25 * b.scale)}px`,
+              width: `${Math.round(52 * b.scale)}px`,
+              height: `${Math.round(29 * b.scale)}px`,
               animation: `holiday-bat-flight ${b.duration} cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite`,
               animationDelay: b.delay,
+              animationFillMode: "both",
             }}
           >
             <div
@@ -298,11 +305,12 @@ function HolidayEffectsComponent({
         snow.map((s) => (
           <div
             key={s.id}
-            className="absolute top-0 transform-gpu will-change-transform"
+            className="absolute transform-gpu will-change-transform"
             style={{
               left: s.left,
               animation: `holiday-snow-fall ${s.duration} linear infinite`,
               animationDelay: s.delay,
+              animationFillMode: "both",
             }}
           >
             <div
@@ -322,11 +330,12 @@ function HolidayEffectsComponent({
         confetti.map((c) => (
           <div
             key={c.id}
-            className={`absolute top-0 transform-gpu will-change-transform ${c.sizeClass} ${c.colorClass} shadow-sm`}
+            className={`absolute transform-gpu will-change-transform ${c.sizeClass} ${c.colorClass} shadow-md`}
             style={{
               left: c.left,
               animation: `holiday-confetti-fall ${c.duration} cubic-bezier(0.37, 0, 0.63, 1) infinite`,
               animationDelay: c.delay,
+              animationFillMode: "both",
             }}
           />
         ))}
@@ -336,11 +345,12 @@ function HolidayEffectsComponent({
         hearts.map((h) => (
           <div
             key={h.id}
-            className={`absolute bottom-0 transform-gpu will-change-transform ${h.sizeClass} ${h.colorClass}`}
+            className={`absolute transform-gpu will-change-transform ${h.sizeClass} ${h.colorClass}`}
             style={{
               left: h.left,
               animation: `holiday-heart-float ${h.duration} cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite`,
               animationDelay: h.delay,
+              animationFillMode: "both",
             }}
           >
             <HeartSvg />
@@ -352,11 +362,12 @@ function HolidayEffectsComponent({
         blossoms.map((bl) => (
           <div
             key={bl.id}
-            className="absolute top-0 transform-gpu will-change-transform"
+            className="absolute transform-gpu will-change-transform"
             style={{
               left: bl.left,
               animation: `holiday-blossom-fall ${bl.duration} cubic-bezier(0.37, 0, 0.63, 1) infinite`,
               animationDelay: bl.delay,
+              animationFillMode: "both",
             }}
           >
             <div
@@ -375,11 +386,12 @@ function HolidayEffectsComponent({
         pawprints.map((p) => (
           <div
             key={p.id}
-            className={`absolute bottom-0 transform-gpu will-change-transform ${p.sizeClass} ${p.colorClass}`}
+            className={`absolute transform-gpu will-change-transform ${p.sizeClass} ${p.colorClass}`}
             style={{
               left: p.left,
               animation: `holiday-paw-float ${p.duration} cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite`,
               animationDelay: p.delay,
+              animationFillMode: "both",
             }}
           >
             <PawPrintSvg />

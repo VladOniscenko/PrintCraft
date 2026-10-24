@@ -469,7 +469,6 @@ body:has(.admin-shell) {
 
 .admin-shell > * {
   position: relative;
-  z-index: 1;
 }
 
 .admin-shell > .site-navbar {

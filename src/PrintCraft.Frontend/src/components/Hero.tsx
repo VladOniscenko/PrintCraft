@@ -14,6 +14,12 @@ import type { HeroSlide } from "../types";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import { useI18n } from "../i18n/I18nContext";
 import {
+  isLanguageLoaded,
+  loadLanguage,
+  translationsStore,
+} from "../i18n/loader";
+import type { TranslationKey, SupportedLanguage } from "../i18n/translations";
+import {
   getHeroSlideTitle,
   getHeroSlideSubtext,
   getHeroSlidePrice,
@@ -39,7 +45,6 @@ import {
   type HolidayEffect,
   type HolidayKey,
 } from "../config/holidayConfig";
-import type { SupportedLanguage } from "../i18n/translations";
 
 export {
   holidayConfig,
@@ -245,12 +250,66 @@ export interface HeroProps {
   previewLanguage?: SupportedLanguage;
 }
 
+function getNestedTranslation(
+  obj: Record<string, unknown> | undefined,
+  path: string,
+): string | undefined {
+  if (!obj || typeof obj !== "object") return undefined;
+  const keys = path.split(".");
+  let current: unknown = obj;
+
+  for (const key of keys) {
+    if (
+      current === undefined ||
+      current === null ||
+      typeof current !== "object"
+    ) {
+      return undefined;
+    }
+    current = (current as Record<string, unknown>)[key];
+  }
+
+  return typeof current === "string" ? current : undefined;
+}
+
 export default function Hero({
   previewHolidayId,
   previewLanguage,
 }: HeroProps = {}) {
-  const { t, language: contextLanguage, localizePath } = useI18n();
+  const { t: defaultT, language: contextLanguage, localizePath } = useI18n();
   const language = previewLanguage || contextLanguage;
+
+  // Preload translation chunk for preview language if needed
+  useEffect(() => {
+    if (previewLanguage && !isLanguageLoaded(previewLanguage)) {
+      void loadLanguage(previewLanguage);
+    }
+  }, [previewLanguage]);
+
+  // Provide scoped translation function when previewing in alternative language
+  const t = useMemo(() => {
+    if (!previewLanguage || previewLanguage === contextLanguage) {
+      return defaultT;
+    }
+    return (key: TranslationKey, vars?: Record<string, string | number>) => {
+      const store = translationsStore[previewLanguage];
+      if (store) {
+        let val = getNestedTranslation(
+          store as unknown as Record<string, unknown>,
+          key,
+        );
+        if (typeof val === "string") {
+          if (vars) {
+            for (const [k, v] of Object.entries(vars)) {
+              val = val.replace(new RegExp(`{{${k}}}`, "g"), String(v));
+            }
+          }
+          return val;
+        }
+      }
+      return defaultT(key, vars);
+    };
+  }, [previewLanguage, contextLanguage, defaultT]);
   const [slides, setSlides] = useState<HeroSlide[]>(() => {
     const cached = getCachedActiveHeroSlides();
     if (cached && cached.length > 0) {
