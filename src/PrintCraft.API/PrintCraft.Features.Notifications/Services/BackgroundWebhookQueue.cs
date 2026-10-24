@@ -9,6 +9,7 @@ public abstract record WebhookWorkItem
     public sealed record BookingCreated(Order Order, User? User) : WebhookWorkItem;
     public sealed record PaymentReceived(Order Order, User? User, decimal PaidAmount) : WebhookWorkItem;
     public sealed record PaymentIssue(Order Order, User? User, decimal Amount, string PaymentStatus, string? Reference, string? Reason) : WebhookWorkItem;
+    public sealed record SupportTicketCreated(SupportTicket Ticket) : WebhookWorkItem;
 }
 
 public interface IBackgroundWebhookQueue
@@ -100,6 +101,9 @@ public sealed class BackgroundWebhookWorker : BackgroundService
                 case WebhookWorkItem.PaymentIssue issue:
                     await _discordWebhookService.SendPaymentIssueAsync(issue.Order, issue.User, issue.Amount, issue.PaymentStatus, issue.Reference, issue.Reason, cancellationToken);
                     break;
+                case WebhookWorkItem.SupportTicketCreated st:
+                    await _discordWebhookService.SendSupportTicketCreatedAsync(st.Ticket, cancellationToken);
+                    break;
             }
         }
         catch (Exception ex)
@@ -144,6 +148,11 @@ public sealed class QueuedDiscordWebhookService : IDiscordWebhookService
     public async Task SendPaymentIssueAsync(Order order, User? user, decimal amount, string paymentStatus, string? reference, string? reason, CancellationToken cancellationToken = default)
     {
         await _queue.EnqueueAsync(new WebhookWorkItem.PaymentIssue(order, user, amount, paymentStatus, reference, reason), cancellationToken);
+    }
+
+    public async Task SendSupportTicketCreatedAsync(SupportTicket ticket, CancellationToken cancellationToken = default)
+    {
+        await _queue.EnqueueAsync(new WebhookWorkItem.SupportTicketCreated(ticket), cancellationToken);
     }
 }
 

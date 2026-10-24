@@ -1,6 +1,6 @@
 import axios from "axios";
 import { resolveLanguage } from "../i18n/translations";
-import type { FaqItem, FaqTopic, ManagedCity, HeroSlide, User, PolicyTemplate, Filament } from "../types";
+import type { FaqItem, FaqTopic, ManagedCity, HeroSlide, User, PolicyTemplate, Filament, CreateSupportTicketPayload, SupportTicket, SupportTicketStatus } from "../types";
 import { createCache, createKeyedCache } from "./cache";
 
 const VISITOR_ID_STORAGE_KEY = "pc_visitor_id";
@@ -528,6 +528,46 @@ export async function deletePolicy(id: string): Promise<{ message: string }> {
 export async function seedPolicies(forceReload = false): Promise<unknown> {
   const res = await api.post(`/policies/seed?forceReload=${forceReload}`);
   invalidatePoliciesCache();
+  return res.data;
+}
+
+export async function createSupportTicket(
+  payload: CreateSupportTicketPayload,
+): Promise<SupportTicket> {
+  const res = await api.post<SupportTicket>("/support-tickets", payload);
+  return res.data;
+}
+
+export async function getAdminSupportTickets(params?: {
+  status?: string;
+  sortBy?: string;
+  sortDesc?: boolean;
+}): Promise<SupportTicket[]> {
+  const query = new URLSearchParams();
+  if (params?.status && params.status !== "all") query.set("status", params.status);
+  if (params?.sortBy) query.set("sortBy", params.sortBy);
+  if (params?.sortDesc !== undefined) query.set("sortDesc", String(params.sortDesc));
+
+  const qs = query.toString();
+  const url = `/admin/support-tickets${qs ? `?${qs}` : ""}`;
+  const res = await api.get<SupportTicket[]>(url);
+  return Array.isArray(res.data) ? res.data : [];
+}
+
+export async function updateAdminSupportTicketStatus(
+  id: string,
+  status: SupportTicketStatus,
+): Promise<SupportTicket> {
+  const res = await api.put<SupportTicket>(`/admin/support-tickets/${id}/status`, { status });
+  return res.data;
+}
+
+export async function uploadSupportAttachment(file: File): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await api.post<{ url: string }>("/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return res.data;
 }
 

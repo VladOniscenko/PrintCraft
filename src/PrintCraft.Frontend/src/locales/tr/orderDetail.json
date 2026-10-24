@@ -166,5 +166,8 @@
   "paymentSyncPending": "Ödeme hâlâ işleniyor. Bu sayfayı kısa süre sonra yenileyin.",
   "paymentSyncSuccessAfterCancel": "İptal sonrası ödeme durumu kontrol edildi.",
   "paymentCancelled": "Ödeme iptal edildi.",
-  "noPaymentAttempts": "Henüz ödeme denemesi yok."
+  "noPaymentAttempts": "Henüz ödeme denemesi yok.",
+  "needHelpTitle": "Bu siparişle ilgili yardıma mı ihtiyacınız var?",
+  "needHelpDesc": "Teslimat, baskı kalitesi veya bu siparişle ilgili bir sorun mu bildirmek istiyorsunuz?",
+  "reportIssue": "Sorun Bildir"
 }

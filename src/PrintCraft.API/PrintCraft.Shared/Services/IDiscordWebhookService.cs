@@ -10,5 +10,6 @@ public interface IDiscordWebhookService
     Task SendBookingCreatedAsync(Order order, User? user, CancellationToken cancellationToken = default);
     Task SendPaymentReceivedAsync(Order order, User? user, decimal paidAmount, CancellationToken cancellationToken = default);
     Task SendPaymentIssueAsync(Order order, User? user, decimal amount, string paymentStatus, string? reference, string? reason, CancellationToken cancellationToken = default);
+    Task SendSupportTicketCreatedAsync(SupportTicket ticket, CancellationToken cancellationToken = default) => Task.CompletedTask;
 }
 

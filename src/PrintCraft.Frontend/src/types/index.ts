@@ -8,3 +8,4 @@ export * from "./emailTemplate";
 export * from "./faq";
 export * from "./city";
 export * from "./policy";
+export * from "./supportTicket";

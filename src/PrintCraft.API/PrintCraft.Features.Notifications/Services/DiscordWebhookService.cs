@@ -201,6 +201,43 @@ public sealed class DiscordWebhookService : IDiscordWebhookService
         return PostToWebhookAsync(webhookUrl, embed, "payment issue notification", cancellationToken);
     }
 
+    public Task SendSupportTicketCreatedAsync(SupportTicket ticket, CancellationToken cancellationToken = default)
+    {
+        var webhookUrl = _configuration["Discord:SupportWebhookUrl"]
+            ?? _configuration["Discord:QuoteWebhookUrl"]
+            ?? _configuration["Discord:ErrorWebhookUrl"];
+
+        if (string.IsNullOrWhiteSpace(webhookUrl)) return Task.CompletedTask;
+
+        var description = string.IsNullOrWhiteSpace(ticket.Description)
+            ? "No description provided."
+            : (ticket.Description.Length > 1024 ? ticket.Description[..1020] + "..." : ticket.Description);
+
+        var attachments = ticket.AttachmentUrls.Count > 0
+            ? string.Join("\n", ticket.AttachmentUrls)
+            : "None";
+
+        var embed = new DiscordEmbed
+        {
+            Title = $"🚨 New Ticket: [{ticket.Category}] - {ticket.Subject}",
+            Color = 15158332,
+            Fields = new[]
+            {
+                new DiscordField { Name = "Ticket ID", Value = ticket.Id.ToString(), Inline = true },
+                new DiscordField { Name = "Category", Value = ticket.Category.ToString(), Inline = true },
+                new DiscordField { Name = "Status", Value = ticket.Status.ToString(), Inline = true },
+                new DiscordField { Name = "User Email", Value = ticket.UserEmail, Inline = true },
+                new DiscordField { Name = "User ID", Value = ticket.UserId?.ToString() ?? "Guest", Inline = true },
+                new DiscordField { Name = "Order ID", Value = ticket.OrderId?.ToString() ?? "N/A", Inline = true },
+                new DiscordField { Name = "Description", Value = description, Inline = false },
+                new DiscordField { Name = "Attachments", Value = attachments.Length > 1024 ? attachments[..1020] + "..." : attachments, Inline = false },
+            },
+            Timestamp = ticket.CreatedAt.ToString("o")
+        };
+
+        return PostToWebhookAsync(webhookUrl, embed, "support ticket notification", cancellationToken);
+    }
+
     private async Task PostToWebhookAsync(string webhookUrl, DiscordEmbed embed, string logContext, CancellationToken cancellationToken)
     {
         try

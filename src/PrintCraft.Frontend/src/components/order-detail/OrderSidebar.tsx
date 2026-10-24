@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Calendar,
   Landmark,
@@ -7,9 +8,11 @@ import {
   Truck,
   User,
   Receipt,
+  HelpCircle,
 } from "lucide-react";
 import type { OrderSectionProps, PriceSummary } from "./types";
 import { normalizeOrderStatus, normalizePaymentFlow } from "../../utils/orderStatus";
+import ReportIssueModal from "../support/ReportIssueModal";
 
 interface OrderSidebarProps extends OrderSectionProps {
   priceSummary: PriceSummary;
@@ -24,6 +27,7 @@ export default function OrderSidebar({
   onManualPaymentNotification,
   manualPaymentNotificationDisabled,
 }: OrderSidebarProps) {
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const normalizedPaymentFlow = normalizePaymentFlow(order.paymentFlow);
   const bankTransferDetails = order.bankTransferDetails;
   const hasBankTransferDetails =
@@ -293,6 +297,34 @@ export default function OrderSidebar({
             </div>
           )}
         </div>
+      )}
+
+      {/* Report Issue / Help Card */}
+      <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-5 sm:p-6 shadow-xs flex flex-col gap-3">
+        <div className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+          <HelpCircle size={15} className="text-teal-700 dark:text-teal-400" />
+          <span>{t("orderDetail.needHelpTitle")}</span>
+        </div>
+        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+          {t("orderDetail.needHelpDesc")}
+        </p>
+        <button
+          type="button"
+          onClick={() => setIsReportModalOpen(true)}
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-teal-700/30 dark:border-teal-500/30 bg-teal-50/50 dark:bg-teal-950/30 hover:bg-teal-100/70 dark:hover:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-4 py-2.5 text-xs font-semibold transition-all cursor-pointer shadow-xs"
+        >
+          <HelpCircle size={14} />
+          <span>{t("orderDetail.reportIssue")}</span>
+        </button>
+      </div>
+
+      {isReportModalOpen && (
+        <ReportIssueModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          orderId={order.id}
+          defaultCategory="OrderIssue"
+        />
       )}
     </div>
   );

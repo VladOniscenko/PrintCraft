@@ -166,5 +166,8 @@
   "paymentSyncPending": "Payment is still processing. Refresh this page shortly.",
   "paymentSyncSuccessAfterCancel": "Payment status checked after cancel.",
   "paymentCancelled": "Payment was canceled.",
-  "noPaymentAttempts": "No payment attempts yet."
+  "noPaymentAttempts": "No payment attempts yet.",
+  "needHelpTitle": "Need Help with this Order?",
+  "needHelpDesc": "Have questions about delivery, quality, or want to report an issue with this order?",
+  "reportIssue": "Report Issue"
 }

@@ -11,6 +11,7 @@ public abstract record EmailWorkItem
     public sealed record OrderSentTracking(string ToEmail, string ToName, Guid OrderId, string TrackingCode, string? TrackingUrl) : EmailWorkItem;
     public sealed record OrderPaid(string ToEmail, string ToName, Guid OrderId, decimal Amount) : EmailWorkItem;
     public sealed record CustomEmail(string ToEmail, string ToName, string Subject, string Body) : EmailWorkItem;
+    public sealed record SupportTicketCreated(PrintCraft.Shared.Models.SupportTicket Ticket) : EmailWorkItem;
 }
 
 public interface IBackgroundEmailQueue
@@ -114,6 +115,9 @@ public sealed class BackgroundEmailWorker : BackgroundService
                 case EmailWorkItem.CustomEmail custom:
                     await emailSender.SendCustomEmailAsync(custom.ToEmail, custom.ToName, custom.Subject, custom.Body);
                     break;
+                case EmailWorkItem.SupportTicketCreated st:
+                    await emailSender.SendSupportTicketCreatedEmailsAsync(st.Ticket);
+                    break;
             }
         }
         catch (Exception ex)
@@ -165,6 +169,11 @@ public sealed class QueuedEmailService : IEmailService
     public async Task SendCustomEmailAsync(string toEmail, string toName, string subject, string body)
     {
         await _queue.EnqueueAsync(new EmailWorkItem.CustomEmail(toEmail, toName, subject, body));
+    }
+
+    public async Task SendSupportTicketCreatedEmailsAsync(PrintCraft.Shared.Models.SupportTicket ticket)
+    {
+        await _queue.EnqueueAsync(new EmailWorkItem.SupportTicketCreated(ticket));
     }
 }
 

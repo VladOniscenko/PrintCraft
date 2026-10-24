@@ -280,6 +280,85 @@ public sealed class GmailSmtpEmailService : IEmailService
         return SendTextEmailAsync(toEmail, safeSubject, safeBody);
     }
 
+    public async Task SendSupportTicketCreatedEmailsAsync(SupportTicket ticket)
+    {
+        var ticketRef = ticket.Id.ToString("N")[..8].ToUpperInvariant();
+        var safeSubject = ticket.Subject?.Trim() ?? "Support Request";
+
+        // 1. User acknowledgment email
+        var userSubject = $"Support Request Received: {safeSubject} [#{ticketRef}]";
+        var orderInfo = ticket.OrderId.HasValue ? $"\nAssociated Order ID: {ticket.OrderId.Value}" : "";
+        var attachmentsInfo = ticket.AttachmentUrls.Count > 0 ? $"\nAttachments: {string.Join(", ", ticket.AttachmentUrls)}" : "";
+
+        var userBody = $@"Hello,
+
+Thank you for contacting Print My 3D. We have received your request and our support team will review it shortly.
+
+Ticket Reference: #{ticketRef}
+Category: {ticket.Category}
+Subject: {safeSubject}{orderInfo}
+
+Description:
+{ticket.Description}{attachmentsInfo}
+
+If you have any additional information to add, please reply to this email.
+
+Best regards,
+Print My 3D Team
+{_options.BaseUrl}";
+
+        try
+        {
+            await SendTextEmailAsync(ticket.UserEmail, userSubject, userBody);
+        }
+        catch (Exception)
+        {
+            // Logged by background worker or caller
+            if (string.IsNullOrWhiteSpace(_options.SmtpHost))
+            {
+                // In dev with no SMTP configured, do not throw
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        // 2. Admin alert email
+        var adminEmail = _options.SenderEmail;
+        if (!string.IsNullOrWhiteSpace(adminEmail))
+        {
+            var adminSubject = $"🚨 New Support Ticket: [{ticket.Category}] - {safeSubject}";
+            var adminBody = $@"New Support Ticket Submitted:
+
+Ticket ID: {ticket.Id}
+Reference: #{ticketRef}
+Category: {ticket.Category}
+User Email: {ticket.UserEmail}
+User ID: {(ticket.UserId.HasValue ? ticket.UserId.Value.ToString() : "Guest")}
+Order ID: {(ticket.OrderId.HasValue ? ticket.OrderId.Value.ToString() : "N/A")}
+Subject: {safeSubject}
+
+Description:
+{ticket.Description}{attachmentsInfo}
+
+Created At: {ticket.CreatedAt:yyyy-MM-dd HH:mm:ss} UTC
+Admin Portal: {_options.BaseUrl.TrimEnd('/')}/admin/support-tickets";
+
+            try
+            {
+                await SendTextEmailAsync(adminEmail, adminSubject, adminBody);
+            }
+            catch (Exception)
+            {
+                if (!string.IsNullOrWhiteSpace(_options.SmtpHost))
+                {
+                    throw;
+                }
+            }
+        }
+    }
+
     private static string GetShortOrderId(Guid orderId) =>
         orderId.ToString("N")[..8].ToUpperInvariant();
 

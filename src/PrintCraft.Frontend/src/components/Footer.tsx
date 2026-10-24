@@ -1,12 +1,15 @@
-import { Phone, MapPin, Clock3, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { Phone, MapPin, Clock3, ExternalLink, MessageSquare } from "lucide-react";
 import { useI18n } from "../i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { businessInfo } from "../config/businessInfo";
 import { seoApplications, getApplicationName } from "../config/seoApplications";
 import { dutchCities, getCityName } from "../config/dutchCities";
+import ReportIssueModal from "./support/ReportIssueModal";
 
 export default function Footer() {
   const { t, language, localizePath } = useI18n();
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const featuredCities = dutchCities.slice(0, 17);
 
   return (
@@ -128,6 +131,16 @@ export default function Footer() {
                   </a>
                 </div>
               )}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsReportModalOpen(true)}
+                  className="inline-flex items-center gap-2 hover:text-gray-900 dark:hover:text-white transition-colors py-1 min-h-[32px] cursor-pointer text-left"
+                >
+                  <MessageSquare size={14} className="text-gray-500 dark:text-gray-400 shrink-0" />
+                  <span>{t("footer.reportIssue")}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -180,9 +193,24 @@ export default function Footer() {
             <Link to={localizePath("/faq")} className="hover:text-gray-900 dark:hover:text-white transition-colors py-2 px-1 min-h-[44px] inline-flex items-center">
               {t("footer.faq")}
             </Link>
+            <span className="text-gray-300 dark:text-gray-600 select-none">•</span>
+            <button
+              type="button"
+              onClick={() => setIsReportModalOpen(true)}
+              className="hover:text-gray-900 dark:hover:text-white transition-colors py-2 px-1 min-h-[44px] inline-flex items-center cursor-pointer"
+            >
+              {t("footer.reportIssue")}
+            </button>
           </div>
         </div>
       </div>
+
+      {isReportModalOpen && (
+        <ReportIssueModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+        />
+      )}
     </footer>
   );
 }

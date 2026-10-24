@@ -1,3 +1,5 @@
+using PrintCraft.Shared.Models;
+
 namespace PrintCraft.Shared.Services;
 
 public sealed class EmailOptions
@@ -22,5 +24,6 @@ public interface IEmailService
     Task SendOrderSentTrackingEmailAsync(string toEmail, string toName, Guid orderId, string trackingCode, string? trackingUrl);
     Task SendOrderPaidEmailAsync(string toEmail, string toName, Guid orderId, decimal amount);
     Task SendCustomEmailAsync(string toEmail, string toName, string subject, string body);
+    Task SendSupportTicketCreatedEmailsAsync(SupportTicket ticket) => Task.CompletedTask;
 }
 

@@ -166,5 +166,8 @@
   "paymentSyncPending": "Betaling wordt nog verwerkt. Vernieuw deze pagina over enkele ogenblikken.",
   "paymentSyncSuccessAfterCancel": "Betaalstatus gecontroleerd na annuleren.",
   "paymentCancelled": "Betaling is geannuleerd.",
-  "noPaymentAttempts": "Nog geen betaalpogingen."
+  "noPaymentAttempts": "Nog geen betaalpogingen.",
+  "needHelpTitle": "Hulp nodig bij deze bestelling?",
+  "needHelpDesc": "Vragen over bezorging, kwaliteit of wil je een probleem melden met deze bestelling?",
+  "reportIssue": "Probleem Melden"
 }

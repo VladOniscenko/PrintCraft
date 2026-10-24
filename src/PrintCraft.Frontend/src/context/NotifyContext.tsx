@@ -81,7 +81,12 @@ export function NotifyProvider({ children }: { children: ReactNode }) {
 export function useNotify() {
   const context = useContext(NotifyContext);
   if (!context) {
-    throw new Error("useNotify must be used within NotifyProvider");
+    return {
+      notify: () => {},
+      notifySuccess: () => {},
+      notifyError: () => {},
+      notifyInfo: () => {},
+    };
   }
   return context;
 }
