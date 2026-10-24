@@ -66,6 +66,10 @@ export type HolidayEffect =
 
 export interface HolidayConfigItem {
   id: HolidayKey;
+  name: string;
+  names?: Record<SupportedLanguage, string>;
+  dateLabel?: string;
+  dateLabels?: Record<SupportedLanguage, string>;
   dates: HolidayDates;
   content: HolidayContent;
   modelUrl: string;
@@ -105,6 +109,22 @@ export const holidayConfig: HolidayConfig = {
   // 1. Pasen: 15 maart t/m Pasen (effect: 'blossom', model: 'egg.stl')
   easter: {
     id: "easter",
+    name: "Pasen",
+    names: {
+      nl: "Pasen",
+      en: "Easter",
+      tr: "Paskalya",
+      ru: "Пасха",
+      ar: "عيد الفصح",
+    },
+    dateLabel: "15 maart t/m Pasen",
+    dateLabels: {
+      nl: "15 maart t/m Pasen",
+      en: "March 15 thru Easter",
+      tr: "15 Mart - Paskalya",
+      ru: "15 марта — Пасха",
+      ar: "15 مارس حتى عيد الفصح",
+    },
     dates: {
       start: "03-15",
       end: "04-15",
@@ -181,6 +201,22 @@ export const holidayConfig: HolidayConfig = {
   // 2. Koningsdag: 1 april t/m 27 april
   kingsDay: {
     id: "kingsDay",
+    name: "Koningsdag",
+    names: {
+      nl: "Koningsdag",
+      en: "King's Day",
+      tr: "Kral Günü",
+      ru: "День короля",
+      ar: "يوم الملك",
+    },
+    dateLabel: "1 april t/m 27 april",
+    dateLabels: {
+      nl: "1 april t/m 27 april",
+      en: "April 1 thru April 27",
+      tr: "1 Nisan - 27 Nisan",
+      ru: "1 апреля — 27 апреля",
+      ar: "1 أبريل حتى 27 أبريل",
+    },
     dates: {
       start: "04-01",
       end: "04-27",
@@ -257,6 +293,22 @@ export const holidayConfig: HolidayConfig = {
   // 3. Moederdag: 15 april t/m 2e zondag van mei (effect: 'blossom', model: 'mothers-day.stl', focus: HueForge cadeaus)
   mothersDay: {
     id: "mothersDay",
+    name: "Moederdag",
+    names: {
+      nl: "Moederdag",
+      en: "Mother's Day",
+      tr: "Anneler Günü",
+      ru: "День матери",
+      ar: "عيد الأم",
+    },
+    dateLabel: "15 april t/m 2e zondag van mei",
+    dateLabels: {
+      nl: "15 april t/m 2e zondag van mei",
+      en: "April 15 thru 2nd Sunday of May",
+      tr: "15 Nisan - Mayıs'ın 2. Pazarı",
+      ru: "15 апреля — 2-е воскресенье мая",
+      ar: "15 أبريل حتى الأحد الثاني من مايو",
+    },
     dates: {
       start: "04-15",
       end: "05-14",
@@ -333,6 +385,22 @@ export const holidayConfig: HolidayConfig = {
   // 4. Vaderdag: 20 mei t/m 3e zondag van juni (effect: 'none', donker palet, model: 'fathers-day.stl', focus: gadgets & organizers)
   fathersDay: {
     id: "fathersDay",
+    name: "Vaderdag",
+    names: {
+      nl: "Vaderdag",
+      en: "Father's Day",
+      tr: "Babalar Günü",
+      ru: "День отца",
+      ar: "عيد الأب",
+    },
+    dateLabel: "20 mei t/m 3e zondag van juni",
+    dateLabels: {
+      nl: "20 mei t/m 3e zondag van juni",
+      en: "May 20 thru 3rd Sunday of June",
+      tr: "20 Mayıs - Haziran'ın 3. Pazarı",
+      ru: "20 мая — 3-е воскресенье июня",
+      ar: "20 مايو حتى الأحد الثالث من يونيو",
+    },
     dates: {
       start: "05-20",
       end: "06-21",
@@ -409,6 +477,22 @@ export const holidayConfig: HolidayConfig = {
   // 5. Back to Work: 15 augustus t/m 15 september (effect: 'none', zakelijk palet, model: 'cable-holder.stl', focus: kantoor/B2B)
   backToWork: {
     id: "backToWork",
+    name: "Back to Work",
+    names: {
+      nl: "Back to Work",
+      en: "Back to Work",
+      tr: "İşe Dönüş",
+      ru: "Снова в офис",
+      ar: "العودة للعمل",
+    },
+    dateLabel: "15 augustus t/m 15 september",
+    dateLabels: {
+      nl: "15 augustus t/m 15 september",
+      en: "August 15 thru September 15",
+      tr: "15 Ağustos - 15 Eylül",
+      ru: "15 августа — 15 сентября",
+      ar: "15 أغسطس حتى 15 سبتمبر",
+    },
     dates: {
       start: "08-15",
       end: "09-15",
@@ -485,6 +569,22 @@ export const holidayConfig: HolidayConfig = {
   // 6. Dierendag: 15 september t/m 4 oktober (effect: 'pawprints', model: 'dog-tag.stl', focus: huisdier accessoires in sterk PETG)
   animalDay: {
     id: "animalDay",
+    name: "Dierendag",
+    names: {
+      nl: "Dierendag",
+      en: "World Animal Day",
+      tr: "Hayvanları Koruma Günü",
+      ru: "День защиты животных",
+      ar: "اليوم العالمي للحيوان",
+    },
+    dateLabel: "15 september t/m 4 oktober",
+    dateLabels: {
+      nl: "15 september t/m 4 oktober",
+      en: "September 15 thru October 4",
+      tr: "15 Eylül - 4 Ekim",
+      ru: "15 сентября — 4 октября",
+      ar: "15 سبتمبر حتى 4 أكتوبر",
+    },
     dates: {
       start: "09-15",
       end: "10-04",
@@ -561,6 +661,22 @@ export const holidayConfig: HolidayConfig = {
   // 7. Halloween: 1 oktober t/m 31 oktober
   halloween: {
     id: "halloween",
+    name: "Halloween",
+    names: {
+      nl: "Halloween",
+      en: "Halloween",
+      tr: "Cadılar Bayramı",
+      ru: "Хэллоуин",
+      ar: "الهالوين",
+    },
+    dateLabel: "1 oktober t/m 31 oktober",
+    dateLabels: {
+      nl: "1 oktober t/m 31 oktober",
+      en: "October 1 thru October 31",
+      tr: "1 Ekim - 31 Ekim",
+      ru: "1 октября — 31 октября",
+      ar: "1 أكتوبر حتى 31 أكتوبر",
+    },
     dates: {
       start: "10-01",
       end: "10-31",
@@ -637,6 +753,22 @@ export const holidayConfig: HolidayConfig = {
   // 8. Sinterklaas: 1 november t/m 5 december
   sinterklaas: {
     id: "sinterklaas",
+    name: "Sinterklaas",
+    names: {
+      nl: "Sinterklaas",
+      en: "Sinterklaas",
+      tr: "Sinterklaas",
+      ru: "Синтерклаас",
+      ar: "سينتركلاس",
+    },
+    dateLabel: "1 november t/m 5 december",
+    dateLabels: {
+      nl: "1 november t/m 5 december",
+      en: "November 1 thru December 5",
+      tr: "1 Kasım - 5 Aralık",
+      ru: "1 ноября — 5 декабря",
+      ar: "1 نوفمبر حتى 5 ديسمبر",
+    },
     dates: {
       start: "11-01",
       end: "12-05",
@@ -713,6 +845,22 @@ export const holidayConfig: HolidayConfig = {
   // 9. Kerstmis: 6 december t/m 26 december
   christmas: {
     id: "christmas",
+    name: "Kerstmis",
+    names: {
+      nl: "Kerstmis",
+      en: "Christmas",
+      tr: "Noel",
+      ru: "Рождество",
+      ar: "عيد الميلاد",
+    },
+    dateLabel: "6 december t/m 26 december",
+    dateLabels: {
+      nl: "6 december t/m 26 december",
+      en: "December 6 thru December 26",
+      tr: "6 Aralık - 26 Aralık",
+      ru: "6 декабря — 26 декабря",
+      ar: "6 ديسمبر حتى 26 ديسمبر",
+    },
     dates: {
       start: "12-06",
       end: "12-26",
@@ -789,6 +937,22 @@ export const holidayConfig: HolidayConfig = {
   // 10. Oud & Nieuw: 27 december t/m 2 januari
   newYear: {
     id: "newYear",
+    name: "Oud & Nieuw",
+    names: {
+      nl: "Oud & Nieuw",
+      en: "New Year",
+      tr: "Yılbaşı",
+      ru: "Новый год",
+      ar: "رأس السنة",
+    },
+    dateLabel: "27 december t/m 2 januari",
+    dateLabels: {
+      nl: "27 december t/m 2 januari",
+      en: "December 27 thru January 2",
+      tr: "27 Aralık - 2 Ocak",
+      ru: "27 декабря — 2 января",
+      ar: "27 ديسمبر حتى 2 يناير",
+    },
     dates: {
       start: "12-27",
       end: "01-02",
@@ -865,6 +1029,22 @@ export const holidayConfig: HolidayConfig = {
   // 11. Valentijnsdag: 20 januari t/m 14 februari
   valentines: {
     id: "valentines",
+    name: "Valentijnsdag",
+    names: {
+      nl: "Valentijnsdag",
+      en: "Valentine's Day",
+      tr: "Sevgililer Günü",
+      ru: "День святого Валентина",
+      ar: "عيد الحب",
+    },
+    dateLabel: "20 januari t/m 14 februari",
+    dateLabels: {
+      nl: "20 januari t/m 14 februari",
+      en: "January 20 thru February 14",
+      tr: "20 Ocak - 14 Şubat",
+      ru: "20 января — 14 февраля",
+      ar: "20 يناير حتى 14 فبراير",
+    },
     dates: {
       start: "01-20",
       end: "02-14",
@@ -1028,7 +1208,7 @@ export function isDateInHoliday(date: Date, holiday: HolidayConfigItem): boolean
 }
 
 // Ordered prioritization to handle seasonal transitions cleanly
-const HOLIDAY_PRIORITY: HolidayKey[] = [
+export const HOLIDAY_PRIORITY: HolidayKey[] = [
   "easter",
   "kingsDay",
   "mothersDay",
@@ -1055,11 +1235,36 @@ export function getActiveHoliday(
   return null;
 }
 
+export function getHolidayName(
+  holidayOrKey: HolidayConfigItem | HolidayKey,
+  language: SupportedLanguage
+): string {
+  const holiday =
+    typeof holidayOrKey === "string" ? holidayConfig[holidayOrKey] : holidayOrKey;
+  if (!holiday) return "";
+  if (holiday.names?.[language]) return holiday.names[language];
+  return holiday.name || holiday.id;
+}
+
+export function getHolidayDateLabel(
+  holidayOrKey: HolidayConfigItem | HolidayKey,
+  language: SupportedLanguage
+): string {
+  const holiday =
+    typeof holidayOrKey === "string" ? holidayConfig[holidayOrKey] : holidayOrKey;
+  if (!holiday) return "";
+  if (holiday.dateLabels?.[language]) return holiday.dateLabels[language];
+  return holiday.dateLabel || `${holiday.dates.start} - ${holiday.dates.end}`;
+}
+
 export function getHolidayTitle(
-  holiday: HolidayConfigItem,
+  holidayOrKey: HolidayConfigItem | HolidayKey,
   language: SupportedLanguage,
   t?: (key: TranslationKey) => string
 ): string {
+  const holiday =
+    typeof holidayOrKey === "string" ? holidayConfig[holidayOrKey] : holidayOrKey;
+  if (!holiday) return "";
   if (t && holiday.content.titleKey) {
     const val = t(holiday.content.titleKey);
     if (val && val !== holiday.content.titleKey) return val;
@@ -1071,10 +1276,13 @@ export function getHolidayTitle(
 }
 
 export function getHolidaySubtitle(
-  holiday: HolidayConfigItem,
+  holidayOrKey: HolidayConfigItem | HolidayKey,
   language: SupportedLanguage,
   t?: (key: TranslationKey) => string
 ): string {
+  const holiday =
+    typeof holidayOrKey === "string" ? holidayConfig[holidayOrKey] : holidayOrKey;
+  if (!holiday) return "";
   if (t && holiday.content.subtitleKey) {
     const val = t(holiday.content.subtitleKey);
     if (val && val !== holiday.content.subtitleKey) return val;
@@ -1086,10 +1294,13 @@ export function getHolidaySubtitle(
 }
 
 export function getHolidayCtaText(
-  holiday: HolidayConfigItem,
+  holidayOrKey: HolidayConfigItem | HolidayKey,
   language: SupportedLanguage,
   t?: (key: TranslationKey) => string
 ): string {
+  const holiday =
+    typeof holidayOrKey === "string" ? holidayConfig[holidayOrKey] : holidayOrKey;
+  if (!holiday) return "";
   if (t && holiday.content.ctaTextKey) {
     const val = t(holiday.content.ctaTextKey);
     if (val && val !== holiday.content.ctaTextKey) return val;
@@ -1101,10 +1312,13 @@ export function getHolidayCtaText(
 }
 
 export function getHolidayEyebrow(
-  holiday: HolidayConfigItem,
+  holidayOrKey: HolidayConfigItem | HolidayKey,
   language: SupportedLanguage,
   t?: (key: TranslationKey) => string
 ): string {
+  const holiday =
+    typeof holidayOrKey === "string" ? holidayConfig[holidayOrKey] : holidayOrKey;
+  if (!holiday) return "";
   if (t && holiday.eyebrowKey) {
     const val = t(holiday.eyebrowKey);
     if (val && val !== holiday.eyebrowKey) return val;

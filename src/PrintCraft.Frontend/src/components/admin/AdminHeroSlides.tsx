@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   Box,
+  Calendar,
   Check,
   Edit2,
   Eye,
@@ -34,6 +35,18 @@ import {
   supportedLanguages,
   type SupportedLanguage,
 } from "../../i18n/translations";
+import Hero from "../Hero";
+import {
+  holidayConfig,
+  HOLIDAY_PRIORITY,
+  isDateInHoliday,
+  getHolidayName,
+  getHolidayDateLabel,
+  getHolidayTitle,
+  getHolidaySubtitle,
+  getHolidayCtaText,
+  type HolidayKey,
+} from "../../config/holidayConfig";
 
 const HeroModelViewer = lazy(() => import("../HeroModelViewer"));
 
@@ -488,7 +501,10 @@ function MediaSelectorModal({
 // ---------------------------------------------------------------------------
 export default function AdminHeroSlides() {
   const { notifyError, notifySuccess } = useNotify();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const [activeMainTab, setActiveMainTab] = useState<"slides" | "holidays">("slides");
+  const [previewHolidayKey, setPreviewHolidayKey] = useState<HolidayKey | null>(null);
+  const [previewHolidayLang, setPreviewHolidayLang] = useState<SupportedLanguage>(language);
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -809,38 +825,99 @@ export default function AdminHeroSlides() {
           title={t("admin.heroSlides.title")}
           items={[{ label: t("breadcrumb.admin") || "Admin", to: "/admin" }, { label: t("admin.nav.heroSlides") || "Hero Slides" }]}
           rightSlot={
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                disabled={isReseeding}
-                onClick={handleSeedDefaults}
-                className="inline-flex items-center gap-2 px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-medium rounded-xl text-sm transition-colors shadow-xs disabled:opacity-50"
-                title={t("admin.heroSlides.seedTooltip")}
-              >
-                {isReseeding ? (
-                  <Loader2 size={16} className="animate-spin text-emerald-700" />
-                ) : (
-                  <Sparkles size={16} className="text-emerald-700" />
-                )}
-                <span>{t("admin.heroSlides.seedButton")}</span>
-              </button>
+            activeMainTab === "slides" ? (
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  disabled={isReseeding}
+                  onClick={handleSeedDefaults}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-medium rounded-xl text-sm transition-colors shadow-xs disabled:opacity-50"
+                  title={t("admin.heroSlides.seedTooltip")}
+                >
+                  {isReseeding ? (
+                    <Loader2 size={16} className="animate-spin text-emerald-700" />
+                  ) : (
+                    <Sparkles size={16} className="text-emerald-700" />
+                  )}
+                  <span>{t("admin.heroSlides.seedButton")}</span>
+                </button>
 
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl text-sm transition-colors shadow-xs"
-              >
-                <Plus size={16} />
-                <span>{t("admin.heroSlides.addSlide")}</span>
-              </button>
-            </div>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl text-sm transition-colors shadow-xs"
+                >
+                  <Plus size={16} />
+                  <span>{t("admin.heroSlides.addSlide")}</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  {t("admin.heroSlides.previewLanguage")}:
+                </span>
+                <div className="flex items-center gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl border border-gray-200/60 dark:border-white/10">
+                  {supportedLanguages.map((lang) => (
+                    <button
+                      key={lang}
+                      type="button"
+                      onClick={() => setPreviewHolidayLang(lang)}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                        previewHolidayLang === lang
+                          ? "bg-white dark:bg-emerald-600 text-emerald-800 dark:text-white shadow-xs"
+                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <span>{languageFlagMap[lang]}</span>
+                      <span className="uppercase text-[11px]">{lang}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
           }
         />
 
-        {loading ? (
-          <div className="flex items-center justify-center p-16">
-            <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
-          </div>
-        ) : slides.length === 0 ? (
+        {/* Navigation Tabs */}
+        <div className="flex items-center gap-2 p-1.5 bg-gray-100 dark:bg-white/5 rounded-2xl border border-gray-200/60 dark:border-white/10 w-fit mb-6">
+          <button
+            type="button"
+            onClick={() => setActiveMainTab("slides")}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+              activeMainTab === "slides"
+                ? "bg-white dark:bg-emerald-600 text-gray-900 dark:text-white shadow-xs"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            }`}
+          >
+            <ImageIcon size={16} />
+            <span>{t("admin.heroSlides.tabStandardSlides")}</span>
+            <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-gray-200/80 dark:bg-white/10 text-gray-700 dark:text-gray-300 font-bold">
+              {slides.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveMainTab("holidays")}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+              activeMainTab === "holidays"
+                ? "bg-white dark:bg-emerald-600 text-gray-900 dark:text-white shadow-xs"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            }`}
+          >
+            <Calendar size={16} />
+            <span>{t("admin.heroSlides.tabHolidayHeroes")}</span>
+            <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold">
+              {HOLIDAY_PRIORITY.length}
+            </span>
+          </button>
+        </div>
+
+        {activeMainTab === "slides" && (
+          loading ? (
+            <div className="flex items-center justify-center p-16">
+              <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+            </div>
+          ) : slides.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-[#0e1512] rounded-2xl border border-gray-100 dark:border-white/10 space-y-4">
             <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
               <Sparkles size={24} />
@@ -1384,6 +1461,178 @@ export default function AdminHeroSlides() {
               );
             })}
           </div>
+        ))}
+
+        {/* Holiday Themes & Hero Live Preview Tab */}
+        {activeMainTab === "holidays" && (
+          <div className="space-y-6">
+            {/* Header / Description card */}
+            <div className="bg-gradient-to-r from-emerald-900/10 via-emerald-800/5 to-transparent dark:from-emerald-950/40 dark:via-emerald-900/10 dark:to-transparent border border-emerald-200/60 dark:border-emerald-800/40 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={18} className="text-emerald-600 dark:text-emerald-400" />
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                    {t("admin.heroSlides.tabHolidayHeroes")}
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-2xl">
+                  {t("admin.heroSlides.holidayHeroesSubtitle")}
+                </p>
+              </div>
+
+              {/* Quick live preview trigger */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const activeKey =
+                      HOLIDAY_PRIORITY.find((k) =>
+                        isDateInHoliday(new Date(), holidayConfig[k]),
+                      ) || HOLIDAY_PRIORITY[0];
+                    setPreviewHolidayKey(activeKey);
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-colors shadow-xs cursor-pointer"
+                >
+                  <Eye size={16} />
+                  <span>{t("admin.heroSlides.livePreview")}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Grid of 11 Holiday Heroes */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {HOLIDAY_PRIORITY.map((key) => {
+                const holiday = holidayConfig[key];
+                const isActiveToday = isDateInHoliday(new Date(), holiday);
+                const name = getHolidayName(key, previewHolidayLang);
+                const dateLabel = getHolidayDateLabel(key, previewHolidayLang);
+                const title = getHolidayTitle(key, previewHolidayLang);
+                const subtitle = getHolidaySubtitle(key, previewHolidayLang);
+                const ctaText = getHolidayCtaText(key, previewHolidayLang);
+
+                return (
+                  <div
+                    key={key}
+                    className={`bg-white dark:bg-[#0e1512] rounded-2xl border p-5 shadow-xs transition-all flex flex-col justify-between ${
+                      isActiveToday
+                        ? "border-emerald-300 dark:border-emerald-700/80 ring-2 ring-emerald-500/20"
+                        : "border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20"
+                    }`}
+                  >
+                    <div className="space-y-4">
+                      {/* Top Bar: Name + Active Status Badge */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h4 className="font-bold text-base text-gray-900 dark:text-white">
+                            {name}
+                          </h4>
+                          <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            <Calendar size={13} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <span>{dateLabel}</span>
+                          </div>
+                        </div>
+
+                        {isActiveToday ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 ring-1 ring-emerald-500/30">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>{t("admin.heroSlides.activeNow")}</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-400">
+                            <span>{t("admin.heroSlides.scheduled")}</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Content Preview Box */}
+                      <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5 space-y-2">
+                        <div className="text-xs font-bold text-gray-900 dark:text-white line-clamp-2">
+                          "{title}"
+                        </div>
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-3 leading-relaxed">
+                          {subtitle}
+                        </div>
+                        <div className="pt-2 flex items-center justify-end">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
+                            <span>{ctaText}</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Badges: 3D Model, Effect, Palette */}
+                      <div className="space-y-2 text-xs">
+                        {/* 3D Model Chip */}
+                        <div className="flex items-center justify-between py-1 border-b border-gray-100 dark:border-white/5">
+                          <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                            <Box size={13} className="text-blue-500" />
+                            <span>{t("admin.heroSlides.modelLabel")}:</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPreview3dModelUrl(holiday.modelUrl);
+                              setPreview3dTitle(name);
+                            }}
+                            className="font-mono text-[11px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                            title={t("admin.heroSlides.preview3d")}
+                          >
+                            <span>{holiday.modelUrl.replace("/uploads/hero/", "")}</span>
+                            <Eye size={11} />
+                          </button>
+                        </div>
+
+                        {/* Background Effect Chip */}
+                        <div className="flex items-center justify-between py-1 border-b border-gray-100 dark:border-white/5">
+                          <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                            <Sparkles size={13} className="text-amber-500" />
+                            <span>{t("admin.heroSlides.effectLabel")}:</span>
+                          </span>
+                          <span className="font-semibold capitalize px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 text-[11px]">
+                            {holiday.effect}
+                          </span>
+                        </div>
+
+                        {/* Palette Swatch */}
+                        <div className="flex items-center justify-between py-1">
+                          <span className="text-gray-500 dark:text-gray-400">
+                            {t("admin.heroSlides.paletteLabel")}:
+                          </span>
+                          <div
+                            className={`h-4 w-28 rounded-md ${holiday.colorPalette.heroBg} border border-white/20 shadow-xs`}
+                            title={holiday.colorPalette.heroBg}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Bar */}
+                    <div className="mt-5 pt-3 border-t border-gray-100 dark:border-white/10 flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPreview3dModelUrl(holiday.modelUrl);
+                          setPreview3dTitle(name);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition cursor-pointer"
+                      >
+                        <Box size={14} className="text-blue-500" />
+                        <span>{t("admin.heroSlides.preview3d")}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setPreviewHolidayKey(key)}
+                        className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition shadow-xs cursor-pointer"
+                      >
+                        <Eye size={14} />
+                        <span>{t("admin.heroSlides.livePreview")}</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
 
         {/* Create Slide Modal */}
@@ -1735,6 +1984,141 @@ export default function AdminHeroSlides() {
           modelUrl={preview3dModelUrl}
           title={preview3dTitle}
         />
+
+        {/* Holiday Hero Full Live Preview Modal */}
+        {previewHolidayKey && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+            <div className="bg-white dark:bg-[#0e1512] border border-gray-200 dark:border-white/10 rounded-3xl max-w-6xl w-full p-4 sm:p-6 shadow-2xl flex flex-col max-h-[96vh]">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-200 dark:border-white/10 shrink-0">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                      {t("admin.heroSlides.previewModalTitle", {
+                        name: getHolidayName(previewHolidayKey, previewHolidayLang),
+                      })}
+                    </h3>
+                    {isDateInHoliday(new Date(), holidayConfig[previewHolidayKey]) ? (
+                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                        {t("admin.heroSlides.activeNow")}
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-300">
+                        {t("admin.heroSlides.scheduled")}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {t("admin.heroSlides.previewModalSubtitle")}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2.5">
+                  {/* Switch holiday selector */}
+                  <div className="flex items-center gap-1.5">
+                    <label htmlFor="previewHolidaySelect" className="text-xs font-semibold text-gray-600 dark:text-gray-300 shrink-0">
+                      {t("admin.heroSlides.switchHoliday")}:
+                    </label>
+                    <select
+                      id="previewHolidaySelect"
+                      value={previewHolidayKey}
+                      onChange={(e) => setPreviewHolidayKey(e.target.value as HolidayKey)}
+                      className="text-xs font-semibold rounded-xl bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 px-3 py-1.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                    >
+                      {HOLIDAY_PRIORITY.map((key) => (
+                        <option
+                          key={key}
+                          value={key}
+                          className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white"
+                        >
+                          {getHolidayName(key, previewHolidayLang)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Language Switcher */}
+                  <div className="flex items-center gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl border border-gray-200/50 dark:border-white/10">
+                    {supportedLanguages.map((lang) => (
+                      <button
+                        key={lang}
+                        type="button"
+                        onClick={() => setPreviewHolidayLang(lang)}
+                        className={`px-2 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                          previewHolidayLang === lang
+                            ? "bg-white dark:bg-emerald-600 text-emerald-800 dark:text-white shadow-xs"
+                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        }`}
+                        title={lang.toUpperCase()}
+                      >
+                        <span>{languageFlagMap[lang]}</span>
+                        <span className="uppercase text-[10px] ml-1">{lang}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setPreviewHolidayKey(null)}
+                    className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition cursor-pointer"
+                    aria-label={t("admin.heroSlides.closeModal")}
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Live Hero Component Viewport */}
+              <div className="mt-4 flex-1 overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 shadow-inner bg-slate-950 relative min-h-[480px]">
+                <Hero
+                  previewHolidayId={previewHolidayKey}
+                  previewLanguage={previewHolidayLang}
+                />
+              </div>
+
+              {/* Modal Footer */}
+              <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400 shrink-0">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Calendar size={13} className="text-emerald-600 dark:text-emerald-400" />
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      {t("admin.heroSlides.dateRangeLabel")}:
+                    </span>
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {getHolidayDateLabel(previewHolidayKey, previewHolidayLang)}
+                    </span>
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Box size={13} className="text-blue-600 dark:text-blue-400" />
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      {t("admin.heroSlides.modelLabel")}:
+                    </span>
+                    <code className="text-[11px] bg-gray-100 dark:bg-white/10 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200">
+                      {holidayConfig[previewHolidayKey].modelUrl}
+                    </code>
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Sparkles size={13} className="text-amber-500" />
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      {t("admin.heroSlides.effectLabel")}:
+                    </span>
+                    <span className="capitalize font-semibold text-gray-900 dark:text-white">
+                      {holidayConfig[previewHolidayKey].effect}
+                    </span>
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setPreviewHolidayKey(null)}
+                  className="px-4 py-2 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-800 dark:text-gray-200 rounded-xl font-medium transition cursor-pointer"
+                >
+                  {t("admin.heroSlides.closeModal")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

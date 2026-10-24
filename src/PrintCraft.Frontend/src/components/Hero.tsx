@@ -22,29 +22,42 @@ import HolidayEffects from "./HolidayEffects";
 import {
   holidayConfig,
   getActiveHoliday,
+  getHolidayName,
+  getHolidayDateLabel,
   getHolidayTitle,
   getHolidaySubtitle,
   getHolidayCtaText,
   getHolidayEyebrow,
   DEFAULT_HERO_PALETTE,
+  HOLIDAY_PRIORITY,
   type HolidayConfig,
   type HolidayConfigItem,
   type HolidayDates,
   type HolidayContent,
   type HolidayColorPalette,
   type HolidayEffect,
+  type HolidayKey,
 } from "../config/holidayConfig";
+import type { SupportedLanguage } from "../i18n/translations";
 
 export {
   holidayConfig,
   getActiveHoliday,
+  getHolidayName,
+  getHolidayDateLabel,
+  getHolidayTitle,
+  getHolidaySubtitle,
+  getHolidayCtaText,
+  getHolidayEyebrow,
   DEFAULT_HERO_PALETTE,
+  HOLIDAY_PRIORITY,
   type HolidayConfig,
   type HolidayConfigItem,
   type HolidayDates,
   type HolidayContent,
   type HolidayColorPalette,
   type HolidayEffect,
+  type HolidayKey,
 };
 
 const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
@@ -195,8 +208,17 @@ const FALLBACK_SLIDES: HeroSlide[] = [
 
 const AUTOPLAY_INTERVAL_MS = 5000;
 
-export default function Hero() {
-  const { t, language, localizePath } = useI18n();
+export interface HeroProps {
+  previewHolidayId?: HolidayKey | null;
+  previewLanguage?: SupportedLanguage;
+}
+
+export default function Hero({
+  previewHolidayId,
+  previewLanguage,
+}: HeroProps = {}) {
+  const { t, language: contextLanguage, localizePath } = useI18n();
+  const language = previewLanguage || contextLanguage;
   const [slides, setSlides] = useState<HeroSlide[]>(() => {
     const cached = getCachedActiveHeroSlides();
     if (cached && cached.length > 0) {
@@ -210,14 +232,25 @@ export default function Hero() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
-  const [canRender3D, setCanRender3D] = useState(false);
+  const [canRender3D, setCanRender3D] = useState(() => Boolean(previewHolidayId));
   const activate3D = useCallback(() => {
     setCanRender3D(true);
   }, []);
   const timerRef = useRef<number | null>(null);
 
-  // Active holiday detection based on current calendar date
-  const activeHoliday = useMemo(() => getActiveHoliday(), []);
+  useEffect(() => {
+    if (previewHolidayId) {
+      setCanRender3D(true);
+    }
+  }, [previewHolidayId]);
+
+  // Active holiday detection based on preview prop or current calendar date
+  const activeHoliday = useMemo(() => {
+    if (previewHolidayId && holidayConfig[previewHolidayId]) {
+      return holidayConfig[previewHolidayId];
+    }
+    return getActiveHoliday();
+  }, [previewHolidayId]);
 
   // Construct dynamic holiday slide when active holiday is detected
   const holidaySlide = useMemo<HeroSlide | null>(() => {
