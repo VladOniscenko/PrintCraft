@@ -23,6 +23,38 @@ import {
 } from "../../services/api";
 import type { SupportTicket, SupportTicketStatus, SupportTicketCategory } from "../../types";
 
+export function normalizeTicketStatus(status: unknown): SupportTicketStatus {
+  if (typeof status === "number") {
+    if (status === 0) return "Open";
+    if (status === 1) return "InProgress";
+    if (status === 2) return "Resolved";
+  }
+  if (typeof status === "string") {
+    const s = status.trim().toLowerCase().replace(/[\s_-]/g, "");
+    if (s === "0" || s === "open") return "Open";
+    if (s === "1" || s === "inprogress") return "InProgress";
+    if (s === "2" || s === "resolved") return "Resolved";
+  }
+  return "Open";
+}
+
+export function normalizeTicketCategory(category: unknown): SupportTicketCategory {
+  if (typeof category === "number") {
+    if (category === 0) return "OrderIssue";
+    if (category === 1) return "Bug";
+    if (category === 2) return "Payment";
+    if (category === 3) return "General";
+  }
+  if (typeof category === "string") {
+    const s = category.trim().toLowerCase().replace(/[\s_-]/g, "");
+    if (s === "0" || s === "orderissue") return "OrderIssue";
+    if (s === "1" || s === "bug") return "Bug";
+    if (s === "2" || s === "payment") return "Payment";
+    if (s === "3" || s === "general") return "General";
+  }
+  return "General";
+}
+
 export default function AdminSupportTickets() {
   const { t, localizePath } = useI18n();
   const { notifyError, notifySuccess } = useNotify();
@@ -46,7 +78,12 @@ export default function AdminSupportTickets() {
         sortBy,
         sortDesc,
       });
-      setTickets(data);
+      const normalizedTickets: SupportTicket[] = (data || []).map((item) => ({
+        ...item,
+        status: normalizeTicketStatus(item.status),
+        category: normalizeTicketCategory(item.category),
+      }));
+      setTickets(normalizedTickets);
     } catch {
       notifyError(t("admin.supportTickets.loadFailed"));
     } finally {
@@ -59,12 +96,30 @@ export default function AdminSupportTickets() {
   }, [statusFilter, sortBy, sortDesc]);
 
   const handleOpenDetail = (ticket: SupportTicket) => {
-    setSelectedTicket(ticket);
-    setNewStatus(ticket.status);
+    const normalized: SupportTicket = {
+      ...ticket,
+      status: normalizeTicketStatus(ticket.status),
+      category: normalizeTicketCategory(ticket.category),
+    };
+    setSelectedTicket(normalized);
+    setNewStatus(normalized.status);
   };
 
   const handleCloseDetail = () => {
     setSelectedTicket(null);
+  };
+
+  const getStatusLabel = (status: SupportTicketStatus) => {
+    switch (status) {
+      case "Open":
+        return t("admin.supportTickets.statusOpen");
+      case "InProgress":
+        return t("admin.supportTickets.statusInProgress");
+      case "Resolved":
+        return t("admin.supportTickets.statusResolved");
+      default:
+        return t("admin.supportTickets.statusOpen");
+    }
   };
 
   const handleUpdateStatus = async () => {
@@ -72,11 +127,16 @@ export default function AdminSupportTickets() {
     setIsUpdatingStatus(true);
     try {
       const updated = await updateAdminSupportTicketStatus(selectedTicket.id, newStatus);
-      setSelectedTicket(updated);
+      const normalizedUpdated: SupportTicket = {
+        ...updated,
+        status: normalizeTicketStatus(updated.status),
+        category: normalizeTicketCategory(updated.category),
+      };
+      setSelectedTicket(normalizedUpdated);
       setTickets((prev) =>
-        prev.map((t) => (t.id === updated.id ? updated : t)),
+        prev.map((t) => (t.id === normalizedUpdated.id ? normalizedUpdated : t)),
       );
-      notifySuccess(t("admin.supportTickets.statusUpdated", { status: newStatus }));
+      notifySuccess(t("admin.supportTickets.statusUpdated", { status: getStatusLabel(normalizedUpdated.status) }));
     } catch {
       notifyError(t("admin.supportTickets.statusUpdateFailed"));
     } finally {
@@ -92,19 +152,14 @@ export default function AdminSupportTickets() {
         t.userEmail.toLowerCase().includes(q) ||
         t.subject.toLowerCase().includes(q) ||
         t.id.toLowerCase().includes(q) ||
+        t.status.toLowerCase().includes(q) ||
         (t.orderId && t.orderId.toLowerCase().includes(q)),
     );
   }, [tickets, search]);
 
-  const getStatusBadge = (status: SupportTicketStatus) => {
-    switch (status) {
-      case "Open":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
-            <AlertCircle size={12} />
-            {t("admin.supportTickets.statusOpen")}
-          </span>
-        );
+  const getStatusBadge = (status: unknown) => {
+    const s = normalizeTicketStatus(status);
+    switch (s) {
       case "InProgress":
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300 border border-sky-200 dark:border-sky-800/60">
@@ -119,11 +174,20 @@ export default function AdminSupportTickets() {
             {t("admin.supportTickets.statusResolved")}
           </span>
         );
+      case "Open":
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
+            <AlertCircle size={12} />
+            {t("admin.supportTickets.statusOpen")}
+          </span>
+        );
     }
   };
 
-  const getCategoryBadge = (category: SupportTicketCategory) => {
-    switch (category) {
+  const getCategoryBadge = (category: unknown) => {
+    const c = normalizeTicketCategory(category);
+    switch (c) {
       case "OrderIssue":
         return (
           <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-900/40">
@@ -142,6 +206,7 @@ export default function AdminSupportTickets() {
             {t("common.support.categoryPayment")}
           </span>
         );
+      case "General":
       default:
         return (
           <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-300 border border-gray-200 dark:border-white/10">
@@ -356,11 +421,25 @@ export default function AdminSupportTickets() {
 
               <div>
                 <span className="text-gray-400 block mb-0.5">
+                  {t("admin.supportTickets.tableStatus")}
+                </span>
+                <div>{getStatusBadge(selectedTicket.status)}</div>
+              </div>
+
+              <div>
+                <span className="text-gray-400 block mb-0.5">
                   {t("admin.supportTickets.submittedDate")}
                 </span>
                 <span className="font-medium text-gray-800 dark:text-gray-200">
                   {new Date(selectedTicket.createdAt).toLocaleString()}
                 </span>
+              </div>
+
+              <div>
+                <span className="text-gray-400 block mb-0.5">
+                  {t("admin.supportTickets.tableCategory")}
+                </span>
+                <div>{getCategoryBadge(selectedTicket.category)}</div>
               </div>
 
               <div>

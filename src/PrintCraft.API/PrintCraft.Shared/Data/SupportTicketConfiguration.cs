@@ -22,11 +22,15 @@ public class SupportTicketConfiguration : IEntityTypeConfiguration<SupportTicket
             .IsRequired();
 
         builder.Property(t => t.Category)
-            .HasConversion<string>()
+            .HasConversion(
+                v => v.ToString(),
+                v => Enum.Parse<SupportTicketCategory>(v.Replace(" ", "").Replace("_", ""), true))
             .HasMaxLength(64);
 
         builder.Property(t => t.Status)
-            .HasConversion<string>()
+            .HasConversion(
+                v => v.ToString(),
+                v => Enum.Parse<SupportTicketStatus>(v.Replace(" ", "").Replace("_", ""), true))
             .HasMaxLength(64);
 
         builder.Property(t => t.AttachmentUrls)

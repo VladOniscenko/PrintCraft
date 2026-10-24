@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace PrintCraft.Shared.Models;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SupportTicketCategory
 {
     OrderIssue,
@@ -10,6 +12,7 @@ public enum SupportTicketCategory
     General
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SupportTicketStatus
 {
     Open,
@@ -29,6 +32,7 @@ public class SupportTicket
 
     public Guid? OrderId { get; set; }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public SupportTicketCategory Category { get; set; } = SupportTicketCategory.General;
 
     [Required]
@@ -38,6 +42,7 @@ public class SupportTicket
     [Required]
     public string Description { get; set; } = string.Empty;
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public SupportTicketStatus Status { get; set; } = SupportTicketStatus.Open;
 
     public List<string> AttachmentUrls { get; set; } = new();
