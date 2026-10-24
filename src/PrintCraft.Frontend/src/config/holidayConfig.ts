@@ -6,7 +6,12 @@ export type HolidayKey =
   | "christmas"
   | "newYear"
   | "valentines"
-  | "kingsDay";
+  | "easter"
+  | "kingsDay"
+  | "mothersDay"
+  | "fathersDay"
+  | "backToWork"
+  | "animalDay";
 
 export interface HolidayDates {
   start: string; // "MM-DD", e.g. "10-01"
@@ -53,7 +58,10 @@ export type HolidayEffect =
   | "confetti"
   | "snow"
   | "hearts"
+  | "blossom"
+  | "pawprints"
   | "fireworks"
+  | "none"
   | string;
 
 export interface HolidayConfigItem {
@@ -94,6 +102,463 @@ export const DEFAULT_HERO_PALETTE: HolidayColorPalette = {
 };
 
 export const holidayConfig: HolidayConfig = {
+  // 1. Pasen: 15 maart t/m Pasen (effect: 'blossom', model: 'egg.stl')
+  easter: {
+    id: "easter",
+    dates: {
+      start: "03-15",
+      end: "04-15",
+      startMonth: 3,
+      startDay: 15,
+      endMonth: 4,
+      endDay: 15,
+    },
+    content: {
+      title: "Vrolijk Pasen met unieke 3D-lenteprints",
+      subtitle:
+        "Print vrolijke paaseieren, decoraties en tafelaccessoires op maat. Binnen 2 tot 5 werkdagen bezorgd met PostNL.",
+      ctaText: "Ontdek Paasprints",
+      titleKey: "hero.holidays.easter.title",
+      subtitleKey: "hero.holidays.easter.subtitle",
+      ctaTextKey: "hero.holidays.easter.cta",
+      titles: {
+        nl: "Vrolijk Pasen met unieke 3D-lenteprints",
+        en: "Happy Easter with Custom 3D Spring Prints",
+        tr: "Özel 3D Bahar Baskıları ile Mutlu Paskalyalar",
+        ru: "Светлой Пасхи с весенней 3D-печатью",
+        ar: "فصح سعيد مع تصاميم ربيعية ثلاثية الأبعاد",
+      },
+      subtitles: {
+        nl: "Print vrolijke paaseieren, decoraties en tafelaccessoires op maat. Binnen 2 tot 5 werkdagen bezorgd met PostNL.",
+        en: "Print festive Easter eggs, spring decor, and table centerpieces. Delivered in 2 to 5 business days via PostNL.",
+        tr: "Özel paskalya yumurtaları, masa ve bahar dekorasyonları bastırın. PostNL ile 2 ila 5 iş gününde teslimat.",
+        ru: "Печатайте пасхальные яйца, декор и праздничные украшения. Доставка через PostNL за 2–5 рабочих дней.",
+        ar: "اطبع بيض الفصح وديكورات المائدة الربيعية المخصصة. التوصيل خلال 2 إلى 5 أيام عمل عبر PostNL.",
+      },
+      ctaTexts: {
+        nl: "Ontdek Paasprints",
+        en: "Explore Easter Prints",
+        tr: "Paskalya Baskılarını Keşfet",
+        ru: "Смотреть пасхальную печать",
+        ar: "استكشف تصاميم الفصح",
+      },
+    },
+    modelUrl: "/uploads/hero/egg.stl",
+    colorPalette: {
+      heroBg:
+        "bg-gradient-to-b from-[#142316] via-[#0d180f] to-[#070e08] border border-emerald-400/25 shadow-[0_32px_64px_-16px_rgba(20,35,22,0.8)]",
+      bgColor:
+        "bg-gradient-to-b from-[#142316] via-[#0d180f] to-[#070e08] border border-emerald-400/25 shadow-[0_32px_64px_-16px_rgba(20,35,22,0.8)]",
+      eyebrowText: "text-yellow-300",
+      headingText: "text-white",
+      textColor: "text-white",
+      subtext: "text-emerald-100/90",
+      ctaButton:
+        "bg-yellow-400 text-gray-950 hover:bg-yellow-300 shadow-lg hover:shadow-yellow-400/30 active:scale-[0.98]",
+      ctaColor:
+        "bg-yellow-400 text-gray-950 hover:bg-yellow-300 shadow-lg hover:shadow-yellow-400/30 active:scale-[0.98]",
+      secondaryLink: "text-emerald-300 hover:text-white",
+      accentGlow: "bg-yellow-300/20",
+      secondaryGlow: "bg-emerald-400/15",
+      centerGlow: "bg-lime-400/10",
+      badgeBg: "bg-yellow-400/20 border-yellow-300/30 text-yellow-200",
+      paginationDotActive: "bg-yellow-400",
+      modelViewerAura: "bg-yellow-300/15",
+      focusRing: "focus:ring-yellow-400",
+    },
+    effect: "blossom",
+    eyebrow: "Pasen Special",
+    eyebrowKey: "hero.holidays.easter.eyebrow",
+    eyebrows: {
+      nl: "Pasen Special",
+      en: "Easter Special",
+      tr: "Paskalya Özel",
+      ru: "Пасхальный спецвыпуск",
+      ar: "خاص بعيد الفصح",
+    },
+  },
+
+  // 2. Koningsdag: 1 april t/m 27 april
+  kingsDay: {
+    id: "kingsDay",
+    dates: {
+      start: "04-01",
+      end: "04-27",
+      startMonth: 4,
+      startDay: 1,
+      endMonth: 4,
+      endDay: 27,
+    },
+    content: {
+      title: "Vier Koningsdag in stijl met oranje 3D-prints",
+      subtitle:
+        "Van feestkronen en festivalaccessoires tot oranje gadgets. Binnen 2 tot 5 werkdagen in huis via PostNL.",
+      ctaText: "Bestel Oranje Prints",
+      titleKey: "hero.holidays.kingsDay.title",
+      subtitleKey: "hero.holidays.kingsDay.subtitle",
+      ctaTextKey: "hero.holidays.kingsDay.cta",
+      titles: {
+        nl: "Vier Koningsdag in stijl met oranje 3D-prints",
+        en: "Celebrate King's Day with Custom Orange 3D Prints",
+        tr: "Kral Günü'nü Turuncu 3D Baskılarla Kutlayın",
+        ru: "Празднуйте День короля с оранжевой 3D-печатью",
+        ar: "احتفل بيوم الملك بتصاميم برتقالية ثلاثية الأبعاد",
+      },
+      subtitles: {
+        nl: "Van feestkronen en festivalaccessoires tot oranje gadgets. Binnen 2 tot 5 werkdagen in huis via PostNL.",
+        en: "From crowns and festival accessories to bright orange gadgets. Delivered in 2 to 5 business days via PostNL.",
+        tr: "Taçlardan parti aksesuarlarına ve turuncu aletlere kadar. PostNL ile 2 ila 5 iş gününde kapınızda.",
+        ru: "От праздничных корон и аксессуаров до оранжевых гаджетов. Доставка за 2–5 рабочих дней через PostNL.",
+        ar: "من التيجان وإكسسوارات الاحتفال إلى المجسمات البرتقالية. التوصيل خلال 2 إلى 5 أيام عمل عبر PostNL.",
+      },
+      ctaTexts: {
+        nl: "Bestel Oranje Prints",
+        en: "Order King's Day Prints",
+        tr: "Turuncu Baskıları Sipariş Et",
+        ru: "Заказать оранжевые принты",
+        ar: "اطلب التصاميم البرتقالية",
+      },
+    },
+    modelUrl: "/uploads/hero/crown.stl",
+    colorPalette: {
+      heroBg:
+        "bg-gradient-to-b from-[#200e02] via-[#130701] to-[#0a0400] border border-amber-500/30 shadow-[0_32px_64px_-16px_rgba(32,14,2,0.8)]",
+      bgColor:
+        "bg-gradient-to-b from-[#200e02] via-[#130701] to-[#0a0400] border border-amber-500/30 shadow-[0_32px_64px_-16px_rgba(32,14,2,0.8)]",
+      eyebrowText: "text-amber-400",
+      headingText: "text-white",
+      textColor: "text-white",
+      subtext: "text-amber-100/90",
+      ctaButton:
+        "bg-amber-500 text-gray-950 hover:bg-amber-400 shadow-lg hover:shadow-amber-500/30 active:scale-[0.98]",
+      ctaColor:
+        "bg-amber-500 text-gray-950 hover:bg-amber-400 shadow-lg hover:shadow-amber-500/30 active:scale-[0.98]",
+      secondaryLink: "text-amber-300 hover:text-white",
+      accentGlow: "bg-orange-500/20",
+      secondaryGlow: "bg-blue-600/15",
+      centerGlow: "bg-amber-500/10",
+      badgeBg: "bg-amber-500/20 border-amber-400/30 text-amber-200",
+      paginationDotActive: "bg-amber-500",
+      modelViewerAura: "bg-amber-500/15",
+      focusRing: "focus:ring-amber-400",
+    },
+    effect: "confetti",
+    eyebrow: "Koningsdag Special",
+    eyebrowKey: "hero.holidays.kingsDay.eyebrow",
+    eyebrows: {
+      nl: "Koningsdag Special",
+      en: "King's Day Special",
+      tr: "Kral Günü Özel",
+      ru: "Ко Дню короля",
+      ar: "خاص بيوم الملك",
+    },
+  },
+
+  // 3. Moederdag: 15 april t/m 2e zondag van mei (effect: 'blossom', model: 'mothers-day.stl', focus: HueForge cadeaus)
+  mothersDay: {
+    id: "mothersDay",
+    dates: {
+      start: "04-15",
+      end: "05-14",
+      startMonth: 4,
+      startDay: 15,
+      endMonth: 5,
+      endDay: 14,
+    },
+    content: {
+      title: "Verras mama met een uniek HueForge 3D-kunstwerk",
+      subtitle:
+        "Zet jullie favoriete herinnering om in een tastbaar 3D-reliëf schilderij. Bestel op tijd: binnen 2 tot 5 werkdagen in huis.",
+      ctaText: "Maak Moederdagcadeau",
+      titleKey: "hero.holidays.mothersDay.title",
+      subtitleKey: "hero.holidays.mothersDay.subtitle",
+      ctaTextKey: "hero.holidays.mothersDay.cta",
+      titles: {
+        nl: "Verras mama met een uniek HueForge 3D-kunstwerk",
+        en: "Surprise Mom with a Unique HueForge 3D Art Piece",
+        tr: "Anneler Günü için Eşsiz HueForge 3D Tablo Hediyesi",
+        ru: "Удивите маму уникальной 3D-картиной HueForge",
+        ar: "فاجئ والدتك بلوحة فنية ثلاثية الأبعاد بتقنية HueForge",
+      },
+      subtitles: {
+        nl: "Zet jullie favoriete herinnering om in een tastbaar 3D-reliëf schilderij. Bestel op tijd: binnen 2 tot 5 werkdagen in huis.",
+        en: "Transform your favorite memory into a touchable optical 3D relief painting. Delivered in 2 to 5 business days.",
+        tr: "En güzel anınızı dokunulabilir 3D rölyef tablosuna dönüştürün. PostNL ile 2 ila 5 iş gününde kapınızda.",
+        ru: "Превратите любимое фото в осязаемую рельефную картину. Доставка за 2–5 рабочих дней через PostNL.",
+        ar: "حوّل ذكرياتكم المميزة إلى لوحة بارزة ملموسة. اطلب مسبقاً: التوصيل خلال 2 إلى 5 أيام عمل.",
+      },
+      ctaTexts: {
+        nl: "Maak Moederdagcadeau",
+        en: "Create Mother's Day Gift",
+        tr: "Anneler Günü Hediyesi Yap",
+        ru: "Создать подарок маме",
+        ar: "اصنع هدية عيد الأم",
+      },
+    },
+    modelUrl: "/uploads/hero/mothers-day.stl",
+    colorPalette: {
+      heroBg:
+        "bg-gradient-to-b from-[#220d1c] via-[#150711] to-[#0b0309] border border-pink-400/30 shadow-[0_32px_64px_-16px_rgba(34,13,28,0.8)]",
+      bgColor:
+        "bg-gradient-to-b from-[#220d1c] via-[#150711] to-[#0b0309] border border-pink-400/30 shadow-[0_32px_64px_-16px_rgba(34,13,28,0.8)]",
+      eyebrowText: "text-pink-300",
+      headingText: "text-white",
+      textColor: "text-white",
+      subtext: "text-pink-100/90",
+      ctaButton:
+        "bg-pink-400 text-gray-950 hover:bg-pink-300 shadow-lg hover:shadow-pink-400/30 active:scale-[0.98]",
+      ctaColor:
+        "bg-pink-400 text-gray-950 hover:bg-pink-300 shadow-lg hover:shadow-pink-400/30 active:scale-[0.98]",
+      secondaryLink: "text-pink-200 hover:text-white",
+      accentGlow: "bg-pink-400/20",
+      secondaryGlow: "bg-rose-400/15",
+      centerGlow: "bg-purple-500/10",
+      badgeBg: "bg-pink-500/20 border-pink-400/30 text-pink-200",
+      paginationDotActive: "bg-pink-400",
+      modelViewerAura: "bg-pink-400/15",
+      focusRing: "focus:ring-pink-400",
+    },
+    effect: "blossom",
+    eyebrow: "Moederdag Special",
+    eyebrowKey: "hero.holidays.mothersDay.eyebrow",
+    eyebrows: {
+      nl: "Moederdag Special",
+      en: "Mother's Day Special",
+      tr: "Anneler Günü Özel",
+      ru: "Ко Дню матери",
+      ar: "خاص بعيد الأم",
+    },
+  },
+
+  // 4. Vaderdag: 20 mei t/m 3e zondag van juni (effect: 'none', donker palet, model: 'fathers-day.stl', focus: gadgets & organizers)
+  fathersDay: {
+    id: "fathersDay",
+    dates: {
+      start: "05-20",
+      end: "06-21",
+      startMonth: 5,
+      startDay: 20,
+      endMonth: 6,
+      endDay: 21,
+    },
+    content: {
+      title: "Stoere 3D-geprinte gadgets & organizers voor vader",
+      subtitle:
+        "Van slimme desk organizers tot gereedschapshouders op maat. Binnen 2 tot 5 werkdagen bezorgd door PostNL.",
+      ctaText: "Bekijk Vaderdag Gadgets",
+      titleKey: "hero.holidays.fathersDay.title",
+      subtitleKey: "hero.holidays.fathersDay.subtitle",
+      ctaTextKey: "hero.holidays.fathersDay.cta",
+      titles: {
+        nl: "Stoere 3D-geprinte gadgets & organizers voor vader",
+        en: "Rugged 3D Printed Gadgets & Organizers for Dad",
+        tr: "Babalar Günü için Dayanıklı 3D Düzenleyiciler ve Aletler",
+        ru: "Практичные 3D-гаджеты и органайзеры для папы",
+        ar: "أدوات ومنظمات عملية مطبوعة ثلاثية الأبعاد للأب",
+      },
+      subtitles: {
+        nl: "Van slimme desk organizers tot gereedschapshouders op maat. Binnen 2 tot 5 werkdagen bezorgd door PostNL.",
+        en: "From sleek desk organizers to precision tool mounts and custom gear. Delivered in 2 to 5 business days via PostNL.",
+        tr: "Masaüstü düzenleyicilerden özel aparatlara kadar her şey. PostNL ile 2 ila 5 iş gününde teslimat.",
+        ru: "От удобных настольных органайзеров до креплений для инструментов. Доставка за 2–5 рабочих дней.",
+        ar: "من منظمات المكاتب الذكية إلى حوامل الأدوات الدقيقة. التوصيل خلال 2 إلى 5 أيام عمل عبر PostNL.",
+      },
+      ctaTexts: {
+        nl: "Bekijk Vaderdag Gadgets",
+        en: "Explore Father's Day Gifts",
+        tr: "Babalar Günü Hediyelerini Gör",
+        ru: "Подарки ко Дню отца",
+        ar: "استعرض هدايا عيد الأب",
+      },
+    },
+    modelUrl: "/uploads/hero/fathers-day.stl",
+    colorPalette: {
+      heroBg:
+        "bg-gradient-to-b from-[#0f172a] via-[#090e1a] to-[#04060c] border border-slate-700/50 shadow-[0_32px_64px_-16px_rgba(15,23,42,0.9)]",
+      bgColor:
+        "bg-gradient-to-b from-[#0f172a] via-[#090e1a] to-[#04060c] border border-slate-700/50 shadow-[0_32px_64px_-16px_rgba(15,23,42,0.9)]",
+      eyebrowText: "text-cyan-400",
+      headingText: "text-white",
+      textColor: "text-white",
+      subtext: "text-slate-200/90",
+      ctaButton:
+        "bg-cyan-500 text-gray-950 hover:bg-cyan-400 shadow-lg hover:shadow-cyan-500/30 active:scale-[0.98]",
+      ctaColor:
+        "bg-cyan-500 text-gray-950 hover:bg-cyan-400 shadow-lg hover:shadow-cyan-500/30 active:scale-[0.98]",
+      secondaryLink: "text-cyan-300 hover:text-white",
+      accentGlow: "bg-cyan-500/15",
+      secondaryGlow: "bg-blue-600/15",
+      centerGlow: "bg-slate-700/20",
+      badgeBg: "bg-slate-800/60 border-cyan-500/30 text-cyan-200",
+      paginationDotActive: "bg-cyan-400",
+      modelViewerAura: "bg-cyan-500/15",
+      focusRing: "focus:ring-cyan-400",
+    },
+    effect: "none",
+    eyebrow: "Vaderdag Special",
+    eyebrowKey: "hero.holidays.fathersDay.eyebrow",
+    eyebrows: {
+      nl: "Vaderdag Special",
+      en: "Father's Day Special",
+      tr: "Babalar Günü Özel",
+      ru: "Ко Дню отца",
+      ar: "خاص بعيد الأب",
+    },
+  },
+
+  // 5. Back to Work: 15 augustus t/m 15 september (effect: 'none', zakelijk palet, model: 'cable-holder.stl', focus: kantoor/B2B)
+  backToWork: {
+    id: "backToWork",
+    dates: {
+      start: "08-15",
+      end: "09-15",
+      startMonth: 8,
+      startDay: 15,
+      endMonth: 9,
+      endDay: 15,
+    },
+    content: {
+      title: "Start georganiseerd: slimme 3D-kantooroplossingen",
+      subtitle:
+        "Kabelmanagement, bureau-organizers en prototypes voor professionals. Binnen 2 tot 5 werkdagen geleverd.",
+      ctaText: "Optimaliseer Je Werkplek",
+      titleKey: "hero.holidays.backToWork.title",
+      subtitleKey: "hero.holidays.backToWork.subtitle",
+      ctaTextKey: "hero.holidays.backToWork.cta",
+      titles: {
+        nl: "Start georganiseerd: slimme 3D-kantooroplossingen",
+        en: "Back to Work: Smart 3D Workplace & Office Gear",
+        tr: "İşe Dönüş: Akıllı 3D Ofis ve Çalışma Çözümleri",
+        ru: "Снова за работу: умные 3D-решения для офиса",
+        ar: "العودة للعمل: حلول مكتبية ثلاثية الأبعاد ذكية",
+      },
+      subtitles: {
+        nl: "Kabelmanagement, bureau-organizers en prototypes voor professionals. Binnen 2 tot 5 werkdagen geleverd.",
+        en: "Cable management, desk organizers, and batch parts for professionals. Delivered in 2 to 5 business days.",
+        tr: "Kablo kanalları, masa aksesuarları ve profesyonel seriler. 2 ila 5 iş gününde hızlı teslimat.",
+        ru: "Кабель-менеджмент, органайзеры и серийное производство. Доставка за 2–5 рабочих дней через PostNL.",
+        ar: "تنظيم الأسلاك، منظمات المكاتب، ودفعات الإنتاج التجاري. التوصيل خلال 2 إلى 5 أيام عمل.",
+      },
+      ctaTexts: {
+        nl: "Optimaliseer Je Werkplek",
+        en: "Upgrade Your Desk Setup",
+        tr: "Çalışma Alanını Geliştir",
+        ru: "Обустроить рабочее место",
+        ar: "طور مساحة عملك",
+      },
+    },
+    modelUrl: "/uploads/hero/cable-holder.stl",
+    colorPalette: {
+      heroBg:
+        "bg-gradient-to-b from-[#0c1829] via-[#070f1a] to-[#03070d] border border-blue-500/25 shadow-[0_32px_64px_-16px_rgba(12,24,41,0.85)]",
+      bgColor:
+        "bg-gradient-to-b from-[#0c1829] via-[#070f1a] to-[#03070d] border border-blue-500/25 shadow-[0_32px_64px_-16px_rgba(12,24,41,0.85)]",
+      eyebrowText: "text-blue-400",
+      headingText: "text-white",
+      textColor: "text-white",
+      subtext: "text-blue-100/90",
+      ctaButton:
+        "bg-blue-500 text-white hover:bg-blue-400 shadow-lg hover:shadow-blue-500/30 active:scale-[0.98]",
+      ctaColor:
+        "bg-blue-500 text-white hover:bg-blue-400 shadow-lg hover:shadow-blue-500/30 active:scale-[0.98]",
+      secondaryLink: "text-blue-300 hover:text-white",
+      accentGlow: "bg-blue-500/20",
+      secondaryGlow: "bg-indigo-500/15",
+      centerGlow: "bg-sky-500/10",
+      badgeBg: "bg-blue-500/20 border-blue-400/30 text-blue-200",
+      paginationDotActive: "bg-blue-500",
+      modelViewerAura: "bg-blue-500/15",
+      focusRing: "focus:ring-blue-400",
+    },
+    effect: "none",
+    eyebrow: "Back to Work Special",
+    eyebrowKey: "hero.holidays.backToWork.eyebrow",
+    eyebrows: {
+      nl: "Back to Work Special",
+      en: "Back to Work Special",
+      tr: "İşe Dönüş Özel",
+      ru: "Снова в офис",
+      ar: "العودة إلى العمل",
+    },
+  },
+
+  // 6. Dierendag: 15 september t/m 4 oktober (effect: 'pawprints', model: 'dog-tag.stl', focus: huisdier accessoires in sterk PETG)
+  animalDay: {
+    id: "animalDay",
+    dates: {
+      start: "09-15",
+      end: "10-04",
+      startMonth: 9,
+      startDay: 15,
+      endMonth: 10,
+      endDay: 4,
+    },
+    content: {
+      title: "Verwen je trouwe viervoeter op Dierendag",
+      subtitle:
+        "Gepersonaliseerde penningen en handige voeraccessoires in oersterk PETG. Binnen 2 tot 5 werkdagen bezorgd via PostNL.",
+      ctaText: "Bestel Huisdier Accessoires",
+      titleKey: "hero.holidays.animalDay.title",
+      subtitleKey: "hero.holidays.animalDay.subtitle",
+      ctaTextKey: "hero.holidays.animalDay.cta",
+      titles: {
+        nl: "Verwen je trouwe viervoeter op Dierendag",
+        en: "Celebrate World Animal Day with Custom Pet Gear",
+        tr: "Hayvanları Koruma Günü'nde Evcil Dostunuza Özel 3D Baskı",
+        ru: "Порадуйте питомцев ко Дню защиты животных",
+        ar: "دلل أليفك في اليوم العالمي للحيوان",
+      },
+      subtitles: {
+        nl: "Gepersonaliseerde penningen en handige voeraccessoires in oersterk PETG. Binnen 2 tot 5 werkdagen bezorgd via PostNL.",
+        en: "Personalized dog tags and pet accessories printed in ultra-tough PETG. Delivered in 2 to 5 business days via PostNL.",
+        tr: "Ekstra dayanıklı PETG ile kişiselleştirilmiş tasmalar ve aksesuarlar. 2 ila 5 iş gününde teslimat.",
+        ru: "Именные адресники и аксессуары из ударопрочного PETG. Доставка через PostNL за 2–5 рабочих дней.",
+        ar: "قلائد أسماء مخصصة وإكسسوارات قوية مصنوعة من PETG. التوصيل خلال 2 إلى 5 أيام عمل عبر PostNL.",
+      },
+      ctaTexts: {
+        nl: "Bestel Huisdier Accessoires",
+        en: "Order Pet Accessories",
+        tr: "Evcil Hayvan Ürünlerini Sipariş Et",
+        ru: "Заказать товары для питомцев",
+        ar: "اطلب مستلزمات الحيوانات",
+      },
+    },
+    modelUrl: "/uploads/hero/dog-tag.stl",
+    colorPalette: {
+      heroBg:
+        "bg-gradient-to-b from-[#1c140a] via-[#120c06] to-[#090603] border border-amber-600/30 shadow-[0_32px_64px_-16px_rgba(28,20,10,0.8)]",
+      bgColor:
+        "bg-gradient-to-b from-[#1c140a] via-[#120c06] to-[#090603] border border-amber-600/30 shadow-[0_32px_64px_-16px_rgba(28,20,10,0.8)]",
+      eyebrowText: "text-amber-400",
+      headingText: "text-white",
+      textColor: "text-white",
+      subtext: "text-amber-100/90",
+      ctaButton:
+        "bg-amber-500 text-gray-950 hover:bg-amber-400 shadow-lg hover:shadow-amber-500/30 active:scale-[0.98]",
+      ctaColor:
+        "bg-amber-500 text-gray-950 hover:bg-amber-400 shadow-lg hover:shadow-amber-500/30 active:scale-[0.98]",
+      secondaryLink: "text-amber-300 hover:text-white",
+      accentGlow: "bg-amber-500/20",
+      secondaryGlow: "bg-orange-500/15",
+      centerGlow: "bg-emerald-600/10",
+      badgeBg: "bg-amber-500/20 border-amber-400/30 text-amber-200",
+      paginationDotActive: "bg-amber-500",
+      modelViewerAura: "bg-amber-500/15",
+      focusRing: "focus:ring-amber-400",
+    },
+    effect: "pawprints",
+    eyebrow: "Dierendag Special",
+    eyebrowKey: "hero.holidays.animalDay.eyebrow",
+    eyebrows: {
+      nl: "Dierendag Special",
+      en: "Animal Day Special",
+      tr: "Hayvanlar Günü Özel",
+      ru: "Ко Дню животных",
+      ar: "يوم الحيوان العالمي",
+    },
+  },
+
+  // 7. Halloween: 1 oktober t/m 31 oktober
   halloween: {
     id: "halloween",
     dates: {
@@ -169,6 +634,7 @@ export const holidayConfig: HolidayConfig = {
     },
   },
 
+  // 8. Sinterklaas: 1 november t/m 5 december
   sinterklaas: {
     id: "sinterklaas",
     dates: {
@@ -244,6 +710,7 @@ export const holidayConfig: HolidayConfig = {
     },
   },
 
+  // 9. Kerstmis: 6 december t/m 26 december
   christmas: {
     id: "christmas",
     dates: {
@@ -319,6 +786,7 @@ export const holidayConfig: HolidayConfig = {
     },
   },
 
+  // 10. Oud & Nieuw: 27 december t/m 2 januari
   newYear: {
     id: "newYear",
     dates: {
@@ -394,6 +862,7 @@ export const holidayConfig: HolidayConfig = {
     },
   },
 
+  // 11. Valentijnsdag: 20 januari t/m 14 februari
   valentines: {
     id: "valentines",
     dates: {
@@ -468,90 +937,88 @@ export const holidayConfig: HolidayConfig = {
       ar: "خاص بعيد الحب",
     },
   },
-
-  kingsDay: {
-    id: "kingsDay",
-    dates: {
-      start: "04-01",
-      end: "04-27",
-      startMonth: 4,
-      startDay: 1,
-      endMonth: 4,
-      endDay: 27,
-    },
-    content: {
-      title: "Vier Koningsdag in stijl met oranje 3D-prints",
-      subtitle:
-        "Van feestkronen en festivalaccessoires tot oranje gadgets. Binnen 2 tot 5 werkdagen in huis via PostNL.",
-      ctaText: "Bestel Oranje Prints",
-      titleKey: "hero.holidays.kingsDay.title",
-      subtitleKey: "hero.holidays.kingsDay.subtitle",
-      ctaTextKey: "hero.holidays.kingsDay.cta",
-      titles: {
-        nl: "Vier Koningsdag in stijl met oranje 3D-prints",
-        en: "Celebrate King's Day with Custom Orange 3D Prints",
-        tr: "Kral Günü'nü Turuncu 3D Baskılarla Kutlayın",
-        ru: "Празднуйте День короля с оранжевой 3D-печатью",
-        ar: "احتفل بيوم الملك بتصاميم برتقالية ثلاثية الأبعاد",
-      },
-      subtitles: {
-        nl: "Van feestkronen en festivalaccessoires tot oranje gadgets. Binnen 2 tot 5 werkdagen in huis via PostNL.",
-        en: "From crowns and festival accessories to bright orange gadgets. Delivered in 2 to 5 business days via PostNL.",
-        tr: "Taçlardan parti aksesuarlarına ve turuncu aletlere kadar. PostNL ile 2 ila 5 iş gününde kapınızda.",
-        ru: "От праздничных корон и аксессуаров до оранжевых гаджетов. Доставка за 2–5 рабочих дней через PostNL.",
-        ar: "من التيجان وإكسسوارات الاحتفال إلى المجسمات البرتقالية. التوصيل خلال 2 إلى 5 أيام عمل عبر PostNL.",
-      },
-      ctaTexts: {
-        nl: "Bestel Oranje Prints",
-        en: "Order King's Day Prints",
-        tr: "Turuncu Baskıları Sipariş Et",
-        ru: "Заказать оранжевые принты",
-        ar: "اطلب التصاميم البرتقالية",
-      },
-    },
-    modelUrl: "/uploads/hero/crown.stl",
-    colorPalette: {
-      heroBg:
-        "bg-gradient-to-b from-[#200e02] via-[#130701] to-[#0a0400] border border-amber-500/30 shadow-[0_32px_64px_-16px_rgba(32,14,2,0.8)]",
-      bgColor:
-        "bg-gradient-to-b from-[#200e02] via-[#130701] to-[#0a0400] border border-amber-500/30 shadow-[0_32px_64px_-16px_rgba(32,14,2,0.8)]",
-      eyebrowText: "text-amber-400",
-      headingText: "text-white",
-      textColor: "text-white",
-      subtext: "text-amber-100/90",
-      ctaButton:
-        "bg-amber-500 text-gray-950 hover:bg-amber-400 shadow-lg hover:shadow-amber-500/30 active:scale-[0.98]",
-      ctaColor:
-        "bg-amber-500 text-gray-950 hover:bg-amber-400 shadow-lg hover:shadow-amber-500/30 active:scale-[0.98]",
-      secondaryLink: "text-amber-300 hover:text-white",
-      accentGlow: "bg-orange-500/20",
-      secondaryGlow: "bg-blue-600/15",
-      centerGlow: "bg-amber-500/10",
-      badgeBg: "bg-amber-500/20 border-amber-400/30 text-amber-200",
-      paginationDotActive: "bg-amber-500",
-      modelViewerAura: "bg-amber-500/15",
-      focusRing: "focus:ring-amber-400",
-    },
-    effect: "confetti",
-    eyebrow: "Koningsdag Special",
-    eyebrowKey: "hero.holidays.kingsDay.eyebrow",
-    eyebrows: {
-      nl: "Koningsdag Special",
-      en: "King's Day Special",
-      tr: "Kral Günü Özel",
-      ru: "Ко Дню короля",
-      ar: "خاص بيوم الملك",
-    },
-  },
 };
 
+/**
+ * Calculates Easter Sunday for a given year using Meeus/Jones/Butcher algorithm
+ */
+export function getEasterSundayDate(year: number): { month: number; day: number } {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return { month, day };
+}
+
+/**
+ * Calculates Easter Monday (Tweede Paasdag) for a given year
+ */
+export function getEasterMondayDate(year: number): { month: number; day: number } {
+  const easter = getEasterSundayDate(year);
+  const date = new Date(year, easter.month - 1, easter.day + 1);
+  return { month: date.getMonth() + 1, day: date.getDate() };
+}
+
+/**
+ * Calculates Mother's Day (2nd Sunday of May) for a given year
+ */
+export function getMothersDayDate(year: number): { month: number; day: number } {
+  const may1 = new Date(year, 4, 1);
+  const dayOfWeek = may1.getDay();
+  const firstSunday = (7 - dayOfWeek) % 7 + 1;
+  const secondSunday = firstSunday + 7;
+  return { month: 5, day: secondSunday };
+}
+
+/**
+ * Calculates Father's Day (3rd Sunday of June) for a given year
+ */
+export function getFathersDayDate(year: number): { month: number; day: number } {
+  const june1 = new Date(year, 5, 1);
+  const dayOfWeek = june1.getDay();
+  const firstSunday = (7 - dayOfWeek) % 7 + 1;
+  const thirdSunday = firstSunday + 14;
+  return { month: 6, day: thirdSunday };
+}
+
 export function isDateInHoliday(date: Date, holiday: HolidayConfigItem): boolean {
+  const year = date.getFullYear();
   const m = date.getMonth() + 1; // 1-12
   const d = date.getDate(); // 1-31
   const current = m * 100 + d;
 
-  const start = holiday.dates.startMonth * 100 + holiday.dates.startDay;
-  const end = holiday.dates.endMonth * 100 + holiday.dates.endDay;
+  let startMonth = holiday.dates.startMonth;
+  let startDay = holiday.dates.startDay;
+  let endMonth = holiday.dates.endMonth;
+  let endDay = holiday.dates.endDay;
+
+  // Dynamic calculation for movable holidays
+  if (holiday.id === "easter") {
+    const easterMonday = getEasterMondayDate(year);
+    endMonth = easterMonday.month;
+    endDay = easterMonday.day;
+  } else if (holiday.id === "mothersDay") {
+    const mothersDay = getMothersDayDate(year);
+    endMonth = mothersDay.month;
+    endDay = mothersDay.day;
+  } else if (holiday.id === "fathersDay") {
+    const fathersDay = getFathersDayDate(year);
+    endMonth = fathersDay.month;
+    endDay = fathersDay.day;
+  }
+
+  const start = startMonth * 100 + startDay;
+  const end = endMonth * 100 + endDay;
 
   if (start <= end) {
     return current >= start && current <= end;
@@ -560,12 +1027,28 @@ export function isDateInHoliday(date: Date, holiday: HolidayConfigItem): boolean
   return current >= start || current <= end;
 }
 
+// Ordered prioritization to handle seasonal transitions cleanly
+const HOLIDAY_PRIORITY: HolidayKey[] = [
+  "easter",
+  "kingsDay",
+  "mothersDay",
+  "fathersDay",
+  "backToWork",
+  "animalDay",
+  "halloween",
+  "sinterklaas",
+  "christmas",
+  "newYear",
+  "valentines",
+];
+
 export function getActiveHoliday(
   date: Date = new Date(),
   config: HolidayConfig = holidayConfig
 ): HolidayConfigItem | null {
-  for (const holiday of Object.values(config)) {
-    if (isDateInHoliday(date, holiday)) {
+  for (const key of HOLIDAY_PRIORITY) {
+    const holiday = config[key];
+    if (holiday && isDateInHoliday(date, holiday)) {
       return holiday;
     }
   }
@@ -631,4 +1114,3 @@ export function getHolidayEyebrow(
   }
   return holiday.eyebrow || "";
 }
-

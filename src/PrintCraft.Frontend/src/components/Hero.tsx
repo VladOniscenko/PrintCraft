@@ -9,7 +9,10 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Box, RotateCcw } from "lucide-react";
-import { getActiveHeroSlides, getCachedActiveHeroSlides } from "../services/api";
+import {
+  getActiveHeroSlides,
+  getCachedActiveHeroSlides,
+} from "../services/api";
 import type { HeroSlide } from "../types";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import { useI18n } from "../i18n/I18nContext";
@@ -289,7 +292,10 @@ export default function Hero() {
           setSlides(sorted);
         }
       } catch (err) {
-        console.warn("Could not load dynamic hero slides from API, using fallback slides:", err);
+        console.warn(
+          "Could not load dynamic hero slides from API, using fallback slides:",
+          err,
+        );
       }
     }
 
@@ -318,7 +324,8 @@ export default function Hero() {
   }, []);
 
   const totalSlides = allSlides.length;
-  const currentSlide = allSlides[currentIndex] || allSlides[0] || FALLBACK_SLIDES[0];
+  const currentSlide =
+    allSlides[currentIndex] || allSlides[0] || FALLBACK_SLIDES[0];
 
   const isCurrentSlideHoliday = Boolean(
     activeHoliday && currentSlide.id.startsWith("holiday-"),
@@ -348,7 +355,8 @@ export default function Hero() {
       : getHeroSlidePrice(currentSlide, language);
 
   const isPhotoPaintingSlide =
-    !isCurrentSlideHoliday && currentSlide.mediaUrl.includes("snowflake");
+    (isCurrentSlideHoliday && activeHoliday?.id === "mothersDay") ||
+    (!isCurrentSlideHoliday && currentSlide.mediaUrl.includes("snowflake"));
 
   const primaryCtaPath = isPhotoPaintingSlide
     ? localizePath("/filament-painting")
@@ -532,7 +540,9 @@ export default function Hero() {
                     {/* Subtle Interactive Instruction */}
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/40 text-white/90 backdrop-blur-md border border-white/10">
-                        <RotateCcw className={`w-3 h-3 ${activePalette.eyebrowText}`} />
+                        <RotateCcw
+                          className={`w-3 h-3 ${activePalette.eyebrowText}`}
+                        />
                         <span>{t("hero.dragToRotate")}</span>
                       </span>
                     </div>
@@ -545,7 +555,9 @@ export default function Hero() {
                     className={`relative w-full h-full flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none group/stage focus:outline-none focus:ring-2 ${activePalette.focusRing || "focus:ring-emerald-400"} rounded-3xl`}
                   >
                     <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 flex items-center justify-center shadow-lg group-hover/stage:scale-105 group-hover/stage:border-white/40 transition-all duration-300">
-                      <Box className={`w-14 h-14 sm:w-16 sm:h-16 ${activePalette.eyebrowText} drop-shadow-md`} />
+                      <Box
+                        className={`w-14 h-14 sm:w-16 sm:h-16 ${activePalette.eyebrowText} drop-shadow-md`}
+                      />
                       <div className="absolute inset-0 rounded-3xl bg-white/5 pointer-events-none" />
                     </div>
 

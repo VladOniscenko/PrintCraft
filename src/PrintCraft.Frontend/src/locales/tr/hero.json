@@ -80,6 +80,36 @@
       "subtitle": "Taçlardan parti aksesuarlarına ve turuncu aletlere kadar. PostNL ile 2 ila 5 iş gününde kapınızda.",
       "cta": "Turuncu Baskıları Sipariş Et",
       "eyebrow": "Kral Günü Özel"
+    },
+    "easter": {
+      "title": "Özel 3D Bahar Baskıları ile Mutlu Paskalyalar",
+      "subtitle": "Özel paskalya yumurtaları, masa ve bahar dekorasyonları bastırın. PostNL ile 2 ila 5 iş gününde teslimat.",
+      "cta": "Paskalya Baskılarını Keşfet",
+      "eyebrow": "Paskalya Özel"
+    },
+    "mothersDay": {
+      "title": "Anneler Günü için Eşsiz HueForge 3D Tablo Hediyesi",
+      "subtitle": "En güzel anınızı dokunulabilir 3D rölyef tablosuna dönüştürün. PostNL ile 2 ila 5 iş gününde kapınızda.",
+      "cta": "Anneler Günü Hediyesi Yap",
+      "eyebrow": "Anneler Günü Özel"
+    },
+    "fathersDay": {
+      "title": "Babalar Günü için Dayanıklı 3D Düzenleyiciler ve Aletler",
+      "subtitle": "Masaüstü düzenleyicilerden özel aparatlara kadar her şey. PostNL ile 2 ila 5 iş gününde teslimat.",
+      "cta": "Babalar Günü Hediyelerini Gör",
+      "eyebrow": "Babalar Günü Özel"
+    },
+    "backToWork": {
+      "title": "İşe Dönüş: Akıllı 3D Ofis ve Çalışma Çözümleri",
+      "subtitle": "Kablo kanalları, masa aksesuarları ve profesyonel seriler. 2 ila 5 iş gününde hızlı teslimat.",
+      "cta": "Çalışma Alanını Geliştir",
+      "eyebrow": "İşe Dönüş Özel"
+    },
+    "animalDay": {
+      "title": "Hayvanları Koruma Günü'nde Evcil Dostunuza Özel 3D Baskı",
+      "subtitle": "Ekstra dayanıklı PETG ile kişiselleştirilmiş tasmalar ve aksesuarlar. 2 ila 5 iş gününde teslimat.",
+      "cta": "Evcil Hayvan Ürünlerini Sipariş Et",
+      "eyebrow": "Hayvanlar Günü Özel"
     }
   }
 }

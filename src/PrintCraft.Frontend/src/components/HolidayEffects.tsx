@@ -25,6 +25,23 @@ const HEART_COLORS = [
   "text-purple-300/70",
 ];
 
+const BLOSSOM_COLORS = [
+  "text-pink-300/85",
+  "text-rose-200/90",
+  "text-pink-200/80",
+  "text-rose-300/75",
+  "text-white/85",
+  "text-pink-100/90",
+];
+
+const PAW_COLORS = [
+  "text-amber-400/50",
+  "text-amber-300/40",
+  "text-orange-400/45",
+  "text-amber-200/40",
+  "text-white/35",
+];
+
 function BatSvg() {
   return (
     <svg
@@ -57,6 +74,34 @@ function SnowflakeSvg() {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M11 2v4.07a8.03 8.03 0 0 0-3.5 1.45L4.85 4.85 3.44 6.26l2.67 2.67A8.06 8.06 0 0 0 4.66 11H1v2h3.66c.26 1.05.8 2 1.45 2.82l-2.67 2.67 1.41 1.41 2.67-2.67A8.03 8.03 0 0 0 11 18.26V22h2v-3.74a8.03 8.03 0 0 0 3.5-1.45l2.67 2.67 1.41-1.41-2.67-2.67c.65-.82 1.19-1.77 1.45-2.82H23v-2h-3.64a8.06 8.06 0 0 0-1.45-2.07l2.67-2.67-1.41-1.41-2.67 2.67A8.03 8.03 0 0 0 13 6.07V2h-2z" />
+    </svg>
+  );
+}
+
+function BlossomPetalSvg() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="w-full h-full fill-current filter drop-shadow-[0_2px_4px_rgba(244,114,182,0.35)]"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M12 2C10 5.5 6 8.5 6 13a6 6 0 0 0 12 0c0-4.5-4-7.5-6-11z" />
+    </svg>
+  );
+}
+
+function PawPrintSvg() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="w-full h-full fill-current filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M12 11c-2.2 0-4 1.8-4 4 0 2 1.6 3.5 4 3.5s4-1.5 4-3.5c0-2.2-1.8-4-4-4z" />
+      <circle cx="6.5" cy="9.5" r="1.8" />
+      <circle cx="10" cy="6.5" r="1.8" />
+      <circle cx="14" cy="6.5" r="1.8" />
+      <circle cx="17.5" cy="9.5" r="1.8" />
     </svg>
   );
 }
@@ -134,7 +179,34 @@ function HolidayEffectsComponent({
     []
   );
 
-  if (!effect) return null;
+  const blossoms = useMemo(
+    () =>
+      Array.from({ length: 22 }, (_, i) => ({
+        id: i,
+        left: `${(i * 4.4 + (i % 3) * 2.3) % 95 + 2}%`,
+        delay: `${((i * 1.2) % 6.5).toFixed(1)}s`,
+        duration: `${(5.8 + (i % 4) * 1.3).toFixed(1)}s`,
+        colorClass: BLOSSOM_COLORS[i % BLOSSOM_COLORS.length] ?? "text-pink-300/85",
+        sizeClass: i % 3 === 0 ? "w-5 h-5" : i % 2 === 0 ? "w-4 h-4" : "w-3.5 h-3.5",
+        swayDuration: `${(3.0 + (i % 3) * 0.7).toFixed(1)}s`,
+      })),
+    []
+  );
+
+  const pawprints = useMemo(
+    () =>
+      Array.from({ length: 16 }, (_, i) => ({
+        id: i,
+        left: `${(i * 6.1 + (i % 3) * 2.8) % 92 + 4}%`,
+        delay: `${((i * 1.4) % 7).toFixed(1)}s`,
+        duration: `${(6.5 + (i % 4) * 1.2).toFixed(1)}s`,
+        colorClass: PAW_COLORS[i % PAW_COLORS.length] ?? "text-amber-400/50",
+        sizeClass: i % 3 === 0 ? "w-7 h-7" : i % 2 === 0 ? "w-6 h-6" : "w-5 h-5",
+      })),
+    []
+  );
+
+  if (!effect || effect === "none") return null;
 
   return (
     <div
@@ -171,6 +243,22 @@ function HolidayEffectsComponent({
           15% { opacity: 0.85; }
           85% { opacity: 0.8; }
           100% { transform: translateY(-25%) scale(1.1) rotate(14deg); opacity: 0; }
+        }
+        @keyframes holiday-blossom-fall {
+          0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
+          12% { opacity: 0.85; }
+          88% { opacity: 0.8; }
+          100% { transform: translateY(115vh) translateX(55px) rotate(360deg); opacity: 0.2; }
+        }
+        @keyframes holiday-blossom-sway {
+          0%, 100% { transform: rotateY(0deg) rotateZ(0deg); }
+          50% { transform: rotateY(70deg) rotateZ(20deg); }
+        }
+        @keyframes holiday-paw-float {
+          0% { transform: translateY(115%) rotate(-12deg) scale(0.7); opacity: 0; }
+          15% { opacity: 0.65; }
+          85% { opacity: 0.65; }
+          100% { transform: translateY(-20%) rotate(12deg) scale(1.05); opacity: 0; }
         }
         @media (prefers-reduced-motion: reduce) {
           .holiday-effect-layer {
@@ -258,10 +346,48 @@ function HolidayEffectsComponent({
             <HeartSvg />
           </div>
         ))}
+
+      {/* Blossom Effect (Easter, Mother's Day) */}
+      {effect === "blossom" &&
+        blossoms.map((bl) => (
+          <div
+            key={bl.id}
+            className="absolute top-0 transform-gpu will-change-transform"
+            style={{
+              left: bl.left,
+              animation: `holiday-blossom-fall ${bl.duration} cubic-bezier(0.37, 0, 0.63, 1) infinite`,
+              animationDelay: bl.delay,
+            }}
+          >
+            <div
+              className={`transform-gpu ${bl.sizeClass} ${bl.colorClass}`}
+              style={{
+                animation: `holiday-blossom-sway ${bl.swayDuration} ease-in-out infinite`,
+              }}
+            >
+              <BlossomPetalSvg />
+            </div>
+          </div>
+        ))}
+
+      {/* Pawprints Effect (Animal Day) */}
+      {effect === "pawprints" &&
+        pawprints.map((p) => (
+          <div
+            key={p.id}
+            className={`absolute bottom-0 transform-gpu will-change-transform ${p.sizeClass} ${p.colorClass}`}
+            style={{
+              left: p.left,
+              animation: `holiday-paw-float ${p.duration} cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite`,
+              animationDelay: p.delay,
+            }}
+          >
+            <PawPrintSvg />
+          </div>
+        ))}
     </div>
   );
 }
 
 export const HolidayEffects = memo(HolidayEffectsComponent);
 export default HolidayEffects;
-

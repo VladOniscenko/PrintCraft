@@ -80,6 +80,36 @@
       "subtitle": "From crowns and festival accessories to bright orange gadgets. Delivered in 2 to 5 business days via PostNL.",
       "cta": "Order King's Day Prints",
       "eyebrow": "King's Day Special"
+    },
+    "easter": {
+      "title": "Happy Easter with Custom 3D Spring Prints",
+      "subtitle": "Print festive Easter eggs, spring decor, and table centerpieces. Delivered in 2 to 5 business days via PostNL.",
+      "cta": "Explore Easter Prints",
+      "eyebrow": "Easter Special"
+    },
+    "mothersDay": {
+      "title": "Surprise Mom with a Unique HueForge 3D Art Piece",
+      "subtitle": "Transform your favorite memory into a touchable optical 3D relief painting. Delivered in 2 to 5 business days.",
+      "cta": "Create Mother's Day Gift",
+      "eyebrow": "Mother's Day Special"
+    },
+    "fathersDay": {
+      "title": "Rugged 3D Printed Gadgets & Organizers for Dad",
+      "subtitle": "From sleek desk organizers to precision tool mounts and custom gear. Delivered in 2 to 5 business days via PostNL.",
+      "cta": "Explore Father's Day Gifts",
+      "eyebrow": "Father's Day Special"
+    },
+    "backToWork": {
+      "title": "Back to Work: Smart 3D Workplace & Office Gear",
+      "subtitle": "Cable management, desk organizers, and batch parts for professionals. Delivered in 2 to 5 business days.",
+      "cta": "Upgrade Your Desk Setup",
+      "eyebrow": "Back to Work Special"
+    },
+    "animalDay": {
+      "title": "Celebrate World Animal Day with Custom Pet Gear",
+      "subtitle": "Personalized dog tags and pet accessories printed in ultra-tough PETG. Delivered in 2 to 5 business days via PostNL.",
+      "cta": "Order Pet Accessories",
+      "eyebrow": "Animal Day Special"
     }
   }
 }
