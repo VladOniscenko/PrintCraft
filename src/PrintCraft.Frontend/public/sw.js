@@ -1,21 +1,20 @@
 /* eslint-disable no-restricted-globals */
 // PrintCraft Service Worker for High-Speed Static Page and Asset Caching
 
-const CACHE_VERSION = "pc-v2026.10";
+const CACHE_VERSION = "pc-v2026.11";
 const PAGES_CACHE = `pc-pages-${CACHE_VERSION}`;
 const ASSETS_CACHE = `pc-assets-${CACHE_VERSION}`;
 
 // Pre-cached core static shell routes for instant cold loads
 const PRECACHE_URLS = [
-  "/",
-  "/en/",
   "/nl/",
-  "/en/faq",
+  "/en/",
   "/nl/faq",
-  "/en/privacy",
+  "/en/faq",
   "/nl/privacy",
-  "/en/terms",
+  "/en/privacy",
   "/nl/terms",
+  "/en/terms",
   "/favicon.svg",
 ];
 
@@ -26,8 +25,12 @@ const EXCLUDED_ROUTE_PATTERNS = [
   /^\/(?:[a-z]{2}\/)?orders(?:$|\/)/,
   /^\/(?:[a-z]{2}\/)?profile(?:$|\/)/,
   /^\/(?:[a-z]{2}\/)?checkout(?:$|\/)/,
+  /^\/(?:[a-z]{2}\/)?quote(?:$|\/)/,
+  /^\/(?:[a-z]{2}\/)?filament-painting(?:$|\/)/,
   /^\/(?:[a-z]{2}\/)?login(?:$|\/)/,
   /^\/(?:[a-z]{2}\/)?register(?:$|\/)/,
+  /^\/(?:[a-z]{2}\/)?signup(?:$|\/)/,
+  /^\/(?:[a-z]{2}\/)?forgot-password(?:$|\/)/,
   /^\/(?:[a-z]{2}\/)?reset-password(?:$|\/)/,
 ];
 
@@ -152,9 +155,9 @@ self.addEventListener("fetch", (event) => {
           return networkResponse;
         }
 
-        // Offline fallback: try to serve index.html or root
+        // Offline fallback: try to serve localized homepage
         const fallback =
-          (await cache.match("/")) || (await cache.match("/en/"));
+          (await cache.match("/nl/")) || (await cache.match("/en/"));
         return fallback || Response.error();
       }),
     );

@@ -91,7 +91,7 @@ export function renderPage(url: string): RenderResult {
       const targetSlug = cityObj.slug;
       PageComponent = () => <CityLandingPage citySlug={targetSlug} />;
     } else {
-      PageComponent = Home;
+      PageComponent = () => null;
     }
   } else if (unlocalizedPath.startsWith("/faq/") || unlocalizedPath.startsWith("/oplossingen/")) {
     const slug = unlocalizedPath
@@ -103,7 +103,7 @@ export function renderPage(url: string): RenderResult {
       const targetSlug = appObj.slug;
       PageComponent = () => <ApplicationLandingPage appSlug={targetSlug} />;
     } else {
-      PageComponent = FAQ;
+      PageComponent = () => null;
     }
   } else {
     switch (unlocalizedPath) {
@@ -126,7 +126,7 @@ export function renderPage(url: string): RenderResult {
         PageComponent = ShippingPolicy;
         break;
       default:
-        PageComponent = Home;
+        PageComponent = () => null;
         break;
     }
   }

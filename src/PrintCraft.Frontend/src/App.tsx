@@ -21,7 +21,10 @@ function lazyWithI18n<P extends object>(
   return lazy(factory);
 }
 
-import Home from "./components/Home.tsx";
+const Home = lazyWithI18n(
+  () => import("./components/Home.tsx"),
+  ["home", "hero", "recent"],
+);
 const Login = lazyWithI18n(() => import("./components/Login.tsx"), ["login"]);
 const Quote = lazyWithI18n<{ initialMode?: "filament-painting" }>(
   () => import("./components/Quote.tsx"),
@@ -251,10 +254,7 @@ function RootLanguageRedirect() {
   const stored =
     typeof window !== "undefined" ? localStorage.getItem("language") : null;
   const preferred = resolveLanguage(stored);
-  if (preferred && preferred !== "nl") {
-    return <Navigate to={`/${preferred}`} replace />;
-  }
-  return <Home />;
+  return <Navigate to={`/${preferred || "nl"}`} replace />;
 }
 
 function LegacyPathRedirect({ target }: { target?: string } = {}) {
@@ -319,8 +319,12 @@ export default function App() {
       <SeoManager />
       <Suspense
         fallback={
-          <div className="min-h-[50vh] flex items-center justify-center text-[#2e423d]">
-            {t("common.loading")}
+          <div
+            className="min-h-[60vh] flex items-center justify-center text-gray-400"
+            role="status"
+            aria-label={t("common.loading")}
+          >
+            <div className="w-8 h-8 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
           </div>
         }
       >

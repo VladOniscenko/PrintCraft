@@ -357,11 +357,16 @@ export default defineConfig(({ mode }) => {
             }
           }
 
-          // 4. Render root / (default language + returning user redirect)
-          const rootRes = renderPage("/");
-          const rootHtml = formatHtml(baseTemplate, rootRes, true);
-          await fs.promises.writeFile(templatePath, rootHtml, "utf-8");
-          console.log("  ✓ Pre-rendered: / -> dist/index.html");
+          // 4. Write SPA fallback shell to dist/index.html
+          // dist/index.html serves as the SPA fallback for client-side and dynamic routes (checkout, login, orders, admin, etc.)
+          // We do NOT render Home here, so hard-refreshing non-home routes never flashes the homepage.
+          // Homepage visits are cleanly handled via pre-rendered dist/${lang}/index.html and the <head> root redirect.
+          const spaShellHtml = baseTemplate.replace(
+            "<!--app-html-->",
+            `<div class="min-h-screen flex items-center justify-center bg-[#fbfbfd] dark:bg-[#070b09]"><div class="w-8 h-8 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin"></div></div>`,
+          );
+          await fs.promises.writeFile(templatePath, spaShellHtml, "utf-8");
+          console.log("  ✓ SPA fallback shell written: -> dist/index.html");
 
           // 5. Clean up temporary SSR bundle
           await fs.promises.rm(path.join(distDir, ".ssr"), {

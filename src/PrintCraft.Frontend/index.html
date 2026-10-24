@@ -142,19 +142,15 @@
           if (p === "/" || p === "") {
             var supported = ["nl", "en", "tr", "ru", "ar"];
             var lang = localStorage.getItem("language");
-            // Only redirect returning visitors who explicitly chose a non-default language
-            if (lang && supported.indexOf(lang) !== -1 && lang !== "nl") {
-              var target =
-                "/" +
-                lang +
-                window.location.search +
-                window.location.hash;
-              window.location.replace(target);
-            }
+            var preferred = (lang && supported.indexOf(lang) !== -1) ? lang : "nl";
+            window.location.replace("/" + preferred + window.location.search + window.location.hash);
           }
         } catch (e) {}
       })();
     </script>
+    <noscript>
+      <meta http-equiv="refresh" content="0; url=/nl" />
+    </noscript>
     <!--root-redirect-end-->
     <meta name="theme-color" content="#fbfbfd" />
   </head>
