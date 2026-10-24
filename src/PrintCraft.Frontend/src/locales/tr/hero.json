@@ -43,5 +43,43 @@
   "paused": "Duraklatıldı",
   "auto": "Otomatik 5 sn",
   "loadingModel": "3D model yükleniyor...",
-  "modelLoadError": "Bu STL önizlenemedi. Başka bir STL dosyası deneyin."
+  "modelLoadError": "Bu STL önizlenemedi. Başka bir STL dosyası deneyin.",
+  "holidays": {
+    "halloween": {
+      "title": "Cadılar Bayramı için Ürkütücü ve Özel 3D Baskılar",
+      "subtitle": "Balkabaklarınızı, dekorasyonlarınızı ve kostüm aksesuarlarınızı bastırın. PostNL ile 2 ila 5 iş gününde teslimat.",
+      "cta": "Cadılar Bayramı Baskılarını Keşfet",
+      "eyebrow": "Cadılar Bayramı Özel"
+    },
+    "sinterklaas": {
+      "title": "Sinterklaas için Eşsiz 3D Sürprizler ve Hediyeler",
+      "subtitle": "Sürprizlerinizi tamamlayın veya özel hediyeler üretin. Zamanında sipariş verin: 2 ila 5 iş gününde teslimat.",
+      "cta": "Sinterklaas Hediyelerini Sipariş Et",
+      "eyebrow": "Sinterklaas Özel"
+    },
+    "christmas": {
+      "title": "Büyüleyici 3D Baskı Yılbaşı Süsleri ve Hediyeleri",
+      "subtitle": "Özel ağaç süslerinden benzersiz yılbaşı hediyelerine kadar. PostNL ile 2 ila 5 iş gününde güvenli teslimat.",
+      "cta": "Yılbaşı Süslerini Bastır",
+      "eyebrow": "Noel Özel"
+    },
+    "newYear": {
+      "title": "Yeni Yıla Yenilikçi 3D Baskılarla Başlayın",
+      "subtitle": "Yeni projelerinizi, prototiplerinizi veya parti ürünlerinizi hemen başlatın. 2 ila 5 iş gününde teslimat.",
+      "cta": "Yeni Yıl Projesini Başlat",
+      "eyebrow": "Yılbaşı Özel"
+    },
+    "valentines": {
+      "title": "Sevgilinize Özel Kişiselleştirilmiş 3D Baskı Hediye",
+      "subtitle": "3D fotoğraflardan unutulmaz anılara kadar. Sevgililer Günü için zamanında sipariş edin: 2-5 iş gününde teslimat.",
+      "cta": "Sevgililer Günü Hediyeni Tasarla",
+      "eyebrow": "Sevgililer Günü Özel"
+    },
+    "kingsDay": {
+      "title": "Kral Günü'nü Turuncu 3D Baskılarla Kutlayın",
+      "subtitle": "Taçlardan parti aksesuarlarına ve turuncu aletlere kadar. PostNL ile 2 ila 5 iş gününde kapınızda.",
+      "cta": "Turuncu Baskıları Sipariş Et",
+      "eyebrow": "Kral Günü Özel"
+    }
+  }
 }

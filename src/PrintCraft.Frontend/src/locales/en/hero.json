@@ -43,5 +43,43 @@
   "paused": "Paused",
   "auto": "Auto 5s",
   "loadingModel": "Loading 3D model...",
-  "modelLoadError": "This STL could not be previewed. Try another STL file."
+  "modelLoadError": "This STL could not be previewed. Try another STL file.",
+  "holidays": {
+    "halloween": {
+      "title": "Spooktacular 3D Prints for Halloween",
+      "subtitle": "Custom 3D print your pumpkins, decor, and cosplay props. Delivered in 2 to 5 business days via PostNL.",
+      "cta": "Explore Halloween Prints",
+      "eyebrow": "Halloween Special"
+    },
+    "sinterklaas": {
+      "title": "Unique 3D Surprises & Gifts for Sinterklaas",
+      "subtitle": "Level up your festive surprise or print custom shoe gifts. Order in time: delivered in 2 to 5 business days.",
+      "cta": "Order Holiday Gifts",
+      "eyebrow": "Sinterklaas Special"
+    },
+    "christmas": {
+      "title": "Magical 3D Printed Christmas Decor & Gifts",
+      "subtitle": "From custom tree ornaments to unique gifts under the tree. Reliable delivery in 2 to 5 business days.",
+      "cta": "Print Your Christmas Decor",
+      "eyebrow": "Christmas Special"
+    },
+    "newYear": {
+      "title": "Ring in the New Year with Innovative 3D Prints",
+      "subtitle": "Kickstart your new projects, prototypes, or party gear. Delivered across the Netherlands in 2 to 5 business days.",
+      "cta": "Start New Year Project",
+      "eyebrow": "New Year Special"
+    },
+    "valentines": {
+      "title": "Surprise Your Valentine with a Personalized 3D Gift",
+      "subtitle": "From 3D lithophane photos to custom keepsakes. Order in time for Valentine's Day: delivered in 2 to 5 business days.",
+      "cta": "Design Valentine's Gift",
+      "eyebrow": "Valentine's Special"
+    },
+    "kingsDay": {
+      "title": "Celebrate King's Day with Custom Orange 3D Prints",
+      "subtitle": "From crowns and festival accessories to bright orange gadgets. Delivered in 2 to 5 business days via PostNL.",
+      "cta": "Order King's Day Prints",
+      "eyebrow": "King's Day Special"
+    }
+  }
 }

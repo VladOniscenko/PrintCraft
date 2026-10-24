@@ -3,6 +3,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -17,6 +18,34 @@ import {
   getHeroSlideSubtext,
   getHeroSlidePrice,
 } from "../utils/hero";
+import HolidayEffects from "./HolidayEffects";
+import {
+  holidayConfig,
+  getActiveHoliday,
+  getHolidayTitle,
+  getHolidaySubtitle,
+  getHolidayCtaText,
+  getHolidayEyebrow,
+  DEFAULT_HERO_PALETTE,
+  type HolidayConfig,
+  type HolidayConfigItem,
+  type HolidayDates,
+  type HolidayContent,
+  type HolidayColorPalette,
+  type HolidayEffect,
+} from "../config/holidayConfig";
+
+export {
+  holidayConfig,
+  getActiveHoliday,
+  DEFAULT_HERO_PALETTE,
+  type HolidayConfig,
+  type HolidayConfigItem,
+  type HolidayDates,
+  type HolidayContent,
+  type HolidayColorPalette,
+  type HolidayEffect,
+};
 
 const HeroModelViewer = lazy(() => import("./HeroModelViewer"));
 
@@ -187,6 +216,48 @@ export default function Hero() {
   }, []);
   const timerRef = useRef<number | null>(null);
 
+  // Active holiday detection based on current calendar date
+  const activeHoliday = useMemo(() => getActiveHoliday(), []);
+
+  // Construct dynamic holiday slide when active holiday is detected
+  const holidaySlide = useMemo<HeroSlide | null>(() => {
+    if (!activeHoliday) return null;
+    return {
+      id: `holiday-${activeHoliday.id}`,
+      title: activeHoliday.content.title,
+      titleNl: activeHoliday.content.titles?.nl,
+      subtext: activeHoliday.content.subtitle,
+      subtextNl: activeHoliday.content.subtitles?.nl,
+      priceText: activeHoliday.eyebrow || "Holiday Special",
+      priceTextNl: activeHoliday.eyebrows?.nl,
+      mediaUrl: activeHoliday.modelUrl,
+      mediaType: "model3d",
+      instructionTooltip:
+        "Interactive 3D model: drag to rotate 360°, scroll to zoom in and inspect geometry.",
+      instructionTooltipNl:
+        "Interactief 3D-model: sleep om 360° te draaien, scroll om in te zoomen op details.",
+      titles: activeHoliday.content.titles,
+      subtexts: activeHoliday.content.subtitles,
+      priceTexts: activeHoliday.eyebrows,
+      instructionTooltips: {
+        en: "Interactive 3D model: drag to rotate 360°, scroll to zoom in and inspect geometry.",
+        nl: "Interactief 3D-model: sleep om 360° te draaien, scroll om in te zoomen op details.",
+        tr: "Etkileşimli 3D model: 360° döndürmek için sürükleyin, yakınlaştırmak ve geometriyi incelemek için kaydırın.",
+        ru: "Интерактивная 3D-модель: перетаскивайте для поворота на 360°, масштабируйте для осмотра геометрии.",
+        ar: "نموذج تفاعلي ثلاثي الأبعاد: اسحب للتدوير بزاوية 360 درجة، ومرر للتكبير وفحص التفاصيل.",
+      },
+      isActive: true,
+      sortOrder: 0,
+    };
+  }, [activeHoliday]);
+
+  // Combined slide list with active holiday at index 0
+  const allSlides = useMemo<HeroSlide[]>(() => {
+    if (!holidaySlide) return slides;
+    const filtered = slides.filter((s) => s.id !== holidaySlide.id);
+    return [holidaySlide, ...filtered];
+  }, [holidaySlide, slides]);
+
   // Mark user interaction to activate auto-play & prefetching without degrading initial LCP
   useEffect(() => {
     const userEvents = ["pointerdown", "scroll", "keydown", "touchstart"];
@@ -246,24 +317,51 @@ export default function Hero() {
     };
   }, []);
 
-  const totalSlides = slides.length;
-  const currentSlide = slides[currentIndex] || slides[0] || FALLBACK_SLIDES[0];
+  const totalSlides = allSlides.length;
+  const currentSlide = allSlides[currentIndex] || allSlides[0] || FALLBACK_SLIDES[0];
 
-  const slideTitle = getHeroSlideTitle(currentSlide, language);
-  const slideSubtext = getHeroSlideSubtext(currentSlide, language);
-  const slideEyebrow = getHeroSlidePrice(currentSlide, language);
+  const isCurrentSlideHoliday = Boolean(
+    activeHoliday && currentSlide.id.startsWith("holiday-"),
+  );
 
-  const primaryCtaPath =
-    currentIndex === 2
-      ? localizePath("/filament-painting")
-      : localizePath("/quote");
+  const activePalette =
+    isCurrentSlideHoliday && activeHoliday
+      ? activeHoliday.colorPalette
+      : DEFAULT_HERO_PALETTE;
+
+  const activeEffect =
+    isCurrentSlideHoliday && activeHoliday ? activeHoliday.effect : null;
+
+  const slideTitle =
+    isCurrentSlideHoliday && activeHoliday
+      ? getHolidayTitle(activeHoliday, language, t)
+      : getHeroSlideTitle(currentSlide, language);
+
+  const slideSubtext =
+    isCurrentSlideHoliday && activeHoliday
+      ? getHolidaySubtitle(activeHoliday, language, t)
+      : getHeroSlideSubtext(currentSlide, language);
+
+  const slideEyebrow =
+    isCurrentSlideHoliday && activeHoliday
+      ? getHolidayEyebrow(activeHoliday, language, t)
+      : getHeroSlidePrice(currentSlide, language);
+
+  const isPhotoPaintingSlide =
+    !isCurrentSlideHoliday && currentSlide.mediaUrl.includes("snowflake");
+
+  const primaryCtaPath = isPhotoPaintingSlide
+    ? localizePath("/filament-painting")
+    : localizePath("/quote");
 
   const primaryCtaText =
-    currentIndex === 2
-      ? t("hero.ctaPhoto")
-      : currentIndex === 1
-        ? t("hero.ctaStart")
-        : t("hero.ctaUpload");
+    isCurrentSlideHoliday && activeHoliday
+      ? getHolidayCtaText(activeHoliday, language, t)
+      : isPhotoPaintingSlide
+        ? t("hero.ctaPhoto")
+        : currentIndex === 1
+          ? t("hero.ctaStart")
+          : t("hero.ctaUpload");
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (totalSlides > 0 ? (prev + 1) % totalSlides : 0));
@@ -318,12 +416,21 @@ export default function Hero() {
         setHasInteracted(true);
         setCanRender3D(true);
       }}
-      className="relative w-full rounded-[2.5rem] overflow-hidden bg-gradient-to-b from-[#071c15] via-[#05140f] to-[#030d0a] border border-emerald-500/20 shadow-[0_32px_64px_-16px_rgba(2,12,9,0.8)] text-white"
+      className={`relative w-full rounded-[2.5rem] overflow-hidden ${activePalette.heroBg} transition-colors duration-700 text-white`}
     >
       {/* Background Accent Gradients */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none transform-gpu" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-400/10 rounded-full blur-3xl pointer-events-none transform-gpu" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[65%] bg-emerald-400/5 rounded-full blur-3xl pointer-events-none transform-gpu" />
+      <div
+        className={`absolute -top-32 -left-32 w-96 h-96 ${activePalette.accentGlow} rounded-full blur-3xl pointer-events-none transform-gpu transition-colors duration-700`}
+      />
+      <div
+        className={`absolute -bottom-32 -right-32 w-96 h-96 ${activePalette.secondaryGlow} rounded-full blur-3xl pointer-events-none transform-gpu transition-colors duration-700`}
+      />
+      <div
+        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[65%] ${activePalette.centerGlow} rounded-full blur-3xl pointer-events-none transform-gpu transition-colors duration-700`}
+      />
+
+      {/* Lightweight Themed Holiday Animations (Snow, Confetti, Bats, Hearts) */}
+      <HolidayEffects effect={activeEffect} />
 
       {/* Main Split Layout Container / Active Slide */}
       <div
@@ -340,7 +447,9 @@ export default function Hero() {
         <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
           {/* Eyebrow */}
           <div className="flex items-center gap-3">
-            <span className="text-xs sm:text-sm font-semibold tracking-wider uppercase text-emerald-400">
+            <span
+              className={`text-xs sm:text-sm font-semibold tracking-wider uppercase ${activePalette.eyebrowText} transition-colors duration-500`}
+            >
               {slideEyebrow || t("hero.mainHeading")}
             </span>
           </div>
@@ -350,7 +459,9 @@ export default function Hero() {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.08]">
               {slideTitle}
             </h1>
-            <p className="text-lg sm:text-xl text-emerald-100 leading-relaxed max-w-xl font-normal">
+            <p
+              className={`text-lg sm:text-xl ${activePalette.subtext} leading-relaxed max-w-xl font-normal transition-colors duration-500`}
+            >
               {slideSubtext}
             </p>
           </div>
@@ -359,7 +470,7 @@ export default function Hero() {
           <div className="flex flex-wrap items-center gap-6 pt-3">
             <Link
               to={primaryCtaPath}
-              className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 font-semibold text-sm sm:text-base bg-emerald-400 text-gray-950 hover:bg-emerald-300 transition-all shadow-lg hover:shadow-emerald-500/25 active:scale-[0.98]"
+              className={`inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 font-semibold text-sm sm:text-base ${activePalette.ctaButton} transition-all active:scale-[0.98]`}
             >
               <span>{primaryCtaText}</span>
               <ArrowRight className="w-4 h-4" />
@@ -367,7 +478,7 @@ export default function Hero() {
 
             <a
               href="#solutions"
-              className="inline-flex items-center gap-1.5 text-sm sm:text-base font-medium text-emerald-300 hover:text-white transition-colors"
+              className={`inline-flex items-center gap-1.5 text-sm sm:text-base font-medium ${activePalette.secondaryLink} transition-colors`}
             >
               <span>{t("hero.seeExamples")}</span>
             </a>
@@ -391,7 +502,9 @@ export default function Hero() {
             onPointerUp={handleInteractionEnd}
           >
             {/* Ambient Media Aura */}
-            <div className="absolute inset-8 rounded-full bg-emerald-400/10 blur-2xl pointer-events-none transform-gpu" />
+            <div
+              className={`absolute inset-8 rounded-full ${activePalette.modelViewerAura || "bg-emerald-400/10"} blur-2xl pointer-events-none transform-gpu transition-colors duration-700`}
+            />
 
             {/* CONDITIONAL MEDIA RENDERING */}
             {currentSlide.mediaType === "model3d" ? (
@@ -400,8 +513,10 @@ export default function Hero() {
                   <>
                     <Suspense
                       fallback={
-                        <div className="w-full h-full flex flex-col items-center justify-center text-xs text-emerald-200/80 gap-3">
-                          <div className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
+                        <div className="w-full h-full flex flex-col items-center justify-center text-xs text-white/80 gap-3">
+                          <div
+                            className={`w-8 h-8 rounded-full border-2 ${activePalette.focusRing ? "border-white/30 border-t-white" : "border-emerald-400/30 border-t-emerald-400"} animate-spin`}
+                          />
                           <span>{t("hero.loading3d")}</span>
                         </div>
                       }
@@ -416,8 +531,8 @@ export default function Hero() {
 
                     {/* Subtle Interactive Instruction */}
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/40 text-emerald-200/80 backdrop-blur-md border border-white/10">
-                        <RotateCcw className="w-3 h-3 text-emerald-400" />
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-black/40 text-white/90 backdrop-blur-md border border-white/10">
+                        <RotateCcw className={`w-3 h-3 ${activePalette.eyebrowText}`} />
                         <span>{t("hero.dragToRotate")}</span>
                       </span>
                     </div>
@@ -427,19 +542,21 @@ export default function Hero() {
                     type="button"
                     onClick={activate3D}
                     aria-label={t("hero.interactive3d")}
-                    className="relative w-full h-full flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none group/stage focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-3xl"
+                    className={`relative w-full h-full flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none group/stage focus:outline-none focus:ring-2 ${activePalette.focusRing || "focus:ring-emerald-400"} rounded-3xl`}
                   >
-                    <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-gradient-to-br from-emerald-500/20 to-teal-500/5 border border-emerald-400/30 flex items-center justify-center shadow-[0_0_40px_rgba(52,211,153,0.15)] group-hover/stage:scale-105 group-hover/stage:border-emerald-400/50 transition-all duration-300">
-                      <Box className="w-14 h-14 sm:w-16 sm:h-16 text-emerald-400 drop-shadow-[0_4px_12px_rgba(52,211,153,0.4)]" />
-                      <div className="absolute inset-0 rounded-3xl bg-emerald-400/10 pointer-events-none" />
+                    <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 flex items-center justify-center shadow-lg group-hover/stage:scale-105 group-hover/stage:border-white/40 transition-all duration-300">
+                      <Box className={`w-14 h-14 sm:w-16 sm:h-16 ${activePalette.eyebrowText} drop-shadow-md`} />
+                      <div className="absolute inset-0 rounded-3xl bg-white/5 pointer-events-none" />
                     </div>
 
                     <div className="mt-6 flex flex-col items-center gap-2">
-                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-emerald-400 text-gray-950 shadow-md group-hover/stage:bg-emerald-300 transition-colors">
+                      <span
+                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold ${activePalette.ctaButton} shadow-md transition-colors`}
+                      >
                         <RotateCcw className="w-3.5 h-3.5" />
                         <span>{t("hero.interactive3d")}</span>
                       </span>
-                      <span className="text-[11px] text-emerald-200/80">
+                      <span className="text-[11px] text-white/70">
                         {t("hero.dragToRotate")}
                       </span>
                     </div>
@@ -464,11 +581,11 @@ export default function Hero() {
                     className="w-full h-full object-contain drop-shadow-[0_16px_32px_rgba(0,0,0,0.5)] select-none transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 text-emerald-200 space-y-3">
+                  <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 text-white space-y-3">
                     <p className="text-sm font-semibold text-white">
                       {slideTitle}
                     </p>
-                    <p className="text-xs text-emerald-200/70 max-w-xs">
+                    <p className="text-xs text-white/70 max-w-xs">
                       {slideSubtext}
                     </p>
                   </div>
@@ -485,25 +602,31 @@ export default function Hero() {
         aria-label={t("hero.paginationAria")}
         className="relative z-20 flex items-center justify-center gap-2 pb-8"
       >
-        {slides.map((slide, idx) => {
+        {allSlides.map((slide, idx) => {
           const isActive = idx === currentIndex;
-          const slideItemTitle = getHeroSlideTitle(slide, language);
+          const slideItemTitle =
+            activeHoliday && slide.id.startsWith("holiday-")
+              ? getHolidayTitle(activeHoliday, language, t)
+              : getHeroSlideTitle(slide, language);
           return (
             <button
               key={slide.id || idx}
               type="button"
               aria-current={isActive ? "true" : undefined}
-              aria-label={t("hero.goToSlide", { index: idx + 1, title: slideItemTitle })}
+              aria-label={t("hero.goToSlide", {
+                index: idx + 1,
+                title: slideItemTitle,
+              })}
               onClick={() => {
                 setHasInteracted(true);
                 goToSlide(idx);
               }}
-              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
+              className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 ${activePalette.focusRing || "focus:ring-emerald-400"} rounded-full`}
             >
               <span
                 className={`block h-2 rounded-full transition-all duration-300 ${
                   isActive
-                    ? "w-8 bg-emerald-400 opacity-100 shadow-sm"
+                    ? `w-8 ${activePalette.paginationDotActive || "bg-emerald-400"} opacity-100 shadow-sm`
                     : "w-2 bg-white/40 hover:bg-white/70 opacity-60"
                 }`}
               />

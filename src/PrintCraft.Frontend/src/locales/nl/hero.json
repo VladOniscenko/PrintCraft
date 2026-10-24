@@ -43,5 +43,43 @@
   "paused": "Gepauzeerd",
   "auto": "Automatisch 5s",
   "loadingModel": "3D-model laden...",
-  "modelLoadError": "Dit 3D-bestand kon niet worden geladen. Probeer een ander bestand."
+  "modelLoadError": "Dit 3D-bestand kon niet worden geladen. Probeer een ander bestand.",
+  "holidays": {
+    "halloween": {
+      "title": "Griezelig goede 3D-prints voor Halloween",
+      "subtitle": "Print je pompoenen, decoraties en cosplay accessoires op maat. Binnen 2 tot 5 werkdagen bezorgd met PostNL.",
+      "cta": "Ontdek Halloween Prints",
+      "eyebrow": "Halloween Special"
+    },
+    "sinterklaas": {
+      "title": "Unieke 3D-surprises & cadeaus voor Sinterklaas",
+      "subtitle": "Maak je surprise compleet of print een uniek schoencadeautje. Bestel op tijd: geleverd binnen 2 tot 5 werkdagen.",
+      "cta": "Bestel Sinterklaas Prints",
+      "eyebrow": "Sinterklaas Special"
+    },
+    "christmas": {
+      "title": "Magische 3D-geprinte kerstdecoraties & cadeaus",
+      "subtitle": "Van gepersonaliseerde boomhangers tot unieke cadeaus onder de kerstboom. Levering binnen 2 tot 5 werkdagen.",
+      "cta": "Print Jouw Kerstdecoratie",
+      "eyebrow": "Kerst Special"
+    },
+    "newYear": {
+      "title": "Knal het nieuwe jaar in met innovatieve 3D-prints",
+      "subtitle": "Start je nieuwe projecten, prototypes of feestartikelen direct. Binnen 2 tot 5 werkdagen bezorgd door PostNL.",
+      "cta": "Start Nieuwjaarsproject",
+      "eyebrow": "Oud & Nieuw Special"
+    },
+    "valentines": {
+      "title": "Verras je geliefde met een persoonlijk 3D-geprint cadeau",
+      "subtitle": "Van 3D-fotolijsten tot tastbare herinneringen. Bestel op tijd voor Valentijn: geleverd binnen 2 tot 5 werkdagen.",
+      "cta": "Ontwerp Jouw Valentijnscadeau",
+      "eyebrow": "Valentijnsdag Special"
+    },
+    "kingsDay": {
+      "title": "Vier Koningsdag in stijl met oranje 3D-prints",
+      "subtitle": "Van feestkronen en festivalaccessoires tot oranje gadgets. Binnen 2 tot 5 werkdagen in huis via PostNL.",
+      "cta": "Bestel Oranje Prints",
+      "eyebrow": "Koningsdag Special"
+    }
+  }
 }
