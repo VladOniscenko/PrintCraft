@@ -95,9 +95,9 @@ export default function Signup() {
               >
                 {t("signup.name")}
               </label>
-              <div className="relative">
+              <div className="relative text-gray-400 dark:text-gray-200 focus-within:text-emerald-600 dark:focus-within:text-emerald-400 transition-colors">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User size={18} className="text-gray-400 dark:text-gray-500" />
+                  <User size={18} className="text-inherit" />
                 </div>
                 <input
                   id="name"
@@ -120,9 +120,9 @@ export default function Signup() {
               >
                 {t("login.email")}
               </label>
-              <div className="relative">
+              <div className="relative text-gray-400 dark:text-gray-200 focus-within:text-emerald-600 dark:focus-within:text-emerald-400 transition-colors">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail size={18} className="text-gray-400 dark:text-gray-500" />
+                  <Mail size={18} className="text-inherit" />
                 </div>
                 <input
                   id="email"
@@ -145,9 +145,9 @@ export default function Signup() {
               >
                 {t("login.password")}
               </label>
-              <div className="relative">
+              <div className="relative text-gray-400 dark:text-gray-200 focus-within:text-emerald-600 dark:focus-within:text-emerald-400 transition-colors">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock size={18} className="text-gray-400 dark:text-gray-500" />
+                  <Lock size={18} className="text-inherit" />
                 </div>
                 <input
                   id="password"

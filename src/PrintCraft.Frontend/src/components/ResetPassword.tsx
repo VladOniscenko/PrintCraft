@@ -88,10 +88,10 @@ export default function ResetPassword() {
                 <span className="text-sm font-semibold text-[#2a403a] dark:text-gray-200">
                   {t("login.password")}
                 </span>
-                <div className="relative mt-1">
+                <div className="relative mt-1 text-gray-400 dark:text-gray-200 focus-within:text-emerald-600 dark:focus-within:text-emerald-400 transition-colors">
                   <Lock
                     size={16}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a8f89] dark:text-gray-400"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-inherit"
                   />
                   <input
                     type="password"
@@ -108,10 +108,10 @@ export default function ResetPassword() {
                 <span className="text-sm font-semibold text-[#2a403a] dark:text-gray-200">
                   {t("login.password")}
                 </span>
-                <div className="relative mt-1">
+                <div className="relative mt-1 text-gray-400 dark:text-gray-200 focus-within:text-emerald-600 dark:focus-within:text-emerald-400 transition-colors">
                   <Lock
                     size={16}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a8f89] dark:text-gray-400"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-inherit"
                   />
                   <input
                     type="password"
