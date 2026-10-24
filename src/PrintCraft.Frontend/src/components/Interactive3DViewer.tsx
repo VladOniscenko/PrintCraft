@@ -393,11 +393,30 @@ export default function Interactive3DViewer({
           const gltf = await loader.parseAsync(buffer, "");
           group = gltf.scene;
         } else if (format === "3mf") {
-          const { ThreeMFLoader } = await import(
-            "three/examples/jsm/loaders/3MFLoader.js"
-          );
-          const loader = new ThreeMFLoader();
-          group = loader.parse(buffer);
+          try {
+            const { ThreeMFLoader } = await import(
+              "three/examples/jsm/loaders/3MFLoader.js"
+            );
+            const loader = new ThreeMFLoader();
+            group = loader.parse(buffer);
+          } catch (loaderErr) {
+            console.warn("ThreeMFLoader failed on 3MF, falling back to multi-mesh geometry parser:", loaderErr);
+            const workerResult = await parseModelGeometryWithWorker(
+              buffer,
+              fileName || file?.name || "model.3mf",
+            );
+            if (workerResult?.positions) {
+              const { BufferGeometry, BufferAttribute } = await import("three");
+              geometry = new BufferGeometry();
+              geometry.setAttribute(
+                "position",
+                new BufferAttribute(new Float32Array(workerResult.positions), 3),
+              );
+              geometry.computeVertexNormals();
+            } else {
+              throw loaderErr;
+            }
+          }
         } else if (format === "obj") {
           const { OBJLoader } = await import(
             "three/examples/jsm/loaders/OBJLoader.js"

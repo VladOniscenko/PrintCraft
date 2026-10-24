@@ -10,6 +10,11 @@
   src: url("/fonts/space-grotesk.woff2") format("woff2");
 }
 
+@theme {
+  --font-sans: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+}
+
 :root {
   --site-bg: #fbfbfd;
   --site-bg-surface: #ffffff;
@@ -89,6 +94,7 @@
 html {
   background-color: var(--site-bg);
   min-height: 100%;
+  font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
 }
 
 body {

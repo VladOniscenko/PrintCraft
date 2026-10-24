@@ -68,18 +68,94 @@ export async function detectModelDimensionsDirect(
     }
 
     if (ext === ".3mf") {
-      const { ThreeMFLoader } = await import("three/examples/jsm/loaders/3MFLoader.js");
-      const loader = new ThreeMFLoader();
-      const group = loader.parse(buffer);
-      const box = new Box3().setFromObject(group);
-      if (box.isEmpty()) return null;
-      const size = new Vector3();
-      box.getSize(size);
-      const x = roundMillimeters(Math.abs(size.x));
-      const y = roundMillimeters(Math.abs(size.y));
-      const z = roundMillimeters(Math.abs(size.z));
-      if (x <= 0 || y <= 0 || z <= 0) return null;
-      return { x, y, z };
+      try {
+        try {
+          const { ThreeMFLoader } = await import(
+            "three/examples/jsm/loaders/3MFLoader.js"
+          );
+          const loader = new ThreeMFLoader();
+          const group = loader.parse(buffer);
+
+          const box = new Box3();
+          let meshCount = 0;
+          group.traverse((child: any) => {
+            if (child.isMesh && child.geometry) {
+              meshCount++;
+              child.geometry.computeBoundingBox();
+              const geomBox = child.geometry.boundingBox;
+              if (geomBox && !geomBox.isEmpty()) {
+                box.expandByPoint(geomBox.min.clone().applyMatrix4(child.matrixWorld));
+                box.expandByPoint(geomBox.max.clone().applyMatrix4(child.matrixWorld));
+              }
+            }
+          });
+
+          if (meshCount > 0 && !box.isEmpty()) {
+            const size = new Vector3();
+            box.getSize(size);
+            const x = roundMillimeters(Math.abs(size.x));
+            const y = roundMillimeters(Math.abs(size.y));
+            const z = roundMillimeters(Math.abs(size.z));
+            if (x > 0 && y > 0 && z > 0) {
+              return { x, y, z };
+            }
+          }
+        } catch {
+          // ThreeMFLoader may fail on multi-plate 3MF files
+        }
+
+        // Direct zip inspection fallback for multi-plate/multi-mesh 3MF files
+        const { unzipSync } = await import(
+          "three/examples/jsm/libs/fflate.module.js"
+        );
+        const unzipped = unzipSync(new Uint8Array(buffer));
+
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+        let minZ = Infinity, maxZ = -Infinity;
+        let hasVertices = false;
+
+        const textDecoder = new TextDecoder();
+        const modelKeys = Object.keys(unzipped).filter((k) =>
+          k.toLowerCase().endsWith(".model"),
+        );
+
+        for (const key of modelKeys) {
+          const xmlText = textDecoder.decode(unzipped[key]);
+          const vertexRegex = /<(?:\w+:)?vertex\s+([^>]+)\/?>/gi;
+          let vm: RegExpExecArray | null;
+
+          while ((vm = vertexRegex.exec(xmlText)) !== null) {
+            const attrs = vm[1];
+            const xm = /x="([^"]+)"/i.exec(attrs);
+            const ym = /y="([^"]+)"/i.exec(attrs);
+            const zm = /z="([^"]+)"/i.exec(attrs);
+            if (xm && ym && zm) {
+              const x = parseFloat(xm[1]);
+              const y = parseFloat(ym[1]);
+              const z = parseFloat(zm[1]);
+              if (!Number.isNaN(x) && !Number.isNaN(y) && !Number.isNaN(z)) {
+                minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+                minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+                minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z);
+                hasVertices = true;
+              }
+            }
+          }
+        }
+
+        if (hasVertices && minX !== Infinity) {
+          const x = roundMillimeters(Math.max(0.1, maxX - minX));
+          const y = roundMillimeters(Math.max(0.1, maxY - minY));
+          const z = roundMillimeters(Math.max(0.1, maxZ - minZ));
+          if (x > 0 && y > 0 && z > 0) {
+            return { x, y, z };
+          }
+        }
+      } catch (err) {
+        console.warn("Could not detect 3MF multi-plate model dimensions:", err);
+      }
+      return null;
     }
 
     if (ext === ".obj") {

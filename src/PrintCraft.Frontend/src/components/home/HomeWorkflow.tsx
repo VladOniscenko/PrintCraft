@@ -126,7 +126,7 @@ export default function HomeWorkflow() {
           >
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-black text-gray-600 dark:text-gray-400 font-mono group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors">
+                <span className="text-3xl font-black text-gray-600 dark:text-gray-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors">
                   {num}
                 </span>
                 <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#141e1a] border border-gray-200/60 dark:border-white/10 shadow-sm flex items-center justify-center text-emerald-800 dark:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/40 transition-all">

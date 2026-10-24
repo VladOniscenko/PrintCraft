@@ -286,77 +286,114 @@ public static class ModelGeometryAnalyzer
 
     public static ModelGeometry? Analyze3Mf(string filePath)
     {
-        using var archive = ZipFile.OpenRead(filePath);
-        var modelEntry = archive.Entries.FirstOrDefault(e => e.FullName.EndsWith(".model", StringComparison.OrdinalIgnoreCase));
-        if (modelEntry == null) return null;
-
-        using var stream = modelEntry.Open();
-        using var reader = XmlReader.Create(stream, new XmlReaderSettings { IgnoreWhitespace = true });
-
-        var vertices = new List<(float X, float Y, float Z)>();
-        double minX = double.MaxValue, maxX = double.MinValue;
-        double minY = double.MaxValue, maxY = double.MinValue;
-        double minZ = double.MaxValue, maxZ = double.MinValue;
-        double totalVolume = 0.0;
-        double totalArea = 0.0;
-
-        while (reader.Read())
+        try
         {
-            if (reader.NodeType == XmlNodeType.Element)
+            using var archive = ZipFile.OpenRead(filePath);
+            var modelEntries = archive.Entries
+                .Where(e => e.FullName.EndsWith(".model", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (modelEntries.Count == 0) return null;
+
+            double minX = double.MaxValue, maxX = double.MinValue;
+            double minY = double.MaxValue, maxY = double.MinValue;
+            double minZ = double.MaxValue, maxZ = double.MinValue;
+            double totalVolume = 0.0;
+            double totalArea = 0.0;
+            int totalVertexCount = 0;
+
+            var xmlSettings = new XmlReaderSettings
             {
-                if (reader.LocalName == "vertex")
+                IgnoreWhitespace = true,
+                DtdProcessing = DtdProcessing.Ignore,
+                CheckCharacters = false
+            };
+
+            foreach (var modelEntry in modelEntries)
+            {
+                try
                 {
-                    string? xs = reader.GetAttribute("x");
-                    string? ys = reader.GetAttribute("y");
-                    string? zs = reader.GetAttribute("z");
-                    if (float.TryParse(xs, NumberStyles.Any, CultureInfo.InvariantCulture, out var vx) &&
-                        float.TryParse(ys, NumberStyles.Any, CultureInfo.InvariantCulture, out var vy) &&
-                        float.TryParse(zs, NumberStyles.Any, CultureInfo.InvariantCulture, out var vz))
+                    using var stream = modelEntry.Open();
+                    using var reader = XmlReader.Create(stream, xmlSettings);
+
+                    var currentMeshVertices = new List<(float X, float Y, float Z)>();
+
+                    while (reader.Read())
                     {
-                        vertices.Add((vx, vy, vz));
-                        minX = Math.Min(minX, vx); maxX = Math.Max(maxX, vx);
-                        minY = Math.Min(minY, vy); maxY = Math.Max(maxY, vy);
-                        minZ = Math.Min(minZ, vz); maxZ = Math.Max(maxZ, vz);
-                    }
-                }
-                else if (reader.LocalName == "triangle")
-                {
-                    string? v1s = reader.GetAttribute("v1");
-                    string? v2s = reader.GetAttribute("v2");
-                    string? v3s = reader.GetAttribute("v3");
-                    if (int.TryParse(v1s, out var i1) && int.TryParse(v2s, out var i2) && int.TryParse(v3s, out var i3))
-                    {
-                        if (i1 < vertices.Count && i2 < vertices.Count && i3 < vertices.Count)
+                        if (reader.NodeType == XmlNodeType.Element)
                         {
-                            var (x1, y1, z1) = vertices[i1];
-                            var (x2, y2, z2) = vertices[i2];
-                            var (x3, y3, z3) = vertices[i3];
+                            if (reader.LocalName.Equals("mesh", StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Each 3MF <mesh> has its own local 0-indexed vertex list
+                                currentMeshVertices.Clear();
+                            }
+                            else if (reader.LocalName.Equals("vertex", StringComparison.OrdinalIgnoreCase))
+                            {
+                                string? xs = reader.GetAttribute("x");
+                                string? ys = reader.GetAttribute("y");
+                                string? zs = reader.GetAttribute("z");
+                                if (float.TryParse(xs, NumberStyles.Any, CultureInfo.InvariantCulture, out var vx) &&
+                                    float.TryParse(ys, NumberStyles.Any, CultureInfo.InvariantCulture, out var vy) &&
+                                    float.TryParse(zs, NumberStyles.Any, CultureInfo.InvariantCulture, out var vz))
+                                {
+                                    currentMeshVertices.Add((vx, vy, vz));
+                                    minX = Math.Min(minX, vx); maxX = Math.Max(maxX, vx);
+                                    minY = Math.Min(minY, vy); maxY = Math.Max(maxY, vy);
+                                    minZ = Math.Min(minZ, vz); maxZ = Math.Max(maxZ, vz);
+                                    totalVertexCount++;
+                                }
+                            }
+                            else if (reader.LocalName.Equals("triangle", StringComparison.OrdinalIgnoreCase))
+                            {
+                                string? v1s = reader.GetAttribute("v1");
+                                string? v2s = reader.GetAttribute("v2");
+                                string? v3s = reader.GetAttribute("v3");
+                                if (int.TryParse(v1s, out var i1) && int.TryParse(v2s, out var i2) && int.TryParse(v3s, out var i3))
+                                {
+                                    if (i1 >= 0 && i1 < currentMeshVertices.Count &&
+                                        i2 >= 0 && i2 < currentMeshVertices.Count &&
+                                        i3 >= 0 && i3 < currentMeshVertices.Count)
+                                    {
+                                        var (x1, y1, z1) = currentMeshVertices[i1];
+                                        var (x2, y2, z2) = currentMeshVertices[i2];
+                                        var (x3, y3, z3) = currentMeshVertices[i3];
 
-                            totalVolume += (x1 * (y2 * z3 - y3 * z2) + x2 * (y3 * z1 - y1 * z3) + x3 * (y1 * z2 - y2 * z1)) / 6.0;
+                                        totalVolume += (x1 * (y2 * z3 - y3 * z2) + x2 * (y3 * z1 - y1 * z3) + x3 * (y1 * z2 - y2 * z1)) / 6.0;
 
-                            double ux = x2 - x1, uy = y2 - y1, uz = z2 - z1;
-                            double vxv = x3 - x1, vyv = y3 - y1, vzv = z3 - z1;
-                            double cx = uy * vzv - uz * vyv;
-                            double cy = uz * vxv - ux * vzv;
-                            double cz = ux * vyv - uy * vxv;
-                            totalArea += 0.5 * Math.Sqrt(cx * cx + cy * cy + cz * cz);
+                                        double ux = x2 - x1, uy = y2 - y1, uz = z2 - z1;
+                                        double vxv = x3 - x1, vyv = y3 - y1, vzv = z3 - z1;
+                                        double cx = uy * vzv - uz * vyv;
+                                        double cy = uz * vxv - ux * vzv;
+                                        double cz = ux * vyv - uy * vxv;
+                                        totalArea += 0.5 * Math.Sqrt(cx * cx + cy * cy + cz * cz);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+                catch
+                {
+                    // Fall back to continuing other model parts/plates if an individual entry fails
+                }
             }
+
+            if (totalVertexCount == 0 || minX == double.MaxValue) return null;
+
+            double sizeX = Math.Max(0.1, maxX - minX);
+            double sizeY = Math.Max(0.1, maxY - minY);
+            double sizeZ = Math.Max(0.1, maxZ - minZ);
+            double finalVolume = Math.Abs(totalVolume);
+
+            if (finalVolume < 0.001) finalVolume = sizeX * sizeY * sizeZ * 0.45;
+            if (totalArea < 0.001) totalArea = 2.0 * (sizeX * sizeY + sizeY * sizeZ + sizeX * sizeZ);
+
+            return new ModelGeometry(finalVolume, totalArea, sizeX, sizeY, sizeZ, true);
         }
-
-        if (vertices.Count == 0 || minX == double.MaxValue) return null;
-
-        double sizeX = Math.Max(0.1, maxX - minX);
-        double sizeY = Math.Max(0.1, maxY - minY);
-        double sizeZ = Math.Max(0.1, maxZ - minZ);
-        double finalVolume = Math.Abs(totalVolume);
-
-        if (finalVolume < 0.001) finalVolume = sizeX * sizeY * sizeZ * 0.45;
-        if (totalArea < 0.001) totalArea = 2.0 * (sizeX * sizeY + sizeY * sizeZ + sizeX * sizeZ);
-
-        return new ModelGeometry(finalVolume, totalArea, sizeX, sizeY, sizeZ, true);
+        catch
+        {
+            return null;
+        }
     }
 
     public static ModelGeometry? AnalyzeObj(string filePath)
