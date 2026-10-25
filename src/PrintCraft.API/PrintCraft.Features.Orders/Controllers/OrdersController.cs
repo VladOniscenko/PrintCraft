@@ -346,11 +346,14 @@ public class OrdersController : ControllerBase
             Status = OrderStatus.QuoteRequested,
             OrderType = "quote",
             IsPaid = false,
+            IsExpress = request.IsExpress,
+            RequestType = string.IsNullOrWhiteSpace(request.RequestType) ? "StandardUpload" : request.RequestType.Trim(),
             AgreementAccepted = true,
             AgreementVersion = string.IsNullOrWhiteSpace(request.AgreementVersion) ? "2026-09-23" : request.AgreementVersion.Trim(),
             AgreementAcceptedAt = DateTime.UtcNow,
             QuotedPrice = null,
             QuoteMessage = null,
+            CustomerNotes = InputSanitizer.SanitizeText(request.CustomProjectDescription) ?? (!string.IsNullOrWhiteSpace(request.Items?.FirstOrDefault()?.Notes) ? InputSanitizer.SanitizeText(request.Items[0].Notes) : null),
             FullName = shippingValidation.FullName,
             PhoneNumber = shippingValidation.PhoneNumber,
             AddressLine1 = shippingValidation.AddressLine1,
@@ -365,6 +368,19 @@ public class OrdersController : ControllerBase
                         string.IsNullOrWhiteSpace(f.Name) ? string.Empty : f.Name.Trim(),
                         string.IsNullOrWhiteSpace(f.Kind) ? "other" : f.Kind.Trim().ToLowerInvariant()))
                     .ToList();
+
+                if (request.AttachmentUrls != null && request.AttachmentUrls.Count > 0)
+                {
+                    foreach (var attUrl in request.AttachmentUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
+                    {
+                        var cleanUrl = attUrl.Trim().Split('?', '#')[0];
+                        if (!files.Any(f => string.Equals(f.Url, cleanUrl, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            var name = Path.GetFileName(cleanUrl);
+                            files.Add(new QuoteItemFileRequest(cleanUrl, name, "image"));
+                        }
+                    }
+                }
 
                 var printableModelFile = files.FirstOrDefault(f => string.Equals(f.Kind, "model", StringComparison.OrdinalIgnoreCase)
                     && !IsPreviewGlbModelUrl(f.Url));
@@ -937,7 +953,11 @@ public record QuoteRequest(
     string ShippingPostalCode,
     bool AgreementAccepted = false,
     string? AgreementVersion = null,
-    string? Language = null
+    string? Language = null,
+    bool IsExpress = false,
+    string? RequestType = "StandardUpload",
+    string? CustomProjectDescription = null,
+    List<string>? AttachmentUrls = null
 );
 
 public record QuoteItemRequest(

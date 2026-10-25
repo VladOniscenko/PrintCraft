@@ -27,8 +27,11 @@ export interface Order {
   serviceFeePrice?: number;
   orderDiscountAmount?: number;
   subtotalAmount?: number;
+  expressFeeAmount?: number;
   discountAmount?: number;
   finalTotalAmount?: number;
+  isExpress?: boolean;
+  requestType?: "StandardUpload" | "FilamentPainting" | "CustomRequest" | string;
   quotedPrice?: number;
   quoteMessage?: string;
   quoteConfirmedAt?: string;
@@ -112,7 +115,7 @@ export interface OrderItem {
   infillPercent?: number;
   printQuality?: string;
   supportsNeeded?: boolean;
-  uploadType?: "native-3d" | "filament-painting";
+  uploadType?: "native-3d" | "filament-painting" | "custom-request";
   layerSwaps?: import("./filamentPainting").LayerSwapInstruction[];
   layerColorMap?: import("./filamentPainting").LayerColorThreshold[];
   palettePresetId?: string;

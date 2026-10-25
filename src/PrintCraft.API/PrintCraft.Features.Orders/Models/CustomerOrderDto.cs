@@ -13,6 +13,8 @@ public class CustomerOrderResponseDto
     public string Status { get; set; } = string.Empty;
     public string OrderType { get; set; } = string.Empty;
     public string PaymentFlow { get; set; } = string.Empty;
+    public bool IsExpress { get; set; }
+    public string RequestType { get; set; } = "StandardUpload";
     public string FullName { get; set; } = string.Empty;
     public string AddressLine1 { get; set; } = string.Empty;
     public string? AddressLine2 { get; set; }
@@ -24,6 +26,7 @@ public class CustomerOrderResponseDto
     public decimal? DeliveryPrice { get; set; }
     public decimal? OrderDiscountAmount { get; set; }
     public decimal? SubtotalAmount { get; set; }
+    public decimal? ExpressFeeAmount { get; set; }
     public decimal? DiscountAmount { get; set; }
     public decimal? FinalTotalAmount { get; set; }
     public decimal? ServiceFeePrice { get; set; }

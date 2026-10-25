@@ -37,11 +37,14 @@ public class OrderDetailsDto
     // Financial & Pricing Engine fields
     public string OrderType { get; set; } = "quote";
     public string PaymentFlow { get; set; } = "bank_transfer";
+    public bool IsExpress { get; set; }
+    public string RequestType { get; set; } = "StandardUpload";
     public decimal DeliveryPrice { get; set; }
     public decimal ServiceFeePrice { get; set; }
     public decimal OrderDiscountAmount { get; set; }
     public decimal? QuotedPrice { get; set; }
     public decimal SubtotalAmount { get; set; }
+    public decimal ExpressFeeAmount { get; set; }
     public decimal DiscountAmount { get; set; }
     public decimal FinalTotalAmount { get; set; }
     public string? QuoteMessage { get; set; }

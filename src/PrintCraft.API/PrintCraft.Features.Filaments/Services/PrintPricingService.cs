@@ -18,6 +18,16 @@ public class PrintPricingService : IPrintPricingService
         _logger = logger;
     }
 
+    public static decimal CalculateExpressSurcharge(decimal subtotal, bool isExpress)
+    {
+        return isExpress ? Math.Round(subtotal * 0.30m, 2) : 0m;
+    }
+
+    public static decimal CalculateOrderTotal(Order order)
+    {
+        return order.FinalTotalAmount;
+    }
+
     public static double ResolveScaleFactor(OrderItem item)
     {
         if (item.ScaleFactor > 0 && Math.Abs(item.ScaleFactor - 1.0) > 0.0001)

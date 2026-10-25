@@ -37,6 +37,8 @@ import {
   Check,
   Truck,
   ShieldCheck,
+  Zap,
+  HelpCircle,
 } from "lucide-react";
 import Navbar from "./Navbar";
 const Interactive3DViewer = lazy(() => import("./Interactive3DViewer"));
@@ -277,7 +279,7 @@ interface SavedAddress {
 }
 
 export type QuoteProps = {
-  initialMode?: "filament-painting";
+  initialMode?: "filament-painting" | "custom-request";
 };
 
 export default function Quote({ initialMode }: QuoteProps = {}) {
@@ -339,21 +341,37 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
   });
   const [filaments, setFilaments] = useState<Filament[]>([]);
   const [showAddItemChoiceModal, setShowAddItemChoiceModal] = useState<boolean>(false);
-  const [activeCreatorFlow, setActiveCreatorFlow] = useState<"filament-painting" | null>(() => {
+  const [activeCreatorFlow, setActiveCreatorFlow] = useState<"filament-painting" | "custom-request" | null>(() => {
     if (initialMode === "filament-painting") return "filament-painting";
+    if (initialMode === "custom-request") return "custom-request";
     if (typeof window !== "undefined") {
       const isPaintingPath = window.location.pathname.endsWith("/filament-painting");
-      const hasPaintingParam =
-        new URLSearchParams(window.location.search).get("mode") === "filament-painting";
-      if (isPaintingPath || hasPaintingParam) return "filament-painting";
+      const modeParam = new URLSearchParams(window.location.search).get("mode");
+      if (isPaintingPath || modeParam === "filament-painting") return "filament-painting";
+      if (modeParam === "custom-request" || modeParam === "custom" || modeParam === "help") return "custom-request";
     }
     return null;
   });
 
+  const [isExpressProduction, setIsExpressProduction] = useState<boolean>(false);
+  const [submittedWasExpress, setSubmittedWasExpress] = useState<boolean>(false);
+
+  // Custom Request flow state
+  const [customDescription, setCustomDescription] = useState<string>("");
+  const [customMaterial, setCustomMaterial] = useState<string>("PLA");
+  const [customColor, setCustomColor] = useState<string>("Black");
+  const [customCount, setCustomCount] = useState<number>(1);
+  const [customRefFiles, setCustomRefFiles] = useState<Array<{ url: string; name: string; kind: "image" | "other" }>>([]);
+  const [isUploadingCustomRef, setIsUploadingCustomRef] = useState<boolean>(false);
+  const customRefFileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
-    if (activeCreatorFlow === "filament-painting") {
+    if (activeCreatorFlow) {
       const timer = setTimeout(() => {
-        document.getElementById("filament-painting-configurator")?.scrollIntoView({
+        const id = activeCreatorFlow === "filament-painting"
+          ? "filament-painting-configurator"
+          : "custom-request-configurator";
+        document.getElementById(id)?.scrollIntoView({
           behavior: "smooth",
           block: "start",
         });
@@ -1405,6 +1423,74 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     setEditingItemIndex(null);
   };
 
+  const handleUploadCustomRefFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    e.target.value = "";
+
+    if (customRefFiles.length + files.length > 3) {
+      notifyError(t("quote.customMaxFilesReached"));
+      return;
+    }
+
+    setIsUploadingCustomRef(true);
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await api.post("/upload?allowImages=true", formData);
+        if (typeof res.data?.url === "string" && res.data.url.length > 0) {
+          uploadedFileUrlsRef.current.add(res.data.url);
+          setCustomRefFiles((prev) => [
+            ...prev,
+            {
+              url: res.data.url,
+              name: file.name,
+              kind: "image",
+            },
+          ]);
+        }
+      }
+    } catch (err: any) {
+      const message = err?.response?.data?.message || t("quote.customUploadImageFailed");
+      notifyError(message);
+    } finally {
+      setIsUploadingCustomRef(false);
+    }
+  };
+
+  const handleRemoveCustomRefFile = (urlToRemove: string) => {
+    setCustomRefFiles((prev) => prev.filter((f) => f.url !== urlToRemove));
+    void deleteTempUpload(urlToRemove);
+  };
+
+  const handleAddCustomRequestToOrder = () => {
+    if (!customDescription.trim() && customRefFiles.length === 0) {
+      notifyError(t("quote.customRequestNotesRequired"));
+      return;
+    }
+
+    const newItem: OrderItem = {
+      fileName: t("quote.customRequestItemName"),
+      notes: customDescription.trim(),
+      material: customMaterial,
+      color: customColor,
+      count: Math.max(1, Math.min(MAX_ITEM_QUANTITY, customCount)),
+      price: 0,
+      uploadType: "custom-request",
+      files: customRefFiles,
+      imageUrl: customRefFiles[0]?.url || "",
+    };
+
+    setItems((prev) => [...prev, newItem]);
+    setActiveCreatorFlow(null);
+    setEditingItemIndex(null);
+    setCustomDescription("");
+    setCustomRefFiles([]);
+    setCustomCount(1);
+    notifySuccess(t("quote.successItemAdded"));
+  };
+
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     itemIndex: number,
@@ -1859,6 +1945,13 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
         agreementAccepted,
         agreementVersion: "2026-09-23",
         language,
+        isExpress: isExpressProduction,
+        requestType: items.some((i) => i.uploadType === "custom-request")
+          ? "CustomRequest"
+          : (items.length > 0 && items.every((i) => i.uploadType === "filament-painting")
+              ? "FilamentPainting"
+              : "StandardUpload"),
+        customProjectDescription: items.find((i) => i.uploadType === "custom-request")?.notes || undefined,
       };
 
       if (!isLoggedIn) {
@@ -1868,6 +1961,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
       }
 
       const res = await api.post("/orders/quote", payload);
+      setSubmittedWasExpress(isExpressProduction);
       submittedRef.current = true;
       localStorage.removeItem("printcraft-home-quote");
       uploadedFileUrlsRef.current.clear();
@@ -2029,6 +2123,17 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                 {t("quote.guestAccountCreatedHint")}
               </p>
             )}
+            {submittedWasExpress && (
+              <div className="mt-4 pt-3 border-t border-emerald-200/60 dark:border-emerald-800/40">
+                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                  <Zap size={14} className="fill-amber-500 text-amber-500" />
+                  <span>{t("quote.badgeExpressPriority")}</span>
+                </div>
+                <p className="mt-1.5 text-xs text-amber-800 dark:text-amber-300 font-medium">
+                  {t("quote.guestSubmittedExpressNote")}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -2129,7 +2234,216 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                   </div>
                 )}
 
-                {/* Dual-Option Starter View when no items are added yet */}
+                {/* Active Creator Panel: Custom Request / Need Help */}
+                {activeCreatorFlow === "custom-request" && (
+                  <div
+                    id="custom-request-configurator"
+                    className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-6 md:p-8 shadow-xs space-y-6"
+                  >
+                    <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-white/10">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-100/70 dark:border-amber-800/40 flex items-center justify-center shadow-2xs">
+                          <HelpCircle size={18} />
+                        </div>
+                        <div>
+                          <h4 className="text-base font-bold text-gray-900 dark:text-white">
+                            {t("quote.customRequestPanelTitle")}
+                          </h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t("quote.customRequestPanelSubtitle")}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveCreatorFlow(null);
+                          setCustomDescription("");
+                          setCustomRefFiles([]);
+                        }}
+                        className="text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                      >
+                        {t("quote.cancelAndBack")}
+                      </button>
+                    </div>
+
+                    <div className="space-y-6">
+                      {/* Description textarea */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-bold text-gray-800 dark:text-gray-200">
+                          {t("quote.customProjectDescLabel")}
+                        </label>
+                        <textarea
+                          rows={4}
+                          value={customDescription}
+                          onChange={(e) => setCustomDescription(e.target.value)}
+                          placeholder={t("quote.customProjectDescPlaceholder")}
+                          className="w-full rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 p-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-[#133827] dark:focus:ring-emerald-500 transition-all resize-y"
+                        />
+                      </div>
+
+                      {/* Reference photos upload */}
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-800 dark:text-gray-200">
+                            {t("quote.customRefPhotosLabel")}
+                          </label>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            {t("quote.customRefPhotosSubtitle")}
+                          </p>
+                        </div>
+
+                        {/* Uploaded reference files list */}
+                        {customRefFiles.length > 0 && (
+                          <div className="flex flex-wrap gap-3">
+                            {customRefFiles.map((file, idx) => (
+                              <div
+                                key={idx}
+                                className="relative group rounded-xl border border-gray-200 dark:border-white/10 p-2 bg-[#fbfbfd] dark:bg-white/5 flex items-center gap-3 pr-4"
+                              >
+                                <img
+                                  src={resolveAssetUrl(file.url)}
+                                  alt={file.name}
+                                  className="w-12 h-12 rounded-lg object-cover bg-gray-100 dark:bg-white/10"
+                                />
+                                <div className="min-w-0 max-w-[160px]">
+                                  <p className="text-xs font-semibold text-gray-800 dark:text-white truncate">
+                                    {file.name}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveCustomRefFile(file.url)}
+                                  className="text-gray-400 hover:text-rose-500 p-1 rounded-full transition-colors cursor-pointer"
+                                  title={t("quote.removeFile")}
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {customRefFiles.length < 3 && (
+                          <div>
+                            <input
+                              ref={customRefFileInputRef}
+                              type="file"
+                              multiple
+                              accept="image/png,image/jpeg,image/webp"
+                              className="hidden"
+                              onChange={handleUploadCustomRefFile}
+                              disabled={isUploadingCustomRef}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => customRefFileInputRef.current?.click()}
+                              disabled={isUploadingCustomRef}
+                              className="px-5 py-2.5 rounded-full border border-gray-300 dark:border-white/20 hover:border-gray-400 dark:hover:border-white/30 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200 text-xs font-semibold transition-all flex items-center gap-2 shadow-2xs cursor-pointer disabled:opacity-50"
+                            >
+                              {isUploadingCustomRef ? (
+                                <Loader2 size={14} className="animate-spin text-amber-600 dark:text-amber-400" />
+                              ) : (
+                                <Upload size={14} className="text-amber-600 dark:text-amber-400" />
+                              )}
+                              <span>
+                                {isUploadingCustomRef
+                                  ? t("quote.customUploadingImage")
+                                  : t("quote.customUploadRefBtn")}
+                              </span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Material, Color & Quantity row */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-gray-100 dark:border-white/10">
+                        {/* Material Preference */}
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                            {t("quote.customMaterialPrefLabel")}
+                          </label>
+                          <select
+                            value={customMaterial}
+                            onChange={(e) => {
+                              const newMat = e.target.value;
+                              setCustomMaterial(newMat);
+                              const availableColors = getColorsForMaterial(newMat);
+                              if (!availableColors.includes(customColor)) {
+                                setCustomColor(availableColors[0] || "Black");
+                              }
+                            }}
+                            className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#151d18] px-3.5 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#133827] dark:focus:ring-emerald-500"
+                          >
+                            {finalMaterials.map((mat) => (
+                              <option key={mat} value={mat}>
+                                {mat}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Color Preference */}
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                            {t("quote.customColorPrefLabel")}
+                          </label>
+                          <select
+                            value={customColor}
+                            onChange={(e) => setCustomColor(e.target.value)}
+                            className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#151d18] px-3.5 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#133827] dark:focus:ring-emerald-500"
+                          >
+                            {getColorsForMaterial(customMaterial).map((color) => (
+                              <option key={color} value={color}>
+                                {translateColorText(color, t)}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Quantity */}
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                            {t("quote.customQuantityLabel")}
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setCustomCount((c) => Math.max(1, c - 1))}
+                              className="w-10 h-10 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-sm cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <span className="w-12 text-center font-bold text-gray-900 dark:text-white text-sm">
+                              {customCount}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setCustomCount((c) => Math.min(MAX_ITEM_QUANTITY, c + 1))}
+                              className="w-10 h-10 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-sm cursor-pointer"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action CTA */}
+                      <div className="pt-4 border-t border-gray-100 dark:border-white/10 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={handleAddCustomRequestToOrder}
+                          className="bg-[#133827] dark:bg-emerald-600 hover:bg-[#1c4d37] dark:hover:bg-emerald-700 text-white px-8 py-3.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                        >
+                          <Plus size={16} />
+                          <span>{t("quote.addCustomRequestToQuote")}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3-Option Starter View when no items are added yet */}
                 {items.length === 0 && !activeCreatorFlow && (editingItemIndex === null || isProcessing) && (
                   isProcessing ? (
                     <div className="rounded-3xl border border-emerald-600/30 dark:border-emerald-500/30 bg-white dark:bg-[#0e1512] p-10 sm:p-14 text-center transition-all flex flex-col items-center justify-center shadow-md my-4 space-y-5 animate-in fade-in duration-200">
@@ -2162,7 +2476,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Path 1: 3D CAD Print / Custom Quote Dropzone */}
                         <div
                           onDragOver={handleDragOver}
@@ -2177,7 +2491,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                             setEditingItemIndex(0);
                             await uploadSelectedFilesForItem(droppedFiles, 0);
                           }}
-                          className={`rounded-3xl border bg-white dark:bg-[#0e1512] p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm ${
+                          className={`rounded-3xl border bg-white dark:bg-[#0e1512] p-6 sm:p-8 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm ${
                             isDragOver
                               ? "border-emerald-600 dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 scale-[0.99]"
                               : "border-gray-200/80 dark:border-white/10"
@@ -2190,23 +2504,23 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 text-[11px] font-bold uppercase mb-2">
                               {t("quote.badgeCadPrint")}
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                               {t("quote.startPath3dTitle")}
                             </h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
                               {t("quote.startPath3dSubtitle")}
                             </p>
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 font-medium">
+                            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-2 font-medium">
                               {t("quote.allowedFilesInline")}
                             </p>
                           </div>
 
-                          <div className="mt-8 flex justify-center">
-                            <label className={`bg-[#133827] dark:bg-emerald-600 text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-[#0f2d1f] dark:hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-xs ${isUploading || isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}>
+                          <div className="mt-6 flex justify-center">
+                            <label className={`bg-[#133827] dark:bg-emerald-600 text-white px-6 py-3 rounded-full text-xs font-semibold hover:bg-[#0f2d1f] dark:hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-xs ${isUploading || isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}>
                               {isUploading || isProcessing ? (
-                                <Loader2 className="animate-spin" size={16} />
+                                <Loader2 className="animate-spin" size={15} />
                               ) : (
-                                <Upload size={16} />
+                                <Upload size={15} />
                               )}
                               <span>{t("quote.browse3dModelFiles")}</span>
                               <input
@@ -2230,7 +2544,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                         </div>
 
                         {/* Path 2: HueForge Filament Painting */}
-                        <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-8 sm:p-10 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm">
+                        <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-6 sm:p-8 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm">
                           <div>
                             <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center mx-auto mb-4 shadow-2xs">
                               <Sparkles size={26} />
@@ -2239,22 +2553,54 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                               <Sparkles size={12} className="text-emerald-700 dark:text-emerald-400" />
                               HueForge
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                               {t("quote.startPathPaintingTitle")}
                             </h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
                               {t("quote.startPathPaintingSubtitle")}
                             </p>
                           </div>
 
-                          <div className="mt-8 flex justify-center">
+                          <div className="mt-6 flex justify-center">
                             <button
                               type="button"
                               onClick={() => openFilamentPaintingCreator()}
-                              className="bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10 px-8 py-3.5 rounded-full text-sm font-semibold transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
+                              className="bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10 px-6 py-3 rounded-full text-xs font-semibold transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
                             >
-                              <Sparkles size={16} className="text-emerald-700 dark:text-emerald-400" />
+                              <Sparkles size={15} className="text-emerald-700 dark:text-emerald-400" />
                               <span>{t("quote.createFilamentPainting")}</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Path 3: Custom Request / Need Help */}
+                        <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-6 sm:p-8 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm">
+                          <div>
+                            <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center mx-auto mb-4 shadow-2xs">
+                              <HelpCircle size={26} />
+                            </div>
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-100 dark:border-amber-800/40 text-[11px] font-bold uppercase mb-2">
+                              {t("quote.badgeCustomRequest")}
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                              {t("quote.startPathCustomTitle")}
+                            </h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
+                              {t("quote.startPathCustomSubtitle")}
+                            </p>
+                          </div>
+
+                          <div className="mt-6 flex justify-center">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingItemIndex(null);
+                                setActiveCreatorFlow("custom-request");
+                              }}
+                              className="bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10 px-6 py-3 rounded-full text-xs font-semibold transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
+                            >
+                              <HelpCircle size={15} className="text-amber-600 dark:text-amber-400" />
+                              <span>{t("quote.requestCustomDesign")}</span>
                             </button>
                           </div>
                         </div>
@@ -2292,11 +2638,12 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                   const item = items[idx];
                   const hasFiles = (item.files || []).length > 0 || !!item.fileUrl;
                   const isPainting = item.uploadType === "filament-painting";
+                  const isCustomRequest = item.uploadType === "custom-request";
 
                   return (
                     <div
                       className="relative p-6 sm:p-8 md:p-10 border border-gray-200/80 dark:border-white/10 rounded-3xl bg-white dark:bg-[#0e1512] shadow-xs space-y-7"
-                      {...(!isPainting
+                      {...(!isPainting && !isCustomRequest
                         ? {
                             onDragOver: handleDragOver,
                             onDragLeave: handleDragLeave,
@@ -2332,6 +2679,11 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                               <Sparkles size={13} className="text-emerald-600 dark:text-emerald-400" />
                               {t("quote.badgeFilamentPainting")}
                             </span>
+                          ) : isCustomRequest ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/40 shrink-0">
+                              <HelpCircle size={13} className="text-amber-600 dark:text-amber-400" />
+                              {t("quote.badgeCustomRequest")}
+                            </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 shrink-0">
                               <Layers size={13} className="text-gray-600 dark:text-gray-400" />
@@ -2340,7 +2692,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                           )}
                         </div>
                         <div className="flex items-center gap-2.5">
-                          {!isPainting && (
+                          {!isPainting && !isCustomRequest && (
                             hasFiles ? (
                               <label className={`cursor-pointer bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-colors flex items-center gap-1.5 border border-gray-200 dark:border-white/10 shadow-2xs ${isUploading || isProcessing ? "opacity-50 pointer-events-none" : ""}`}>
                                 {isUploading || isProcessing ? (
@@ -3348,6 +3700,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                     <div className="space-y-3.5">
                       {items.map((item, idx) => {
                         const isPainting = item.uploadType === "filament-painting";
+                        const isCustomRequest = item.uploadType === "custom-request";
 
                         return (
                           <div
@@ -3368,6 +3721,10 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                                 <div className="w-14 h-14 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center text-emerald-700 dark:text-emerald-300 shrink-0 shadow-2xs">
                                   <Sparkles size={24} />
                                 </div>
+                              ) : isCustomRequest ? (
+                                <div className="w-14 h-14 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center text-amber-700 dark:text-amber-300 shrink-0 shadow-2xs">
+                                  <HelpCircle size={24} />
+                                </div>
                               ) : (
                                 <div className="w-14 h-14 rounded-xl bg-gray-100 dark:bg-white/10 border border-gray-200/80 dark:border-white/10 flex items-center justify-center text-[#133827] dark:text-emerald-400 shrink-0 shadow-2xs">
                                   <Layers size={24} />
@@ -3384,6 +3741,11 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40 shrink-0">
                                       <Sparkles size={10} />
                                       {t("quote.badgeFilamentPainting")}
+                                    </span>
+                                  ) : isCustomRequest ? (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/40 shrink-0">
+                                      <HelpCircle size={10} />
+                                      {t("quote.badgeCustomRequest")}
                                     </span>
                                   ) : (
                                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 shrink-0">
@@ -3437,6 +3799,14 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                                       )}
                                     </>
                                   )}
+                                  {isCustomRequest && item.files && item.files.length > 0 && (
+                                    <>
+                                      <span className="text-gray-300 dark:text-gray-600">|</span>
+                                      <span className="text-amber-700 dark:text-amber-300 font-semibold text-[11px]">
+                                        {t("quote.customRequestRefFilesCount", { count: item.files.length })}
+                                      </span>
+                                    </>
+                                  )}
                                 </div>
 
                                 {item.notes && (
@@ -3469,6 +3839,47 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                           </div>
                         );
                       })}
+                    </div>
+
+                    {/* Express Priority Production Toggle */}
+                    <div className={`rounded-2xl border transition-all p-4 sm:p-5 ${
+                      isExpressProduction
+                        ? "border-amber-500/40 bg-amber-500/10 dark:bg-amber-500/15 shadow-xs"
+                        : "border-gray-200/80 dark:border-white/10 bg-[#fbfbfd] dark:bg-white/5"
+                    }`}>
+                      <label className="flex items-start sm:items-center justify-between gap-4 cursor-pointer select-none">
+                        <div className="flex items-start sm:items-center gap-3">
+                          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border transition-colors ${
+                            isExpressProduction
+                              ? "bg-amber-500 text-white border-amber-600 shadow-xs"
+                              : "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400 border-gray-200/60 dark:border-white/10"
+                          }`}>
+                            <Zap size={22} className={isExpressProduction ? "fill-white" : ""} />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">
+                                {t("quote.expressProductionTitle")}
+                              </span>
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                                {t("quote.expressBadgeTag")}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
+                              {t("quote.expressProductionSubtitle")}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="relative inline-flex items-center cursor-pointer shrink-0 mt-1 sm:mt-0">
+                          <input
+                            type="checkbox"
+                            checked={isExpressProduction}
+                            onChange={(e) => setIsExpressProduction(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-12 h-6 bg-gray-200 dark:bg-white/20 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                        </div>
+                      </label>
                     </div>
 
                     {/* Next Steps: Add Another Item or Proceed to Checkout */}
@@ -3507,7 +3918,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                 onClick={() => setShowAddItemChoiceModal(false)}
               >
                 <div
-                  className="bg-white dark:bg-[#0e1512] rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl border border-gray-100 dark:border-white/10 space-y-6 animate-in zoom-in-95 duration-150"
+                  className="bg-white dark:bg-[#0e1512] rounded-3xl p-6 sm:p-8 max-w-3xl w-full shadow-2xl border border-gray-100 dark:border-white/10 space-y-6 animate-in zoom-in-95 duration-150"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10">
@@ -3528,7 +3939,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* Flow 1: 3D CAD Print / Custom Quote */}
                     <div className="p-6 rounded-2xl border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:shadow-xs transition-all flex flex-col justify-between space-y-4 bg-[#fbfbfd] dark:bg-white/5">
                       <div className="space-y-2.5">
@@ -3613,6 +4024,38 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                         >
                           <Sparkles size={13} />
                           <span>{t("quote.open2dConfigurator")}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Flow 3: Custom Request / Need Help */}
+                    <div className="p-6 rounded-2xl border border-amber-100 dark:border-amber-800/40 hover:border-amber-200 dark:hover:border-amber-700/60 hover:shadow-xs transition-all flex flex-col justify-between space-y-4 bg-amber-50/20 dark:bg-amber-950/20">
+                      <div className="space-y-2.5">
+                        <div className="w-11 h-11 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center shadow-2xs">
+                          <HelpCircle size={20} />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 dark:text-white text-sm">
+                            {t("quote.flowCustomTitle")}
+                          </h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                            {t("quote.flowCustomSubtitle")}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAddItemChoiceModal(false);
+                            setEditingItemIndex(null);
+                            setActiveCreatorFlow("custom-request");
+                          }}
+                          className="w-full py-2.5 px-3 rounded-full bg-white dark:bg-white/5 hover:bg-amber-50 dark:hover:bg-white/10 border border-amber-200 dark:border-white/10 text-amber-800 dark:text-amber-300 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                        >
+                          <HelpCircle size={14} className="text-amber-600 dark:text-amber-400" />
+                          <span>{t("quote.requestCustomDesign")}</span>
                         </button>
                       </div>
                     </div>
@@ -4201,13 +4644,21 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
             {currentStepId === "review" && (
               <div className="space-y-6">
                 <div className="bg-white dark:bg-[#0e1512] p-6 sm:p-8 md:p-10 rounded-3xl shadow-xs border border-gray-200/80 dark:border-white/10">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100/70 dark:border-emerald-800/40 flex items-center justify-center shadow-2xs">
-                      <CheckCircle2 size={22} />
+                  <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100/70 dark:border-emerald-800/40 flex items-center justify-center shadow-2xs">
+                        <CheckCircle2 size={22} />
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white">
+                        {t("quote.reviewTitle")}
+                      </h3>
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white">
-                      {t("quote.reviewTitle")}
-                    </h3>
+                    {isExpressProduction && (
+                      <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 shadow-2xs">
+                        <Zap size={14} className="fill-amber-500 text-amber-500" />
+                        <span>{t("quote.badgeExpressPriority")}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -4367,6 +4818,36 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                           <p>
                             {shippingDetails.city || "-"},{" "}
                             {shippingDetails.postalCode || "-"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-white/10 pb-2 mb-4">
+                          {t("quote.expressProductionTitle")}
+                        </h4>
+                        <div className={`p-5 rounded-2xl border text-sm transition-all ${
+                          isExpressProduction
+                            ? "bg-amber-500/10 dark:bg-amber-500/15 border-amber-500/30"
+                            : "bg-[#fbfbfd] dark:bg-white/5 border-gray-200/80 dark:border-white/10"
+                        }`}>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                              {isExpressProduction && <Zap size={16} className="fill-amber-500 text-amber-500" />}
+                              {isExpressProduction
+                                ? t("quote.badgeExpressPriority")
+                                : t("quote.trustBadgePostNl")}
+                            </span>
+                            {isExpressProduction && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                                {t("quote.expressBadgeTag")}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 leading-relaxed">
+                            {isExpressProduction
+                              ? t("quote.expressProductionSubtitle")
+                              : t("quote.trustBadgeReview")}
                           </p>
                         </div>
                       </div>

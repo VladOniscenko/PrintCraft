@@ -94,7 +94,7 @@ public class UploadController : ControllerBase
     [RequestFormLimits(MultipartBodyLengthLimit = MaxUploadBytes)]
     [AllowAnonymous]
     [EnableRateLimiting("UploadLimit")]
-    public async Task<IActionResult> Upload([FromForm] IFormFile file)
+    public async Task<IActionResult> Upload([FromForm] IFormFile file, [FromQuery] bool allowImages = false)
     {
         if (file == null || file.Length == 0)
             return BadRequest(new { message = "No file uploaded." });
@@ -106,25 +106,41 @@ public class UploadController : ControllerBase
         if (string.IsNullOrWhiteSpace(extension))
             return BadRequest(new { message = "Unsupported file type." });
 
-        // Explicitly reject 2D image formats in the standard 3D model flow
-        if (RejectedImageExtensions.Contains(extension) ||
-            (!string.IsNullOrWhiteSpace(file.ContentType) && file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)))
+        bool isReferenceImage = allowImages && (extension.Equals(".png", StringComparison.OrdinalIgnoreCase) ||
+                                                extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                                extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                                extension.Equals(".webp", StringComparison.OrdinalIgnoreCase));
+
+        if (!isReferenceImage)
         {
-            return BadRequest(new { message = "Image files are not accepted in the standard 3D model flow. Please use the Filament Painting flow for 2D images." });
+            // Explicitly reject 2D image formats in the standard 3D model flow
+            if (RejectedImageExtensions.Contains(extension) ||
+                (!string.IsNullOrWhiteSpace(file.ContentType) && file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)))
+            {
+                return BadRequest(new { message = "Image files are not accepted in the standard 3D model flow. Please use the Filament Painting flow for 2D images." });
+            }
+
+            if (!AllowedExtensions.Contains(extension))
+                return BadRequest(new { message = "Unsupported file type. Only 3D model formats (.stl, .obj, .3mf, .step, .stp) are accepted." });
+
+            if (!IsAllowedContentType(extension, file.ContentType))
+                return BadRequest(new { message = "Unsupported content type for this 3D model extension." });
         }
-
-        if (!AllowedExtensions.Contains(extension))
-            return BadRequest(new { message = "Unsupported file type. Only 3D model formats (.stl, .obj, .3mf, .step, .stp) are accepted." });
-
-        if (!IsAllowedContentType(extension, file.ContentType))
-            return BadRequest(new { message = "Unsupported content type for this 3D model extension." });
 
         var header = await ReadHeaderAsync(file, HeaderReadSize);
         if (LooksLikeExecutable(header))
             return BadRequest(new { message = "Executable files are not allowed." });
 
-        if (!PassesSignatureValidation(extension, header))
-            return BadRequest(new { message = "File content does not match the selected 3D model type." });
+        if (isReferenceImage)
+        {
+            if (!PassesImageSignatureValidation(extension, header))
+                return BadRequest(new { message = "File content does not match the selected image type." });
+        }
+        else
+        {
+            if (!PassesSignatureValidation(extension, header))
+                return BadRequest(new { message = "File content does not match the selected 3D model type." });
+        }
 
         var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
         if (!Directory.Exists(uploadsFolder))
@@ -412,7 +428,8 @@ public class UploadController : ControllerBase
 
         var normalizedFileName = Path.GetFileName(resolvedFullPath);
         var extension = Path.GetExtension(normalizedFileName);
-        if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
+        bool isAllowedExt = !string.IsNullOrWhiteSpace(extension) && (AllowedExtensions.Contains(extension) || extension.Equals(".png", StringComparison.OrdinalIgnoreCase) || extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) || extension.Equals(".webp", StringComparison.OrdinalIgnoreCase));
+        if (!isAllowedExt)
             return BadRequest(new { message = "Only uploaded model or image files can be deleted from this endpoint." });
 
         var linkedToAnyOrder = _db.Orders
@@ -618,6 +635,17 @@ public class UploadController : ControllerBase
     {
         var ascii = Encoding.ASCII.GetString(header);
         return ascii.IndexOf("ISO-10303-21", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static bool PassesImageSignatureValidation(string extension, byte[] header)
+    {
+        return extension.ToLowerInvariant() switch
+        {
+            ".png" => HasPrefix(header, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A),
+            ".jpg" or ".jpeg" => HasPrefix(header, 0xFF, 0xD8, 0xFF),
+            ".webp" => StartsWithAscii(header, "RIFF") && HasAsciiAt(header, "WEBP", 8),
+            _ => false
+        };
     }
 
     private static bool HasPrefix(byte[] data, params byte[] prefix)

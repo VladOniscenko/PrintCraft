@@ -35,6 +35,8 @@ public class Order
     public string? AgreementVersion { get; set; }
     public DateTime? AgreementAcceptedAt { get; set; }
     public string Language { get; set; } = "en";
+    public bool IsExpress { get; set; }
+    public string RequestType { get; set; } = "StandardUpload";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
@@ -57,10 +59,14 @@ public class Order
         => Items.Sum(i => (decimal)(i.UnitPrice > 0 ? i.UnitPrice : i.Price) * (i.Count <= 0 ? 1 : i.Count) + (decimal)i.PlateCost);
 
     [NotMapped]
+    public decimal ExpressFeeAmount
+        => IsExpress ? Math.Round(SubtotalAmount * 0.30m, 2) : 0m;
+
+    [NotMapped]
     public decimal DiscountAmount
         => Math.Max(OrderDiscountAmount, 0m);
 
     [NotMapped]
     public decimal FinalTotalAmount
-        => Math.Max(SubtotalAmount + Math.Max(ServiceFeePrice, 0m) + Math.Max(DeliveryPrice, 0m) - DiscountAmount, 0m);
+        => Math.Max(SubtotalAmount + ExpressFeeAmount + Math.Max(ServiceFeePrice, 0m) + Math.Max(DeliveryPrice, 0m) - DiscountAmount, 0m);
 }

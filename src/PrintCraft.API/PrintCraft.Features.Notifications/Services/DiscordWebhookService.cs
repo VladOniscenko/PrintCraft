@@ -79,20 +79,48 @@ public sealed class DiscordWebhookService : IDiscordWebhookService
             ? user!.Email
             : (string.IsNullOrWhiteSpace(guestEmail) ? "not provided" : guestEmail);
 
+        bool isCustomRequest = string.Equals(order.RequestType, "CustomRequest", StringComparison.OrdinalIgnoreCase);
+
+        var title = isCustomRequest
+            ? $"💡 New Custom Design Request from {customerEmail}"
+            : (order.IsExpress ? "⚡ 🧾 New Express Quote Request" : "🧾 New Quote Request");
+
+        int color = isCustomRequest ? 16763904 // Gold / Amber
+            : (order.IsExpress ? 16744448 // Bright Orange
+            : 3066993); // Blue-green
+
+        var fields = new List<DiscordField>
+        {
+            new DiscordField { Name = "Order ID", Value = order.Id.ToString(), Inline = true },
+            new DiscordField { Name = "Created", Value = order.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss UTC"), Inline = true },
+            new DiscordField { Name = "Status", Value = order.Status, Inline = true },
+            new DiscordField { Name = "Customer Name", Value = customerName, Inline = true },
+            new DiscordField { Name = "Email", Value = customerEmail, Inline = true },
+            new DiscordField { Name = "Item Count", Value = order.Items.Count.ToString(), Inline = true },
+            new DiscordField { Name = "Request Type", Value = order.RequestType ?? "StandardUpload", Inline = true },
+            new DiscordField { Name = "Express Priority", Value = order.IsExpress ? "⚡ YES (+30% Surcharge)" : "Standard", Inline = true },
+        };
+
+        if (order.IsExpress && order.ExpressFeeAmount > 0)
+        {
+            fields.Add(new DiscordField { Name = "Express Fee", Value = $"€{order.ExpressFeeAmount:F2}", Inline = true });
+        }
+
+        if (!string.IsNullOrWhiteSpace(order.CustomerNotes))
+        {
+            var noteSnippet = order.CustomerNotes.Length > 1000
+                ? order.CustomerNotes.Substring(0, 1000) + "..."
+                : order.CustomerNotes;
+            fields.Add(new DiscordField { Name = "Project Description / Notes", Value = noteSnippet, Inline = false });
+        }
+
+        fields.Add(new DiscordField { Name = "Items", Value = BuildItemsForEmbed(order.Items), Inline = false });
+
         var embed = new DiscordEmbed
         {
-            Title = "🧾 New Quote Request",
-            Color = 3066993, // Blue-green
-            Fields = new[]
-            {
-                new DiscordField { Name = "Order ID", Value = order.Id.ToString(), Inline = true },
-                new DiscordField { Name = "Created", Value = order.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss UTC"), Inline = true },
-                new DiscordField { Name = "Status", Value = order.Status, Inline = true },
-                new DiscordField { Name = "Customer Name", Value = customerName, Inline = true },
-                new DiscordField { Name = "Email", Value = customerEmail, Inline = true },
-                new DiscordField { Name = "Item Count", Value = order.Items.Count.ToString(), Inline = true },
-                new DiscordField { Name = "Items", Value = BuildItemsForEmbed(order.Items), Inline = false },
-            },
+            Title = title,
+            Color = color,
+            Fields = fields.ToArray(),
             Timestamp = DateTime.UtcNow.ToString("o")
         };
 

@@ -25,6 +25,9 @@ public class QuoteDraft
     public string? VisitorKey { get; set; }
 
     public Guid? UserId { get; set; }
+    public bool IsExpress { get; set; }
+    [MaxLength(64)]
+    public string RequestType { get; set; } = "StandardUpload";
     public decimal Estimate { get; set; }
     public DateTime ExpiresAt { get; set; } = DateTime.UtcNow.AddHours(2);
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
