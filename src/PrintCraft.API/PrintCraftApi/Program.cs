@@ -544,6 +544,12 @@ static async Task EnsureSchemaColumnsAsync(PrintCraftDb db)
     await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"HoldReason\" text NULL;", "Orders.HoldReason");
     await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"FlaggedForRefundReview\" boolean NOT NULL DEFAULT FALSE;", "Orders.FlaggedForRefundReview");
 
+    // Express production & custom requests
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"IsExpress\" boolean NOT NULL DEFAULT FALSE;", "Orders.IsExpress");
+    await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"RequestType\" text NOT NULL DEFAULT 'StandardUpload';", "Orders.RequestType");
+    await SafeExecAsync(db, "ALTER TABLE \"QuoteDrafts\" ADD COLUMN IF NOT EXISTS \"IsExpress\" boolean NOT NULL DEFAULT FALSE;", "QuoteDrafts.IsExpress");
+    await SafeExecAsync(db, "ALTER TABLE \"QuoteDrafts\" ADD COLUMN IF NOT EXISTS \"RequestType\" character varying(64) NOT NULL DEFAULT 'StandardUpload';", "QuoteDrafts.RequestType");
+
     // Multilingual preferences & templates
     await SafeExecAsync(db, "ALTER TABLE \"Orders\" ADD COLUMN IF NOT EXISTS \"Language\" text NOT NULL DEFAULT 'en';", "Orders.Language");
     await SafeExecAsync(db, "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"PreferredLanguage\" text NOT NULL DEFAULT 'en';", "Users.PreferredLanguage");

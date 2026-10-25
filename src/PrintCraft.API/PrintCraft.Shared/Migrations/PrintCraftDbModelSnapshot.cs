@@ -1051,6 +1051,9 @@ namespace PrintCraft.Shared.Migrations
                     b.Property<string>("InternalNotes")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsExpress")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsPaid")
                         .HasColumnType("boolean");
 
@@ -1091,6 +1094,10 @@ namespace PrintCraft.Shared.Migrations
 
                     b.Property<decimal?>("QuotedPrice")
                         .HasColumnType("numeric");
+
+                    b.Property<string>("RequestType")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<decimal>("ServiceFeePrice")
                         .HasColumnType("numeric");
@@ -1535,6 +1542,9 @@ namespace PrintCraft.Shared.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)");
 
+                    b.Property<bool>("IsExpress")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Material")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -1542,6 +1552,11 @@ namespace PrintCraft.Shared.Migrations
 
                     b.Property<DateTime?>("RedeemedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RequestType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("TokenHash")
                         .IsRequired()

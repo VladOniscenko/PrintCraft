@@ -447,8 +447,16 @@ public class OrdersController : ControllerBase
             }
         }
 
-        _db.Orders.Add(order);
-        await _db.SaveChangesAsync();
+        try
+        {
+            _db.Orders.Add(order);
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Failed to save new quote order {OrderId} to database. Inner message: {InnerMessage}", order.Id, ex.InnerException?.Message);
+            throw;
+        }
         
         // Queue items for pricing
         if (order.Items != null)
