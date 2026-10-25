@@ -15,6 +15,7 @@ import {
   PCFSoftShadowMap,
   SRGBColorSpace,
   DoubleSide,
+  BufferAttribute,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
@@ -68,6 +69,7 @@ export interface Interactive3DViewerProps {
   materialName?: string;
   scaleFactor?: number;
   filaments?: Filament[];
+  layerColorMap?: Array<{ zMin: number; zMax: number; hexColor: string; filamentName?: string }>;
   onDimensionsDetected?: (dims: { x: number; y: number; z: number }) => void;
   className?: string;
   count?: number;
@@ -87,6 +89,7 @@ export default function Interactive3DViewer({
   materialName: _materialName = "PLA",
   scaleFactor = 1.0,
   filaments,
+  layerColorMap,
   onDimensionsDetected,
   className = "",
   count = 1,
@@ -472,12 +475,90 @@ export default function Interactive3DViewer({
 
         let baseObject: any;
 
+        const applyZHeightVertexColors = (
+          geom: any,
+          colorMap: Array<{ zMin: number; zMax: number; hexColor: string }>,
+          axis: "y" | "z" = "z"
+        ): boolean => {
+          if (!geom || !geom.attributes?.position || !colorMap || colorMap.length === 0) {
+            return false;
+          }
+          const pos = geom.attributes.position;
+          const count = pos.count;
+          const axisIdx = axis === "y" ? 1 : 2;
+
+          let minVal = Infinity;
+          let maxVal = -Infinity;
+          for (let i = 0; i < count; i++) {
+            const v = pos.getComponent(i, axisIdx);
+            if (v < minVal) minVal = v;
+            if (v > maxVal) maxVal = v;
+          }
+
+          const range = maxVal - minVal;
+          if (range < 1e-4) return false;
+
+          const totalMaxZ = Math.max(...colorMap.map((c) => c.zMax), 1.0);
+
+          const parsed = colorMap.map((item) => {
+            const raw = (item.hexColor || "#ffffff").replace("#", "");
+            const clean =
+              raw.length === 3
+                ? `${raw[0]}${raw[0]}${raw[1]}${raw[1]}${raw[2]}${raw[2]}`
+                : raw;
+            const r = parseInt(clean.substring(0, 2), 16) / 255 || 0;
+            const g = parseInt(clean.substring(2, 4), 16) / 255 || 0;
+            const b = parseInt(clean.substring(4, 6), 16) / 255 || 0;
+            return { zMin: item.zMin, zMax: item.zMax, r, g, b };
+          });
+
+          const colors = new Float32Array(count * 3);
+
+          for (let i = 0; i < count; i++) {
+            const v = pos.getComponent(i, axisIdx);
+            const zNorm = ((v - minVal) / range) * totalMaxZ;
+
+            let matched = parsed[0];
+            for (let j = 0; j < parsed.length; j++) {
+              if (zNorm >= parsed[j].zMin && zNorm <= parsed[j].zMax) {
+                matched = parsed[j];
+                break;
+              }
+              if (zNorm > parsed[j].zMax) {
+                matched = parsed[j];
+              }
+            }
+
+            colors[i * 3] = matched.r;
+            colors[i * 3 + 1] = matched.g;
+            colors[i * 3 + 2] = matched.b;
+          }
+
+          geom.setAttribute("color", new BufferAttribute(colors, 3));
+          return true;
+        };
+
         if (geometry) {
           geometry.computeVertexNormals();
+          const hasAppliedLayers =
+            layerColorMap &&
+            layerColorMap.length > 0 &&
+            applyZHeightVertexColors(geometry, layerColorMap, "z");
           geometry.center();
           geometry.computeBoundingBox();
 
-          const mesh = new Mesh(geometry, materialRef.current);
+          const mat = hasAppliedLayers
+            ? new MeshStandardMaterial({
+                color: 0xffffff,
+                vertexColors: true,
+                roughness: 0.38,
+                metalness: 0.08,
+                wireframe: wireframe,
+                side: DoubleSide,
+              })
+            : materialRef.current;
+
+          const mesh = new Mesh(geometry, mat);
           mesh.castShadow = true;
           mesh.receiveShadow = true;
           baseObject = mesh;
@@ -488,11 +569,17 @@ export default function Interactive3DViewer({
               if (geom) {
                 geom.computeVertexNormals();
               }
-              const hasVertexColors = !!(
-                geom?.attributes?.color ||
-                geom?.attributes?.COLOR_0 ||
-                child.material?.vertexColors
-              );
+              const hasAppliedLayers =
+                layerColorMap &&
+                layerColorMap.length > 0 &&
+                applyZHeightVertexColors(geom, layerColorMap, "y");
+              const hasVertexColors =
+                hasAppliedLayers ||
+                !!(
+                  geom?.attributes?.color ||
+                  geom?.attributes?.COLOR_0 ||
+                  child.material?.vertexColors
+                );
               if (hasVertexColors) {
                 child.material = new MeshStandardMaterial({
                   color: 0xffffff,
@@ -565,7 +652,7 @@ export default function Interactive3DViewer({
     return () => {
       canceled = true;
     };
-  }, [file, fileUrl, fileName]);
+  }, [file, fileUrl, fileName, layerColorMap]);
 
 
   // 5.5 Render instances based on count

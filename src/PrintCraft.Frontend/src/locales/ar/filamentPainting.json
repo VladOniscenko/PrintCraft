@@ -40,5 +40,22 @@
   "addAnotherColor": "إضافة لون آخر",
   "readyToPrint": "جاهز للطباعة",
   "configuring": "جارٍ إعداد اللوحة البارزة ثلاثية الأبعاد المباشرة...",
-  "confirmAndAddToOrder": "تأكيد العنصر وإضافته إلى الطلب"
+  "confirmAndAddToOrder": "تأكيد العنصر وإضافته إلى الطلب",
+  "step1Title": "الخطوة 1: تحميل الصورة",
+  "step2Title": "الخطوة 2: اختر نمط الألوان",
+  "step3Title": "الخطوة 3: اختر المقاس",
+  "themeClassicBw": "أبيض وأسود كلاسيكي",
+  "themeWarmSepia": "سيبيا دافئة / صورة شخصية",
+  "sizeSmall": "صغير (10 سم)",
+  "sizeMedium": "متوسط (15 سم)",
+  "sizeLarge": "كبير (20 سم)",
+  "advancedSettings": "خيارات متقدمة",
+  "hideAdvanced": "إخفاء الخيارات المتقدمة",
+  "view3dRelief": "معاينة ثلاثية الأبعاد بارزة",
+  "view2dSim": "محاكاة الطباعة الملونة",
+  "layerStackTitle": "تتابع ألوان الطبقات المادية",
+  "bottomLayer": "القاعدة (الأسفل)",
+  "topLayer": "إضاءة (الأعلى)",
+  "convertingPhoto": "جاري تحويل صورتك إلى نقش ثلاثي الأبعاد...",
+  "add3dPhotoToQuote": "إضافة صورة ثلاثية الأبعاد إلى عرض السعر"
 }

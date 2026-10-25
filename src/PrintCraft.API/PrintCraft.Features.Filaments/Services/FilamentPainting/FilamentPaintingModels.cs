@@ -179,3 +179,17 @@ public class FilamentPaintingCalculationResult
     public byte[] BlendedRgbMap { get; set; } = Array.Empty<byte>(); // 3 bytes per pixel (R, G, B)
 }
 
+/// <summary>
+/// Height threshold range and color metadata for a physical layer band in the multi-color print.
+/// </summary>
+public class LayerColorThresholdDto
+{
+    public double ZMin { get; set; }
+    public double ZMax { get; set; }
+    public string HexColor { get; set; } = string.Empty;
+    public string FilamentId { get; set; } = string.Empty;
+    public string FilamentName { get; set; } = string.Empty;
+    public int LayerStart { get; set; }
+    public int LayerEnd { get; set; }
+}
+

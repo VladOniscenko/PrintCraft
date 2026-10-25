@@ -1383,6 +1383,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
       printQuality: `${config.quality || "Medium"} Quality (Filament Painting)`,
       supportsNeeded: false,
       layerSwaps: liveResult.layerSwaps,
+      layerColorMap: liveResult.layerColorMap,
       files: organizedFiles,
       notes: `Filament Painting (${config.quality || "Medium"} Quality, ${config.palette.length} colors: ${paletteSummary}). Dimensions: ${liveResult.dimensions.x}x${liveResult.dimensions.y}x${liveResult.dimensions.z}mm. Total Layers: ${liveResult.totalLayers || 30}. Swaps: ${swapsSummary}. 100% Solid Infill.`,
     };
@@ -2603,6 +2604,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                                   }
                                   count={item.count}
                                   filaments={filaments}
+                                  layerColorMap={item.layerColorMap}
                                   showHelp={true}
                                   onDimensionsDetected={(dims: {
                                     x: number;

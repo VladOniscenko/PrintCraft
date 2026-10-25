@@ -56,7 +56,9 @@ public class FilamentPaintingController : ControllerBase
         public string ModelStlUrl { get; set; } = string.Empty;
         public string ModelZipUrl { get; set; } = string.Empty;
         public string PreviewImageUrl { get; set; } = string.Empty;
+        public string PreviewImageBase64 { get; set; } = string.Empty;
         public List<LayerSwapInstruction> LayerSwaps { get; set; } = new();
+        public List<LayerColorThresholdDto> LayerColorMap { get; set; } = new();
         public ModelDimensions Dimensions { get; set; } = new();
         public double VolumeMm3 { get; set; }
         public double EstimatedGrams { get; set; }
@@ -276,12 +278,9 @@ public class FilamentPaintingController : ControllerBase
             decoded = CreateFallbackDecodedImage(150, (int)Math.Max(50, Math.Round(150.0 * heightMm / widthMm)));
         }
 
-        // Higher-density triangulation for high-resolution 3D prints (eliminating low-poly/pixelated appearance)
-        int targetGridWidth = string.Equals(requestConfig.Quality, "Best", StringComparison.OrdinalIgnoreCase)
-            ? 500
-            : (string.Equals(requestConfig.Quality, "Low", StringComparison.OrdinalIgnoreCase) ? 300 : 400);
-
-        int targetGridHeight = (int)Math.Clamp(Math.Round((double)targetGridWidth * decoded.Height / decoded.Width), 50, 600);
+        // Optimized grid resolution from preset (180 for low/fast preview, 240 for medium, 300 for best)
+        int targetGridWidth = qualitySetting.GridResolution > 0 ? qualitySetting.GridResolution : 240;
+        int targetGridHeight = (int)Math.Clamp(Math.Round((double)targetGridWidth * decoded.Height / decoded.Width), 50, 450);
         var resampled = decoded.Resample(targetGridWidth, targetGridHeight);
 
         // Compute HueForge topographic heightmap and blended surface colors
@@ -293,6 +292,51 @@ public class FilamentPaintingController : ControllerBase
             widthMm,
             heightMm
         );
+
+        // Compute exact layer height color thresholds (zMin, zMax, hexColor, filamentId)
+        var layerColorMap = new List<LayerColorThresholdDto>();
+        if (lut.Count > 0)
+        {
+            var curFil = lut[0].ActiveFilament;
+            double zStart = 0.0;
+            int lStart = lut[0].LayerIndex;
+
+            for (int i = 1; i < lut.Count; i++)
+            {
+                if (lut[i].ActiveFilament.FilamentId != curFil.FilamentId)
+                {
+                    layerColorMap.Add(new LayerColorThresholdDto
+                    {
+                        ZMin = Math.Round(zStart, 2),
+                        ZMax = Math.Round(lut[i].HeightMm, 2),
+                        HexColor = curFil.ColorHex,
+                        FilamentId = curFil.FilamentId.ToString(),
+                        FilamentName = curFil.Name,
+                        LayerStart = lStart,
+                        LayerEnd = lut[i - 1].LayerIndex
+                    });
+                    curFil = lut[i].ActiveFilament;
+                    zStart = lut[i].HeightMm;
+                    lStart = lut[i].LayerIndex;
+                }
+            }
+
+            layerColorMap.Add(new LayerColorThresholdDto
+            {
+                ZMin = Math.Round(zStart, 2),
+                ZMax = Math.Round(lut[^1].HeightMm, 2),
+                HexColor = curFil.ColorHex,
+                FilamentId = curFil.FilamentId.ToString(),
+                FilamentName = curFil.Name,
+                LayerStart = lStart,
+                LayerEnd = lut[^1].LayerIndex
+            });
+        }
+
+        // Generate simulated 2D print preview PNG from optical blended RGB buffer
+        byte[] previewPngBytes = EncodeRgbToPng(calcResult.BlendedRgbMap, calcResult.Width, calcResult.Height);
+        var previewSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}_preview.png");
+        await System.IO.File.WriteAllBytesAsync(previewSavedPath, previewPngBytes);
 
         // Generate watertight high-resolution binary STL (standard 3D print file)
         byte[] stlBytes = MeshGeneratorService.GenerateBinaryStl(
@@ -330,6 +374,7 @@ public class FilamentPaintingController : ControllerBase
         await System.IO.File.WriteAllTextAsync(imageSavedPath + metaSuffix, metaJson);
         await System.IO.File.WriteAllTextAsync(stlSavedPath + metaSuffix, metaJson);
         await System.IO.File.WriteAllTextAsync(glbSavedPath + metaSuffix, metaJson);
+        await System.IO.File.WriteAllTextAsync(previewSavedPath + metaSuffix, metaJson);
 
         var altUploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
         if (!string.Equals(Path.GetFullPath(altUploadsDir), Path.GetFullPath(uploadsDir), StringComparison.OrdinalIgnoreCase))
@@ -337,16 +382,19 @@ public class FilamentPaintingController : ControllerBase
             Directory.CreateDirectory(altUploadsDir);
             await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.stl"), stlBytes);
             await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.glb"), glbBytes);
+            await System.IO.File.WriteAllBytesAsync(Path.Combine(altUploadsDir, $"{fileBaseName}_preview.png"), previewPngBytes);
             System.IO.File.Copy(imageSavedPath, Path.Combine(altUploadsDir, $"{fileBaseName}{ext}"), overwrite: true);
 
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}{ext}{metaSuffix}"), metaJson);
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.stl{metaSuffix}"), metaJson);
             await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}.glb{metaSuffix}"), metaJson);
+            await System.IO.File.WriteAllTextAsync(Path.Combine(altUploadsDir, $"{fileBaseName}_preview.png{metaSuffix}"), metaJson);
         }
 
         var modelGlbUrl = $"/uploads/{fileBaseName}.glb";
         var modelStlUrl = $"/uploads/{fileBaseName}.stl";
-        var previewImageUrl = imageRelativeUrl;
+        var previewImageUrl = $"/uploads/{fileBaseName}_preview.png";
+        var previewImageBase64 = $"data:image/png;base64,{Convert.ToBase64String(previewPngBytes)}";
         var modelZipUrl = string.Empty;
 
         // Calculate physical volume & filament weight based on bounding box and relief (100% solid infill)
@@ -386,7 +434,9 @@ public class FilamentPaintingController : ControllerBase
             ModelStlUrl = modelStlUrl,
             ModelZipUrl = modelZipUrl,
             PreviewImageUrl = previewImageUrl,
+            PreviewImageBase64 = previewImageBase64,
             LayerSwaps = swaps,
+            LayerColorMap = layerColorMap,
             Dimensions = new ModelDimensions
             {
                 X = Math.Round(widthMm, 1),
@@ -403,6 +453,77 @@ public class FilamentPaintingController : ControllerBase
         };
 
         return Ok(response);
+    }
+
+    private static byte[] EncodeRgbToPng(byte[] rgb, int width, int height)
+    {
+        using var ms = new MemoryStream();
+        ms.Write([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+
+        // IHDR Chunk
+        byte[] ihdrData = new byte[13];
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32BigEndian(ihdrData.AsSpan(0, 4), width);
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32BigEndian(ihdrData.AsSpan(4, 4), height);
+        ihdrData[8] = 8;  // 8 bits per sample
+        ihdrData[9] = 2;  // ColorType: RGB
+        ihdrData[10] = 0; // Deflate compression
+        ihdrData[11] = 0; // Standard filter
+        ihdrData[12] = 0; // Non-interlaced
+        WritePngChunk(ms, "IHDR", ihdrData);
+
+        // IDAT Chunk
+        using var idatRaw = new MemoryStream();
+        int rowStride = width * 3;
+        for (int y = 0; y < height; y++)
+        {
+            idatRaw.WriteByte(0); // Filter: None
+            idatRaw.Write(rgb.AsSpan(y * rowStride, rowStride));
+        }
+        idatRaw.Position = 0;
+
+        using var idatCompressed = new MemoryStream();
+        using (var zlib = new System.IO.Compression.ZLibStream(idatCompressed, System.IO.Compression.CompressionLevel.Optimal, leaveOpen: true))
+        {
+            idatRaw.CopyTo(zlib);
+        }
+        WritePngChunk(ms, "IDAT", idatCompressed.ToArray());
+
+        // IEND Chunk
+        WritePngChunk(ms, "IEND", Array.Empty<byte>());
+
+        return ms.ToArray();
+    }
+
+    private static void WritePngChunk(Stream stream, string type, ReadOnlySpan<byte> data)
+    {
+        Span<byte> lenBytes = stackalloc byte[4];
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(lenBytes, (uint)data.Length);
+        stream.Write(lenBytes);
+
+        byte[] typeBytes = System.Text.Encoding.ASCII.GetBytes(type);
+        stream.Write(typeBytes);
+        stream.Write(data);
+
+        uint crc = CalculateCrc32(typeBytes, data);
+        Span<byte> crcBytes = stackalloc byte[4];
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(crcBytes, crc);
+        stream.Write(crcBytes);
+    }
+
+    private static uint CalculateCrc32(byte[] typeBytes, ReadOnlySpan<byte> data)
+    {
+        uint crc = 0xFFFFFFFF;
+        void Update(byte b)
+        {
+            crc ^= b;
+            for (int k = 0; k < 8; k++)
+            {
+                crc = (crc >> 1) ^ (0xEDB88320 & (uint)-((int)(crc & 1)));
+            }
+        }
+        foreach (var b in typeBytes) Update(b);
+        foreach (var b in data) Update(b);
+        return ~crc;
     }
 
 

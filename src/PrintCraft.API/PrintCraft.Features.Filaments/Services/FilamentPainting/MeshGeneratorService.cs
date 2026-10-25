@@ -94,7 +94,24 @@ public static class MeshGeneratorService
 
         float GetX(int x) => -halfW + (x * dx);
         float GetY(int y) => -halfH + (y * dy);
-        float GetZ(int x, int y) => heightMap[y * gridWidth + x];
+
+        float effectiveBorderMm = MathF.Min(2.0f, (float)Math.Min(widthMm, heightMm) * 0.15f);
+
+        float GetZ(int x, int y)
+        {
+            // Perimeter is guaranteed flat border at baseThicknessMm
+            if (x == 0 || x == gridWidth - 1 || y == 0 || y == gridHeight - 1)
+                return (float)baseThicknessMm;
+
+            float distToEdgeX = MathF.Min(x * dx, (gridWidth - 1 - x) * dx);
+            float distToEdgeY = MathF.Min(y * dy, (gridHeight - 1 - y) * dy);
+            float distToEdge = MathF.Min(distToEdgeX, distToEdgeY);
+
+            if (distToEdge < effectiveBorderMm)
+                return (float)baseThicknessMm;
+
+            return heightMap[y * gridWidth + x];
+        }
 
         // 3. Top surface triangles
         for (int y = 0; y < quadsY; y++)
@@ -222,6 +239,9 @@ public static class MeshGeneratorService
         float minX = float.MaxValue, minY = float.MaxValue, minZ = float.MaxValue;
         float maxX = float.MinValue, maxY = float.MinValue, maxZ = float.MinValue;
 
+        float effectiveBorderMm = MathF.Min(2.0f, (float)Math.Min(widthMm, heightMm) * 0.15f);
+        float baseZ = heightMap.Length > 0 ? heightMap.Min() : 0.8f;
+
         for (int y = 0; y < gridHeight; y++)
         {
             for (int x = 0; x < gridWidth; x++)
@@ -231,7 +251,13 @@ public static class MeshGeneratorService
                 // Three.js convention: Y is up, Z is depth or Z is up depending on camera.
                 // Standard: X = right, Y = height (Z relief), Z = forward/down
                 float pz = -(-halfH + (y * dy)); // ground plane
-                float py = heightMap[vi];         // height relief along +Y
+
+                float distToEdgeX = MathF.Min(x * dx, (gridWidth - 1 - x) * dx);
+                float distToEdgeY = MathF.Min(y * dy, (gridHeight - 1 - y) * dy);
+                float distToEdge = MathF.Min(distToEdgeX, distToEdgeY);
+                bool isBorder = distToEdge < effectiveBorderMm || x == 0 || x == gridWidth - 1 || y == 0 || y == gridHeight - 1;
+
+                float py = isBorder ? baseZ : heightMap[vi]; // height relief along +Y
 
                 minX = MathF.Min(minX, px); maxX = MathF.Max(maxX, px);
                 minY = MathF.Min(minY, py); maxY = MathF.Max(maxY, py);
@@ -246,9 +272,19 @@ public static class MeshGeneratorService
                 // Write Color (RGBA uint8)
                 int cOff = colorOffset + (vi * 4);
                 int rgbIdx = vi * 3;
-                binData[cOff] = rgbMap[rgbIdx];         // R
-                binData[cOff + 1] = rgbMap[rgbIdx + 1]; // G
-                binData[cOff + 2] = rgbMap[rgbIdx + 2]; // B
+                if (isBorder && rgbMap.Length >= 3)
+                {
+                    // Dark frame border
+                    binData[cOff] = (byte)(rgbMap[0] * 0.8f);
+                    binData[cOff + 1] = (byte)(rgbMap[1] * 0.8f);
+                    binData[cOff + 2] = (byte)(rgbMap[2] * 0.8f);
+                }
+                else
+                {
+                    binData[cOff] = rgbMap[rgbIdx];         // R
+                    binData[cOff + 1] = rgbMap[rgbIdx + 1]; // G
+                    binData[cOff + 2] = rgbMap[rgbIdx + 2]; // B
+                }
                 binData[cOff + 3] = 255;                // A
 
                 // Default normal (approximate up vector)

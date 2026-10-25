@@ -40,5 +40,22 @@
   "addAnotherColor": "Добавить еще цвет",
   "readyToPrint": "Готово к печати",
   "configuring": "Настройка 3D-рельефа в реальном времени...",
-  "confirmAndAddToOrder": "Подтвердить и добавить в заказ"
+  "confirmAndAddToOrder": "Подтвердить и добавить в заказ",
+  "step1Title": "Шаг 1: Загрузить фото",
+  "step2Title": "Шаг 2: Выберите стиль цвета",
+  "step3Title": "Шаг 3: Выберите размер",
+  "themeClassicBw": "Классический черно-белый",
+  "themeWarmSepia": "Теплая сепия / Портрет",
+  "sizeSmall": "Маленький (10 см)",
+  "sizeMedium": "Средний (15 см)",
+  "sizeLarge": "Большой (20 см)",
+  "advancedSettings": "Расширенные настройки",
+  "hideAdvanced": "Скрыть расширенные настройки",
+  "view3dRelief": "3D-рельефный предпросмотр",
+  "view2dSim": "Симуляция цветной печати",
+  "layerStackTitle": "Стек физических слоев цвета",
+  "bottomLayer": "Базовый (Низ)",
+  "topLayer": "Блик (Верх)",
+  "convertingPhoto": "Преобразование вашей фотографии в 3D-рельеф...",
+  "add3dPhotoToQuote": "Добавить 3D-фото в расчет"
 }

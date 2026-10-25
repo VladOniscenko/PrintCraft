@@ -248,17 +248,55 @@ public class HueForgeLayerStackCalculator
             if (luma > maxLuma) maxLuma = luma;
         }
 
+        // Auto-contrast / histogram normalization (auto-levels) so shadows map to 0.0 and highlights map to 1.0
         float lumaRange = maxLuma - minLuma;
-        bool doNormalize = lumaRange > 0.03f;
+        float[] normalizedLuma = new float[pixelCount];
+        for (int i = 0; i < pixelCount; i++)
+        {
+            normalizedLuma[i] = lumaRange > 0.001f
+                ? Math.Clamp((lumaBuffer[i] - minLuma) / lumaRange, 0.0f, 1.0f)
+                : lumaBuffer[i];
+        }
 
-        // 2. Pass 2: Map each normalized tone to the physical Z relief height and lookup discrete LUT layer
+        // 3x3 Gaussian smoothing pass to eliminate single-pixel noise and prevent sharp unprintable spikes
+        float[] smoothedLuma = new float[pixelCount];
+        if (width >= 3 && height >= 3)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                int y0 = Math.Max(0, y - 1);
+                int y1 = y;
+                int y2 = Math.Min(height - 1, y + 1);
+
+                int row0 = y0 * width;
+                int row1 = y1 * width;
+                int row2 = y2 * width;
+
+                for (int x = 0; x < width; x++)
+                {
+                    int x0 = Math.Max(0, x - 1);
+                    int x1 = x;
+                    int x2 = Math.Min(width - 1, x + 1);
+
+                    float sum =
+                        1f * normalizedLuma[row0 + x0] + 2f * normalizedLuma[row0 + x1] + 1f * normalizedLuma[row0 + x2] +
+                        2f * normalizedLuma[row1 + x0] + 4f * normalizedLuma[row1 + x1] + 2f * normalizedLuma[row1 + x2] +
+                        1f * normalizedLuma[row2 + x0] + 2f * normalizedLuma[row2 + x1] + 1f * normalizedLuma[row2 + x2];
+
+                    smoothedLuma[row1 + x1] = sum / 16.0f;
+                }
+            }
+        }
+        else
+        {
+            Array.Copy(normalizedLuma, smoothedLuma, pixelCount);
+        }
+
+        // 2. Pass 2: Map smoothed tones to physical Z relief height and lookup discrete LUT layer
         for (int i = 0; i < pixelCount; i++)
         {
             int byteIdx = i * 3;
-            float rawLuma = lumaBuffer[i];
-            float tone = doNormalize
-                ? Math.Clamp((rawLuma - minLuma) / lumaRange, 0.0f, 1.0f)
-                : rawLuma;
+            float tone = smoothedLuma[i];
 
             // Target Z height: minimum solid base thickness + tone * relief height
             double targetZ = minBase + (tone * availableRelief);
@@ -314,6 +352,9 @@ public class HueForgeLayerStackCalculator
         var list = new List<FilamentPaletteItem>(config.Palette);
         int count = list.Count;
         if (count == 0) return list;
+
+        // Automatically sort filaments by luminance from darkest (bottom base layer) to lightest (top highlight layer)
+        list.Sort((a, b) => a.Color.PerceivedLuminance.CompareTo(b.Color.PerceivedLuminance));
 
         double maxDepth = Math.Max(config.BaseLayerHeightMm, config.MaxDepthMm);
         double minBase = Math.Max(0.0, config.MinBaseThicknessMm);

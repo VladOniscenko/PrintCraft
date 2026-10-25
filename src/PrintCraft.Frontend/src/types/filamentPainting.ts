@@ -36,12 +36,24 @@ export interface FilamentPaintingConfig {
   sessionId?: string;
 }
 
+export interface LayerColorThreshold {
+  zMin: number;
+  zMax: number;
+  hexColor: string;
+  filamentId: string;
+  filamentName: string;
+  layerStart: number;
+  layerEnd: number;
+}
+
 export interface FilamentPaintingGenerationResult {
   modelGlbUrl: string;
   modelStlUrl: string;
   modelZipUrl?: string;
   previewImageUrl: string;
+  previewImageBase64?: string;
   layerSwaps: LayerSwapInstruction[];
+  layerColorMap?: LayerColorThreshold[];
   dimensions: {
     x: number;
     y: number;
@@ -70,6 +82,27 @@ export interface CuratedPalettePreset {
 }
 
 export const CURATED_PALETTES: CuratedPalettePreset[] = [
+  {
+    id: "classic-bw",
+    name: "Classic Black & White",
+    description: "Timeless monochrome portrait with rich shadows and bright highlights.",
+    filaments: [
+      { name: "Black", colorHex: "#111111", material: "PLA", transmissionDistanceMm: 0.6, heightShare: 0.33 },
+      { name: "Grey", colorHex: "#71717A", material: "PLA", transmissionDistanceMm: 2.2, heightShare: 0.33 },
+      { name: "White", colorHex: "#FFFFFF", material: "PLA", transmissionDistanceMm: 5.0, heightShare: 0.34 },
+    ],
+  },
+  {
+    id: "warm-sepia",
+    name: "Warm Sepia / Portrait",
+    description: "Warm vintage tones with rich terracotta and creamy highlights.",
+    filaments: [
+      { name: "Dark Charcoal", colorHex: "#1C1917", material: "PLA", transmissionDistanceMm: 0.6, heightShare: 0.25 },
+      { name: "Terracotta Brown", colorHex: "#78350F", material: "PLA", transmissionDistanceMm: 1.8, heightShare: 0.25 },
+      { name: "Warm Beige", colorHex: "#D97706", material: "PLA", transmissionDistanceMm: 3.5, heightShare: 0.25 },
+      { name: "Jade White", colorHex: "#FFFFFF", material: "PLA", transmissionDistanceMm: 5.0, heightShare: 0.25 },
+    ],
+  },
   {
     id: "standard-4-color",
     name: "Classic 4-Color (Black / Red / Yellow / White)",

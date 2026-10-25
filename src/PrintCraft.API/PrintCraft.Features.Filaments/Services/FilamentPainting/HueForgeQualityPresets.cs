@@ -8,7 +8,8 @@ public sealed record HueForgeQualitySetting(
     double SolidBaseHeightMm,
     double DetailLayerHeightMm,
     double MaxReliefMm,
-    string Description
+    string Description,
+    int GridResolution = 240
 );
 
 public static class HueForgeQualityPresets
@@ -18,24 +19,27 @@ public static class HueForgeQualityPresets
         {
             ["Low"] = new(
                 Name: "Low",
-                SolidBaseHeightMm: 0.16,
+                SolidBaseHeightMm: 0.80,
                 DetailLayerHeightMm: 0.12,
-                MaxReliefMm: 1.50,
-                Description: "Draft/Fast print with 0.16mm base, 0.12mm detail layers, ~1.5mm relief. Fastest print, acceptable color blending."
+                MaxReliefMm: 2.20,
+                Description: "Draft/Fast preview with 0.80mm solid base, 0.12mm detail layers, ~2.2mm relief. Fastest processing and preview.",
+                GridResolution: 180
             ),
             ["Medium"] = new(
                 Name: "Medium",
-                SolidBaseHeightMm: 0.16,
+                SolidBaseHeightMm: 0.80,
                 DetailLayerHeightMm: 0.08,
-                MaxReliefMm: 2.00,
-                Description: "Standard HueForge baseline with 0.16mm base, 0.08mm detail layers, ~2.0mm relief. Excellent balance of print time and color accuracy."
+                MaxReliefMm: 2.40,
+                Description: "Standard baseline with 0.80mm solid base, 0.08mm detail layers, ~2.4mm relief. Excellent balance of speed and color accuracy.",
+                GridResolution: 240
             ),
             ["Best"] = new(
                 Name: "Best",
-                SolidBaseHeightMm: 0.16,
-                DetailLayerHeightMm: 0.04,
-                MaxReliefMm: 2.50,
-                Description: "Ultra resolution with 0.16mm base, 0.04mm detail layers, ~2.5mm relief. Maximum resolution and smoothest color gradients, longest print time."
+                SolidBaseHeightMm: 0.80,
+                DetailLayerHeightMm: 0.08,
+                MaxReliefMm: 2.40,
+                Description: "Ultra resolution with 0.80mm solid base, 0.08mm detail layers, ~2.4mm relief. Maximum grid resolution and smoothest contours.",
+                GridResolution: 300
             )
         };
 

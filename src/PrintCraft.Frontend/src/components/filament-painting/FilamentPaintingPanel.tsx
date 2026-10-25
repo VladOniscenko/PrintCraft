@@ -16,9 +16,11 @@ import {
   Loader2,
   Trash2,
   Plus,
-  ArrowUp,
-  ArrowDown,
   CheckCircle2,
+  Box,
+  Eye,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import type { Filament } from "../../types/filament";
 import {
@@ -41,29 +43,6 @@ export interface QualityPresetOption {
   description: string;
 }
 
-export const QUALITY_OPTIONS: QualityPresetOption[] = [
-  {
-    id: "Low",
-    label: "Low Quality",
-    badge: "Draft / Fast",
-    description:
-      "Fastest print time, ideal for bold graphics and high-contrast art.",
-  },
-  {
-    id: "Medium",
-    label: "Medium Quality",
-    badge: "Standard (Recommended)",
-    description:
-      "Excellent balance of print time and rich optical color blending.",
-  },
-  {
-    id: "Best",
-    label: "Best Quality",
-    badge: "Ultra Detail",
-    description: "Maximum resolution with silky smooth color gradients.",
-  },
-];
-
 export interface FilamentPaintingPanelProps {
   filamentsCatalog?: Filament[];
   initialFile?: File | null;
@@ -75,9 +54,8 @@ export interface FilamentPaintingPanelProps {
   className?: string;
 }
 
-const DEFAULT_PRESET_ID = "standard-4-color";
+const DEFAULT_PRESET_ID = "classic-bw";
 
-// Standard default solid color names for customer 3D filament paintings
 const DEFAULT_SOLID_COLOR_KEYWORDS = [
   "black",
   "white",
@@ -114,7 +92,6 @@ export function isAllowedFilamentColor(f: Filament): boolean {
   const col = (f.color || "").trim().toLowerCase();
   const name = (f.name || "").trim().toLowerCase();
 
-  // Strictly exclude multicolor, rainbow, gradient, dual-color, tri-color, clear filaments
   if (
     col.includes("multi") ||
     name.includes("multi") ||
@@ -134,7 +111,6 @@ export function isAllowedFilamentColor(f: Filament): boolean {
     return false;
   }
 
-  // Must match at least one default solid color name
   return DEFAULT_SOLID_COLOR_KEYWORDS.some(
     (kw) => col.includes(kw) || name.includes(kw),
   );
@@ -148,6 +124,18 @@ export function getPlaFilamentHex(f: Filament): string {
   }
   const hexNum = getFilamentHexColor(f.color || f.name);
   return `#${hexNum.toString(16).padStart(6, "0")}`;
+}
+
+function getHexLuminance(hex: string): number {
+  const clean = hex.replace("#", "");
+  const full =
+    clean.length === 3
+      ? `${clean[0]}${clean[0]}${clean[1]}${clean[1]}${clean[2]}${clean[2]}`
+      : clean;
+  const r = parseInt(full.substring(0, 2), 16) || 0;
+  const g = parseInt(full.substring(2, 4), 16) || 0;
+  const b = parseInt(full.substring(4, 6), 16) || 0;
+  return 0.299 * r + 0.587 * g + 0.114 * b;
 }
 
 function estimateTypicalTd(colorNameOrHex: string): number {
@@ -186,6 +174,9 @@ async function convertImageToPngBlob(file: File): Promise<Blob> {
         resolve(file);
         return;
       }
+      // Pre-fill solid white background so transparent areas do not turn into black pits
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
       canvas.toBlob((blob) => {
         resolve(blob || file);
@@ -208,10 +199,9 @@ function createPresetPalette(
     CURATED_PALETTES.find((p) => p.id === DEFAULT_PRESET_ID) ||
     CURATED_PALETTES[0];
 
-  // Strictly enforce maximum 4 colors
   const presetFilaments = preset.filaments.slice(0, 4);
 
-  return presetFilaments.map((f, idx) => {
+  const mapped = presetFilaments.map((f, idx) => {
     const catalogMatch =
       storePlaFilaments.find(
         (cat) =>
@@ -239,6 +229,11 @@ function createPresetPalette(
       endHeightMm: 0.0,
     };
   });
+
+  // Automatically sort by luminance from darkest to lightest
+  return mapped.sort(
+    (a, b) => getHexLuminance(a.colorHex) - getHexLuminance(b.colorHex),
+  );
 }
 
 export default function FilamentPaintingPanel({
@@ -273,16 +268,6 @@ export default function FilamentPaintingPanel({
     [t],
   );
 
-  const getPresetLabel = (preset: (typeof CURATED_PALETTES)[number]) => {
-    if (preset.id === "classic-4color")
-      return t("filamentPainting.themeClassic4");
-    if (preset.id === "monochrome-greyscale")
-      return t("filamentPainting.themeMonochrome");
-    if (preset.id === "sunset-glow") return t("filamentPainting.themeSunset");
-    return preset.name;
-  };
-
-  // Filter store catalog strictly to PLA filaments only with default solid color names (no multicolor)
   const storePlaFilaments = useMemo<Filament[]>(() => {
     const list = (filamentsCatalog || []).filter(
       (f) =>
@@ -299,9 +284,30 @@ export default function FilamentPaintingPanel({
         pricePerGram: 0.03,
       },
       {
+        id: "pla-grey",
+        name: "Grey PLA",
+        color: "Grey",
+        material: "PLA",
+        pricePerGram: 0.03,
+      },
+      {
         id: "pla-white",
         name: "White PLA",
         color: "White",
+        material: "PLA",
+        pricePerGram: 0.03,
+      },
+      {
+        id: "pla-brown",
+        name: "Brown PLA",
+        color: "Brown",
+        material: "PLA",
+        pricePerGram: 0.03,
+      },
+      {
+        id: "pla-beige",
+        name: "Beige PLA",
+        color: "Beige",
         material: "PLA",
         pricePerGram: 0.03,
       },
@@ -326,31 +332,10 @@ export default function FilamentPaintingPanel({
         material: "PLA",
         pricePerGram: 0.03,
       },
-      {
-        id: "pla-green",
-        name: "Green PLA",
-        color: "Green",
-        material: "PLA",
-        pricePerGram: 0.03,
-      },
-      {
-        id: "pla-grey",
-        name: "Grey PLA",
-        color: "Grey",
-        material: "PLA",
-        pricePerGram: 0.03,
-      },
-      {
-        id: "pla-orange",
-        name: "Orange PLA",
-        color: "Orange",
-        material: "PLA",
-        pricePerGram: 0.03,
-      },
     ];
   }, [filamentsCatalog]);
 
-  // 1. Source Image State
+  // Step 1: Upload state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [imageDimensions, setImageDimensions] = useState<{
@@ -360,41 +345,69 @@ export default function FilamentPaintingPanel({
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // 2. Customer Controls: Quality ("Low", "Medium", "Best"), Size (Width/Height), Colors (Palette)
-  const [qualityPreset, setQualityPreset] =
-    useState<HueForgeQualityPreset>("Medium");
-  const [targetWidthMm, setTargetWidthMm] = useState<number>(150);
-  const [targetHeightMm, setTargetHeightMm] = useState<number>(150);
-  const [lockAspectRatio, setLockAspectRatio] = useState<boolean>(true);
+  // Step 2: Color Style (Presets & Custom)
   const [selectedPresetId, setSelectedPresetId] =
     useState<string>(DEFAULT_PRESET_ID);
-
-  // Active palette configuration (strictly PLA, max 4 colors)
   const [customPalette, setCustomPalette] = useState<
     FilamentPaintingPaletteItem[]
   >(() =>
     createPresetPalette(DEFAULT_PRESET_ID, storePlaFilaments).slice(0, 4),
   );
 
-  // 3. Live 3D Configurator State
+  // Step 3: Size (10cm, 15cm, 20cm longest side)
+  const [selectedSizePreset, setSelectedSizePreset] = useState<
+    100 | 150 | 200 | "custom"
+  >(150);
+  const [targetWidthMm, setTargetWidthMm] = useState<number>(150);
+  const [targetHeightMm, setTargetHeightMm] = useState<number>(150);
+  const [lockAspectRatio, setLockAspectRatio] = useState<boolean>(true);
+  const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+  const [qualityPreset, setQualityPreset] =
+    useState<HueForgeQualityPreset>("Medium");
+
+  // Live 3D / 2D Preview State
+  const [previewMode, setPreviewMode] = useState<"3d" | "2d">("3d");
   const [liveResult, setLiveResult] =
     useState<FilamentPaintingGenerationResult | null>(null);
   const [isInitialLoading, setIsInitialLoading] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [generationKey, setGenerationKey] = useState(0);
 
-  // Prevent reactive debounce on initial mount before image is selected
   const hasInitializedRef = useRef(false);
   const activeRequestSeqRef = useRef(0);
   const convertedPngRef = useRef<File | null>(null);
   const lastGeneratedConfigKeyRef = useRef<string>("");
 
-  // Session / Visitor Slot ID for file reuse (overwrites draft during edits)
   const slotIdRef = useRef<string>(
     `slot_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
   );
 
-  // Core API generation function
+  const applySizePreset = useCallback(
+    (sizeMm: 100 | 150 | 200) => {
+      setSelectedSizePreset(sizeMm);
+      if (
+        imageDimensions &&
+        imageDimensions.width > 0 &&
+        imageDimensions.height > 0
+      ) {
+        const aspect = imageDimensions.height / imageDimensions.width;
+        if (aspect >= 1.0) {
+          // Portrait or square: height is sizeMm, width scales down
+          setTargetHeightMm(sizeMm);
+          setTargetWidthMm(Math.max(20, Math.round(sizeMm / aspect)));
+        } else {
+          // Landscape: width is sizeMm, height scales down
+          setTargetWidthMm(sizeMm);
+          setTargetHeightMm(Math.max(20, Math.round(sizeMm * aspect)));
+        }
+      } else {
+        setTargetWidthMm(sizeMm);
+        setTargetHeightMm(sizeMm);
+      }
+    },
+    [imageDimensions],
+  );
+
   const requestGeneration = useCallback(
     async (
       file: File,
@@ -423,18 +436,23 @@ export default function FilamentPaintingPanel({
         convertedPngRef.current = pngFile;
       }
 
-      // Strict enforcement of max 4 colors and clean auto-distributed layer heights
-      const safePalette = paletteToUse.slice(0, 4).map((item) => ({
-        ...item,
-        startHeightMm: 0,
-        endHeightMm: 0,
-      }));
+      // Automatically sort palette dark to light
+      const sortedPalette = [...paletteToUse]
+        .slice(0, 4)
+        .sort(
+          (a, b) => getHexLuminance(a.colorHex) - getHexLuminance(b.colorHex),
+        )
+        .map((item) => ({
+          ...item,
+          startHeightMm: 0,
+          endHeightMm: 0,
+        }));
 
       const config: FilamentPaintingConfig = {
         quality: qualityToUse,
         targetWidthMm: finalWidth,
         targetHeightMm: finalHeight,
-        palette: safePalette,
+        palette: sortedPalette,
         slotId: slotIdRef.current,
       };
 
@@ -451,7 +469,6 @@ export default function FilamentPaintingPanel({
     [targetWidthMm, targetHeightMm],
   );
 
-  // Step 1: Instant Upload & Default Preview on Image Drop/Selection
   const handleFileChange = useCallback(
     async (file: File) => {
       if (!file.type.startsWith("image/")) return;
@@ -463,7 +480,6 @@ export default function FilamentPaintingPanel({
       const url = URL.createObjectURL(file);
       setImagePreviewUrl(url);
 
-      // Initial palette: Greyscale (Monochrome Portrait)
       const initialPalette = createPresetPalette(
         DEFAULT_PRESET_ID,
         storePlaFilaments,
@@ -480,11 +496,21 @@ export default function FilamentPaintingPanel({
           width: img.naturalWidth,
           height: img.naturalHeight,
         });
-        let computedHeight = 150;
+
+        let initW = 150;
+        let initH = 150;
         if (img.naturalWidth > 0 && img.naturalHeight > 0) {
           const aspect = img.naturalHeight / img.naturalWidth;
-          computedHeight = Math.round(150 * aspect);
-          setTargetHeightMm(computedHeight);
+          if (aspect >= 1.0) {
+            initH = 150;
+            initW = Math.max(20, Math.round(150 / aspect));
+          } else {
+            initW = 150;
+            initH = Math.max(20, Math.round(150 * aspect));
+          }
+          setTargetWidthMm(initW);
+          setTargetHeightMm(initH);
+          setSelectedSizePreset(150);
         }
 
         try {
@@ -492,12 +518,12 @@ export default function FilamentPaintingPanel({
             file,
             initialPalette,
             qualityPreset,
-            150,
-            computedHeight,
+            initW,
+            initH,
           );
           hasInitializedRef.current = true;
         } catch (err) {
-          console.error("Instant 3D preview generation failed:", err);
+          console.error("3D relief generation failed:", err);
         } finally {
           setIsInitialLoading(false);
         }
@@ -507,7 +533,6 @@ export default function FilamentPaintingPanel({
     [storePlaFilaments, qualityPreset, requestGeneration],
   );
 
-  // Support initial file passed from parent
   useEffect(() => {
     if (initialFile && !selectedFile) {
       void handleFileChange(initialFile);
@@ -521,7 +546,6 @@ export default function FilamentPaintingPanel({
     if (file) void handleFileChange(file);
   };
 
-  // Step 3: Reactive Debounced Updates when Palette, Size, or Quality Changes (500ms debounce)
   useEffect(() => {
     if (!selectedFile || !hasInitializedRef.current || isInitialLoading) return;
 
@@ -534,7 +558,7 @@ export default function FilamentPaintingPanel({
       } finally {
         setIsRegenerating(false);
       }
-    }, 500);
+    }, 400);
 
     return () => clearTimeout(timer);
   }, [
@@ -547,7 +571,6 @@ export default function FilamentPaintingPanel({
     requestGeneration,
   ]);
 
-  // Palette Preset Switcher
   const handleSelectPreset = (presetId: string) => {
     setSelectedPresetId(presetId);
     if (presetId === "custom") return;
@@ -558,7 +581,6 @@ export default function FilamentPaintingPanel({
     setCustomPalette(newPalette);
   };
 
-  // Select a store filament for an existing layer slot (Strictly modifies slot in-place, NEVER adds an extra color)
   const handleSelectCatalogFilament = (index: number, filamentId: string) => {
     if (index < 0 || index >= customPalette.length) return;
     const found = storePlaFilaments.find((f) => f.id === filamentId);
@@ -578,17 +600,20 @@ export default function FilamentPaintingPanel({
         material: "PLA",
         transmissionDistanceMm: td,
       };
-      return next.slice(0, 4);
+      // Keep sorted dark to light
+      return next
+        .slice(0, 4)
+        .sort(
+          (a, b) => getHexLuminance(a.colorHex) - getHexLuminance(b.colorHex),
+        );
     });
   };
 
-  // Add Color (strictly capped at max 4 colors)
   const handleAddColor = () => {
     if (customPalette.length >= 4) return;
     setSelectedPresetId("custom");
     const count = customPalette.length;
 
-    // Pick next unused PLA filament from catalog
     const unusedFilament =
       storePlaFilaments.find(
         (f) => !customPalette.some((p) => p.filamentId === f.id),
@@ -607,7 +632,13 @@ export default function FilamentPaintingPanel({
       endHeightMm: 0,
     };
 
-    setCustomPalette((prev) => [...prev, newItem].slice(0, 4));
+    setCustomPalette((prev) =>
+      [...prev, newItem]
+        .slice(0, 4)
+        .sort(
+          (a, b) => getHexLuminance(a.colorHex) - getHexLuminance(b.colorHex),
+        ),
+    );
   };
 
   const handleRemoveColor = (index: number) => {
@@ -615,33 +646,10 @@ export default function FilamentPaintingPanel({
     setSelectedPresetId("custom");
     const nextPalette = customPalette
       .filter((_, i) => i !== index)
-      .slice(0, 4)
-      .map((item) => ({
-        ...item,
-        startHeightMm: 0,
-        endHeightMm: 0,
-      }));
+      .slice(0, 4);
     setCustomPalette(nextPalette);
   };
 
-  const handleMoveColor = (index: number, direction: "up" | "down") => {
-    const targetIndex = direction === "up" ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= customPalette.length) return;
-    setSelectedPresetId("custom");
-    const updated = [...customPalette];
-    const temp = updated[index];
-    updated[index] = updated[targetIndex];
-    updated[targetIndex] = temp;
-    setCustomPalette(
-      updated.slice(0, 4).map((item) => ({
-        ...item,
-        startHeightMm: 0,
-        endHeightMm: 0,
-      })),
-    );
-  };
-
-  // Step 4: Clean State Reset on Add to Order
   const handleAddToCart = () => {
     if (!selectedFile || !liveResult) return;
 
@@ -659,7 +667,6 @@ export default function FilamentPaintingPanel({
       sourceFile: selectedFile,
     });
 
-    // Completely reset the configurator state
     slotIdRef.current = `slot_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
     setSelectedFile(null);
     setImagePreviewUrl(null);
@@ -679,7 +686,7 @@ export default function FilamentPaintingPanel({
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* 2. Image Dropzone (When No Image is Loaded) */}
+      {/* Upload Dropzone (When No Image is Loaded) */}
       {!selectedFile && (
         <div className="bg-white dark:bg-[#0e1512] rounded-2xl border border-gray-200 dark:border-white/10 p-8 shadow-sm">
           <div
@@ -693,7 +700,7 @@ export default function FilamentPaintingPanel({
             }}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[300px] ${
+            className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[320px] ${
               isDragOver
                 ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30 scale-[0.99]"
                 : "border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 hover:border-emerald-400 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20"
@@ -710,15 +717,15 @@ export default function FilamentPaintingPanel({
               }}
             />
             <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-4 shadow-inner">
-              <Upload size={30} />
+              <Upload size={32} />
             </div>
             <h3 className="font-bold text-gray-900 dark:text-white text-lg">
-              {t("filamentPainting.dropTitle")}
+              {t("filamentPainting.step1Title")}
             </h3>
             <p className="text-gray-500 dark:text-gray-400 text-xs mt-1.5 max-w-sm">
               {t("filamentPainting.dropSubtitle")}
             </p>
-            <span className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#133827] text-white text-xs font-bold hover:bg-[#1c4d37] transition-all shadow-sm">
+            <span className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800 transition-all shadow-sm">
               <ImageIcon size={15} />
               {t("filamentPainting.browseImage")}
             </span>
@@ -726,69 +733,303 @@ export default function FilamentPaintingPanel({
         </div>
       )}
 
-      {/* 3. Live Customer Configurator (Once Image is Selected) */}
+      {/* 3-Step Configurator & Live Multi-Color Preview */}
       {selectedFile && (
         <div className="space-y-6">
-          {/* Customer Controls: Formaat, Printkwaliteit, Filamentkleuren (Compact Stack) */}
-          <div className="space-y-3">
-            {/* Top Row: Formaat & Printkwaliteit side by side */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {/* CONTROL 1: SIZE (DIMENSIONS) */}
-              <div className="bg-white dark:bg-[#0e1512] rounded-xl border border-gray-200 dark:border-white/10 p-3.5 shadow-2xs space-y-2.5 flex flex-col justify-between">
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between pb-1.5 border-b border-gray-100 dark:border-white/10">
-                    <div className="flex items-center gap-1.5">
-                      <Ruler className="text-emerald-600 dark:text-emerald-400" size={15} />
-                      <h4 className="font-bold text-gray-900 dark:text-white text-xs">
-                        {t("filamentPainting.sizeTitle")}
-                      </h4>
-                    </div>
-                    <span className="text-[11px] font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full">
-                      {targetWidthMm} × {targetHeightMm} mm
-                    </span>
+          {/* STEP CONTROLS (Steps 1, 2, 3) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* STEP 1: PHOTO SUMMARY */}
+            <div className="bg-white dark:bg-[#0e1512] rounded-xl border border-gray-200 dark:border-white/10 p-4 shadow-xs flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-white/10">
+                  <div className="flex items-center gap-1.5">
+                    <ImageIcon
+                      className="text-emerald-600 dark:text-emerald-400"
+                      size={16}
+                    />
+                    <h4 className="font-bold text-gray-900 dark:text-white text-xs uppercase tracking-wider">
+                      {t("filamentPainting.step1Title")}
+                    </h4>
                   </div>
+                  {imageDimensions && (
+                    <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full">
+                      {imageDimensions.width} × {imageDimensions.height} px
+                    </span>
+                  )}
+                </div>
 
-                  {/* Quick Size Presets */}
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {[100, 150, 200].map((presetW) => {
-                      const isSelected = targetWidthMm === presetW;
-                      return (
+                <div className="flex items-center gap-3">
+                  {imagePreviewUrl && (
+                    <img
+                      src={imagePreviewUrl}
+                      alt={t("filamentPainting.uploadedPhoto")}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-14 h-14 rounded-lg object-cover border border-gray-200 dark:border-white/10 shrink-0 bg-slate-900"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1 text-xs">
+                    <p className="font-bold text-gray-800 dark:text-white truncate">
+                      {selectedFile.name}
+                    </p>
+                    <p className="text-[11px] text-gray-500 mt-0.5">
+                      {(selectedFile.size / 1024).toFixed(0)} KB ·{" "}
+                      {imageDimensions && imageDimensions.height >= imageDimensions.width
+                        ? "Portrait"
+                        : "Landscape"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-3 mt-2 border-t border-gray-100 dark:border-white/10">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-bold hover:underline"
+                >
+                  {t("filamentPainting.changePhoto")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setImagePreviewUrl(null);
+                    setLiveResult(null);
+                  }}
+                  className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 font-semibold flex items-center gap-1"
+                  title={t("filamentPainting.removeImage")}
+                >
+                  <Trash2 size={13} />
+                  <span>{t("filamentPainting.removeImage")}</span>
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleFileChange(file);
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* STEP 2: CHOOSE COLOR STYLE (PRESETS & CUSTOM) */}
+            <div className="bg-white dark:bg-[#0e1512] rounded-xl border border-gray-200 dark:border-white/10 p-4 shadow-xs flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-white/10">
+                  <div className="flex items-center gap-1.5">
+                    <Palette
+                      className="text-emerald-600 dark:text-emerald-400"
+                      size={16}
+                    />
+                    <h4 className="font-bold text-gray-900 dark:text-white text-xs uppercase tracking-wider">
+                      {t("filamentPainting.step2Title")}
+                    </h4>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-800/40">
+                    {customPalette.length} {t("filamentPainting.colorsCount")}
+                  </span>
+                </div>
+
+                {/* Color Style Buttons */}
+                <div className="space-y-1.5">
+                  {[
+                    {
+                      id: "classic-bw",
+                      label: t("filamentPainting.themeClassicBw"),
+                      colors: ["#111111", "#71717A", "#FFFFFF"],
+                    },
+                    {
+                      id: "warm-sepia",
+                      label: t("filamentPainting.themeWarmSepia"),
+                      colors: ["#1C1917", "#78350F", "#D97706", "#FFFFFF"],
+                    },
+                    {
+                      id: "custom",
+                      label: t("filamentPainting.customCombination"),
+                      colors: customPalette.map((p) => p.colorHex),
+                    },
+                  ].map((style) => {
+                    const isSelected = selectedPresetId === style.id;
+                    return (
+                      <button
+                        key={style.id}
+                        type="button"
+                        onClick={() => handleSelectPreset(style.id)}
+                        className={`w-full p-2 rounded-lg text-left transition-all border flex items-center justify-between gap-2 ${
+                          isSelected
+                            ? "bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-500 shadow-2xs"
+                            : "bg-gray-50/70 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10"
+                        }`}
+                      >
+                        <span className="text-xs font-bold text-gray-800 dark:text-white truncate">
+                          {style.label}
+                        </span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {style.colors.map((c, i) => (
+                            <span
+                              key={i}
+                              className="w-3.5 h-3.5 rounded-full border border-black/20 shadow-2xs inline-block"
+                              style={{ backgroundColor: c }}
+                            />
+                          ))}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Custom Palette Editor (When Custom is Active) */}
+              {selectedPresetId === "custom" && (
+                <div className="pt-2 border-t border-gray-100 dark:border-white/10 space-y-1.5 mt-2">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-gray-500">
+                    <span>{t("filamentPainting.selectedColorsOrder")}</span>
+                    <span>{customPalette.length}/4</span>
+                  </div>
+                  <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
+                    {customPalette.map((item, idx) => (
+                      <div
+                        key={`custom-${item.filamentId || idx}`}
+                        className="flex items-center justify-between gap-1 p-1 rounded bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10"
+                      >
+                        <div
+                          className="w-4 h-4 rounded-full border border-black/20 shrink-0"
+                          style={{ backgroundColor: item.colorHex }}
+                        />
+                        <select
+                          value={item.filamentId}
+                          onChange={(e) =>
+                            handleSelectCatalogFilament(idx, e.target.value)
+                          }
+                          className="flex-1 min-w-0 bg-transparent text-[11px] font-semibold text-gray-800 dark:text-white outline-none cursor-pointer truncate"
+                        >
+                          {storePlaFilaments.map((f) => (
+                            <option key={f.id} value={f.id}>
+                              {f.name} ({translateColorText(f.color, t)})
+                            </option>
+                          ))}
+                        </select>
                         <button
-                          key={presetW}
                           type="button"
-                          onClick={() => {
-                            setTargetWidthMm(presetW);
-                            if (lockAspectRatio && imageDimensions) {
-                              const aspect =
-                                imageDimensions.height / imageDimensions.width;
-                              setTargetHeightMm(Math.round(presetW * aspect));
-                            }
-                          }}
-                          className={`py-1 px-2 rounded-lg text-xs font-bold transition-all border text-center ${
-                            isSelected
-                              ? "bg-emerald-700 text-white border-emerald-700 shadow-xs"
-                              : "bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10"
+                          onClick={() => handleRemoveColor(idx)}
+                          disabled={customPalette.length <= 2}
+                          className="p-1 text-gray-400 hover:text-rose-600 disabled:opacity-20"
+                          title={t("filamentPainting.removeColor")}
+                        >
+                          <Trash2 size={11} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  {customPalette.length < 4 && (
+                    <button
+                      type="button"
+                      onClick={handleAddColor}
+                      className="w-full py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center justify-center gap-1"
+                    >
+                      <Plus size={12} />
+                      <span>{t("filamentPainting.addAnotherColor")}</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* STEP 3: CHOOSE SIZE (10cm, 15cm, 20cm) */}
+            <div className="bg-white dark:bg-[#0e1512] rounded-xl border border-gray-200 dark:border-white/10 p-4 shadow-xs flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-white/10">
+                  <div className="flex items-center gap-1.5">
+                    <Ruler
+                      className="text-emerald-600 dark:text-emerald-400"
+                      size={16}
+                    />
+                    <h4 className="font-bold text-gray-900 dark:text-white text-xs uppercase tracking-wider">
+                      {t("filamentPainting.step3Title")}
+                    </h4>
+                  </div>
+                  <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full">
+                    {targetWidthMm} × {targetHeightMm} mm
+                  </span>
+                </div>
+
+                {/* 3 Size Buttons */}
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { val: 100 as const, label: t("filamentPainting.sizeSmall") },
+                    { val: 150 as const, label: t("filamentPainting.sizeMedium") },
+                    { val: 200 as const, label: t("filamentPainting.sizeLarge") },
+                  ].map((size) => {
+                    const isSelected = selectedSizePreset === size.val;
+                    return (
+                      <button
+                        key={size.val}
+                        type="button"
+                        onClick={() => applySizePreset(size.val)}
+                        className={`py-2 px-1 rounded-lg text-center transition-all border ${
+                          isSelected
+                            ? "bg-emerald-700 text-white border-emerald-700 shadow-2xs"
+                            : "bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-white/10"
+                        }`}
+                      >
+                        <span className="text-xs font-bold block leading-tight">
+                          {size.val / 10} cm
+                        </span>
+                        <span
+                          className={`text-[10px] block mt-0.5 leading-tight truncate ${
+                            isSelected ? "text-emerald-100" : "text-gray-400"
                           }`}
                         >
-                          {presetW} mm
-                        </button>
-                      );
-                    })}
-                  </div>
+                          {size.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-                  {/* Custom Width & Height Inputs */}
-                  <div className="grid grid-cols-2 gap-2 pt-0.5">
-                    <div className="flex items-center justify-between gap-1 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1 min-w-0 focus-within:ring-2 focus-within:ring-emerald-500">
-                      <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-400 truncate">
-                        {t("filamentPainting.widthMm")}
-                      </span>
-                      <div className="flex items-center gap-1 shrink-0">
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                  {t("filamentPainting.lockAspectRatio")} ({targetWidthMm} ×{" "}
+                  {targetHeightMm} mm).
+                </p>
+              </div>
+
+              {/* Advanced Toggle */}
+              <div className="pt-2 border-t border-gray-100 dark:border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced((v) => !v)}
+                  className="w-full flex items-center justify-between text-[11px] font-semibold text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
+                >
+                  <span>
+                    {showAdvanced
+                      ? t("filamentPainting.hideAdvanced")
+                      : t("filamentPainting.advancedSettings")}
+                  </span>
+                  {showAdvanced ? (
+                    <ChevronUp size={13} />
+                  ) : (
+                    <ChevronDown size={13} />
+                  )}
+                </button>
+
+                {showAdvanced && (
+                  <div className="pt-2 space-y-2 mt-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex items-center justify-between bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded px-2 py-1">
+                        <span className="text-[10px] text-gray-500">
+                          {t("filamentPainting.widthMm")}
+                        </span>
                         <input
                           type="number"
                           min="50"
                           max="250"
                           value={targetWidthMm}
                           onChange={(e) => {
+                            setSelectedSizePreset("custom");
                             const val = Math.max(20, Number(e.target.value));
                             setTargetWidthMm(val);
                             if (lockAspectRatio && imageDimensions) {
@@ -797,286 +1038,160 @@ export default function FilamentPaintingPanel({
                               setTargetHeightMm(Math.round(val * aspect));
                             }
                           }}
-                          className="w-10 bg-transparent text-xs font-bold text-gray-800 dark:text-white text-right outline-none"
+                          className="w-10 bg-transparent text-xs font-bold text-right outline-none"
                         />
-                        <span className="text-[10px] font-medium text-gray-400">
-                          mm
-                        </span>
                       </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-1 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1 min-w-0 focus-within:ring-2 focus-within:ring-emerald-500">
-                      <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-400 truncate">
-                        {t("filamentPainting.heightMm")}
-                      </span>
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center justify-between bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded px-2 py-1">
+                        <span className="text-[10px] text-gray-500">
+                          {t("filamentPainting.heightMm")}
+                        </span>
                         <input
                           type="number"
                           min="50"
                           max="250"
                           value={targetHeightMm}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            setSelectedSizePreset("custom");
                             setTargetHeightMm(
                               Math.max(20, Number(e.target.value)),
-                            )
-                          }
+                            );
+                          }}
                           disabled={lockAspectRatio && !!imageDimensions}
-                          className="w-10 bg-transparent text-xs font-bold text-gray-800 dark:text-white text-right outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="w-10 bg-transparent text-xs font-bold text-right outline-none disabled:opacity-50"
                         />
-                        <span className="text-[10px] font-medium text-gray-400">
-                          mm
-                        </span>
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                <div className="flex items-center justify-end text-[11px] text-gray-500 dark:text-gray-400 pt-1">
-                  <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={lockAspectRatio}
-                      onChange={(e) => setLockAspectRatio(e.target.checked)}
-                      className="rounded text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
-                    />
-                    <span>{t("filamentPainting.lockAspectRatio")}</span>
-                  </label>
-                </div>
-              </div>
+                    <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-gray-500">
+                      <input
+                        type="checkbox"
+                        checked={lockAspectRatio}
+                        onChange={(e) => setLockAspectRatio(e.target.checked)}
+                        className="rounded text-emerald-600 focus:ring-emerald-500 w-3 h-3"
+                      />
+                      <span>{t("filamentPainting.lockAspectRatio")}</span>
+                    </label>
 
-              {/* CONTROL 2: QUALITY SELECTION (Low, Medium, Best) */}
-              <div className="bg-white dark:bg-[#0e1512] rounded-xl border border-gray-200 dark:border-white/10 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between pb-1.5 border-b border-gray-100 dark:border-white/10">
-                    <div className="flex items-center gap-1.5">
-                      <Sparkles className="text-emerald-600 dark:text-emerald-400" size={15} />
-                      <h4 className="font-bold text-gray-900 dark:text-white text-xs">
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-[10px] font-semibold text-gray-500">
                         {t("filamentPainting.qualityTitle")}
-                      </h4>
-                    </div>
-                    <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-800/40 px-2 py-0.5 rounded-full">
-                      {
-                        qualityOptions.find((q) => q.id === qualityPreset)
-                          ?.badge
-                      }
-                    </span>
-                  </div>
-
-                  {/* 3 Quality Cards */}
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {qualityOptions.map((opt) => {
-                      const isActive = qualityPreset === opt.id;
-                      return (
-                        <button
-                          key={opt.id}
-                          type="button"
-                          onClick={() => setQualityPreset(opt.id)}
-                          className={`py-1.5 px-2 rounded-lg text-center transition-all border ${
-                            isActive
-                              ? "bg-emerald-700 text-white border-emerald-700 shadow-2xs"
-                              : "bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-white/10"
-                          }`}
-                        >
-                          <span className="text-xs font-bold block leading-tight">
-                            {opt.label}
-                          </span>
-                          <span
-                            className={`text-[10px] block mt-0.5 leading-tight truncate ${
-                              isActive ? "text-emerald-100" : "text-gray-400"
+                      </span>
+                      <div className="flex gap-1">
+                        {qualityOptions.map((opt) => (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setQualityPreset(opt.id)}
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                              qualityPreset === opt.id
+                                ? "bg-emerald-700 text-white border-emerald-700"
+                                : "bg-gray-100 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300"
                             }`}
                           >
-                            {opt.badge}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal pt-1">
-                  {
-                    qualityOptions.find((q) => q.id === qualityPreset)
-                      ?.description
-                  }
-                </p>
-              </div>
-            </div>
-
-            {/* CONTROL 3: COLORS (FILAMENT PALETTE) - Strictly Max 4 Colors, PLA Solid Colors Only */}
-            <div className="bg-white dark:bg-[#0e1512] rounded-xl border border-gray-200 dark:border-white/10 p-3.5 shadow-2xs space-y-2.5">
-              <div className="flex items-center justify-between pb-1.5 border-b border-gray-100 dark:border-white/10">
-                <div className="flex items-center gap-1.5">
-                  <Palette className="text-emerald-600 dark:text-emerald-400" size={15} />
-                  <h4 className="font-bold text-gray-900 dark:text-white text-xs">
-                    {t("filamentPainting.colorsTitle")}
-                  </h4>
-                </div>
-                <span className="text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 px-2 py-0.5 rounded-full">
-                  {customPalette.length} / 4 {t("filamentPainting.colorsCount")}
-                </span>
-              </div>
-
-              {/* Theme Preset Selector */}
-              <div className="flex items-center justify-between gap-2">
-                <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 shrink-0">
-                  {t("filamentPainting.colorTheme")}
-                </label>
-                <select
-                  value={selectedPresetId}
-                  onChange={(e) => handleSelectPreset(e.target.value)}
-                  className="flex-1 max-w-xs px-2.5 py-1 bg-gray-50 dark:bg-[#141e1a] border border-gray-200 dark:border-white/10 rounded-lg text-xs font-bold text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-2xs"
-                >
-                  {CURATED_PALETTES.map((preset) => (
-                    <option key={preset.id} value={preset.id}>
-                      {getPresetLabel(preset)}
-                    </option>
-                  ))}
-                  <option value="custom">
-                    {t("filamentPainting.customCombination")}
-                  </option>
-                </select>
-              </div>
-
-              {/* Color Swatch Slots */}
-              <div className="space-y-1.5">
-                {customPalette.map((item, idx) => (
-                  <div
-                    key={`palette-slot-${item.filamentId || idx}`}
-                    className="p-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50/70 dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center justify-between gap-2"
-                  >
-                    {/* Swatch & Store PLA Dropdown */}
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <div
-                        className="w-5 h-5 rounded-md shadow-2xs border border-black/15 shrink-0 flex items-center justify-center font-bold text-[9px] text-white select-none"
-                        style={{ backgroundColor: item.colorHex }}
-                        title={`${item.name} (${item.colorHex})`}
-                      >
-                        <span className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
-                          {idx + 1}
-                        </span>
-                      </div>
-
-                      {/* Store PLA Filament Dropdown */}
-                      <select
-                        value={item.filamentId}
-                        onChange={(e) =>
-                          handleSelectCatalogFilament(idx, e.target.value)
-                        }
-                        className="flex-1 min-w-[120px] px-2 py-1 bg-white dark:bg-[#141e1a] border border-gray-200 dark:border-white/10 rounded-md text-xs font-semibold text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-2xs truncate"
-                      >
-                        {storePlaFilaments.map((f) => (
-                          <option key={f.id} value={f.id}>
-                            {f.name} ({translateColorText(f.color, t)})
-                          </option>
+                            {opt.id}
+                          </button>
                         ))}
-                      </select>
-                    </div>
-
-                    {/* Reorder and Remove Controls */}
-                    <div className="flex items-center gap-0.5 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => handleMoveColor(idx, "up")}
-                        disabled={idx === 0}
-                        className="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-20 disabled:cursor-not-allowed"
-                        title={t("filamentPainting.moveEarlier")}
-                      >
-                        <ArrowUp size={12} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleMoveColor(idx, "down")}
-                        disabled={idx === customPalette.length - 1}
-                        className="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-20 disabled:cursor-not-allowed"
-                        title={t("filamentPainting.moveLater")}
-                      >
-                        <ArrowDown size={12} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveColor(idx)}
-                        disabled={customPalette.length <= 2}
-                        className="p-1 rounded text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 disabled:opacity-20 disabled:cursor-not-allowed"
-                        title={t("filamentPainting.removeColor")}
-                      >
-                        <Trash2 size={12} />
-                      </button>
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {/* Add Color Action */}
-              <div className="pt-0.5">
-                <button
-                  type="button"
-                  onClick={handleAddColor}
-                  disabled={customPalette.length >= 4}
-                  className="w-full py-1.5 px-2.5 rounded-lg bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 text-gray-800 dark:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <Plus size={13} />
-                  <span>
-                    {customPalette.length >= 4
-                      ? t("filamentPainting.maxColorsReached")
-                      : t("filamentPainting.addAnotherColor")}
-                  </span>
-                </button>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Live 3D Relief Preview Viewer */}
+          {/* LIVE MULTI-COLOR PREVIEW & SIMULATION */}
           <div className="bg-white dark:bg-[#0e1512] rounded-2xl border border-gray-200 dark:border-white/10 p-6 shadow-sm flex flex-col">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-100 dark:border-white/10">
               <div className="flex items-center gap-2">
-                <Sparkles className="text-emerald-600 dark:text-emerald-400" size={18} />
+                <Sparkles
+                  className="text-emerald-600 dark:text-emerald-400"
+                  size={18}
+                />
                 <h3 className="font-bold text-gray-800 dark:text-white text-base">
                   {t("filamentPainting.previewTitle")}
                 </h3>
               </div>
 
-              {liveResult && (
-                <span className="text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 px-2.5 py-0.5 rounded-full">
-                  {liveResult.dimensions.x} × {liveResult.dimensions.y} mm
-                </span>
-              )}
+              {/* View Switcher: 3D Relief vs 2D Simulation */}
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/10 p-1 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode("3d")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+                    previewMode === "3d"
+                      ? "bg-white dark:bg-[#141e1a] text-emerald-700 dark:text-emerald-400 shadow-2xs"
+                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900"
+                  }`}
+                >
+                  <Box size={14} />
+                  <span>{t("filamentPainting.view3dRelief")}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode("2d")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+                    previewMode === "2d"
+                      ? "bg-white dark:bg-[#141e1a] text-emerald-700 dark:text-emerald-400 shadow-2xs"
+                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900"
+                  }`}
+                >
+                  <Eye size={14} />
+                  <span>{t("filamentPainting.view2dSim")}</span>
+                </button>
+              </div>
             </div>
 
-            {/* 3D Canvas Container */}
+            {/* Display Canvas Container */}
             <div className="relative rounded-2xl overflow-hidden bg-slate-950 min-h-[380px] flex items-center justify-center border border-gray-800 shadow-inner">
               {isInitialLoading ? (
                 <div className="flex flex-col items-center justify-center text-center p-8 space-y-3">
                   <Loader2
                     className="animate-spin text-emerald-400"
-                    size={34}
+                    size={38}
                   />
                   <p className="font-bold text-white text-sm">
-                    {t("filamentPainting.generatingTitle")}
+                    {t("filamentPainting.convertingPhoto")}
                   </p>
                   <p className="text-xs text-slate-400 max-w-xs">
                     {t("filamentPainting.generatingSubtitle")}
                   </p>
                 </div>
-              ) : liveResult?.modelGlbUrl ? (
+              ) : liveResult ? (
                 <>
-                  <Suspense
-                    fallback={
-                      <div className="w-full h-full min-h-[380px] bg-slate-900 border border-slate-800 rounded-xl flex flex-col items-center justify-center text-slate-400 gap-2">
-                        <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
-                        <span className="text-xs font-semibold">
-                          {t("quote.loading3dPreview")}
-                        </span>
-                      </div>
-                    }
-                  >
-                    <Interactive3DViewer
-                      key={`${liveResult.modelGlbUrl}_${generationKey}`}
-                      fileUrl={liveResult.modelGlbUrl}
-                      fileName={liveResult.modelGlbUrl}
-                      className="w-full h-full min-h-[380px]"
-                      compact={false}
-                    />
-                  </Suspense>
+                  {previewMode === "3d" && (
+                    <Suspense
+                      fallback={
+                        <div className="w-full h-full min-h-[380px] bg-slate-900 flex flex-col items-center justify-center text-slate-400 gap-2">
+                          <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+                          <span className="text-xs font-semibold">
+                            {t("quote.loading3dPreview")}
+                          </span>
+                        </div>
+                      }
+                    >
+                      <Interactive3DViewer
+                        key={`${liveResult.modelGlbUrl}_${generationKey}`}
+                        fileUrl={liveResult.modelGlbUrl}
+                        fileName={liveResult.modelGlbUrl}
+                        layerColorMap={liveResult.layerColorMap}
+                        className="w-full h-full min-h-[380px]"
+                        compact={false}
+                      />
+                    </Suspense>
+                  )}
+
+                  {previewMode === "2d" && (
+                    <div className="w-full h-full min-h-[380px] flex items-center justify-center p-4 bg-slate-950">
+                      <img
+                        src={
+                          liveResult.previewImageUrl ||
+                          liveResult.previewImageBase64
+                        }
+                        alt={t("filamentPainting.view2dSim")}
+                        className="max-h-[360px] max-w-full rounded-lg object-contain shadow-2xl border border-white/10"
+                      />
+                    </div>
+                  )}
 
                   {isRegenerating && (
                     <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-white/10 text-emerald-300 text-xs font-semibold flex items-center gap-2 shadow-lg z-20">
@@ -1095,65 +1210,48 @@ export default function FilamentPaintingPanel({
               )}
             </div>
 
-            {/* Source Image Summary Bar */}
-            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-3 min-w-0">
-                {imagePreviewUrl && (
-                  <img
-                    src={imagePreviewUrl}
-                    alt={t("quote.sourceThumbnail")}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-10 h-10 rounded-lg object-cover border border-gray-200 dark:border-white/10 shrink-0 bg-slate-900"
-                  />
-                )}
-                <div className="min-w-0 text-xs">
-                  <p className="font-bold text-gray-800 dark:text-white truncate">
-                    {selectedFile.name}
-                  </p>
-                  <p className="text-gray-500 dark:text-gray-400 text-[11px]">
-                    {imageDimensions
-                      ? `${imageDimensions.width} × ${imageDimensions.height} px`
-                      : t("filamentPainting.uploadedPhoto")}
-                  </p>
+            {/* Layer Color Stack Bar */}
+            {liveResult?.layerColorMap && liveResult.layerColorMap.length > 0 && (
+              <div className="mt-4 p-3 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-gray-300">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="text-emerald-600" size={13} />
+                    <span>{t("filamentPainting.layerStackTitle")}</span>
+                  </div>
+                  <span className="text-[11px] text-gray-500 font-normal">
+                    {liveResult.totalLayers} {t("filamentPainting.colorsCount")}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {liveResult.layerColorMap.map((l, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#141e1a] border border-gray-200 dark:border-white/10 shadow-2xs"
+                    >
+                      <div
+                        className="w-5 h-5 rounded-md border border-black/20 shrink-0 shadow-2xs flex items-center justify-center text-[9px] font-bold text-white"
+                        style={{ backgroundColor: l.hexColor }}
+                      >
+                        <span className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                          {i + 1}
+                        </span>
+                      </div>
+                      <div className="min-w-0 text-[11px]">
+                        <p className="font-bold text-gray-800 dark:text-white truncate">
+                          {l.filamentName}
+                        </p>
+                        <p className="text-gray-400 text-[10px]">
+                          {l.zMin.toFixed(2)} - {l.zMax.toFixed(2)} mm
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-xs text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-bold px-2 py-1 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors"
-                >
-                  {t("filamentPainting.changePhoto")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedFile(null);
-                    setImagePreviewUrl(null);
-                    setLiveResult(null);
-                  }}
-                  className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-bold p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
-                  title={t("filamentPainting.removeImage")}
-                >
-                  <Trash2 size={14} />
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) void handleFileChange(file);
-                  }}
-                />
-              </div>
-            </div>
+            )}
           </div>
 
-          {/* 4. Bottom Sticky Action Bar: SINGLE "Add to Order" Button */}
+          {/* PRIMARY CTA: Add 3D Photo to Quote */}
           <div className="bg-white dark:bg-[#0e1512] p-5 rounded-2xl border border-emerald-200 dark:border-emerald-800/40 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center shrink-0">
@@ -1182,7 +1280,7 @@ export default function FilamentPaintingPanel({
               }`}
             >
               <CheckCircle2 size={18} />
-              {t("filamentPainting.confirmAndAddToOrder")}
+              <span>{t("filamentPainting.add3dPhotoToQuote")}</span>
             </button>
           </div>
         </div>

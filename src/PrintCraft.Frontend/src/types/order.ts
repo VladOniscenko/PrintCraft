@@ -114,6 +114,7 @@ export interface OrderItem {
   supportsNeeded?: boolean;
   uploadType?: "native-3d" | "filament-painting";
   layerSwaps?: import("./filamentPainting").LayerSwapInstruction[];
+  layerColorMap?: import("./filamentPainting").LayerColorThreshold[];
   palettePresetId?: string;
   activeChangeRequest?: OrderItemChangeRequestDto | null;
   changeRequests?: OrderItemChangeRequestDto[];

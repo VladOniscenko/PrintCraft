@@ -40,5 +40,22 @@
   "addAnotherColor": "Add Another Color",
   "readyToPrint": "Ready to Print",
   "configuring": "Configuring live 3D relief...",
-  "confirmAndAddToOrder": "Confirm Item & Add to Order"
+  "confirmAndAddToOrder": "Confirm Item & Add to Order",
+  "step1Title": "Step 1: Upload Photo",
+  "step2Title": "Step 2: Choose Color Style",
+  "step3Title": "Step 3: Choose Size",
+  "themeClassicBw": "Classic Black & White",
+  "themeWarmSepia": "Warm Sepia / Portrait",
+  "sizeSmall": "Small (10 cm)",
+  "sizeMedium": "Medium (15 cm)",
+  "sizeLarge": "Large (20 cm)",
+  "advancedSettings": "Advanced options",
+  "hideAdvanced": "Hide advanced options",
+  "view3dRelief": "3D Relief Preview",
+  "view2dSim": "Color Print Simulation",
+  "layerStackTitle": "Physical Layer Color Stack",
+  "bottomLayer": "Base (Bottom)",
+  "topLayer": "Highlight (Top)",
+  "convertingPhoto": "Converting your photo into a 3D relief...",
+  "add3dPhotoToQuote": "Add 3D Photo to Quote"
 }

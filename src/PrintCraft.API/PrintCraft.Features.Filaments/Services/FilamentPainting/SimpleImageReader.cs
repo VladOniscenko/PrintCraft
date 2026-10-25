@@ -101,6 +101,7 @@ public static class SimpleImageReader
         byte compressionMethod = 0;
         byte filterMethod = 0;
         byte interlaceMethod = 0;
+        int exifOrientation = 1;
 
         byte[]? palette = null;
         using var idatStream = new MemoryStream();
@@ -135,6 +136,11 @@ public static class SimpleImageReader
             else if (chunkType == "IDAT")
             {
                 idatStream.Write(chunkData);
+            }
+            else if (chunkType == "eXIf" && chunkData.Length >= 8)
+            {
+                // Optional EXIF orientation chunk in PNG
+                exifOrientation = ParseExifOrientation(chunkData);
             }
             else if (chunkType == "IEND")
             {
@@ -220,20 +226,47 @@ public static class SimpleImageReader
                         outputRgb[outIdx + 1] = currentScanline[srcIdx + 1];
                         outputRgb[outIdx + 2] = currentScanline[srcIdx + 2];
                         break;
-                    case 6: // RGBA
-                        outputRgb[outIdx] = currentScanline[srcIdx];
-                        outputRgb[outIdx + 1] = currentScanline[srcIdx + 1];
-                        outputRgb[outIdx + 2] = currentScanline[srcIdx + 2];
+                    case 6: // RGBA (composite over #FFFFFF background)
+                        byte r6 = currentScanline[srcIdx];
+                        byte g6 = currentScanline[srcIdx + 1];
+                        byte b6 = currentScanline[srcIdx + 2];
+                        byte a6 = currentScanline[srcIdx + 3];
+                        if (a6 == 255)
+                        {
+                            outputRgb[outIdx] = r6;
+                            outputRgb[outIdx + 1] = g6;
+                            outputRgb[outIdx + 2] = b6;
+                        }
+                        else
+                        {
+                            float alpha = a6 / 255.0f;
+                            outputRgb[outIdx] = (byte)Math.Clamp(MathF.Round(r6 * alpha + 255f * (1.0f - alpha)), 0, 255);
+                            outputRgb[outIdx + 1] = (byte)Math.Clamp(MathF.Round(g6 * alpha + 255f * (1.0f - alpha)), 0, 255);
+                            outputRgb[outIdx + 2] = (byte)Math.Clamp(MathF.Round(b6 * alpha + 255f * (1.0f - alpha)), 0, 255);
+                        }
                         break;
                     case 0: // Grayscale
                         outputRgb[outIdx] = currentScanline[srcIdx];
                         outputRgb[outIdx + 1] = currentScanline[srcIdx];
                         outputRgb[outIdx + 2] = currentScanline[srcIdx];
                         break;
-                    case 4: // Grayscale + Alpha
-                        outputRgb[outIdx] = currentScanline[srcIdx];
-                        outputRgb[outIdx + 1] = currentScanline[srcIdx];
-                        outputRgb[outIdx + 2] = currentScanline[srcIdx];
+                    case 4: // Grayscale + Alpha (composite over #FFFFFF background)
+                        byte gray4 = currentScanline[srcIdx];
+                        byte a4 = currentScanline[srcIdx + 1];
+                        if (a4 == 255)
+                        {
+                            outputRgb[outIdx] = gray4;
+                            outputRgb[outIdx + 1] = gray4;
+                            outputRgb[outIdx + 2] = gray4;
+                        }
+                        else
+                        {
+                            float alpha = a4 / 255.0f;
+                            byte comp = (byte)Math.Clamp(MathF.Round(gray4 * alpha + 255f * (1.0f - alpha)), 0, 255);
+                            outputRgb[outIdx] = comp;
+                            outputRgb[outIdx + 1] = comp;
+                            outputRgb[outIdx + 2] = comp;
+                        }
                         break;
                     case 3: // Indexed
                         if (palette != null)
@@ -254,12 +287,14 @@ public static class SimpleImageReader
             Array.Copy(currentScanline, priorScanline, bytesPerRow);
         }
 
-        return new DecodedImage
+        var decoded = new DecodedImage
         {
             Width = width,
             Height = height,
             RgbBytes = outputRgb
         };
+
+        return exifOrientation > 1 ? ApplyExifOrientation(decoded, exifOrientation) : decoded;
     }
 
     private static byte PaethPredictor(int a, int b, int c)
@@ -309,9 +344,25 @@ public static class SimpleImageReader
 
                 if (srcIdx + 2 < bmpBytes.Length)
                 {
-                    outputRgb[outIdx] = bmpBytes[srcIdx + 2];     // R (BMP is BGR)
-                    outputRgb[outIdx + 1] = bmpBytes[srcIdx + 1]; // G
-                    outputRgb[outIdx + 2] = bmpBytes[srcIdx];     // B
+                    byte b = bmpBytes[srcIdx];
+                    byte g = bmpBytes[srcIdx + 1];
+                    byte r = bmpBytes[srcIdx + 2];
+
+                    if (bpp == 32 && srcIdx + 3 < bmpBytes.Length)
+                    {
+                        byte a = bmpBytes[srcIdx + 3];
+                        if (a < 255)
+                        {
+                            float alpha = a / 255.0f;
+                            r = (byte)Math.Clamp(MathF.Round(r * alpha + 255f * (1.0f - alpha)), 0, 255);
+                            g = (byte)Math.Clamp(MathF.Round(g * alpha + 255f * (1.0f - alpha)), 0, 255);
+                            b = (byte)Math.Clamp(MathF.Round(b * alpha + 255f * (1.0f - alpha)), 0, 255);
+                        }
+                    }
+
+                    outputRgb[outIdx] = r;     // R
+                    outputRgb[outIdx + 1] = g; // G
+                    outputRgb[outIdx + 2] = b; // B
                 }
             }
         }
@@ -322,6 +373,121 @@ public static class SimpleImageReader
             Height = absHeight,
             RgbBytes = outputRgb
         };
+    }
+
+    private static int ParseExifOrientation(ReadOnlySpan<byte> exifData)
+    {
+        try
+        {
+            if (exifData.Length < 14) return 1;
+
+            bool littleEndian = exifData[0] == 0x49 && exifData[1] == 0x49; // "II"
+            bool bigEndian = exifData[0] == 0x4D && exifData[1] == 0x4D;    // "MM"
+            if (!littleEndian && !bigEndian) return 1;
+
+            static int ReadU16(ReadOnlySpan<byte> span, int offset, bool le)
+            {
+                if (offset + 2 > span.Length) return 0;
+                return le
+                    ? BinaryPrimitives.ReadUInt16LittleEndian(span.Slice(offset, 2))
+                    : BinaryPrimitives.ReadUInt16BigEndian(span.Slice(offset, 2));
+            }
+
+            static int ReadU32(ReadOnlySpan<byte> span, int offset, bool le)
+            {
+                if (offset + 4 > span.Length) return 0;
+                return (int)(le
+                    ? BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(offset, 4))
+                    : BinaryPrimitives.ReadUInt32BigEndian(span.Slice(offset, 4)));
+            }
+
+            int firstIfdOffset = ReadU32(exifData, 4, littleEndian);
+            if (firstIfdOffset < 8 || firstIfdOffset + 2 > exifData.Length) return 1;
+
+            int tagCount = ReadU16(exifData, firstIfdOffset, littleEndian);
+            int cur = firstIfdOffset + 2;
+
+            for (int i = 0; i < tagCount && cur + 12 <= exifData.Length; i++, cur += 12)
+            {
+                int tag = ReadU16(exifData, cur, littleEndian);
+                if (tag == 0x0112) // Orientation tag
+                {
+                    int val = ReadU16(exifData, cur + 8, littleEndian);
+                    if (val >= 1 && val <= 8) return val;
+                }
+            }
+        }
+        catch
+        {
+            // Ignore corrupted EXIF
+        }
+
+        return 1;
+    }
+
+    private static DecodedImage ApplyExifOrientation(DecodedImage image, int orientation)
+    {
+        int w = image.Width;
+        int h = image.Height;
+        byte[] src = image.RgbBytes;
+
+        switch (orientation)
+        {
+            case 3: // 180 rotate
+            {
+                byte[] dst = new byte[w * h * 3];
+                for (int y = 0; y < h; y++)
+                {
+                    for (int x = 0; x < w; x++)
+                    {
+                        int srcIdx = (y * w + x) * 3;
+                        int dstIdx = ((h - 1 - y) * w + (w - 1 - x)) * 3;
+                        dst[dstIdx] = src[srcIdx];
+                        dst[dstIdx + 1] = src[srcIdx + 1];
+                        dst[dstIdx + 2] = src[srcIdx + 2];
+                    }
+                }
+                return new DecodedImage { Width = w, Height = h, RgbBytes = dst };
+            }
+            case 6: // Rotate 90 CW (w and h swapped)
+            {
+                byte[] dst = new byte[w * h * 3];
+                for (int y = 0; y < h; y++)
+                {
+                    for (int x = 0; x < w; x++)
+                    {
+                        int srcIdx = (y * w + x) * 3;
+                        int dstX = h - 1 - y;
+                        int dstY = x;
+                        int dstIdx = (dstY * h + dstX) * 3;
+                        dst[dstIdx] = src[srcIdx];
+                        dst[dstIdx + 1] = src[srcIdx + 1];
+                        dst[dstIdx + 2] = src[srcIdx + 2];
+                    }
+                }
+                return new DecodedImage { Width = h, Height = w, RgbBytes = dst };
+            }
+            case 8: // Rotate 270 CW (90 CCW, w and h swapped)
+            {
+                byte[] dst = new byte[w * h * 3];
+                for (int y = 0; y < h; y++)
+                {
+                    for (int x = 0; x < w; x++)
+                    {
+                        int srcIdx = (y * w + x) * 3;
+                        int dstX = y;
+                        int dstY = w - 1 - x;
+                        int dstIdx = (dstY * h + dstX) * 3;
+                        dst[dstIdx] = src[srcIdx];
+                        dst[dstIdx + 1] = src[srcIdx + 1];
+                        dst[dstIdx + 2] = src[srcIdx + 2];
+                    }
+                }
+                return new DecodedImage { Width = h, Height = w, RgbBytes = dst };
+            }
+            default:
+                return image;
+        }
     }
 }
 

@@ -40,5 +40,22 @@
   "addAnotherColor": "Başka Bir Renk Ekle",
   "readyToPrint": "Baskıya Hazır",
   "configuring": "Canlı 3D kabartma yapılandırılıyor...",
-  "confirmAndAddToOrder": "Öğeyi Onayla ve Siparişe Ekle"
+  "confirmAndAddToOrder": "Öğeyi Onayla ve Siparişe Ekle",
+  "step1Title": "1. Adım: Fotoğraf Yükle",
+  "step2Title": "2. Adım: Renk Stilini Seçin",
+  "step3Title": "3. Adım: Boyut Seçin",
+  "themeClassicBw": "Klasik Siyah-Beyaz",
+  "themeWarmSepia": "Sıcak Sepya / Portre",
+  "sizeSmall": "Küçük (10 cm)",
+  "sizeMedium": "Orta (15 cm)",
+  "sizeLarge": "Büyük (20 cm)",
+  "advancedSettings": "Gelişmiş seçenekler",
+  "hideAdvanced": "Gelişmiş seçenekleri gizle",
+  "view3dRelief": "3D Kabartma Önizleme",
+  "view2dSim": "Renkli Baskı Simülasyonu",
+  "layerStackTitle": "Fiziksel Katman Renk Sırası",
+  "bottomLayer": "Taban (Alt)",
+  "topLayer": "Vurgu (Üst)",
+  "convertingPhoto": "Fotoğrafınız 3D kabartmaya dönüştürülüyor...",
+  "add3dPhotoToQuote": "3D Fotoğrafı Teklife Ekle"
 }
