@@ -58,12 +58,12 @@
   "topLayer": "Highlight (Top)",
   "convertingPhoto": "Converting your photo into a 3D relief...",
   "add3dPhotoToQuote": "Add 3D Photo to Quote",
-  "chooseLayerColor": "Choose Filament for Layer {{layer}}",
+  "chooseLayerColor": "Choose Filament for Layer {layer}",
   "changeColor": "Change",
   "closePicker": "Close",
   "layerBaseLabel": "Layer 1: Base (Shadows)",
-  "layerMidtoneLabel": "Layer {{layer}}: Midtone",
-  "layerHighlightLabel": "Layer {{layer}}: Highlight (Top)",
+  "layerMidtoneLabel": "Layer {layer}: Midtone",
+  "layerHighlightLabel": "Layer {layer}: Highlight (Top)",
   "quickPresetsTitle": "Quick Palettes",
   "stockFilaments": "Available Stock Filaments"
 }

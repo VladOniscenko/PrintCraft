@@ -87,6 +87,18 @@ const DEFAULT_SOLID_COLOR_KEYWORDS = [
   "ivory",
   "charcoal",
   "crimson",
+  "lime",
+  "mint",
+  "coral",
+  "terracotta",
+  "lavender",
+  "mustard",
+  "ochre",
+  "khaki",
+  "cream",
+  "burgundy",
+  "anthracite",
+  "slate",
 ];
 
 export function isAllowedFilamentColor(f: Filament): boolean {
@@ -141,22 +153,33 @@ function getHexLuminance(hex: string): number {
 
 function estimateTypicalTd(colorNameOrHex: string): number {
   const c = colorNameOrHex.toLowerCase();
-  if (c.includes("black") || c.includes("dark") || c.includes("charcoal"))
+  if (c.includes("black") || c.includes("deep black") || c.includes("charcoal") || c.includes("anthracite"))
     return 0.6;
-  if (c.includes("white") || c.includes("ivory") || c.includes("snow"))
+  if (c.includes("white") || c.includes("ivory") || c.includes("snow") || c.includes("jade"))
     return 5.0;
-  if (c.includes("yellow") || c.includes("gold") || c.includes("sun"))
+  if (c.includes("cream") || c.includes("beige") || c.includes("tan") || c.includes("khaki"))
+    return 3.5;
+  if (c.includes("yellow") || c.includes("gold") || c.includes("sunburst") || c.includes("mustard") || c.includes("ochre"))
     return 3.8;
-  if (c.includes("orange") || c.includes("amber")) return 3.2;
-  if (c.includes("red") || c.includes("crimson") || c.includes("ruby"))
+  if (c.includes("orange") || c.includes("amber") || c.includes("terracotta") || c.includes("coral"))
+    return 3.2;
+  if (c.includes("red") || c.includes("crimson") || c.includes("ruby") || c.includes("maroon") || c.includes("burgundy") || c.includes("wine"))
     return 2.2;
-  if (c.includes("blue") || c.includes("navy") || c.includes("cyan"))
+  if (c.includes("brown") || c.includes("bronze") || c.includes("copper"))
+    return 1.6;
+  if (c.includes("teal") || c.includes("turquoise") || c.includes("cyan"))
+    return 2.4;
+  if (c.includes("navy"))
+    return 1.2;
+  if (c.includes("blue") || c.includes("sky") || c.includes("light blue"))
     return 2.5;
-  if (c.includes("green") || c.includes("lime") || c.includes("pine"))
+  if (c.includes("green") || c.includes("lime") || c.includes("pine") || c.includes("mint") || c.includes("olive"))
     return 2.2;
-  if (c.includes("purple") || c.includes("magenta") || c.includes("violet"))
+  if (c.includes("pink") || c.includes("rose"))
+    return 3.2;
+  if (c.includes("purple") || c.includes("magenta") || c.includes("violet") || c.includes("lavender") || c.includes("fuchsia"))
     return 2.6;
-  if (c.includes("grey") || c.includes("gray") || c.includes("silver"))
+  if (c.includes("grey") || c.includes("gray") || c.includes("silver") || c.includes("slate"))
     return 2.0;
   return 2.5;
 }

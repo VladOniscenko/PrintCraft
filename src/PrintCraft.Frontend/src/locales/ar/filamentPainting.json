@@ -58,12 +58,12 @@
   "topLayer": "إضاءة (الأعلى)",
   "convertingPhoto": "جاري تحويل صورتك إلى نقش ثلاثي الأبعاد...",
   "add3dPhotoToQuote": "إضافة صورة ثلاثية الأبعاد إلى عرض السعر",
-  "chooseLayerColor": "اختر الفلمنت للطبقة {{layer}}",
+  "chooseLayerColor": "اختر الفلمنت للطبقة {layer}",
   "changeColor": "تغيير",
   "closePicker": "إغلاق",
   "layerBaseLabel": "الطبقة 1: القاعدة (الظلال)",
-  "layerMidtoneLabel": "الطبقة {{layer}}: نغمة متوسطة",
-  "layerHighlightLabel": "الطبقة {{layer}}: إضاءة (أعلى)",
+  "layerMidtoneLabel": "الطبقة {layer}: نغمة متوسطة",
+  "layerHighlightLabel": "الطبقة {layer}: إضاءة (أعلى)",
   "quickPresetsTitle": "لوحات سريعة",
   "stockFilaments": "خيوط الطباعة المتوفرة في المخزون"
 }

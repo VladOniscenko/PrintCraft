@@ -58,12 +58,12 @@
   "topLayer": "Vurgu (Üst)",
   "convertingPhoto": "Fotoğrafınız 3D kabartmaya dönüştürülüyor...",
   "add3dPhotoToQuote": "3D Fotoğrafı Teklife Ekle",
-  "chooseLayerColor": "{{layer}}. Katman için Filament Seçin",
+  "chooseLayerColor": "{layer}. Katman için Filament Seçin",
   "changeColor": "Değiştir",
   "closePicker": "Kapat",
   "layerBaseLabel": "Katman 1: Taban (Gölgeler)",
-  "layerMidtoneLabel": "Katman {{layer}}: Ara Ton",
-  "layerHighlightLabel": "Katman {{layer}}: Vurgu (Üst)",
+  "layerMidtoneLabel": "Katman {layer}: Ara Ton",
+  "layerHighlightLabel": "Katman {layer}: Vurgu (Üst)",
   "quickPresetsTitle": "Hızlı Paletler",
   "stockFilaments": "Mevcut Stok Filamentleri"
 }
