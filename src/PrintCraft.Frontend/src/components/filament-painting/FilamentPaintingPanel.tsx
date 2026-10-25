@@ -202,13 +202,24 @@ function createPresetPalette(
   const presetFilaments = preset.filaments.slice(0, 4);
 
   const mapped = presetFilaments.map((f, idx) => {
-    const catalogMatch =
-      storePlaFilaments.find(
-        (cat) =>
-          cat.color?.toLowerCase() === f.name.toLowerCase() ||
-          cat.name?.toLowerCase().includes(f.name.toLowerCase()) ||
-          f.name.toLowerCase().includes((cat.color || "").toLowerCase()),
-      ) || storePlaFilaments[idx % Math.max(1, storePlaFilaments.length)];
+    // Match catalog filament only if color name is genuinely related
+    const targetColor = f.name.toLowerCase();
+    const catalogMatch = storePlaFilaments.find((cat) => {
+      const col = (cat.color || "").toLowerCase();
+      const n = (cat.name || "").toLowerCase();
+      return (
+        col === targetColor ||
+        n === targetColor ||
+        (targetColor.includes("black") && (col.includes("black") || n.includes("black"))) ||
+        (targetColor.includes("white") && (col.includes("white") || n.includes("white"))) ||
+        (targetColor.includes("grey") && (col.includes("grey") || col.includes("gray") || n.includes("grey") || n.includes("gray"))) ||
+        (targetColor.includes("gray") && (col.includes("grey") || col.includes("gray") || n.includes("grey") || n.includes("gray"))) ||
+        (targetColor.includes("red") && (col.includes("red") || n.includes("red"))) ||
+        (targetColor.includes("yellow") && (col.includes("yellow") || n.includes("yellow"))) ||
+        (targetColor.includes("blue") && (col.includes("blue") || n.includes("blue"))) ||
+        (targetColor.includes("orange") && (col.includes("orange") || n.includes("orange")))
+      );
+    });
 
     const matchedHex = catalogMatch
       ? getPlaFilamentHex(catalogMatch)
@@ -217,10 +228,7 @@ function createPresetPalette(
     return {
       filamentId:
         catalogMatch?.id ||
-        (typeof crypto !== "undefined" &&
-        typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `pla-slot-${idx + 1}`),
+        `preset-${preset.id}-${idx}`,
       name: catalogMatch?.name || f.name,
       colorHex: matchedHex,
       material: "PLA",
@@ -848,6 +856,16 @@ export default function FilamentPaintingPanel({
                       colors: ["#1C1917", "#78350F", "#D97706", "#FFFFFF"],
                     },
                     {
+                      id: "standard-4-color",
+                      label: t("filamentPainting.themeClassic4"),
+                      colors: ["#111111", "#DC2626", "#FBBF24", "#FFFFFF"],
+                    },
+                    {
+                      id: "warm-sunset",
+                      label: t("filamentPainting.themeSunset"),
+                      colors: ["#0F172A", "#C026D3", "#F97316", "#FEF3C7"],
+                    },
+                    {
                       id: "custom",
                       label: t("filamentPainting.customCombination"),
                       colors: customPalette.map((p) => p.colorHex),
@@ -1173,7 +1191,6 @@ export default function FilamentPaintingPanel({
                         key={`${liveResult.modelGlbUrl}_${generationKey}`}
                         fileUrl={liveResult.modelGlbUrl}
                         fileName={liveResult.modelGlbUrl}
-                        layerColorMap={liveResult.layerColorMap}
                         className="w-full h-full min-h-[380px]"
                         compact={false}
                       />

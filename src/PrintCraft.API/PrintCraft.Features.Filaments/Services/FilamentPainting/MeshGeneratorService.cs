@@ -92,10 +92,7 @@ public static class MeshGeneratorService
             offset += 50;
         }
 
-        float GetX(int x) => -halfW + (x * dx);
-        float GetY(int y) => -halfH + (y * dy);
-
-        float effectiveBorderMm = MathF.Min(2.0f, (float)Math.Min(widthMm, heightMm) * 0.15f);
+        float effectiveBorderMm = MathF.Min(1.6f, (float)Math.Min(widthMm, heightMm) * 0.08f);
 
         float GetZ(int x, int y)
         {
@@ -113,24 +110,27 @@ public static class MeshGeneratorService
             return heightMap[y * gridWidth + x];
         }
 
-        // 3. Top surface triangles
+        float GetX(int x) => -halfW + (x * dx);
+        float GetY(int y) => halfH - (y * dy); // y=0 is top of image at +halfH (North), y=gridHeight-1 is bottom at -halfH (South)
+
+        // 3. Top surface triangles (Z points up +Z)
         for (int y = 0; y < quadsY; y++)
         {
             for (int x = 0; x < quadsX; x++)
             {
                 float x0 = GetX(x), x1 = GetX(x + 1);
-                float y0 = GetY(y), y1 = GetY(y + 1);
+                float y0 = GetY(y), y1 = GetY(y + 1); // y0 > y1
                 float z00 = GetZ(x, y);
                 float z10 = GetZ(x + 1, y);
                 float z01 = GetZ(x, y + 1);
                 float z11 = GetZ(x + 1, y + 1);
 
-                WriteTriangle(x0, y0, z00, x1, y0, z10, x0, y1, z01);
-                WriteTriangle(x1, y0, z10, x1, y1, z11, x0, y1, z01);
+                WriteTriangle(x0, y0, z00, x0, y1, z01, x1, y0, z10);
+                WriteTriangle(x1, y0, z10, x0, y1, z01, x1, y1, z11);
             }
         }
 
-        // 4. Bottom base triangles (Z = 0, reverse winding)
+        // 4. Bottom base triangles (Z = 0, pointing down -Z)
         for (int y = 0; y < quadsY; y++)
         {
             for (int x = 0; x < quadsX; x++)
@@ -138,50 +138,50 @@ public static class MeshGeneratorService
                 float x0 = GetX(x), x1 = GetX(x + 1);
                 float y0 = GetY(y), y1 = GetY(y + 1);
 
-                WriteTriangle(x0, y0, 0, x0, y1, 0, x1, y0, 0);
-                WriteTriangle(x1, y0, 0, x0, y1, 0, x1, y1, 0);
+                WriteTriangle(x0, y0, 0, x1, y0, 0, x0, y1, 0);
+                WriteTriangle(x1, y0, 0, x1, y1, 0, x0, y1, 0);
             }
         }
 
-        // 5. Side walls
-        // South wall (y = 0)
+        // 5. Side walls with strictly outward-pointing normals
+        // South wall (y index = gridHeight - 1, coordinate is -halfH, normal points -Y)
+        float ySouth = GetY(gridHeight - 1);
         for (int x = 0; x < quadsX; x++)
         {
             float x0 = GetX(x), x1 = GetX(x + 1);
-            float y0 = GetY(0);
-            float z0 = GetZ(x, 0), z1 = GetZ(x + 1, 0);
-            WriteTriangle(x0, y0, 0, x1, y0, 0, x0, y0, z0);
-            WriteTriangle(x1, y0, 0, x1, y0, z1, x0, y0, z0);
-        }
-
-        // North wall (y = gridHeight - 1)
-        for (int x = 0; x < quadsX; x++)
-        {
-            float x0 = GetX(x), x1 = GetX(x + 1);
-            float y1 = GetY(gridHeight - 1);
             float z0 = GetZ(x, gridHeight - 1), z1 = GetZ(x + 1, gridHeight - 1);
-            WriteTriangle(x0, y1, 0, x0, y1, z0, x1, y1, 0);
-            WriteTriangle(x1, y1, 0, x0, y1, z0, x1, y1, z1);
+            WriteTriangle(x0, ySouth, 0, x1, ySouth, z1, x0, ySouth, z0);
+            WriteTriangle(x0, ySouth, 0, x1, ySouth, 0, x1, ySouth, z1);
         }
 
-        // West wall (x = 0)
+        // North wall (y index = 0, coordinate is +halfH, normal points +Y)
+        float yNorth = GetY(0);
+        for (int x = 0; x < quadsX; x++)
+        {
+            float x0 = GetX(x), x1 = GetX(x + 1);
+            float z0 = GetZ(x, 0), z1 = GetZ(x + 1, 0);
+            WriteTriangle(x0, yNorth, 0, x0, yNorth, z0, x1, yNorth, z1);
+            WriteTriangle(x0, yNorth, 0, x1, yNorth, z1, x1, yNorth, 0);
+        }
+
+        // West wall (x index = 0, coordinate is -halfW, normal points -X)
+        float xWest = GetX(0);
         for (int y = 0; y < quadsY; y++)
         {
-            float x0 = GetX(0);
             float y0 = GetY(y), y1 = GetY(y + 1);
             float z0 = GetZ(0, y), z1 = GetZ(0, y + 1);
-            WriteTriangle(x0, y0, 0, x0, y0, z0, x0, y1, 0);
-            WriteTriangle(x0, y1, 0, x0, y0, z0, x0, y1, z1);
+            WriteTriangle(xWest, y0, 0, xWest, y1, z1, xWest, y0, z0);
+            WriteTriangle(xWest, y0, 0, xWest, y1, 0, xWest, y1, z1);
         }
 
-        // East wall (x = gridWidth - 1)
+        // East wall (x index = gridWidth - 1, coordinate is +halfW, normal points +X)
+        float xEast = GetX(gridWidth - 1);
         for (int y = 0; y < quadsY; y++)
         {
-            float x1 = GetX(gridWidth - 1);
             float y0 = GetY(y), y1 = GetY(y + 1);
             float z0 = GetZ(gridWidth - 1, y), z1 = GetZ(gridWidth - 1, y + 1);
-            WriteTriangle(x1, y0, 0, x1, y1, 0, x1, y0, z0);
-            WriteTriangle(x1, y1, 0, x1, y1, z1, x1, y0, z0);
+            WriteTriangle(xEast, y0, 0, xEast, y0, z0, xEast, y1, z1);
+            WriteTriangle(xEast, y0, 0, xEast, y1, z1, xEast, y1, 0);
         }
 
         return buffer;
@@ -197,7 +197,9 @@ public static class MeshGeneratorService
         int gridWidth,
         int gridHeight,
         double widthMm,
-        double heightMm)
+        double heightMm,
+        double baseThicknessMm = 0.8,
+        ColorRgb? baseBorderColor = null)
     {
         if (gridWidth < 2 || gridHeight < 2)
             throw new ArgumentException("Grid resolution must be at least 2x2.");
@@ -239,8 +241,9 @@ public static class MeshGeneratorService
         float minX = float.MaxValue, minY = float.MaxValue, minZ = float.MaxValue;
         float maxX = float.MinValue, maxY = float.MinValue, maxZ = float.MinValue;
 
-        float effectiveBorderMm = MathF.Min(2.0f, (float)Math.Min(widthMm, heightMm) * 0.15f);
-        float baseZ = heightMap.Length > 0 ? heightMap.Min() : 0.8f;
+        float effectiveBorderMm = MathF.Min(1.6f, (float)Math.Min(widthMm, heightMm) * 0.08f);
+        float baseZ = (float)baseThicknessMm;
+        var borderCol = baseBorderColor ?? new ColorRgb(17, 17, 17);
 
         for (int y = 0; y < gridHeight; y++)
         {
@@ -248,9 +251,9 @@ public static class MeshGeneratorService
             {
                 int vi = y * gridWidth + x;
                 float px = -halfW + (x * dx);
-                // Three.js convention: Y is up, Z is depth or Z is up depending on camera.
-                // Standard: X = right, Y = height (Z relief), Z = forward/down
-                float pz = -(-halfH + (y * dy)); // ground plane
+                // Three.js convention: camera looks from (0, 80, 160) towards (0, 0, 0)
+                // y=0 top of image is at -halfH (North), y=gridHeight-1 bottom is at +halfH (South)
+                float pz = -halfH + (y * dy);
 
                 float distToEdgeX = MathF.Min(x * dx, (gridWidth - 1 - x) * dx);
                 float distToEdgeY = MathF.Min(y * dy, (gridHeight - 1 - y) * dy);
@@ -272,12 +275,12 @@ public static class MeshGeneratorService
                 // Write Color (RGBA uint8)
                 int cOff = colorOffset + (vi * 4);
                 int rgbIdx = vi * 3;
-                if (isBorder && rgbMap.Length >= 3)
+                if (isBorder)
                 {
-                    // Dark frame border
-                    binData[cOff] = (byte)(rgbMap[0] * 0.8f);
-                    binData[cOff + 1] = (byte)(rgbMap[1] * 0.8f);
-                    binData[cOff + 2] = (byte)(rgbMap[2] * 0.8f);
+                    // Clean frame border in base filament color
+                    binData[cOff] = borderCol.R;
+                    binData[cOff + 1] = borderCol.G;
+                    binData[cOff + 2] = borderCol.B;
                 }
                 else
                 {
@@ -287,15 +290,30 @@ public static class MeshGeneratorService
                 }
                 binData[cOff + 3] = 255;                // A
 
-                // Default normal (approximate up vector)
+                // Compute smooth surface normal from heightmap gradient
+                float hL = isBorder ? baseZ : heightMap[y * gridWidth + Math.Max(0, x - 1)];
+                float hR = isBorder ? baseZ : heightMap[y * gridWidth + Math.Min(gridWidth - 1, x + 1)];
+                float hU = isBorder ? baseZ : heightMap[Math.Max(0, y - 1) * gridWidth + x];
+                float hD = isBorder ? baseZ : heightMap[Math.Min(gridHeight - 1, y + 1) * gridWidth + x];
+
+                float dhdx = (hR - hL) / (2.0f * MathF.Max(0.001f, dx));
+                float dhdz = (hD - hU) / (2.0f * MathF.Max(0.001f, dy));
+
+                float nx = isBorder ? 0.0f : -dhdx;
+                float ny = 1.0f;
+                float nz = isBorder ? 0.0f : -dhdz;
+                float nLen = MathF.Sqrt(nx * nx + ny * ny + nz * nz);
+                if (nLen > 1e-5f) { nx /= nLen; ny /= nLen; nz /= nLen; }
+                else { nx = 0.0f; ny = 1.0f; nz = 0.0f; }
+
                 int nOff = normalOffset + (vi * 12);
-                BinaryPrimitives.WriteSingleLittleEndian(binData.AsSpan(nOff, 4), 0.0f);
-                BinaryPrimitives.WriteSingleLittleEndian(binData.AsSpan(nOff + 4, 4), 1.0f);
-                BinaryPrimitives.WriteSingleLittleEndian(binData.AsSpan(nOff + 8, 4), 0.0f);
+                BinaryPrimitives.WriteSingleLittleEndian(binData.AsSpan(nOff, 4), nx);
+                BinaryPrimitives.WriteSingleLittleEndian(binData.AsSpan(nOff + 4, 4), ny);
+                BinaryPrimitives.WriteSingleLittleEndian(binData.AsSpan(nOff + 8, 4), nz);
             }
         }
 
-        // 2. Fill Indices
+        // 2. Fill Indices with counter-clockwise winding (normals facing +Y)
         int curIndexOffset = indexOffset;
         for (int y = 0; y < quadsY; y++)
         {
@@ -306,8 +324,8 @@ public static class MeshGeneratorService
                 int v2 = (y + 1) * gridWidth + x;
                 int v3 = (y + 1) * gridWidth + (x + 1);
 
-                // Quad as two triangles: (v0, v1, v2) and (v1, v3, v2)
-                int[] quadIndices = [v0, v1, v2, v1, v3, v2];
+                // Quad as two triangles: (v0, v2, v1) and (v1, v2, v3) -> normal points +Y UP
+                int[] quadIndices = [v0, v2, v1, v1, v2, v3];
                 for (int k = 0; k < 6; k++)
                 {
                     if (useUint16)

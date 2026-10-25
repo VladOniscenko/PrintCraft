@@ -64,7 +64,7 @@ public class HueForgeLayerStackCalculator
             }
             else
             {
-                double effectiveTd = Math.Max(0.15, Math.Min(activeFilament.TransmissionDistanceMm, 0.6));
+                double effectiveTd = Math.Max(0.15, Math.Min(activeFilament.TransmissionDistanceMm, 0.65));
                 currentColor = TransmissionDistanceModel.BlendLayer(
                     substrateColor,
                     activeFilament.Color,

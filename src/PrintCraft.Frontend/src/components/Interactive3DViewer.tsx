@@ -198,10 +198,10 @@ export default function Interactive3DViewer({
     controlsRef.current = controls;
 
     // Lighting
-    const ambientLight = new AmbientLight(0xffffff, 0.65);
+    const ambientLight = new AmbientLight(0xffffff, 0.40);
     scene.add(ambientLight);
 
-    const dirLight1 = new DirectionalLight(0xffffff, 1.2);
+    const dirLight1 = new DirectionalLight(0xffffff, 1.1);
     dirLight1.position.set(60, 120, 80);
     if (!isMobile) {
       dirLight1.castShadow = true;
@@ -210,11 +210,11 @@ export default function Interactive3DViewer({
     }
     scene.add(dirLight1);
 
-    const dirLight2 = new DirectionalLight(0x90b0e0, 0.5);
+    const dirLight2 = new DirectionalLight(0x90b0e0, 0.35);
     dirLight2.position.set(-60, 60, -60);
     scene.add(dirLight2);
 
-    const hemiLight = new HemisphereLight(0xffffff, 0x334155, 0.4);
+    const hemiLight = new HemisphereLight(0xffffff, 0x334155, 0.25);
     scene.add(hemiLight);
 
     // Build Plate Circular/Grid Plane (Generic 256mm reference)
@@ -498,8 +498,6 @@ export default function Interactive3DViewer({
           const range = maxVal - minVal;
           if (range < 1e-4) return false;
 
-          const totalMaxZ = Math.max(...colorMap.map((c) => c.zMax), 1.0);
-
           const parsed = colorMap.map((item) => {
             const raw = (item.hexColor || "#ffffff").replace("#", "");
             const clean =
@@ -511,20 +509,21 @@ export default function Interactive3DViewer({
             const b = parseInt(clean.substring(4, 6), 16) / 255 || 0;
             return { zMin: item.zMin, zMax: item.zMax, r, g, b };
           });
+          parsed.sort((a, b) => a.zMin - b.zMin);
 
           const colors = new Float32Array(count * 3);
 
           for (let i = 0; i < count; i++) {
             const v = pos.getComponent(i, axisIdx);
-            const zNorm = ((v - minVal) / range) * totalMaxZ;
+            const zHeight = v - minVal;
 
             let matched = parsed[0];
             for (let j = 0; j < parsed.length; j++) {
-              if (zNorm >= parsed[j].zMin && zNorm <= parsed[j].zMax) {
+              if (zHeight >= parsed[j].zMin && zHeight <= parsed[j].zMax) {
                 matched = parsed[j];
                 break;
               }
-              if (zNorm > parsed[j].zMax) {
+              if (zHeight > parsed[j].zMax) {
                 matched = parsed[j];
               }
             }
@@ -551,8 +550,8 @@ export default function Interactive3DViewer({
             ? new MeshStandardMaterial({
                 color: 0xffffff,
                 vertexColors: true,
-                roughness: 0.38,
-                metalness: 0.08,
+                roughness: 0.35,
+                metalness: 0.05,
                 wireframe: wireframe,
                 side: DoubleSide,
               })
@@ -566,26 +565,29 @@ export default function Interactive3DViewer({
           group.traverse((child: any) => {
             if (child.isMesh) {
               const geom = child.geometry;
-              if (geom) {
+              if (geom && !geom.attributes.normal) {
                 geom.computeVertexNormals();
               }
+              const hasColorAttr = !!(
+                geom?.attributes?.color ||
+                geom?.attributes?.COLOR_0
+              );
               const hasAppliedLayers =
+                !hasColorAttr &&
                 layerColorMap &&
                 layerColorMap.length > 0 &&
                 applyZHeightVertexColors(geom, layerColorMap, "y");
               const hasVertexColors =
+                hasColorAttr ||
                 hasAppliedLayers ||
-                !!(
-                  geom?.attributes?.color ||
-                  geom?.attributes?.COLOR_0 ||
-                  child.material?.vertexColors
-                );
+                !!child.material?.vertexColors;
+
               if (hasVertexColors) {
                 child.material = new MeshStandardMaterial({
                   color: 0xffffff,
                   vertexColors: true,
-                  roughness: 0.38,
-                  metalness: 0.08,
+                  roughness: 0.35,
+                  metalness: 0.05,
                   wireframe: wireframe,
                   side: DoubleSide,
                 });

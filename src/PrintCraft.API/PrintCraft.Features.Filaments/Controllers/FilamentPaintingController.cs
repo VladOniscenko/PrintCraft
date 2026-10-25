@@ -122,7 +122,7 @@ public class FilamentPaintingController : ControllerBase
 
         double baseLayerHeight = requestConfig.BaseLayerHeightMm.HasValue && requestConfig.BaseLayerHeightMm.Value > 0
             ? requestConfig.BaseLayerHeightMm.Value
-            : qualitySetting.SolidBaseHeightMm;
+            : 0.20; // 0.20mm standard 3D printer first layer height on build plate
 
         double layerHeight = requestConfig.LayerHeightMm.HasValue && requestConfig.LayerHeightMm.Value > 0
             ? requestConfig.LayerHeightMm.Value
@@ -154,7 +154,15 @@ public class FilamentPaintingController : ControllerBase
             requestConfig.Palette = requestConfig.Palette.Take(4).ToList();
         }
 
-        // Auto-distribute start and end heights across base and relief depth equally among all palette colors
+        // Automatically sort filaments by luminance from darkest (bottom base layer) to lightest (top highlight layer)
+        requestConfig.Palette.Sort((a, b) =>
+        {
+            var lumA = ColorRgb.FromHex(a.ColorHex).PerceivedLuminance;
+            var lumB = ColorRgb.FromHex(b.ColorHex).PerceivedLuminance;
+            return lumA.CompareTo(lumB);
+        });
+
+        // Distribute start and end heights monotonically across base and relief depth
         int colorCount = requestConfig.Palette.Count;
         double availableRelief = Math.Max(0.2, maxDepth - minBaseThickness);
         double stepPerBand = availableRelief / Math.Max(1, colorCount);
@@ -338,6 +346,11 @@ public class FilamentPaintingController : ControllerBase
         var previewSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}_preview.png");
         await System.IO.File.WriteAllBytesAsync(previewSavedPath, previewPngBytes);
 
+        // Determine base filament color for framing border
+        var baseColor = layerStackConfig.Palette.Count > 0
+            ? layerStackConfig.Palette[0].Color
+            : new ColorRgb(17, 17, 17);
+
         // Generate watertight high-resolution binary STL (standard 3D print file)
         byte[] stlBytes = MeshGeneratorService.GenerateBinaryStl(
             calcResult.HeightMap,
@@ -355,7 +368,9 @@ public class FilamentPaintingController : ControllerBase
             calcResult.Width,
             calcResult.Height,
             widthMm,
-            heightMm
+            heightMm,
+            layerStackConfig.MinBaseThicknessMm,
+            baseColor
         );
 
         var stlSavedPath = Path.Combine(uploadsDir, $"{fileBaseName}.stl");
