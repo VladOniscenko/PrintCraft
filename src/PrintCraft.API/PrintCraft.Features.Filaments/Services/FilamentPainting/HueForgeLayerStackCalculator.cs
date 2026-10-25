@@ -296,10 +296,13 @@ public class HueForgeLayerStackCalculator
             normalizedLuma[i] = stretched * stretched * (3.0f - 2.0f * stretched);
         }
 
-        // 3x3 Gaussian smoothing pass to eliminate single-pixel noise and prevent sharp unprintable spikes
+        // 3x3 Edge-Preserving Bilateral Smoothing pass:
+        // Removes single-pixel noise and unprintable micro-spikes while preserving crisp edges,
+        // facial features, eyes, and high-frequency photographic textures.
         float[] smoothedLuma = new float[pixelCount];
         if (width >= 3 && height >= 3)
         {
+            const float invSigmaSquare = 1.0f / (2.0f * 0.16f * 0.16f); // photometric edge tolerance
             for (int y = 0; y < height; y++)
             {
                 int y0 = Math.Max(0, y - 1);
@@ -316,12 +319,28 @@ public class HueForgeLayerStackCalculator
                     int x1 = x;
                     int x2 = Math.Min(width - 1, x + 1);
 
-                    float sum =
-                        1f * normalizedLuma[row0 + x0] + 2f * normalizedLuma[row0 + x1] + 1f * normalizedLuma[row0 + x2] +
-                        2f * normalizedLuma[row1 + x0] + 4f * normalizedLuma[row1 + x1] + 2f * normalizedLuma[row1 + x2] +
-                        1f * normalizedLuma[row2 + x0] + 2f * normalizedLuma[row2 + x1] + 1f * normalizedLuma[row2 + x2];
+                    float centerVal = normalizedLuma[row1 + x1];
 
-                    smoothedLuma[row1 + x1] = sum / 16.0f;
+                    // Bilateral weights: spatial Gaussian * photometric range kernel
+                    float w00 = 1f * MathF.Exp(-MathF.Pow(normalizedLuma[row0 + x0] - centerVal, 2) * invSigmaSquare);
+                    float w01 = 2f * MathF.Exp(-MathF.Pow(normalizedLuma[row0 + x1] - centerVal, 2) * invSigmaSquare);
+                    float w02 = 1f * MathF.Exp(-MathF.Pow(normalizedLuma[row0 + x2] - centerVal, 2) * invSigmaSquare);
+
+                    float w10 = 2f * MathF.Exp(-MathF.Pow(normalizedLuma[row1 + x0] - centerVal, 2) * invSigmaSquare);
+                    float w11 = 4f; // center pixel
+                    float w12 = 2f * MathF.Exp(-MathF.Pow(normalizedLuma[row1 + x2] - centerVal, 2) * invSigmaSquare);
+
+                    float w20 = 1f * MathF.Exp(-MathF.Pow(normalizedLuma[row2 + x0] - centerVal, 2) * invSigmaSquare);
+                    float w21 = 2f * MathF.Exp(-MathF.Pow(normalizedLuma[row2 + x1] - centerVal, 2) * invSigmaSquare);
+                    float w22 = 1f * MathF.Exp(-MathF.Pow(normalizedLuma[row2 + x2] - centerVal, 2) * invSigmaSquare);
+
+                    float sumWeights = w00 + w01 + w02 + w10 + w11 + w12 + w20 + w21 + w22;
+                    float sumValues =
+                        w00 * normalizedLuma[row0 + x0] + w01 * normalizedLuma[row0 + x1] + w02 * normalizedLuma[row0 + x2] +
+                        w10 * normalizedLuma[row1 + x0] + w11 * centerVal                 + w12 * normalizedLuma[row1 + x2] +
+                        w20 * normalizedLuma[row2 + x0] + w21 * normalizedLuma[row2 + x1] + w22 * normalizedLuma[row2 + x2];
+
+                    smoothedLuma[row1 + x1] = sumValues / sumWeights;
                 }
             }
         }

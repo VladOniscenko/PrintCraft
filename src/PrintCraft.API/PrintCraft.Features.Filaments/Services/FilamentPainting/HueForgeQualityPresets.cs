@@ -23,23 +23,23 @@ public static class HueForgeQualityPresets
                 DetailLayerHeightMm: 0.12,
                 MaxReliefMm: 2.20,
                 Description: "Draft/Fast preview with 0.80mm solid base, 0.12mm detail layers, ~2.2mm relief. Fastest processing and preview.",
-                GridResolution: 180
+                GridResolution: 240
             ),
             ["Medium"] = new(
                 Name: "Medium",
                 SolidBaseHeightMm: 0.80,
                 DetailLayerHeightMm: 0.08,
                 MaxReliefMm: 2.40,
-                Description: "Standard baseline with 0.80mm solid base, 0.08mm detail layers, ~2.4mm relief. Excellent balance of speed and color accuracy.",
-                GridResolution: 240
+                Description: "Standard baseline with 0.80mm solid base, 0.08mm detail layers, ~2.4mm relief. Excellent balance of speed and fine photographic detail.",
+                GridResolution: 360
             ),
             ["Best"] = new(
                 Name: "Best",
                 SolidBaseHeightMm: 0.80,
                 DetailLayerHeightMm: 0.08,
                 MaxReliefMm: 2.40,
-                Description: "Ultra resolution with 0.80mm solid base, 0.08mm detail layers, ~2.4mm relief. Maximum grid resolution and smoothest contours.",
-                GridResolution: 300
+                Description: "Ultra resolution with 0.80mm solid base, 0.08mm detail layers, ~2.4mm relief. Maximum grid resolution and ultra-crisp contours.",
+                GridResolution: 480
             )
         };
 

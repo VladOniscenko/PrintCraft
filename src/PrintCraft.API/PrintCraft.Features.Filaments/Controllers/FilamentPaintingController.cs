@@ -162,18 +162,44 @@ public class FilamentPaintingController : ControllerBase
             return lumA.CompareTo(lumB);
         });
 
-        // Distribute start and end heights monotonically across base and relief depth
+        // Distribute start and end heights monotonically across base and relief depth.
+        // In HueForge, the opaque base filament (layer 0) forms the solid base plate (minBaseThickness)
+        // and only needs 1-2 detail layers (0.16mm) into the relief as a shadow anchor.
+        // The remaining relief depth is allocated to the semi-translucent midtones and highlight layers
+        // so shadows, facial features, and clothing contours are not crushed into flat black.
         int colorCount = requestConfig.Palette.Count;
         double availableRelief = Math.Max(0.2, maxDepth - minBaseThickness);
-        double stepPerBand = availableRelief / Math.Max(1, colorCount);
 
-        for (int i = 0; i < colorCount; i++)
+        if (colorCount <= 1)
         {
-            var p = requestConfig.Palette[i];
-            double startH = i == 0 ? 0.0 : minBaseThickness + i * stepPerBand;
-            double endH = i == colorCount - 1 ? maxDepth : minBaseThickness + (i + 1) * stepPerBand;
-            p.StartHeightMm = Math.Round(startH, 2);
-            p.EndHeightMm = Math.Round(endH, 2);
+            requestConfig.Palette[0].StartHeightMm = 0.0;
+            requestConfig.Palette[0].EndHeightMm = maxDepth;
+        }
+        else
+        {
+            double baseReliefShare = Math.Min(0.16, availableRelief * 0.12);
+            double blendingRelief = availableRelief - baseReliefShare;
+            int blendingCount = colorCount - 1;
+            double stepPerBlendingBand = blendingRelief / blendingCount;
+
+            for (int i = 0; i < colorCount; i++)
+            {
+                var p = requestConfig.Palette[i];
+                if (i == 0)
+                {
+                    p.StartHeightMm = 0.0;
+                    p.EndHeightMm = Math.Round(minBaseThickness + baseReliefShare, 2);
+                }
+                else
+                {
+                    double startH = minBaseThickness + baseReliefShare + (i - 1) * stepPerBlendingBand;
+                    double endH = i == colorCount - 1
+                        ? maxDepth
+                        : minBaseThickness + baseReliefShare + i * stepPerBlendingBand;
+                    p.StartHeightMm = Math.Round(startH, 2);
+                    p.EndHeightMm = Math.Round(endH, 2);
+                }
+            }
         }
 
         var layerStackConfig = new LayerStackConfig

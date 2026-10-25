@@ -32,6 +32,7 @@ import {
   CURATED_PALETTES,
 } from "../../types/filamentPainting";
 import { getFilamentHexColor } from "../../utils/filamentColors";
+import { resolveAssetUrl } from "../../utils/assetUrl";
 const Interactive3DViewer = lazy(() => import("../Interactive3DViewer"));
 import api from "../../services/api";
 import { useI18n } from "../../i18n/I18nContext";
@@ -1345,9 +1346,10 @@ export default function FilamentPaintingPanel({
                   {previewMode === "2d" && (
                     <div className="w-full h-full min-h-[380px] flex items-center justify-center p-4 bg-slate-950">
                       <img
+                        key={`preview-2d-${generationKey}`}
                         src={
-                          liveResult.previewImageUrl ||
-                          liveResult.previewImageBase64
+                          liveResult.previewImageBase64 ||
+                          `${resolveAssetUrl(liveResult.previewImageUrl)}?v=${generationKey}`
                         }
                         alt={t("filamentPainting.view2dSim")}
                         className="max-h-[360px] max-w-full rounded-lg object-contain shadow-2xl border border-white/10"

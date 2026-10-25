@@ -299,9 +299,10 @@ public static class MeshGeneratorService
                 float dhdx = (hR - hL) / (2.0f * MathF.Max(0.001f, dx));
                 float dhdz = (hD - hU) / (2.0f * MathF.Max(0.001f, dy));
 
-                float nx = isBorder ? 0.0f : -dhdx;
+                // Relief bump scaling so directional lighting highlights tactile photographic details
+                float nx = isBorder ? 0.0f : -dhdx * 2.8f;
                 float ny = 1.0f;
-                float nz = isBorder ? 0.0f : -dhdz;
+                float nz = isBorder ? 0.0f : -dhdz * 2.8f;
                 float nLen = MathF.Sqrt(nx * nx + ny * ny + nz * nz);
                 if (nLen > 1e-5f) { nx /= nLen; ny /= nLen; nz /= nLen; }
                 else { nx = 0.0f; ny = 1.0f; nz = 0.0f; }
