@@ -299,10 +299,10 @@ public static class MeshGeneratorService
                 float dhdx = (hR - hL) / (2.0f * MathF.Max(0.001f, dx));
                 float dhdz = (hD - hU) / (2.0f * MathF.Max(0.001f, dy));
 
-                // Relief bump scaling so directional lighting highlights tactile photographic details
-                float nx = isBorder ? 0.0f : -dhdx * 2.8f;
+                // True geometric surface normal from continuous heightmap gradients
+                float nx = isBorder ? 0.0f : -dhdx;
                 float ny = 1.0f;
-                float nz = isBorder ? 0.0f : -dhdz * 2.8f;
+                float nz = isBorder ? 0.0f : -dhdz;
                 float nLen = MathF.Sqrt(nx * nx + ny * ny + nz * nz);
                 if (nLen > 1e-5f) { nx /= nLen; ny /= nLen; nz /= nLen; }
                 else { nx = 0.0f; ny = 1.0f; nz = 0.0f; }
@@ -358,8 +358,8 @@ public static class MeshGeneratorService
                     pbrMetallicRoughness = new
                     {
                         baseColorFactor = new[] { 1.0, 1.0, 1.0, 1.0 },
-                        metallicFactor = 0.05,
-                        roughnessFactor = 0.40
+                        metallicFactor = 0.0,
+                        roughnessFactor = 0.88
                     },
                     doubleSided = true
                 }

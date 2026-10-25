@@ -457,7 +457,6 @@ export default function FilamentPaintingPanel({
       if (lastGeneratedConfigKeyRef.current === configKey) {
         return;
       }
-      lastGeneratedConfigKeyRef.current = configKey;
 
       const seq = ++activeRequestSeqRef.current;
 
@@ -496,6 +495,7 @@ export default function FilamentPaintingPanel({
 
       const res = await api.post("/3d-generate-painting", formData);
       if (seq === activeRequestSeqRef.current) {
+        lastGeneratedConfigKeyRef.current = configKey;
         setLiveResult(res.data);
         setGenerationKey((k) => k + 1);
       }
@@ -592,7 +592,7 @@ export default function FilamentPaintingPanel({
       } finally {
         setIsRegenerating(false);
       }
-    }, 400);
+    }, 250);
 
     return () => clearTimeout(timer);
   }, [
@@ -1335,7 +1335,7 @@ export default function FilamentPaintingPanel({
                     >
                       <Interactive3DViewer
                         key={`${liveResult.modelGlbUrl}_${generationKey}`}
-                        fileUrl={liveResult.modelGlbUrl}
+                        fileUrl={`${liveResult.modelGlbUrl}?v=${generationKey}`}
                         fileName={liveResult.modelGlbUrl}
                         className="w-full h-full min-h-[380px]"
                         compact={false}

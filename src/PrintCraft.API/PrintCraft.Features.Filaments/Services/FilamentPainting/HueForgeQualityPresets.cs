@@ -31,7 +31,7 @@ public static class HueForgeQualityPresets
                 DetailLayerHeightMm: 0.08,
                 MaxReliefMm: 2.40,
                 Description: "Standard baseline with 0.80mm solid base, 0.08mm detail layers, ~2.4mm relief. Excellent balance of speed and fine photographic detail.",
-                GridResolution: 360
+                GridResolution: 400
             ),
             ["Best"] = new(
                 Name: "Best",
@@ -39,7 +39,7 @@ public static class HueForgeQualityPresets
                 DetailLayerHeightMm: 0.08,
                 MaxReliefMm: 2.40,
                 Description: "Ultra resolution with 0.80mm solid base, 0.08mm detail layers, ~2.4mm relief. Maximum grid resolution and ultra-crisp contours.",
-                GridResolution: 480
+                GridResolution: 500
             )
         };
 

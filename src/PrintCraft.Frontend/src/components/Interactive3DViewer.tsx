@@ -197,11 +197,11 @@ export default function Interactive3DViewer({
     controls.maxPolarAngle = Math.PI / 2 + 0.1; // Don't flip below build plate
     controlsRef.current = controls;
 
-    // Lighting
-    const ambientLight = new AmbientLight(0xffffff, 0.40);
+    // Lighting - soft, diffuse illumination tuned for realistic matte 3D prints
+    const ambientLight = new AmbientLight(0xffffff, 0.65);
     scene.add(ambientLight);
 
-    const dirLight1 = new DirectionalLight(0xffffff, 1.1);
+    const dirLight1 = new DirectionalLight(0xffffff, 0.75);
     dirLight1.position.set(60, 120, 80);
     if (!isMobile) {
       dirLight1.castShadow = true;
@@ -210,11 +210,11 @@ export default function Interactive3DViewer({
     }
     scene.add(dirLight1);
 
-    const dirLight2 = new DirectionalLight(0x90b0e0, 0.35);
+    const dirLight2 = new DirectionalLight(0xb0c4de, 0.35);
     dirLight2.position.set(-60, 60, -60);
     scene.add(dirLight2);
 
-    const hemiLight = new HemisphereLight(0xffffff, 0x334155, 0.25);
+    const hemiLight = new HemisphereLight(0xffffff, 0x475569, 0.30);
     scene.add(hemiLight);
 
     // Build Plate Circular/Grid Plane (Generic 256mm reference)
@@ -229,11 +229,11 @@ export default function Interactive3DViewer({
     scene.add(meshGroup);
     meshGroupRef.current = meshGroup;
 
-    // Shared physical material
+    // Shared physical material (diffuse matte PLA finish)
     const mat = new MeshStandardMaterial({
       color: effectiveHex,
-      roughness: 0.38,
-      metalness: 0.08,
+      roughness: 0.88,
+      metalness: 0.0,
       wireframe: wireframe,
       side: DoubleSide,
     });
@@ -550,8 +550,8 @@ export default function Interactive3DViewer({
             ? new MeshStandardMaterial({
                 color: 0xffffff,
                 vertexColors: true,
-                roughness: 0.35,
-                metalness: 0.05,
+                roughness: 0.88,
+                metalness: 0.0,
                 wireframe: wireframe,
                 side: DoubleSide,
               })
@@ -586,8 +586,8 @@ export default function Interactive3DViewer({
                 child.material = new MeshStandardMaterial({
                   color: 0xffffff,
                   vertexColors: true,
-                  roughness: 0.35,
-                  metalness: 0.05,
+                  roughness: 0.88,
+                  metalness: 0.0,
                   wireframe: wireframe,
                   side: DoubleSide,
                 });
