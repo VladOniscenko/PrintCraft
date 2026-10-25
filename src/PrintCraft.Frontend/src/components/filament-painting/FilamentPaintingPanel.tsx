@@ -21,6 +21,7 @@ import {
   Eye,
   ChevronDown,
   ChevronUp,
+  X,
 } from "lucide-react";
 import type { Filament } from "../../types/filament";
 import {
@@ -361,6 +362,7 @@ export default function FilamentPaintingPanel({
   >(() =>
     createPresetPalette(DEFAULT_PRESET_ID, storePlaFilaments).slice(0, 4),
   );
+  const [editingLayerIndex, setEditingLayerIndex] = useState<number | null>(null);
 
   // Step 3: Size (10cm, 15cm, 20cm longest side)
   const [selectedSizePreset, setSelectedSizePreset] = useState<
@@ -842,117 +844,237 @@ export default function FilamentPaintingPanel({
                   </span>
                 </div>
 
-                {/* Color Style Buttons */}
-                <div className="space-y-1.5">
-                  {[
-                    {
-                      id: "classic-bw",
-                      label: t("filamentPainting.themeClassicBw"),
-                      colors: ["#111111", "#71717A", "#FFFFFF"],
-                    },
-                    {
-                      id: "warm-sepia",
-                      label: t("filamentPainting.themeWarmSepia"),
-                      colors: ["#1C1917", "#78350F", "#D97706", "#FFFFFF"],
-                    },
-                    {
-                      id: "standard-4-color",
-                      label: t("filamentPainting.themeClassic4"),
-                      colors: ["#111111", "#DC2626", "#FBBF24", "#FFFFFF"],
-                    },
-                    {
-                      id: "warm-sunset",
-                      label: t("filamentPainting.themeSunset"),
-                      colors: ["#0F172A", "#C026D3", "#F97316", "#FEF3C7"],
-                    },
-                    {
-                      id: "custom",
-                      label: t("filamentPainting.customCombination"),
-                      colors: customPalette.map((p) => p.colorHex),
-                    },
-                  ].map((style) => {
-                    const isSelected = selectedPresetId === style.id;
-                    return (
-                      <button
-                        key={style.id}
-                        type="button"
-                        onClick={() => handleSelectPreset(style.id)}
-                        className={`w-full p-2 rounded-lg text-left transition-all border flex items-center justify-between gap-2 ${
-                          isSelected
-                            ? "bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-500 shadow-2xs"
-                            : "bg-gray-50/70 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10"
-                        }`}
-                      >
-                        <span className="text-xs font-bold text-gray-800 dark:text-white truncate">
-                          {style.label}
-                        </span>
-                        <div className="flex items-center gap-1 shrink-0">
-                          {style.colors.map((c, i) => (
-                            <span
-                              key={i}
-                              className="w-3.5 h-3.5 rounded-full border border-black/20 shadow-2xs inline-block"
-                              style={{ backgroundColor: c }}
-                            />
-                          ))}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Custom Palette Editor (When Custom is Active) */}
-              {selectedPresetId === "custom" && (
-                <div className="pt-2 border-t border-gray-100 dark:border-white/10 space-y-1.5 mt-2">
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-gray-500">
-                    <span>{t("filamentPainting.selectedColorsOrder")}</span>
-                    <span>{customPalette.length}/4</span>
+                {/* Quick Starter Palettes */}
+                <div className="space-y-1">
+                  <div className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                    {t("filamentPainting.quickPresetsTitle")}
                   </div>
-                  <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
-                    {customPalette.map((item, idx) => (
-                      <div
-                        key={`custom-${item.filamentId || idx}`}
-                        className="flex items-center justify-between gap-1 p-1 rounded bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10"
-                      >
-                        <div
-                          className="w-4 h-4 rounded-full border border-black/20 shrink-0"
-                          style={{ backgroundColor: item.colorHex }}
-                        />
-                        <select
-                          value={item.filamentId}
-                          onChange={(e) =>
-                            handleSelectCatalogFilament(idx, e.target.value)
-                          }
-                          className="flex-1 min-w-0 bg-transparent text-[11px] font-semibold text-gray-800 dark:text-white outline-none cursor-pointer truncate"
-                        >
-                          {storePlaFilaments.map((f) => (
-                            <option key={f.id} value={f.id}>
-                              {f.name} ({translateColorText(f.color, t)})
-                            </option>
-                          ))}
-                        </select>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {[
+                      {
+                        id: "classic-bw",
+                        label: t("filamentPainting.themeClassicBw"),
+                        colors: ["#111111", "#71717A", "#FFFFFF"],
+                      },
+                      {
+                        id: "warm-sepia",
+                        label: t("filamentPainting.themeWarmSepia"),
+                        colors: ["#1C1917", "#78350F", "#D97706", "#FFFFFF"],
+                      },
+                      {
+                        id: "standard-4-color",
+                        label: t("filamentPainting.themeClassic4"),
+                        colors: ["#111111", "#DC2626", "#FBBF24", "#FFFFFF"],
+                      },
+                      {
+                        id: "warm-sunset",
+                        label: t("filamentPainting.themeSunset"),
+                        colors: ["#0F172A", "#C026D3", "#F97316", "#FEF3C7"],
+                      },
+                    ].map((style) => {
+                      const isSelected = selectedPresetId === style.id;
+                      return (
                         <button
+                          key={style.id}
                           type="button"
-                          onClick={() => handleRemoveColor(idx)}
-                          disabled={customPalette.length <= 2}
-                          className="p-1 text-gray-400 hover:text-rose-600 disabled:opacity-20"
-                          title={t("filamentPainting.removeColor")}
+                          onClick={() => handleSelectPreset(style.id)}
+                          className={`p-2 rounded-lg text-left transition-all border flex flex-col gap-1.5 ${
+                            isSelected
+                              ? "bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-500 shadow-2xs"
+                              : "bg-gray-50/70 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10"
+                          }`}
                         >
-                          <Trash2 size={11} />
+                          <span className="text-[11px] font-bold text-gray-800 dark:text-white truncate">
+                            {style.label}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            {style.colors.map((c, i) => (
+                              <span
+                                key={i}
+                                className="w-3.5 h-3.5 rounded-full border border-black/20 shadow-2xs inline-block"
+                                style={{ backgroundColor: c }}
+                              />
+                            ))}
+                          </div>
                         </button>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
+                </div>
+
+                {/* Physical Layer Color Stack (ALWAYS VISIBLE & EDITABLE) */}
+                <div className="pt-2 border-t border-gray-100 dark:border-white/10 space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                    <span>{t("filamentPainting.selectedColorsOrder")}</span>
+                    <span>
+                      {customPalette.length}/4 {t("filamentPainting.colorsCount")}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    {customPalette.map((item, idx) => {
+                      const isBase = idx === 0;
+                      const isTop = idx === customPalette.length - 1;
+                      const layerLabel = isBase
+                        ? t("filamentPainting.layerBaseLabel")
+                        : isTop
+                        ? t("filamentPainting.layerHighlightLabel", {
+                            layer: (idx + 1).toString(),
+                          })
+                        : t("filamentPainting.layerMidtoneLabel", {
+                            layer: (idx + 1).toString(),
+                          });
+
+                      return (
+                        <div
+                          key={`layer-${item.filamentId || idx}`}
+                          onClick={() => setEditingLayerIndex(idx)}
+                          className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-emerald-500/60 dark:hover:border-emerald-500/60 transition-all cursor-pointer group"
+                        >
+                          <div
+                            className="w-5 h-5 rounded-full border border-black/20 shadow-inner shrink-0 ring-1 ring-black/10 group-hover:scale-105 transition-transform"
+                            style={{ backgroundColor: item.colorHex }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                              {layerLabel}
+                            </div>
+                            <div className="text-xs font-semibold text-gray-800 dark:text-white truncate">
+                              {item.name}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingLayerIndex(idx);
+                              }}
+                              className="px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 rounded border border-emerald-200 dark:border-emerald-800/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors"
+                            >
+                              {t("filamentPainting.changeColor")}
+                            </button>
+                            {customPalette.length > 2 && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveColor(idx);
+                                }}
+                                className="p-1 text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 rounded transition-colors"
+                                title={t("filamentPainting.removeColor")}
+                                aria-label={t("filamentPainting.removeColor")}
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
                   {customPalette.length < 4 && (
                     <button
                       type="button"
                       onClick={handleAddColor}
-                      className="w-full py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center justify-center gap-1"
+                      className="w-full py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg border border-dashed border-emerald-300 dark:border-emerald-700/50 flex items-center justify-center gap-1.5 transition-all"
                     >
-                      <Plus size={12} />
+                      <Plus size={13} />
                       <span>{t("filamentPainting.addAnotherColor")}</span>
                     </button>
                   )}
+                </div>
+              </div>
+
+              {/* Filament Swatch Picker Modal */}
+              {editingLayerIndex !== null && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
+                  onClick={() => setEditingLayerIndex(null)}
+                >
+                  <div
+                    className="bg-white dark:bg-[#121a16] rounded-2xl border border-gray-200 dark:border-white/10 shadow-2xl max-w-md w-full p-5 space-y-4 max-h-[85vh] flex flex-col"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10">
+                      <div>
+                        <h3 className="font-bold text-base text-gray-900 dark:text-white">
+                          {t("filamentPainting.chooseLayerColor", {
+                            layer: (editingLayerIndex + 1).toString(),
+                          })}
+                        </h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          {t("filamentPainting.stockFilaments")}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setEditingLayerIndex(null)}
+                        className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                        aria-label={t("filamentPainting.closePicker")}
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+
+                    {/* Grid of Store Filaments */}
+                    <div className="grid grid-cols-2 gap-2 overflow-y-auto pr-1 flex-1 min-h-[220px]">
+                      {storePlaFilaments.map((f) => {
+                        const fHex = getPlaFilamentHex(f);
+                        const isCurrent =
+                          customPalette[editingLayerIndex]?.filamentId === f.id;
+                        return (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => {
+                              handleSelectCatalogFilament(
+                                editingLayerIndex,
+                                f.id,
+                              );
+                              setEditingLayerIndex(null);
+                            }}
+                            className={`p-2.5 rounded-xl border text-left flex items-center gap-3 transition-all ${
+                              isCurrent
+                                ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs"
+                                : "bg-gray-50/70 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 hover:border-gray-300"
+                            }`}
+                          >
+                            <span
+                              className="w-7 h-7 rounded-full border border-black/20 shadow-inner shrink-0 ring-2 ring-black/5"
+                              style={{ backgroundColor: fHex }}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                                {f.name}
+                              </div>
+                              <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                                {translateColorText(f.color, t)} ·{" "}
+                                {f.material || "PLA"}
+                              </div>
+                            </div>
+                            {isCurrent && (
+                              <CheckCircle2
+                                size={15}
+                                className="text-emerald-600 dark:text-emerald-400 shrink-0"
+                              />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="pt-2 border-t border-gray-100 dark:border-white/10 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setEditingLayerIndex(null)}
+                        className="px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 rounded-xl transition-colors"
+                      >
+                        {t("filamentPainting.closePicker")}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

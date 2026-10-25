@@ -57,5 +57,13 @@
   "bottomLayer": "Базовый (Низ)",
   "topLayer": "Блик (Верх)",
   "convertingPhoto": "Преобразование вашей фотографии в 3D-рельеф...",
-  "add3dPhotoToQuote": "Добавить 3D-фото в расчет"
+  "add3dPhotoToQuote": "Добавить 3D-фото в расчет",
+  "chooseLayerColor": "Выберите филамент для слоя {{layer}}",
+  "changeColor": "Изменить",
+  "closePicker": "Закрыть",
+  "layerBaseLabel": "Слой 1: База (Тени)",
+  "layerMidtoneLabel": "Слой {{layer}}: Полутон",
+  "layerHighlightLabel": "Слой {{layer}}: Блик (Верх)",
+  "quickPresetsTitle": "Быстрые палитры",
+  "stockFilaments": "Доступные филаменты на складе"
 }

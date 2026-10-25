@@ -64,7 +64,9 @@ public class HueForgeLayerStackCalculator
             }
             else
             {
-                double effectiveTd = Math.Max(0.15, Math.Min(activeFilament.TransmissionDistanceMm, 0.65));
+                double bandThickness = Math.Max(0.12, activeFilament.EndHeightMm - activeFilament.StartHeightMm);
+                double maxEffectiveTd = bandThickness * 0.85;
+                double effectiveTd = Math.Max(0.15, Math.Min(activeFilament.TransmissionDistanceMm, maxEffectiveTd));
                 currentColor = TransmissionDistanceModel.BlendLayer(
                     substrateColor,
                     activeFilament.Color,
@@ -248,14 +250,50 @@ public class HueForgeLayerStackCalculator
             if (luma > maxLuma) maxLuma = luma;
         }
 
-        // Auto-contrast / histogram normalization (auto-levels) so shadows map to 0.0 and highlights map to 1.0
-        float lumaRange = maxLuma - minLuma;
+        // Robust percentile-based histogram normalization (auto-levels) to stretch dynamic range
+        float pLow = minLuma;
+        float pHigh = maxLuma;
+
+        if (pixelCount >= 64)
+        {
+            int[] hist = new int[256];
+            for (int i = 0; i < pixelCount; i++)
+            {
+                int bin = Math.Clamp((int)(lumaBuffer[i] * 255f), 0, 255);
+                hist[bin]++;
+            }
+
+            int lowCutoff = (int)(pixelCount * 0.015f); // 1.5% shadow clip
+            int highCutoff = (int)(pixelCount * 0.985f); // 1.5% highlight clip
+
+            int cum = 0;
+            bool lowFound = false;
+            for (int b = 0; b < 256; b++)
+            {
+                cum += hist[b];
+                if (!lowFound && cum >= lowCutoff)
+                {
+                    pLow = b / 255.0f;
+                    lowFound = true;
+                }
+                if (cum >= highCutoff)
+                {
+                    pHigh = b / 255.0f;
+                    break;
+                }
+            }
+        }
+
+        float lumaRange = pHigh - pLow;
         float[] normalizedLuma = new float[pixelCount];
         for (int i = 0; i < pixelCount; i++)
         {
-            normalizedLuma[i] = lumaRange > 0.001f
-                ? Math.Clamp((lumaBuffer[i] - minLuma) / lumaRange, 0.0f, 1.0f)
-                : lumaBuffer[i];
+            float stretched = lumaRange > 0.005f
+                ? Math.Clamp((lumaBuffer[i] - pLow) / lumaRange, 0.0f, 1.0f)
+                : (maxLuma - minLuma > 0.001f ? Math.Clamp((lumaBuffer[i] - minLuma) / (maxLuma - minLuma), 0.0f, 1.0f) : lumaBuffer[i]);
+
+            // Gentle S-curve (smoothstep) to expand midtone contrast and prevent muddy tones
+            normalizedLuma[i] = stretched * stretched * (3.0f - 2.0f * stretched);
         }
 
         // 3x3 Gaussian smoothing pass to eliminate single-pixel noise and prevent sharp unprintable spikes
@@ -298,16 +336,45 @@ public class HueForgeLayerStackCalculator
             int byteIdx = i * 3;
             float tone = smoothedLuma[i];
 
-            // Target Z height: minimum solid base thickness + tone * relief height
+            // Target continuous Z height: solid base thickness + tone * relief height
             double targetZ = minBase + (tone * availableRelief);
 
-            // Lookup closest discrete physical layer in LUT
-            var matchedStep = GetStepForHeight(targetZ, lut);
+            // Continuous surface relief for smooth watertight STL mesh
+            heightMap[i] = (float)targetZ;
 
-            heightMap[i] = (float)matchedStep.HeightMm;
-            blendedRgbMap[byteIdx] = matchedStep.BlendedColor.R;
-            blendedRgbMap[byteIdx + 1] = matchedStep.BlendedColor.G;
-            blendedRgbMap[byteIdx + 2] = matchedStep.BlendedColor.B;
+            // Smoothly interpolate blended color between adjacent LUT steps for photographic quality
+            int stepIdx = 0;
+            for (int s = 0; s < lut.Count; s++)
+            {
+                if (lut[s].HeightMm >= targetZ)
+                {
+                    stepIdx = s;
+                    break;
+                }
+                stepIdx = s;
+            }
+
+            ColorRgb color;
+            if (stepIdx > 0 && stepIdx < lut.Count)
+            {
+                var s0 = lut[stepIdx - 1];
+                var s1 = lut[stepIdx];
+                double span = Math.Max(0.0001, s1.HeightMm - s0.HeightMm);
+                double frac = Math.Clamp((targetZ - s0.HeightMm) / span, 0.0, 1.0);
+                color = new ColorRgb(
+                    (byte)Math.Clamp(Math.Round(s0.BlendedColor.R * (1.0 - frac) + s1.BlendedColor.R * frac), 0, 255),
+                    (byte)Math.Clamp(Math.Round(s0.BlendedColor.G * (1.0 - frac) + s1.BlendedColor.G * frac), 0, 255),
+                    (byte)Math.Clamp(Math.Round(s0.BlendedColor.B * (1.0 - frac) + s1.BlendedColor.B * frac), 0, 255)
+                );
+            }
+            else
+            {
+                color = lut[stepIdx].BlendedColor;
+            }
+
+            blendedRgbMap[byteIdx] = color.R;
+            blendedRgbMap[byteIdx + 1] = color.G;
+            blendedRgbMap[byteIdx + 2] = color.B;
         }
 
         return new FilamentPaintingCalculationResult

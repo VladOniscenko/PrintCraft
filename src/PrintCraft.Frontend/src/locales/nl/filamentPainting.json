@@ -57,5 +57,13 @@
   "bottomLayer": "Basis (Onder)",
   "topLayer": "Bovenste laag (Boven)",
   "convertingPhoto": "Je foto omzetten naar een 3D-reliëf...",
-  "add3dPhotoToQuote": "Voeg 3D-foto toe aan offerte"
+  "add3dPhotoToQuote": "Voeg 3D-foto toe aan offerte",
+  "chooseLayerColor": "Kies filament voor laag {{layer}}",
+  "changeColor": "Wijzigen",
+  "closePicker": "Sluiten",
+  "layerBaseLabel": "Laag 1: Basis (Schaduwen)",
+  "layerMidtoneLabel": "Laag {{layer}}: Middentoon",
+  "layerHighlightLabel": "Laag {{layer}}: Hoogtepunt (Boven)",
+  "quickPresetsTitle": "Snelle Paletten",
+  "stockFilaments": "Beschikbare voorraadfilamenten"
 }
