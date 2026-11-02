@@ -6,16 +6,9 @@ import {
 } from "../utils/modelDimensions";
 import {
   Upload,
-  Trash2,
   Plus,
-  Package,
   Loader2,
   CheckCircle,
-  Layers,
-  Palette,
-  MessageSquare,
-  Hash,
-  Ruler,
   MapPin,
   User,
   UserPlus,
@@ -26,14 +19,9 @@ import {
   ChevronRight,
   ChevronLeft,
   Home,
-  Gauge,
-  Sliders,
   Sparkles,
   X,
-  Pencil,
-  RefreshCw,
   CheckCircle2,
-  ArrowRight,
   Check,
   Truck,
   ShieldCheck,
@@ -41,7 +29,12 @@ import {
   HelpCircle,
 } from "lucide-react";
 import Navbar from "./Navbar";
-const Interactive3DViewer = lazy(() => import("./Interactive3DViewer"));
+import Checkout3DHeroHeader from "./checkout/Checkout3DHeroHeader";
+import Checkout3DViewerCard from "./checkout/Checkout3DViewerCard";
+import Checkout3DConfiguratorCard from "./checkout/Checkout3DConfiguratorCard";
+import FarmCatalogModal from "./checkout/FarmCatalogModal";
+import Checkout3DMultiModelTabs from "./checkout/Checkout3DMultiModelTabs";
+import { getDefaultSampleModel } from "../utils/sampleModels";
 const FilamentPaintingPanel = lazy(
   () => import("./filament-painting/FilamentPaintingPanel"),
 );
@@ -76,7 +69,6 @@ const MODEL_EXTENSIONS = new Set([
 ]);
 const MAX_FILES_PER_ITEM = 3;
 const MAX_DIMENSION_MM = 256;
-const SCALE_STEP = 0.01;
 const MAX_ITEM_QUANTITY = 25;
 
 function getFileExtension(fileName: string): string {
@@ -145,142 +137,22 @@ function itemHasModel(item: OrderItem): boolean {
   return false;
 }
 
-interface DebouncedRangeSliderProps {
-  min: number | string;
-  max: number | string;
-  step?: number | string;
-  value: number;
-  onChange: (val: number) => void;
-  className?: string;
-}
-
-function DebouncedRangeSlider({
-  min,
-  max,
-  step,
-  value,
-  onChange,
-  className,
-}: DebouncedRangeSliderProps) {
-  const [localVal, setLocalVal] = useState(value);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    setLocalVal(value);
-  }, [value]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const nextVal = Number(e.target.value);
-    setLocalVal(nextVal);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      onChange(nextVal);
-    }, 70);
-  };
-
-  const handleCommit = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    onChange(localVal);
-  };
-
-  return (
-    <input
-      type="range"
-      min={min}
-      max={max}
-      step={step}
-      value={localVal}
-      onChange={handleChange}
-      onMouseUp={handleCommit}
-      onTouchEnd={handleCommit}
-      className={className}
-    />
-  );
-}
-
-interface DebouncedNumberInputProps {
-  value: number | undefined;
-  onChange: (val: number | undefined) => void;
-  placeholder?: string;
-  min?: string | number;
-  max?: string | number;
-  step?: string | number;
-  className?: string;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-}
-
-function DebouncedNumberInput({
-  value,
-  onChange,
-  placeholder,
-  min,
-  max,
-  step,
-  className,
-  onKeyDown,
-}: DebouncedNumberInputProps) {
-  const [localVal, setLocalVal] = useState<string>(
-    value !== undefined ? String(value) : "",
-  );
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    setLocalVal(value !== undefined ? String(value) : "");
-  }, [value]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    setLocalVal(raw);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      const parsed = raw === "" ? undefined : parseFloat(raw);
-      onChange(parsed);
-    }, 200);
-  };
-
-  const handleBlur = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    const parsed = localVal === "" ? undefined : parseFloat(localVal);
-    onChange(parsed);
-  };
-
-  return (
-    <input
-      type="number"
-      min={min}
-      max={max}
-      step={step}
-      placeholder={placeholder}
-      value={localVal}
-      onChange={handleChange}
-      onBlur={handleBlur}
-      onKeyDown={onKeyDown}
-      className={className}
-    />
-  );
-}
-
 interface SavedAddress {
   id: string;
   fullName: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
   postalCode: string;
+  country?: string;
+  isDefault?: boolean;
   label?: string;
-  isDefault: boolean;
 }
 
-export type QuoteProps = {
+interface QuoteProps {
   initialMode?: "filament-painting" | "custom-request";
-};
+}
 
 export default function Quote({ initialMode }: QuoteProps = {}) {
   const { t, localizePath, language } = useI18n();
@@ -340,7 +212,6 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     }
   });
   const [filaments, setFilaments] = useState<Filament[]>([]);
-  const [showAddItemChoiceModal, setShowAddItemChoiceModal] = useState<boolean>(false);
   const [activeCreatorFlow, setActiveCreatorFlow] = useState<"filament-painting" | "custom-request" | null>(() => {
     if (initialMode === "filament-painting") return "filament-painting";
     if (initialMode === "custom-request") return "custom-request";
@@ -386,9 +257,152 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDragOver, setIsDragOver] = useState(false);
   const submittedRef = useRef(false);
   const uploadedFileUrlsRef = useRef<Set<string>>(new Set());
+
+  const [activeModelIndex, setActiveModelIndex] = useState<number>(0);
+  const [isDemoActive, setIsDemoActive] = useState<boolean>(false);
+  const [isFarmCatalogOpen, setIsFarmCatalogOpen] = useState<boolean>(false);
+
+  const activeItem = items[activeModelIndex] || items[0] || null;
+  const hasModel = !!(
+    activeItem &&
+    (activeItem.fileUrl ||
+      (activeItem.files && activeItem.files.length > 0) ||
+      activeItem.imageUrl)
+  );
+
+  const fallbackItem: OrderItem = {
+    fileUrl: isDemoActive ? getDefaultSampleModel().url : "",
+    fileName: isDemoActive ? getDefaultSampleModel().fileName : "",
+    imageUrl: "",
+    material: "PLA",
+    color: "Dark Teal",
+    count: 1,
+    price: 0,
+    scaleFactor: 1.0,
+    infillPercent: 20,
+    printQuality: "Standard (0.20mm)",
+    supportsNeeded: false,
+    notes: "",
+    files: isDemoActive
+      ? [
+          {
+            url: getDefaultSampleModel().url,
+            name: getDefaultSampleModel().fileName,
+            kind: "model",
+          },
+        ]
+      : [],
+  };
+
+  const handleUpdateActiveItem = <K extends keyof OrderItem>(
+    field: K,
+    value: OrderItem[K],
+  ) => {
+    if (items.length === 0) {
+      setItems([{ ...fallbackItem, [field]: value }]);
+      return;
+    }
+    updateItem(activeModelIndex, field as any, value);
+  };
+
+  const handleViewerDropFiles = async (droppedFiles: File[]) => {
+    if (isUploading || isProcessing) return;
+    setIsDemoActive(false);
+    setIsProcessing(true);
+    const targetIdx = items.length === 0 ? 0 : activeModelIndex;
+    await uploadSelectedFilesForItem(droppedFiles, targetIdx, true);
+  };
+
+  const handleLoadSampleModel = () => {
+    const sample = getDefaultSampleModel();
+    setIsDemoActive(true);
+    const targetIndex = items.length > 0 ? activeModelIndex : 0;
+
+    setItems((prev) => {
+      const next = [...prev];
+      const defaultMat = sample.defaultMaterial;
+      const defaultColor = sample.defaultColor;
+      const existing = next[targetIndex] || {
+        fileUrl: "",
+        fileName: "",
+        imageUrl: "",
+        material: defaultMat,
+        color: defaultColor,
+        count: 1,
+        price: 0,
+        scaleFactor: 1.0,
+        infillPercent: 20,
+        printQuality: "Standard (0.20mm)",
+        supportsNeeded: false,
+        notes: "",
+        files: [],
+      };
+
+      next[targetIndex] = {
+        ...existing,
+        fileUrl: sample.url,
+        fileName: sample.fileName,
+        material: existing.material || defaultMat,
+        color: existing.color || defaultColor,
+        files: [{ url: sample.url, name: sample.fileName, kind: "model" }],
+      };
+      return next;
+    });
+    setActiveModelIndex(targetIndex);
+  };
+
+  const handleDimensionsDetected = (dims: {
+    x: number;
+    y: number;
+    z: number;
+  }) => {
+    setItems((prev) => {
+      if (prev.length === 0) {
+        return [
+          {
+            ...fallbackItem,
+            dimensionBaseX: dims.x,
+            dimensionBaseY: dims.y,
+            dimensionBaseZ: dims.z,
+            dimensionScale: 1.0,
+            scaleFactor: 1.0,
+            dimensionX: roundMillimeters(dims.x),
+            dimensionY: roundMillimeters(dims.y),
+            dimensionZ: roundMillimeters(dims.z),
+          },
+        ];
+      }
+      const next = [...prev];
+      const targetIdx = Math.min(activeModelIndex, next.length - 1);
+      if (!next[targetIdx]) return next;
+      const currentScale = next[targetIdx].scaleFactor ?? 1.0;
+      next[targetIdx] = {
+        ...next[targetIdx],
+        dimensionBaseX: dims.x,
+        dimensionBaseY: dims.y,
+        dimensionBaseZ: dims.z,
+        dimensionScale: currentScale,
+        dimensionX: roundMillimeters(dims.x * currentScale),
+        dimensionY: roundMillimeters(dims.y * currentScale),
+        dimensionZ: roundMillimeters(dims.z * currentScale),
+      };
+      return next;
+    });
+  };
+
+  const handleRemoveModel = (idx: number) => {
+    removeItem(idx);
+    setActiveModelIndex((prev) =>
+      Math.max(0, Math.min(prev, items.length - 2)),
+    );
+  };
+
+  const handleAddNewModel = () => {
+    if (items.length >= 8) return;
+    new3dFileInputRef.current?.click();
+  };
 
   const openFilamentPaintingCreator = (file?: File) => {
     if (file) {
@@ -396,7 +410,6 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     }
     setEditingItemIndex(null);
     setActiveCreatorFlow("filament-painting");
-    setShowAddItemChoiceModal(false);
     setTimeout(() => {
       document.getElementById("filament-painting-configurator")?.scrollIntoView({
         behavior: "smooth",
@@ -965,7 +978,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     setSelectedAddressId(addr.id);
     setShippingDetails({
       fullName: addr.fullName,
-      phoneNumber: addr.phoneNumber,
+      phoneNumber: addr.phoneNumber || "",
       addressLine1: addr.addressLine1,
       city: addr.city,
       postalCode: addr.postalCode,
@@ -1269,55 +1282,8 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     }
   };
 
-  const handleReplaceFile = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    itemIndex: number,
-  ) => {
-    if (isUploading || isProcessing) return;
-    const selectedFiles = Array.from(e.target.files ?? []);
-    if (selectedFiles.length === 0) return;
-    e.target.value = "";
-    setIsProcessing(true);
-    await uploadSelectedFilesForItem(selectedFiles, itemIndex, true);
-    notifySuccess(t("quote.successFileReplaced"));
-  };
 
-  const handleConfirmItem = (itemIndex: number) => {
-    const item = items[itemIndex];
-    if (!item) {
-      setEditingItemIndex(null);
-      return;
-    }
-    if (
-      (!item.files || item.files.length === 0) &&
-      !item.fileUrl &&
-      !item.imageUrl &&
-      !item.notes
-    ) {
-      notifyError(
-        t("quote.itemContentRequired") ||
-          "Please upload a file or provide a description for this item.",
-      );
-      return;
-    }
-    setEditingItemIndex(null);
-    notifySuccess(t("quote.successItemAdded"));
-  };
 
-  const handleCancelEdit = () => {
-    if (editingItemIndex !== null) {
-      const item = items[editingItemIndex];
-      if (
-        item &&
-        (!item.files || item.files.length === 0) &&
-        !item.fileUrl &&
-        !item.notes
-      ) {
-        removeItem(editingItemIndex);
-      }
-    }
-    setEditingItemIndex(null);
-  };
 
   const handleFilamentPaintingAdded = ({
     liveResult,
@@ -1491,43 +1457,9 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     notifySuccess(t("quote.successItemAdded"));
   };
 
-  const handleFileUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    itemIndex: number,
-  ) => {
-    if (isUploading || isProcessing) return;
-    const selectedFiles = Array.from(e.target.files ?? []);
-    if (selectedFiles.length === 0) return;
-    e.target.value = "";
-    setIsProcessing(true);
-    await uploadSelectedFilesForItem(selectedFiles, itemIndex);
-  };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (!isUploading && !isProcessing) {
-      setIsDragOver(true);
-    }
-  };
 
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
 
-  const handleDrop = async (
-    e: React.DragEvent<HTMLDivElement>,
-    itemIndex: number,
-  ) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    if (isUploading || isProcessing) return;
-
-    const droppedFiles = Array.from(e.dataTransfer.files ?? []);
-    if (droppedFiles.length === 0) return;
-    setIsProcessing(true);
-    await uploadSelectedFilesForItem(droppedFiles, itemIndex);
-  };
 
   const deleteTempUpload = async (fileUrl?: string | null) => {
     if (!fileUrl) return;
@@ -1563,107 +1495,6 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
         void deleteTempUpload(file.url);
       }
     }
-  };
-
-  const removeItemFile = (itemIndex: number, fileIndex: number) => {
-    setItems((prev) => {
-      const nextItems = [...prev];
-      const item = nextItems[itemIndex];
-      if (!item) return nextItems;
-
-      const existingFiles = item.files || [];
-      if (fileIndex < 0 || fileIndex >= existingFiles.length) return nextItems;
-
-      const removed = existingFiles[fileIndex];
-      const nextFiles = existingFiles.filter((_, index) => index !== fileIndex);
-
-      const firstModel = nextFiles.find((file) => file.kind === "model");
-      const firstAny = nextFiles[0];
-
-      nextItems[itemIndex] = {
-        ...item,
-        files: nextFiles,
-        fileUrl: firstModel?.url || firstAny?.url || "",
-        fileName: firstModel?.name || firstAny?.name || "",
-        imageUrl: item.imageUrl || "",
-        ...(removed?.kind === "model" && !firstModel
-          ? {
-              dimensionX: undefined,
-              dimensionY: undefined,
-              dimensionZ: undefined,
-              dimensionBaseX: undefined,
-              dimensionBaseY: undefined,
-              dimensionBaseZ: undefined,
-              dimensionScale: undefined,
-            }
-          : {}),
-      };
-
-      if (removed?.url) void deleteTempUpload(removed.url);
-
-      return nextItems;
-    });
-  };
-
-  const clearItemFiles = (itemIndex: number) => {
-    setItems((prev) => {
-      const nextItems = [...prev];
-      const item = nextItems[itemIndex];
-      if (!item) return nextItems;
-
-      const existingFiles = item.files || [];
-      for (const file of existingFiles) {
-        if (!file?.url) continue;
-        void deleteTempUpload(file.url);
-      }
-
-      nextItems[itemIndex] = {
-        ...item,
-        files: [],
-        fileUrl: "",
-        fileName: "",
-        imageUrl: "",
-        dimensionX: undefined,
-        dimensionY: undefined,
-        dimensionZ: undefined,
-        dimensionBaseX: undefined,
-        dimensionBaseY: undefined,
-        dimensionBaseZ: undefined,
-        dimensionScale: undefined,
-      };
-
-      return nextItems;
-    });
-  };
-
-  const addTextOnlyItem = () => {
-    const defaultMat = finalMaterials[0];
-    const defaultColor = getColorsForMaterial(defaultMat)[0];
-
-    const newItem: OrderItem = {
-      fileUrl: "",
-      fileName: "",
-      notes: "",
-      size: "",
-      dimensionX: undefined,
-      dimensionY: undefined,
-      dimensionZ: undefined,
-      dimensionBaseX: undefined,
-      dimensionBaseY: undefined,
-      dimensionBaseZ: undefined,
-      dimensionScale: undefined,
-      imageUrl: "",
-      files: [],
-      material: defaultMat,
-      color: defaultColor,
-      price: 0,
-      count: 1,
-      scaleFactor: 1.0,
-      infillPercent: 20,
-      printQuality: "Standard (0.20mm)",
-      supportsNeeded: false,
-    };
-    setItems([...items, newItem]);
   };
 
   const updateItem = (index: number, field: keyof OrderItem, value: any) => {
@@ -1722,30 +1553,12 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     });
   };
 
-  const updateItemDimensions = (
-    index: number,
-    x?: number,
-    y?: number,
-    z?: number,
-  ) => {
-    setItems((prev) => {
-      const nextItems = [...prev];
-      const item = nextItems[index];
-      if (!item) return nextItems;
-
-      nextItems[index] = {
-        ...item,
-        dimensionX:
-          x !== undefined && !Number.isNaN(x) ? roundMillimeters(x) : undefined,
-        dimensionY:
-          y !== undefined && !Number.isNaN(y) ? roundMillimeters(y) : undefined,
-        dimensionZ:
-          z !== undefined && !Number.isNaN(z) ? roundMillimeters(z) : undefined,
-      };
-
-      return nextItems;
-    });
+  const handleScaleFactorChange = (newScale: number) => {
+    if (items.length > 0 && items[activeModelIndex]) {
+      updateItemScale(activeModelIndex, newScale);
+    }
   };
+  void handleScaleFactorChange;
 
   const handleSubmit = async (
     e?: React.FormEvent | React.SyntheticEvent,
@@ -2028,77 +1841,90 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
     <div className="site-shell">
       <Navbar />
 
-      <main className="site-main px-4 sm:px-6 py-10 md:py-16 max-w-5xl mx-auto">
-        {/* Apple-Style Clean Header */}
-        <div className="mb-8 md:mb-12 text-center max-w-3xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-3">
-            {t("quote.title")}
-          </h1>
-          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
-            {t("quote.subtitle")}
-          </p>
+      <main
+        className={`site-main px-4 sm:px-6 py-8 md:py-12 mx-auto ${
+          currentStepId === "models" && !activeCreatorFlow
+            ? "max-w-7xl"
+            : "max-w-5xl"
+        }`}
+      >
+        {/* Modern 3D Checkout Hero Header for Step 1 */}
+        {currentStepId === "models" && !activeCreatorFlow ? (
+          <Checkout3DHeroHeader />
+        ) : (
+          <>
+            {/* Apple-Style Clean Header */}
+            <div className="mb-8 md:mb-12 text-center max-w-3xl mx-auto">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-3">
+                {t("quote.title")}
+              </h1>
+              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
+                {t("quote.subtitle")}
+              </p>
 
-          {/* High-Trust Reassurance Badges */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-medium text-gray-600 dark:text-gray-300">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 shadow-2xs">
-              <Truck size={14} className="text-[#133827] dark:text-emerald-400" />
-              {t("quote.trustBadgePostNl")}
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 shadow-2xs">
-              <ShieldCheck size={14} className="text-[#133827] dark:text-emerald-400" />
-              {t("quote.trustBadgeReview")}
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 shadow-2xs">
-              <MapPin size={14} className="text-[#133827] dark:text-emerald-400" />
-              {t("quote.trustBadgeRotterdam")}
-            </span>
-          </div>
-        </div>
+              {/* High-Trust Reassurance Badges */}
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs font-medium text-gray-600 dark:text-gray-300">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 shadow-2xs">
+                  <Truck size={14} className="text-[#133827] dark:text-emerald-400" />
+                  {t("quote.trustBadgePostNl")}
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 shadow-2xs">
+                  <ShieldCheck size={14} className="text-[#133827] dark:text-emerald-400" />
+                  {t("quote.trustBadgeReview")}
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100/90 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 shadow-2xs">
+                  <MapPin size={14} className="text-[#133827] dark:text-emerald-400" />
+                  {t("quote.trustBadgeRotterdam")}
+                </span>
+              </div>
+            </div>
 
-        {/* Apple-Style Segmented Stepper Pill Bar */}
-        <div className="flex justify-center mb-10 sm:mb-12">
-          <div className="inline-flex items-center p-1.5 bg-gray-100/90 dark:bg-white/5 rounded-full border border-gray-200/80 dark:border-white/10 shadow-2xs gap-1 max-w-full overflow-x-auto">
-            {steps.map((step, index) => {
-              const stepNumber = index + 1;
-              const isActive = currentStepId === step.id;
-              const isComplete = currentStepIndex > index;
+            {/* Apple-Style Segmented Stepper Pill Bar */}
+            <div className="flex justify-center mb-10 sm:mb-12">
+              <div className="inline-flex items-center p-1.5 bg-gray-100/90 dark:bg-white/5 rounded-full border border-gray-200/80 dark:border-white/10 shadow-2xs gap-1 max-w-full overflow-x-auto">
+                {steps.map((step, index) => {
+                  const stepNumber = index + 1;
+                  const isActive = currentStepId === step.id;
+                  const isComplete = currentStepIndex > index;
 
-              return (
-                <button
-                  key={step.id}
-                  type="button"
-                  disabled={!isComplete}
-                  onClick={() => {
-                    if (isComplete) {
-                      setCurrentStepId(step.id);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }
-                  }}
-                  className={`rounded-full px-3.5 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
-                    isActive
-                      ? "bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white shadow-xs border border-gray-200/60 dark:border-white/10"
-                      : isComplete
-                        ? "text-emerald-800 dark:text-emerald-400 hover:text-emerald-950 dark:hover:text-emerald-300 hover:bg-white/60 dark:hover:bg-white/10 cursor-pointer"
-                        : "text-gray-400 dark:text-gray-500 cursor-default"
-                  }`}
-                >
-                  <span
-                    className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center transition-colors ${
-                      isActive
-                        ? "bg-[#133827] dark:bg-emerald-600 text-white"
-                        : isComplete
-                          ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300"
-                          : "bg-gray-200 dark:bg-white/10 text-gray-500 dark:text-gray-400"
-                    }`}
-                  >
-                    {isComplete ? <Check size={12} strokeWidth={2.5} /> : stepNumber}
-                  </span>
-                  <span>{step.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+                  return (
+                    <button
+                      key={step.id}
+                      type="button"
+                      disabled={!isComplete}
+                      onClick={() => {
+                        if (isComplete) {
+                          setCurrentStepId(step.id);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }
+                      }}
+                      className={`rounded-full px-3.5 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
+                        isActive
+                          ? "bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white shadow-xs border border-gray-200/60 dark:border-white/10"
+                          : isComplete
+                            ? "text-emerald-800 dark:text-emerald-400 hover:text-emerald-950 dark:hover:text-emerald-300 hover:bg-white/60 dark:hover:bg-white/10 cursor-pointer"
+                            : "text-gray-400 dark:text-gray-500 cursor-default"
+                      }`}
+                    >
+                      <span
+                        className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center transition-colors ${
+                          isActive
+                            ? "bg-[#133827] dark:bg-emerald-600 text-white"
+                            : isComplete
+                              ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300"
+                              : "bg-gray-200 dark:bg-white/10 text-gray-500 dark:text-gray-400"
+                        }`}
+                      >
+                        {isComplete ? <Check size={12} strokeWidth={2.5} /> : stepNumber}
+                      </span>
+                      <span>{step.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        )}
 
         {!isLoggedIn && guestSubmittedOrderId && (
           <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/60 dark:bg-emerald-950/30 p-5 text-center">
@@ -2137,7 +1963,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
           </div>
         )}
 
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className={`mx-auto space-y-6 ${currentStepId === "models" && !activeCreatorFlow ? "w-full" : "max-w-4xl"}`}>
             {/* STEP 1: MODELS */}
             {currentStepId === "models" && (
               <div className="space-y-6">
@@ -2153,7 +1979,6 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                     const selectedFiles = Array.from(e.target.files ?? []);
                     if (selectedFiles.length === 0) return;
                     e.target.value = "";
-                    setShowAddItemChoiceModal(false);
                     const newIndex = items.length;
                     setIsProcessing(true);
                     setEditingItemIndex(newIndex);
@@ -2443,1624 +2268,96 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                   </div>
                 )}
 
-                {/* 3-Option Starter View when no items are added yet */}
-                {items.length === 0 && !activeCreatorFlow && (editingItemIndex === null || isProcessing) && (
-                  isProcessing ? (
-                    <div className="rounded-3xl border border-emerald-600/30 dark:border-emerald-500/30 bg-white dark:bg-[#0e1512] p-10 sm:p-14 text-center transition-all flex flex-col items-center justify-center shadow-md my-4 space-y-5 animate-in fade-in duration-200">
-                      <div className="relative">
-                        <div className="w-16 h-16 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/50 flex items-center justify-center shadow-xs">
-                          <Loader2 className="w-8 h-8 animate-spin text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                      </div>
-                      <div className="max-w-md space-y-2">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40 text-[11px] font-bold uppercase tracking-wider">
-                          <Layers size={13} className="text-emerald-600 dark:text-emerald-400 animate-pulse" />
-                          <span>{t("quote.uploadProcessingAnalyzing")}</span>
-                        </div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                          {t("quote.uploadProcessingTitle")}
-                        </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                          {t("quote.uploadProcessingSubtitle")}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-6 my-2">
-                      <div className="text-center py-2 max-w-md mx-auto">
-                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                          {t("quote.startOrderQuestion")}
-                        </h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                          {t("quote.startOrderSubtitle")}
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Path 1: 3D CAD Print / Custom Quote Dropzone */}
-                        <div
-                          onDragOver={handleDragOver}
-                          onDragLeave={handleDragLeave}
-                          onDrop={async (e) => {
-                            e.preventDefault();
-                            setIsDragOver(false);
-                            if (isUploading || isProcessing) return;
-                            const droppedFiles = Array.from(e.dataTransfer.files ?? []);
-                            if (droppedFiles.length === 0) return;
-                            setIsProcessing(true);
-                            setEditingItemIndex(0);
-                            await uploadSelectedFilesForItem(droppedFiles, 0);
-                          }}
-                          className={`rounded-3xl border bg-white dark:bg-[#0e1512] p-6 sm:p-8 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm ${
-                            isDragOver
-                              ? "border-emerald-600 dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 scale-[0.99]"
-                              : "border-gray-200/80 dark:border-white/10"
-                          } ${isUploading || isProcessing ? "opacity-70 pointer-events-none" : ""}`}
-                        >
-                          <div>
-                            <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/10 text-[#133827] dark:text-emerald-400 border border-gray-200/60 dark:border-white/10 flex items-center justify-center mx-auto mb-4 shadow-2xs">
-                              <Layers size={26} />
-                            </div>
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 text-[11px] font-bold uppercase mb-2">
-                              {t("quote.badgeCadPrint")}
-                            </div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                              {t("quote.startPath3dTitle")}
-                            </h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
-                              {t("quote.startPath3dSubtitle")}
-                            </p>
-                            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-2 font-medium">
-                              {t("quote.allowedFilesInline")}
-                            </p>
-                          </div>
-
-                          <div className="mt-6 flex justify-center">
-                            <label className={`bg-[#133827] dark:bg-emerald-600 text-white px-6 py-3 rounded-full text-xs font-semibold hover:bg-[#0f2d1f] dark:hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-xs ${isUploading || isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}>
-                              {isUploading || isProcessing ? (
-                                <Loader2 className="animate-spin" size={15} />
-                              ) : (
-                                <Upload size={15} />
-                              )}
-                              <span>{t("quote.browse3dModelFiles")}</span>
-                              <input
-                                type="file"
-                                multiple
-                                accept={ALLOWED_UPLOAD_ACCEPT}
-                                className="hidden"
-                                onChange={async (e) => {
-                                  if (isUploading || isProcessing) return;
-                                  const selectedFiles = Array.from(e.target.files ?? []);
-                                  if (selectedFiles.length === 0) return;
-                                  e.target.value = "";
-                                  setIsProcessing(true);
-                                  setEditingItemIndex(0);
-                                  await uploadSelectedFilesForItem(selectedFiles, 0);
-                                }}
-                                disabled={isUploading || isProcessing}
-                              />
-                            </label>
-                          </div>
-                        </div>
-
-                        {/* Path 2: HueForge Filament Painting */}
-                        <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-6 sm:p-8 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm">
-                          <div>
-                            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center mx-auto mb-4 shadow-2xs">
-                              <Sparkles size={26} />
-                            </div>
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 text-[11px] font-bold uppercase mb-2">
-                              <Sparkles size={12} className="text-emerald-700 dark:text-emerald-400" />
-                              HueForge
-                            </div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                              {t("quote.startPathPaintingTitle")}
-                            </h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
-                              {t("quote.startPathPaintingSubtitle")}
-                            </p>
-                          </div>
-
-                          <div className="mt-6 flex justify-center">
-                            <button
-                              type="button"
-                              onClick={() => openFilamentPaintingCreator()}
-                              className="bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10 px-6 py-3 rounded-full text-xs font-semibold transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
-                            >
-                              <Sparkles size={15} className="text-emerald-700 dark:text-emerald-400" />
-                              <span>{t("quote.createFilamentPainting")}</span>
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Path 3: Custom Request / Need Help */}
-                        <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-6 sm:p-8 text-center transition-all flex flex-col justify-between shadow-xs hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm">
-                          <div>
-                            <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center mx-auto mb-4 shadow-2xs">
-                              <HelpCircle size={26} />
-                            </div>
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-100 dark:border-amber-800/40 text-[11px] font-bold uppercase mb-2">
-                              {t("quote.badgeCustomRequest")}
-                            </div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                              {t("quote.startPathCustomTitle")}
-                            </h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto leading-relaxed">
-                              {t("quote.startPathCustomSubtitle")}
-                            </p>
-                          </div>
-
-                          <div className="mt-6 flex justify-center">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEditingItemIndex(null);
-                                setActiveCreatorFlow("custom-request");
-                              }}
-                              className="bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10 px-6 py-3 rounded-full text-xs font-semibold transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
-                            >
-                              <HelpCircle size={15} className="text-amber-600 dark:text-amber-400" />
-                              <span>{t("quote.requestCustomDesign")}</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                )}
-
-                {/* Loading state when adding a new item before it exists in items array */}
-                {items.length > 0 && !activeCreatorFlow && editingItemIndex !== null && !items[editingItemIndex] && isProcessing && (
-                  <div className="rounded-3xl border border-emerald-600/30 dark:border-emerald-500/30 bg-white dark:bg-[#0e1512] p-10 sm:p-14 text-center transition-all flex flex-col items-center justify-center shadow-md my-4 space-y-5 animate-in fade-in duration-200">
-                    <div className="relative">
-                      <div className="w-16 h-16 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/50 flex items-center justify-center shadow-xs">
-                        <Loader2 className="w-8 h-8 animate-spin text-emerald-600 dark:text-emerald-400" />
-                      </div>
-                    </div>
-                    <div className="max-w-md space-y-2">
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40 text-[11px] font-bold uppercase tracking-wider">
-                        <Layers size={13} className="text-emerald-600 dark:text-emerald-400 animate-pulse" />
-                        <span>{t("quote.uploadProcessingAnalyzing")}</span>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                        {t("quote.uploadProcessingTitle")}
-                      </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                        {t("quote.uploadProcessingSubtitle")}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* 2. Active Editor: Focus Mode for Single Item Configuration */}
-                {!activeCreatorFlow && editingItemIndex !== null && items[editingItemIndex] && (() => {
-                  const idx = editingItemIndex;
-                  const item = items[idx];
-                  const hasFiles = (item.files || []).length > 0 || !!item.fileUrl;
-                  const isPainting = item.uploadType === "filament-painting";
-                  const isCustomRequest = item.uploadType === "custom-request";
-
-                  return (
-                    <div
-                      className="relative p-6 sm:p-8 md:p-10 border border-gray-200/80 dark:border-white/10 rounded-3xl bg-white dark:bg-[#0e1512] shadow-xs space-y-7"
-                      {...(!isPainting && !isCustomRequest
-                        ? {
-                            onDragOver: handleDragOver,
-                            onDragLeave: handleDragLeave,
-                            onDrop: (e: React.DragEvent<HTMLDivElement>) => handleDrop(e, idx),
-                          }
-                        : {})}
-                    >
-                      {/* Loading Overlay when uploading/processing within existing item */}
-                      {isProcessing && (
-                        <div className="absolute inset-0 z-20 rounded-3xl bg-white/85 dark:bg-[#0e1512]/90 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-150">
-                          <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/50 flex items-center justify-center shadow-xs mb-4">
-                            <Loader2 className="w-7 h-7 animate-spin text-emerald-600 dark:text-emerald-400" />
-                          </div>
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40 text-[11px] font-bold uppercase tracking-wider mb-2">
-                            <Layers size={13} className="text-emerald-600 dark:text-emerald-400 animate-pulse" />
-                            <span>{t("quote.uploadProcessingAnalyzing")}</span>
-                          </div>
-                          <h4 className="text-lg font-bold text-gray-900 dark:text-white">
-                            {t("quote.uploadProcessingTitle")}
-                          </h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm">
-                            {t("quote.uploadProcessingSubtitle")}
-                          </p>
-                        </div>
-                      )}
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-gray-100 dark:border-white/10 pb-5">
-                        <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
-                          <span className="font-extrabold text-gray-900 dark:text-white text-xl truncate">
-                            {item.fileName || t("quote.textDescription")}
-                          </span>
-                          {isPainting ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40 shrink-0">
-                              <Sparkles size={13} className="text-emerald-600 dark:text-emerald-400" />
-                              {t("quote.badgeFilamentPainting")}
-                            </span>
-                          ) : isCustomRequest ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/40 shrink-0">
-                              <HelpCircle size={13} className="text-amber-600 dark:text-amber-400" />
-                              {t("quote.badgeCustomRequest")}
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 shrink-0">
-                              <Layers size={13} className="text-gray-600 dark:text-gray-400" />
-                              {t("quote.flowCadTitle")}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2.5">
-                          {!isPainting && !isCustomRequest && (
-                            hasFiles ? (
-                              <label className={`cursor-pointer bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-colors flex items-center gap-1.5 border border-gray-200 dark:border-white/10 shadow-2xs ${isUploading || isProcessing ? "opacity-50 pointer-events-none" : ""}`}>
-                                {isUploading || isProcessing ? (
-                                  <Loader2 className="animate-spin" size={15} />
-                                ) : (
-                                  <RefreshCw size={15} />
-                                )}
-                                <span>{t("quote.replaceFile")}</span>
-                                <input
-                                  type="file"
-                                  multiple
-                                  accept={ALLOWED_UPLOAD_ACCEPT}
-                                  className="hidden"
-                                  onChange={(e) => handleReplaceFile(e, idx)}
-                                  disabled={isUploading || isProcessing}
-                                />
-                              </label>
-                            ) : (
-                              <label className={`cursor-pointer bg-white dark:bg-white/5 text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-200 px-4 py-2 rounded-full text-xs font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-colors flex items-center gap-1.5 border border-gray-200 dark:border-white/10 shadow-2xs ${isUploading || isProcessing ? "opacity-50 pointer-events-none" : ""}`}>
-                                {isUploading || isProcessing ? (
-                                  <Loader2 className="animate-spin" size={15} />
-                                ) : (
-                                  <Plus size={15} />
-                                )}
-                                <span>{t("quote.addFile")}</span>
-                                <input
-                                  type="file"
-                                  multiple
-                                  accept={ALLOWED_UPLOAD_ACCEPT}
-                                  className="hidden"
-                                  onChange={(e) => handleFileUpload(e, idx)}
-                                  disabled={isUploading || isProcessing}
-                                />
-                              </label>
-                            )
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => removeItem(idx)}
-                            className="p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                            title={t("quote.removeItemTitle")}
-                          >
-                            <Trash2 size={17} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleCancelEdit}
-                            className="text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 px-3.5 py-2 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                          >
-                            {t("quote.cancel")}
-                          </button>
-                        </div>
-                      </div>
-
-                        {(item.files || []).length > 0 && (
-                          <div className="mb-5 flex flex-wrap gap-2 items-center">
-                            {(item.files || []).map((file, fileIndex) => (
-                              <div
-                                key={`${file.url}-${fileIndex}`}
-                                className="inline-flex items-center gap-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 pl-3 pr-2 py-1.5 text-sm text-gray-700 dark:text-gray-300 font-medium"
-                              >
-                                <span className="truncate max-w-[200px]">
-                                  {file.name}
-                                </span>
-                                {item.uploadType !== "filament-painting" && (
-                                  <button
-                                    type="button"
-                                    onClick={() => removeItemFile(idx, fileIndex)}
-                                    className="text-gray-400 dark:text-gray-500 hover:text-rose-600 dark:hover:text-rose-400 bg-white dark:bg-white/10 rounded-md p-0.5 shadow-sm border border-gray-100 dark:border-white/10 hover:border-rose-200 transition-colors"
-                                    aria-label={`Remove ${file.name}`}
-                                    title={t("quote.removeItemTitle")}
-                                  >
-                                    <Trash2 size={12} />
-                                  </button>
-                                )}
-                              </div>
-                            ))}
-                            {item.uploadType !== "filament-painting" && (
-                              <button
-                                type="button"
-                                onClick={() => clearItemFiles(idx)}
-                                className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 ml-2 cursor-pointer"
-                              >
-                                {t("quote.removeFile")}
-                              </button>
-                            )}
-                          </div>
+                {!activeCreatorFlow && (
+                  <div className="w-full space-y-6 animate-in fade-in duration-200">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                      {/* Left Column: 3D Viewport & Dropzone */}
+                      <div className="lg:col-span-7 space-y-4">
+                        {items.length > 1 && (
+                          <Checkout3DMultiModelTabs
+                            items={items}
+                            activeIndex={activeModelIndex}
+                            onSelectIndex={setActiveModelIndex}
+                            onRemoveIndex={handleRemoveModel}
+                            onAddNewModel={handleAddNewModel}
+                          />
                         )}
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                              <Layers size={14} className="text-emerald-700 dark:text-emerald-400" /> {t("quote.material")}
-                            </label>
-                            {item.uploadType === "filament-painting" ? (
-                              <div className="p-3 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center justify-between">
-                                <span>{item.material || "PLA"}</span>
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-800/40">
-                                  {t("quote.multiColor")}
-                                </span>
-                              </div>
-                            ) : (
-                              <select
-                                className="w-full p-3 bg-[#fbfbfd] dark:bg-[#141e1a] border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all cursor-pointer"
-                                value={item.material}
-                                onChange={(e) => {
-                                  const newMaterial = e.target.value;
-                                  const validColors =
-                                    getColorsForMaterial(newMaterial);
-                                  const newItems = [...items];
-                                  newItems[idx].material = newMaterial;
-                                  if (
-                                    !validColors.includes(newItems[idx].color)
-                                  ) {
-                                    newItems[idx].color = validColors[0];
-                                  }
-                                  setItems(newItems);
-                                }}
-                              >
-                                {finalMaterials.map((m) => (
-                                  <option key={m} value={m} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
-                                    {m}
-                                  </option>
-                                ))}
-                              </select>
-                            )}
-                          </div>
-
-                          {item.uploadType === "filament-painting" ? (
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                                <Sparkles size={14} className="text-emerald-700 dark:text-emerald-400" /> {t("quote.filamentPalette")}
-                              </label>
-                              <div className="p-3 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/40 rounded-xl text-xs font-bold text-emerald-950 dark:text-emerald-200 flex items-center justify-between">
-                                <span className="truncate">{translateColorText(item.color, t)}</span>
-                                <span className="px-2 py-0.5 rounded-md bg-emerald-700 dark:bg-emerald-600 text-white text-[10px] uppercase tracking-wider shrink-0 ml-1">
-                                  {t("quote.tdBlended")}
-                                </span>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                                <Palette size={14} className="text-emerald-700 dark:text-emerald-400" /> {t("quote.color")}
-                              </label>
-                              <select
-                                className="w-full p-3 bg-[#fbfbfd] dark:bg-[#141e1a] border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all cursor-pointer"
-                                value={
-                                  item.color ||
-                                  getColorsForMaterial(item.material)[0] ||
-                                  "Black"
-                                }
-                                onChange={(e) =>
-                                  updateItem(idx, "color", e.target.value)
-                                }
-                              >
-                                {getColorsForMaterial(item.material).map((c) => (
-                                  <option key={c} value={c} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
-                                    {translateColorText(c, t)}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                          )}
-
-                          <div className="space-y-1.5">
-                            <div className="flex items-center justify-between">
-                              <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                                <Hash size={14} className="text-emerald-700 dark:text-emerald-400" /> {t("quote.quantity")}
-                              </label>
-                              <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-800/40">
-                                {t("quote.maxQuantityHint")}
-                              </span>
-                            </div>
-                            <input
-                              type="number"
-                              min="1"
-                              max={MAX_ITEM_QUANTITY}
-                              className="w-full p-3 bg-[#fbfbfd] dark:bg-white/5 border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-900 dark:text-white rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#133827]/15 focus:border-[#133827] focus:bg-white dark:focus:bg-[#141e1a] transition-all"
-                              value={item.count}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  (e.target as HTMLInputElement).blur();
-                                }
-                              }}
-                              onChange={(e) => {
-                                const raw = e.target.value;
-                                if (raw === "") {
-                                  updateItem(idx, "count", 1);
-                                  return;
-                                }
-                                const val = parseInt(raw, 10);
-                                updateItem(
-                                  idx,
-                                  "count",
-                                  isNaN(val)
-                                    ? 1
-                                    : Math.max(
-                                        1,
-                                        Math.min(MAX_ITEM_QUANTITY, val),
-                                      ),
-                                );
-                              }}
-                              onBlur={() => {
-                                if (!item.count || item.count < 1) {
-                                  updateItem(idx, "count", 1);
-                                } else if (item.count > MAX_ITEM_QUANTITY) {
-                                  updateItem(idx, "count", MAX_ITEM_QUANTITY);
-                                }
-                              }}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Interactive WebGL 3D Viewer with Live Color Preview, Dimension Check, and UX Instructions */}
-                        {(() => {
-                          const glbModel = (item.files || []).find(
-                            (f) => f.kind === "model" && f.url.toLowerCase().includes(".glb"),
-                          );
-                          const modelFile = glbModel || (item.files || []).find(
-                            (f) => f.kind === "model",
-                          );
-                          const activeModelUrl =
-                            (item.uploadType === "filament-painting"
-                              ? (glbModel?.url || (item.fileUrl && item.fileUrl.toLowerCase().includes(".glb") ? item.fileUrl : undefined))
-                              : undefined) ||
-                            modelFile?.url ||
-                            (item.fileUrl &&
-                            MODEL_EXTENSIONS.has(getFileExtension(item.fileUrl))
-                              ? item.fileUrl
-                              : undefined);
-                          const activeModelName =
-                            modelFile?.name || item.fileName || "model.glb";
-
-                          if (!activeModelUrl && !itemHasModel(item))
-                            return null;
-
-                          return (
-                            <div className="mb-5">
-                              <Suspense
-                                fallback={
-                                  <div className="w-full h-72 sm:h-80 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-slate-400 gap-2">
-                                    <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
-                                    <span className="text-xs font-semibold">{t("quote.loading3dViewer")}</span>
-                                  </div>
-                                }
-                              >
-                                <Interactive3DViewer
-                                  key={activeModelUrl}
-                                  fileUrl={activeModelUrl}
-                                  fileName={activeModelName}
-                                  colorName={
-                                    item.color ||
-                                    getColorsForMaterial(item.material)[0] ||
-                                    "Black"
-                                  }
-                                  materialName={item.material}
-                                  scaleFactor={
-                                    item.scaleFactor ?? item.dimensionScale ?? 1.0
-                                  }
-                                  count={item.count}
-                                  filaments={filaments}
-                                  layerColorMap={item.layerColorMap}
-                                  showHelp={true}
-                                  onDimensionsDetected={(dims: {
-                                    x: number;
-                                    y: number;
-                                    z: number;
-                                  }) => {
-                                    if (!hasDimensionValue(item.dimensionBaseX)) {
-                                      setItems((prev) => {
-                                        const next = [...prev];
-                                        if (
-                                          !next[idx] ||
-                                          hasDimensionValue(
-                                            next[idx].dimensionBaseX,
-                                          )
-                                        )
-                                          return next;
-                                        const maxScale = getMaximumScaleForBase(
-                                          dims.x,
-                                          dims.y,
-                                          dims.z,
-                                        );
-                                        const scale = clampScale(
-                                          next[idx].scaleFactor ?? 1.0,
-                                          maxScale,
-                                        );
-                                        next[idx] = {
-                                          ...next[idx],
-                                          dimensionBaseX: dims.x,
-                                          dimensionBaseY: dims.y,
-                                          dimensionBaseZ: dims.z,
-                                          dimensionScale: scale,
-                                          scaleFactor: scale,
-                                          dimensionX: roundMillimeters(
-                                            dims.x * scale,
-                                          ),
-                                          dimensionY: roundMillimeters(
-                                            dims.y * scale,
-                                          ),
-                                          dimensionZ: roundMillimeters(
-                                            dims.z * scale,
-                                          ),
-                                        };
-                                        return next;
-                                      });
-                                    }
-                                  }}
-                                />
-                              </Suspense>
-                            </div>
-                          );
-                        })()}
-
-
-
-                        {/* 3D Slicing & Print Specifications */}
-                        <div className="mb-5 rounded-2xl border border-gray-200/70 dark:border-white/10 bg-[#fbfbfd] dark:bg-white/5 p-5 sm:p-6 shadow-2xs space-y-4">
-                          <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/10 pb-3">
-                            <div>
-                              <h4 className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-                                <Gauge size={15} className="text-emerald-700 dark:text-emerald-400" />
-                                {t("quote.printSpecs")}
-                              </h4>
-                              <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
-                                {t("quote.printSpecsSubtitle")}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Sizing & Scale or Dimensions selection */}
-                          {(() => {
-                            const hasModel = itemHasModel(item);
-                            const hasBaseDimensions =
-                              hasDimensionValue(item.dimensionBaseX) &&
-                              hasDimensionValue(item.dimensionBaseY) &&
-                              hasDimensionValue(item.dimensionBaseZ);
-                            const currentScale =
-                              item.scaleFactor ?? item.dimensionScale ?? 1.0;
-                            const maxScale = hasBaseDimensions
-                              ? getMaximumScaleForBase(
-                                  item.dimensionBaseX!,
-                                  item.dimensionBaseY!,
-                                  item.dimensionBaseZ!,
-                                )
-                              : 3.0;
-                            const targetX =
-                              item.dimensionX ??
-                              (hasBaseDimensions
-                                ? roundMillimeters(
-                                    item.dimensionBaseX! * currentScale,
-                                  )
-                                : undefined);
-                            const targetY =
-                              item.dimensionY ??
-                              (hasBaseDimensions
-                                ? roundMillimeters(
-                                    item.dimensionBaseY! * currentScale,
-                                  )
-                                : undefined);
-                            const targetZ =
-                              item.dimensionZ ??
-                              (hasBaseDimensions
-                                ? roundMillimeters(
-                                    item.dimensionBaseZ! * currentScale,
-                                  )
-                                : undefined);
-                            const fitsBuildVolume =
-                              (!targetX || targetX <= MAX_DIMENSION_MM) &&
-                              (!targetY || targetY <= MAX_DIMENSION_MM) &&
-                              (!targetZ || targetZ <= MAX_DIMENSION_MM);
-
-                            if (item.uploadType === "filament-painting") {
-                              return (
-                                <div className="p-3.5 rounded-xl border bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                  <div className="flex items-center gap-2.5">
-                                    <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300">
-                                      <Ruler size={18} />
-                                    </div>
-                                    <div>
-                                      <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                        {t("quote.calibratedRelief")}
-                                      </p>
-                                      <p className="text-base font-extrabold text-gray-900 dark:text-white">
-                                        {targetX ?? item.dimensionX} mm × {targetY ?? item.dimensionY} mm ×{" "}
-                                        {targetZ ?? item.dimensionZ} mm
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-900/50 px-2.5 py-1 rounded-lg flex items-center gap-1">
-                                      ✓ {t("quote.buildVolumeFits")}
-                                    </span>
-                                  </div>
-                                </div>
-                              );
-                            }
-
-                            if (hasModel) {
-                              return (
-                                <div className="space-y-3">
-                                  {/* Sizing Header & Prominent mm Dimensions */}
-                                  {hasBaseDimensions &&
-                                  targetX &&
-                                  targetY &&
-                                  targetZ ? (
-                                    <div
-                                      className={`p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                                        fitsBuildVolume
-                                          ? "bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/40"
-                                          : "bg-rose-50/70 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/40"
-                                      }`}
-                                    >
-                                      <div className="flex items-center gap-2.5">
-                                        <div
-                                          className={`p-2 rounded-lg ${
-                                            fitsBuildVolume
-                                              ? "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300"
-                                              : "bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300"
-                                          }`}
-                                        >
-                                          <Ruler size={18} />
-                                        </div>
-                                        <div>
-                                          <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                            {t("quote.dimensionsPreview")}
-                                          </p>
-                                          <p className="text-base font-extrabold text-gray-900 dark:text-white">
-                                            {targetX} mm × {targetY} mm ×{" "}
-                                            {targetZ} mm
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <div className="flex flex-wrap items-center gap-2">
-                                        <span className="text-xs font-bold text-gray-700 dark:text-gray-300 bg-white dark:bg-white/10 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-white/10 shadow-sm">
-                                          {currentScale.toFixed(2)}x
-                                        </span>
-                                        {fitsBuildVolume ? (
-                                          <span className="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-900/50 px-2.5 py-1 rounded-lg flex items-center gap-1">
-                                            ✓ {t("quote.buildVolumeFits")}
-                                          </span>
-                                        ) : (
-                                          <span className="text-[11px] font-semibold text-rose-800 dark:text-rose-300 bg-rose-100/90 dark:bg-rose-900/50 px-2.5 py-1 rounded-lg flex items-center gap-1">
-                                            ⚠️ {t("quote.buildVolumeExceeded")}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10">
-                                      <div className="flex items-center gap-2">
-                                        <Loader2
-                                          size={14}
-                                          className="animate-spin text-emerald-600 dark:text-emerald-400"
-                                        />
-                                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                                          {t("quote.detectingDimensions")}
-                                        </span>
-                                      </div>
-                                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/40">
-                                        {currentScale.toFixed(2)}x
-                                      </span>
-                                    </div>
-                                  )}
-
-                                  {/* Quick Scale Presets (Pills) */}
-                                  <div className="space-y-1.5">
-                                    <div className="flex items-center justify-between">
-                                      <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                                        <Sliders
-                                          size={13}
-                                          className="text-gray-500 dark:text-gray-400"
-                                        />{" "}
-                                        {t("quote.scalePreset")}
-                                      </label>
-                                      <span className="text-[11px] text-gray-500 dark:text-gray-400">
-                                        {t("quote.dimensionsMaxHint")}
-                                      </span>
-                                    </div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                      {[
-                                        { scale: 0.5, label: "0.5x" },
-                                        { scale: 1.0, label: "1.0x" },
-                                        { scale: 1.5, label: "1.5x" },
-                                        { scale: 2.0, label: "2.0x" },
-                                      ].map((preset) => {
-                                        const isCurrent =
-                                          Math.abs(
-                                            currentScale - preset.scale,
-                                          ) < 0.04;
-                                        const canFit = hasBaseDimensions
-                                          ? preset.scale <= maxScale + 0.001
-                                          : true;
-                                        const pX = hasBaseDimensions
-                                          ? roundMillimeters(
-                                              item.dimensionBaseX! *
-                                                preset.scale,
-                                            )
-                                          : null;
-                                        const pY = hasBaseDimensions
-                                          ? roundMillimeters(
-                                              item.dimensionBaseY! *
-                                                preset.scale,
-                                            )
-                                          : null;
-                                        const pZ = hasBaseDimensions
-                                          ? roundMillimeters(
-                                              item.dimensionBaseZ! *
-                                                preset.scale,
-                                            )
-                                          : null;
-
-                                        return (
-                                          <button
-                                            key={preset.scale}
-                                            type="button"
-                                            disabled={!canFit}
-                                            onClick={() =>
-                                              updateItemScale(idx, preset.scale)
-                                            }
-                                            className={`p-2 rounded-xl text-left transition-all border ${
-                                              !canFit
-                                                ? "bg-gray-100 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 opacity-60 cursor-not-allowed"
-                                                : isCurrent
-                                                  ? "bg-[#133827] dark:bg-emerald-600 text-white border-[#133827] dark:border-emerald-600 shadow-xs"
-                                                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20"
-                                            }`}
-                                            title={
-                                              !canFit
-                                                ? t("quote.scaleWontFit")
-                                                : undefined
-                                            }
-                                          >
-                                            <div className="flex items-center justify-between">
-                                              <span
-                                                className={`text-xs font-bold ${
-                                                  !canFit
-                                                    ? "line-through text-gray-400 dark:text-gray-500"
-                                                    : ""
-                                                }`}
-                                              >
-                                                {preset.label}
-                                              </span>
-                                              {!canFit && (
-                                                <span className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase bg-rose-50 dark:bg-rose-950/50 px-1 py-0.5 rounded">
-                                                  &gt;256mm
-                                                </span>
-                                              )}
-                                            </div>
-                                            {hasBaseDimensions && (
-                                              <p
-                                                className={`text-[10px] truncate mt-0.5 ${
-                                                  !canFit
-                                                    ? "text-gray-400 dark:text-gray-500"
-                                                    : isCurrent
-                                                      ? "text-emerald-100"
-                                                      : "text-gray-500 dark:text-gray-400"
-                                                }`}
-                                              >
-                                                {pX}×{pY}×{pZ} mm
-                                              </p>
-                                            )}
-                                          </button>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
-
-                                  {/* Custom Scale Slider */}
-                                  <div className="space-y-1">
-                                    <div className="flex justify-between items-center">
-                                      <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                                        {t("quote.scaleCustom")}
-                                      </label>
-                                      {hasBaseDimensions && (
-                                        <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                                          {t("quote.dimensionMax")} {maxScale.toFixed(2)}x
-                                        </span>
-                                      )}
-                                    </div>
-                                    <DebouncedRangeSlider
-                                      min="0.1"
-                                      max={hasBaseDimensions ? maxScale : 3.0}
-                                      step={SCALE_STEP}
-                                      value={currentScale}
-                                      className="w-full accent-[#133827] dark:accent-emerald-500 h-2 bg-gray-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer"
-                                      onChange={(val) =>
-                                        updateItemScale(idx, val)
-                                      }
-                                    />
-                                    <div className="flex justify-between items-center text-[11px] text-gray-500 dark:text-gray-400 pt-0.5">
-                                      <span>
-                                        {t("quote.dimensionsMaxHint")}
-                                      </span>
-                                      {targetX && targetY && targetZ && (
-                                        <span className="font-semibold text-gray-800 dark:text-white">
-                                          {targetX} × {targetY} × {targetZ} mm
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            }
-
-                            // Non-file item: scale is NOT applicable! Show dimension selector in mm
-                            return (
-                              <div className="space-y-3">
-                                <div className="space-y-1">
-                                  <div className="flex items-center justify-between">
-                                    <label className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-                                      <Ruler
-                                        size={14}
-                                        className="text-emerald-600 dark:text-emerald-400"
-                                      />
-                                      {t("quote.dimensionsMm")}
-                                    </label>
-                                    <span className="text-[11px] text-gray-500 dark:text-gray-400">
-                                      {t("quote.dimensionsMaxHint")}
-                                    </span>
-                                  </div>
-                                  <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                                    {t("quote.dimensionsNonFilePrompt")}
-                                  </p>
-                                  <p className="text-[11px] text-amber-700/80 dark:text-amber-300/90 bg-amber-50/60 dark:bg-amber-950/30 px-2.5 py-1.5 rounded-lg border border-amber-200/50 dark:border-amber-800/40">
-                                    💡 {t("quote.scaleNeedsStl")}
-                                  </p>
-                                </div>
-
-                                {/* Quick Dimension Presets */}
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                  {[
-                                    {
-                                      name: t("quote.presetSmall"),
-                                      x: 50,
-                                      y: 50,
-                                      z: 20,
-                                    },
-                                    {
-                                      name: t("quote.presetMedium"),
-                                      x: 100,
-                                      y: 100,
-                                      z: 50,
-                                    },
-                                    {
-                                      name: t("quote.presetLarge"),
-                                      x: 180,
-                                      y: 180,
-                                      z: 100,
-                                    },
-                                    {
-                                      name: t("quote.presetMax"),
-                                      x: 250,
-                                      y: 250,
-                                      z: 250,
-                                    },
-                                  ].map((preset) => {
-                                    const isCurrent =
-                                      item.dimensionX === preset.x &&
-                                      item.dimensionY === preset.y &&
-                                      item.dimensionZ === preset.z;
-                                    return (
-                                      <button
-                                        key={preset.name}
-                                        type="button"
-                                        onClick={() =>
-                                          updateItemDimensions(
-                                            idx,
-                                            preset.x,
-                                            preset.y,
-                                            preset.z,
-                                          )
-                                        }
-                                        className={`p-2.5 rounded-xl text-left border transition-all ${
-                                          isCurrent
-                                            ? "bg-[#133827] dark:bg-emerald-600 text-white border-[#133827] dark:border-emerald-600 shadow-xs"
-                                            : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20"
-                                        }`}
-                                      >
-                                        <p
-                                          className={`text-xs font-bold ${
-                                            isCurrent
-                                              ? "text-white"
-                                              : "text-gray-800 dark:text-white"
-                                          }`}
-                                        >
-                                          {preset.name.split(" ")[0]}
-                                        </p>
-                                        <p
-                                          className={`text-[11px] mt-0.5 truncate ${
-                                            isCurrent
-                                              ? "text-emerald-100"
-                                              : "text-gray-500 dark:text-gray-400"
-                                          }`}
-                                        >
-                                          {preset.x} × {preset.y} × {preset.z}{" "}
-                                          mm
-                                        </p>
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-
-                                {/* Custom Dimensions Inputs (Length X, Width Y, Height Z) */}
-                                <div className="grid grid-cols-3 gap-3">
-                                  <div>
-                                    <label className="text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1 block">
-                                      {t("quote.dimensionLength")}
-                                    </label>
-                                    <DebouncedNumberInput
-                                      min="1"
-                                      max="256"
-                                      step="1"
-                                      placeholder={t("quote.dimensionXPlaceholder")}
-                                      value={item.dimensionX}
-                                      onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                          e.preventDefault();
-                                          (e.target as HTMLInputElement).blur();
-                                        }
-                                      }}
-                                      onChange={(val) => {
-                                        updateItemDimensions(
-                                          idx,
-                                          val,
-                                          item.dimensionY,
-                                          item.dimensionZ,
-                                        );
-                                      }}
-                                      className="w-full p-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1 block">
-                                      {t("quote.dimensionWidth")}
-                                    </label>
-                                    <DebouncedNumberInput
-                                      min="1"
-                                      max="256"
-                                      step="1"
-                                      placeholder={t("quote.dimensionYPlaceholder")}
-                                      value={item.dimensionY}
-                                      onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                          e.preventDefault();
-                                          (e.target as HTMLInputElement).blur();
-                                        }
-                                      }}
-                                      onChange={(val) => {
-                                        updateItemDimensions(
-                                          idx,
-                                          item.dimensionX,
-                                          val,
-                                          item.dimensionZ,
-                                        );
-                                      }}
-                                      className="w-full p-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1 block">
-                                      {t("quote.dimensionHeight")}
-                                    </label>
-                                    <DebouncedNumberInput
-                                      min="1"
-                                      max="256"
-                                      step="1"
-                                      placeholder={t("quote.dimensionZPlaceholder")}
-                                      value={item.dimensionZ}
-                                      onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                          e.preventDefault();
-                                          (e.target as HTMLInputElement).blur();
-                                        }
-                                      }}
-                                      onChange={(val) => {
-                                        updateItemDimensions(
-                                          idx,
-                                          item.dimensionX,
-                                          item.dimensionY,
-                                          val,
-                                        );
-                                      }}
-                                      className="w-full p-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500"
-                                    />
-                                  </div>
-                                </div>
-
-                                {/* Real-time Volume Fit Feedback Badge */}
-                                {hasDimensionValue(item.dimensionX) &&
-                                  hasDimensionValue(item.dimensionY) &&
-                                  hasDimensionValue(item.dimensionZ) && (
-                                    <div
-                                      className={`p-2.5 rounded-xl border flex items-center justify-between text-xs font-medium ${
-                                        (item.dimensionX ?? 0) <= 256 &&
-                                        (item.dimensionY ?? 0) <= 256 &&
-                                        (item.dimensionZ ?? 0) <= 256
-                                          ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/40"
-                                          : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800/40"
-                                      }`}
-                                    >
-                                      <span className="flex items-center gap-1.5">
-                                        {(item.dimensionX ?? 0) <= 256 &&
-                                        (item.dimensionY ?? 0) <= 256 &&
-                                        (item.dimensionZ ?? 0) <= 256 ? (
-                                          <>✓ {t("quote.buildVolumeFits")}</>
-                                        ) : (
-                                          <>
-                                            ⚠️ {t("quote.buildVolumeExceeded")}
-                                          </>
-                                        )}
-                                      </span>
-                                      <span className="font-bold">
-                                        {item.dimensionX} × {item.dimensionY} ×{" "}
-                                        {item.dimensionZ} mm
-                                      </span>
-                                    </div>
-                                  )}
-                              </div>
-                            );
-                          })()}
-
-                          {/* Infill Density & Print Quality */}
-                          {item.uploadType === "filament-painting" ? (
-                            <div className="p-3.5 bg-emerald-50/60 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                              <div className="flex items-center gap-2 text-emerald-950 dark:text-emerald-200 font-medium">
-                                <Sparkles size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
-                                <span>{t("quote.filamentPaintingSpecsBanner")}</span>
-                              </div>
-                              <span className="px-2.5 py-1 bg-white dark:bg-white/10 rounded-md text-[11px] font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 shrink-0">
-                                {t("quote.calibratedForTd")}
-                              </span>
-                            </div>
-                          ) : (
-                            <>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                {/* Infill Density */}
-                                <div className="space-y-1.5">
-                                  <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center justify-between">
-                                    <span className="flex items-center gap-1.5">
-                                      <Layers size={13} className="text-gray-500 dark:text-gray-400" />
-                                      {t("quote.infill")}
-                                    </span>
-                                    <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                      {item.infillPercent ?? 20}%
-                                    </span>
-                                  </label>
-                                  <select
-                                    value={item.infillPercent ?? 20}
-                                    onChange={(e) =>
-                                      updateItem(
-                                        idx,
-                                        "infillPercent",
-                                        parseInt(e.target.value, 10) || 20,
-                                      )
-                                    }
-                                    className="w-full p-2.5 bg-white dark:bg-[#141e1a] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
-                                  >
-                                    <option value={15} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
-                                      {t("quote.infillLight")}
-                                    </option>
-                                    <option value={20} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
-                                      {t("quote.infillStandard")}
-                                    </option>
-                                    <option value={40} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
-                                      {t("quote.infillStrong")}
-                                    </option>
-                                    <option value={80} className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
-                                      {t("quote.infillSolid")}
-                                    </option>
-                                  </select>
-                                  <p className="text-[10px] text-gray-400 dark:text-gray-500">
-                                    {t("quote.infillHint")}
-                                  </p>
-                                </div>
-
-                                {/* Print Quality */}
-                                <div className="space-y-1.5">
-                                  <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                                    <Sliders size={13} className="text-gray-500 dark:text-gray-400" />
-                                    {t("quote.quality")}
-                                  </label>
-                                  <select
-                                    value={item.printQuality ?? "Standard (0.20mm)"}
-                                    onChange={(e) =>
-                                      updateItem(
-                                        idx,
-                                        "printQuality",
-                                        e.target.value,
-                                      )
-                                    }
-                                    className="w-full p-2.5 bg-white dark:bg-[#141e1a] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
-                                  >
-                                    <option value="Detail (0.12mm)" className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
-                                      {t("quote.qualityDetail")}
-                                    </option>
-                                    <option value="Standard (0.20mm)" className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
-                                      {t("quote.qualityStandard")}
-                                    </option>
-                                    <option value="Draft (0.28mm)" className="bg-white dark:bg-[#0e1512] text-gray-900 dark:text-white">
-                                      {t("quote.qualityDraft")}
-                                    </option>
-                                  </select>
-                                  <p className="text-[10px] text-gray-400 dark:text-gray-500">
-                                    {t("quote.qualityHint")}
-                                  </p>
-                                </div>
-                              </div>
-
-                              {/* Supports Toggle */}
-                              <div className="pt-2 border-t border-gray-100 dark:border-white/10">
-                                <label className="flex items-start gap-2.5 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={!!item.supportsNeeded}
-                                    onChange={(e) =>
-                                      updateItem(
-                                        idx,
-                                        "supportsNeeded",
-                                        e.target.checked,
-                                      )
-                                    }
-                                    className="mt-0.5 h-4 w-4 rounded border-gray-300 dark:border-white/20 text-emerald-600 focus:ring-emerald-500 dark:bg-white/5"
-                                  />
-                                  <div>
-                                    <span className="text-xs font-semibold text-gray-800 dark:text-gray-200">
-                                      {t("quote.supportsLabel")}
-                                    </span>
-                                    <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                                      {t("quote.supportsHint")}
-                                    </p>
-                                  </div>
-                                </label>
-                              </div>
-                            </>
-                          )}
-                        </div>
-
-                        <div className="relative">
-                          <MessageSquare
-                            className="absolute left-3.5 top-3.5 text-gray-400 dark:text-gray-500"
-                            size={18}
-                          />
-                          <textarea
-                            placeholder={t("quote.notesPlaceholder")}
-                            className="w-full p-3.5 pl-11 text-sm bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-[#141e1a] transition-all min-h-[100px] resize-y"
-                            value={item.notes}
-                            onChange={(e) =>
-                              updateItem(idx, "notes", e.target.value)
-                            }
-                          />
-                        </div>
-
-                        {/* Focus Mode Primary CTA at bottom */}
-                        <div className="pt-4 border-t border-gray-100 dark:border-white/10 flex flex-col sm:flex-row items-center gap-3">
-                          <button
-                            type="button"
-                            onClick={() => handleConfirmItem(idx)}
-                            className="w-full sm:flex-1 py-4 px-8 rounded-full bg-[#133827] dark:bg-emerald-600 hover:bg-[#1c4d37] dark:hover:bg-emerald-700 text-white font-semibold text-base shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer"
-                          >
-                            <CheckCircle2 size={20} />
-                            <span>
-                              {items.length > 1
-                                ? t("quote.confirmChangesAndSave")
-                                : t("quote.confirmItemAndAdd")}
-                            </span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleCancelEdit}
-                            className="py-3 px-6 rounded-full text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                          >
-                            {t("quote.cancel")}
-                          </button>
-                        </div>
+                        <Checkout3DViewerCard
+                          fileUrl={
+                            activeItem?.fileUrl ||
+                            (isDemoActive
+                              ? getDefaultSampleModel().url
+                              : undefined)
+                          }
+                          fileName={
+                            activeItem?.fileName ||
+                            (isDemoActive
+                              ? getDefaultSampleModel().fileName
+                              : undefined)
+                          }
+                          isDemo={isDemoActive}
+                          material={activeItem?.material || "PLA"}
+                          color={activeItem?.color || "Dark Teal"}
+                          scaleFactor={activeItem?.scaleFactor ?? 1.0}
+                          count={activeItem?.count ?? 1}
+                          filaments={filaments}
+                          dimensionX={
+                            activeItem?.dimensionX ?? activeItem?.dimensionBaseX
+                          }
+                          dimensionY={
+                            activeItem?.dimensionY ?? activeItem?.dimensionBaseY
+                          }
+                          dimensionZ={
+                            activeItem?.dimensionZ ?? activeItem?.dimensionBaseZ
+                          }
+                          onDimensionsDetected={handleDimensionsDetected}
+                          onChooseFile={() => new3dFileInputRef.current?.click()}
+                          onDropFiles={handleViewerDropFiles}
+                          onLoadSampleModel={handleLoadSampleModel}
+                          isUploading={isUploading}
+                          isProcessing={isProcessing}
+                        />
                       </div>
-                    );
-                  })()}
 
-                {/* 3. Cart Summary: Minimized State */}
-                {items.length > 0 && editingItemIndex === null && !activeCreatorFlow && (
-                  <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-white dark:bg-[#0e1512] p-6 sm:p-8 md:p-10 shadow-xs space-y-6">
-                    <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10">
-                      <div>
-                        <h4 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2.5">
-                          <Package size={20} className="text-[#133827] dark:text-emerald-400" />
-                          <span>
-                            {items.length === 1
-                              ? t("quote.orderSummaryCount", {
-                                  count: items.length,
-                                })
-                              : t("quote.orderSummaryCountPlural", {
-                                  count: items.length,
-                                })}
-                          </span>
-                        </h4>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                          {t("quote.reviewItemsSubtitle")}
-                        </p>
+                      {/* Right Column: Configurator Card */}
+                      <div className="lg:col-span-5">
+                        <Checkout3DConfiguratorCard
+                          item={activeItem || fallbackItem}
+                          filaments={filaments}
+                          hasModel={hasModel || isDemoActive}
+                          onUpdateItem={handleUpdateActiveItem}
+                          onOpenFarmCatalog={() => setIsFarmCatalogOpen(true)}
+                          onAddNewModel={handleAddNewModel}
+                          onProceed={goToNextStep}
+                          onUploadTrigger={() =>
+                            new3dFileInputRef.current?.click()
+                          }
+                          canAddMoreModels={items.length < 8}
+                        />
                       </div>
                     </div>
 
-                    <div className="space-y-3.5">
-                      {items.map((item, idx) => {
-                        const isPainting = item.uploadType === "filament-painting";
-                        const isCustomRequest = item.uploadType === "custom-request";
-
-                        return (
-                          <div
-                            key={idx}
-                            className="p-4 sm:p-5 border border-gray-200/80 dark:border-white/10 rounded-2xl bg-[#fbfbfd] dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
-                          >
-                            <div className="flex items-center gap-4 flex-1 min-w-0">
-                              {/* Thumbnail / Icon */}
-                              {item.imageUrl ? (
-                                <img
-                                  src={resolveAssetUrl(item.imageUrl)}
-                                  alt={item.fileName || t("quote.sourceThumbnail")}
-                                  loading="lazy"
-                                  decoding="async"
-                                  className="w-14 h-14 rounded-xl object-cover border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 shrink-0 shadow-2xs"
-                                />
-                              ) : isPainting ? (
-                                <div className="w-14 h-14 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center text-emerald-700 dark:text-emerald-300 shrink-0 shadow-2xs">
-                                  <Sparkles size={24} />
-                                </div>
-                              ) : isCustomRequest ? (
-                                <div className="w-14 h-14 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center text-amber-700 dark:text-amber-300 shrink-0 shadow-2xs">
-                                  <HelpCircle size={24} />
-                                </div>
-                              ) : (
-                                <div className="w-14 h-14 rounded-xl bg-gray-100 dark:bg-white/10 border border-gray-200/80 dark:border-white/10 flex items-center justify-center text-[#133827] dark:text-emerald-400 shrink-0 shadow-2xs">
-                                  <Layers size={24} />
-                                </div>
-                              )}
-
-                              {/* Details */}
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <h5 className="font-bold text-gray-900 dark:text-white text-sm truncate max-w-[260px]">
-                                    {item.fileName || t("quote.textDescription")}
-                                  </h5>
-                                  {isPainting ? (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40 shrink-0">
-                                      <Sparkles size={10} />
-                                      {t("quote.badgeFilamentPainting")}
-                                    </span>
-                                  ) : isCustomRequest ? (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/40 shrink-0">
-                                      <HelpCircle size={10} />
-                                      {t("quote.badgeCustomRequest")}
-                                    </span>
-                                  ) : (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 shrink-0">
-                                      {t("quote.badgeCadPrint")}
-                                    </span>
-                                  )}
-                                </div>
-
-                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-600 dark:text-gray-300">
-                                  <span className="font-semibold text-gray-800 dark:text-gray-200">
-                                    {item.material} · {translateColorText(item.color, t)}
-                                  </span>
-                                  <span className="text-gray-300 dark:text-gray-600">|</span>
-                                  <span className="text-gray-600 dark:text-gray-400">
-                                    {t("quote.qty")}{" "}
-                                    <span className="font-bold text-gray-800 dark:text-white">{item.count}</span>
-                                  </span>
-                                  {hasDimensionValue(item.dimensionX) &&
-                                    hasDimensionValue(item.dimensionY) &&
-                                    hasDimensionValue(item.dimensionZ) && (
-                                      <>
-                                        <span className="text-gray-300 dark:text-gray-600">|</span>
-                                        <span className="text-gray-600 dark:text-gray-400">
-                                          {item.dimensionX} × {item.dimensionY} × {item.dimensionZ} mm
-                                        </span>
-                                      </>
-                                    )}
-                                  <span className="text-gray-300 dark:text-gray-600">|</span>
-                                  <span className="text-gray-500 dark:text-gray-400 font-medium">
-                                    {formatPrintQuality(item.printQuality, t)}
-                                  </span>
-                                  {isPainting && (
-                                    <>
-                                      <span className="text-gray-300 dark:text-gray-600">|</span>
-                                      <span className="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded text-[11px] border border-emerald-100 dark:border-emerald-800/40">
-                                        {t("quote.solidInfill100")}
-                                      </span>
-                                      {item.layerSwaps && item.layerSwaps.length > 0 && (
-                                        <>
-                                          <span className="text-gray-300 dark:text-gray-600">|</span>
-                                          <span className="text-gray-700 dark:text-gray-300 font-medium">
-                                            {item.layerSwaps.length - 1 === 1
-                                              ? t("quote.colorSwapCount", {
-                                                  count: item.layerSwaps.length - 1,
-                                                })
-                                              : t("quote.colorSwapCountPlural", {
-                                                  count: item.layerSwaps.length - 1,
-                                                })}
-                                          </span>
-                                        </>
-                                      )}
-                                    </>
-                                  )}
-                                  {isCustomRequest && item.files && item.files.length > 0 && (
-                                    <>
-                                      <span className="text-gray-300 dark:text-gray-600">|</span>
-                                      <span className="text-amber-700 dark:text-amber-300 font-semibold text-[11px]">
-                                        {t("quote.customRequestRefFilesCount", { count: item.files.length })}
-                                      </span>
-                                    </>
-                                  )}
-                                </div>
-
-                                {item.notes && (
-                                  <p className="text-[11px] text-gray-500 dark:text-gray-400 italic mt-1 truncate max-w-md">
-                                    "{item.notes}"
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex items-center gap-1.5 self-end sm:self-center shrink-0">
-                              <button
-                                type="button"
-                                onClick={() => setEditingItemIndex(idx)}
-                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-white/10 transition-colors shadow-2xs cursor-pointer"
-                              >
-                                <Pencil size={13} />
-                                <span>{t("quote.edit")}</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => removeItem(idx)}
-                                className="p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                                title={t("quote.removeItemTitle")}
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Express Priority Production Toggle */}
-                    <div className={`rounded-2xl border transition-all p-4 sm:p-5 ${
-                      isExpressProduction
-                        ? "border-amber-500/40 bg-amber-500/10 dark:bg-amber-500/15 shadow-xs"
-                        : "border-gray-200/80 dark:border-white/10 bg-[#fbfbfd] dark:bg-white/5"
-                    }`}>
-                      <label className="flex items-start sm:items-center justify-between gap-4 cursor-pointer select-none">
-                        <div className="flex items-start sm:items-center gap-3">
-                          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border transition-colors ${
-                            isExpressProduction
-                              ? "bg-amber-500 text-white border-amber-600 shadow-xs"
-                              : "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400 border-gray-200/60 dark:border-white/10"
-                          }`}>
-                            <Zap size={22} className={isExpressProduction ? "fill-white" : ""} />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">
-                                {t("quote.expressProductionTitle")}
-                              </span>
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-                                {t("quote.expressBadgeTag")}
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
-                              {t("quote.expressProductionSubtitle")}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="relative inline-flex items-center cursor-pointer shrink-0 mt-1 sm:mt-0">
-                          <input
-                            type="checkbox"
-                            checked={isExpressProduction}
-                            onChange={(e) => setIsExpressProduction(e.target.checked)}
-                            className="sr-only peer"
-                          />
-                          <div className="w-12 h-6 bg-gray-200 dark:bg-white/20 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                        </div>
-                      </label>
-                    </div>
-
-                    {/* Next Steps: Add Another Item or Proceed to Checkout */}
-                    <div className="pt-6 border-t border-gray-100 dark:border-white/10">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <button
-                          type="button"
-                          onClick={() => setShowAddItemChoiceModal(true)}
-                          className="w-full py-4 px-6 rounded-full border border-gray-300 dark:border-white/20 hover:border-gray-400 dark:hover:border-white/30 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-800 dark:text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-2xs cursor-pointer"
-                        >
-                          <Plus size={18} className="text-[#133827] dark:text-emerald-400" />
-                          <span>{t("quote.addAnotherItem")}</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={goToNextStep}
-                          className="w-full py-4 px-8 rounded-full bg-[#133827] dark:bg-emerald-600 hover:bg-[#1c4d37] dark:hover:bg-emerald-700 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
-                        >
-                          <span>{t("quote.proceedToCheckout")}</span>
-                          <ArrowRight size={18} />
-                        </button>
-                      </div>
+                    {/* Creative workflows alternative triggers */}
+                    <div className="pt-6 border-t border-gray-200/60 dark:border-white/10 flex flex-wrap items-center justify-center gap-3 text-xs text-gray-500">
+                      <button
+                        type="button"
+                        onClick={() => openFilamentPaintingCreator()}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 font-semibold transition-colors cursor-pointer shadow-2xs"
+                      >
+                        <Sparkles size={14} className="text-emerald-600" />
+                        <span>{t("quote.createFilamentPainting")}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveCreatorFlow("custom-request")}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 font-semibold transition-colors cursor-pointer shadow-2xs"
+                      >
+                        <HelpCircle size={14} className="text-amber-600" />
+                        <span>{t("quote.requestCustomDesign")}</span>
+                      </button>
                     </div>
                   </div>
                 )}
-              </div>
-            )}
-
-            {/* Modal: Select which flow/item type to add */}
-            {showAddItemChoiceModal && (
-              <div
-                role="dialog"
-                aria-modal="true"
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/75 backdrop-blur-xs animate-in fade-in duration-150"
-                onClick={() => setShowAddItemChoiceModal(false)}
-              >
-                <div
-                  className="bg-white dark:bg-[#0e1512] rounded-3xl p-6 sm:p-8 max-w-3xl w-full shadow-2xl border border-gray-100 dark:border-white/10 space-y-6 animate-in zoom-in-95 duration-150"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/10">
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                        {t("quote.addItemModalTitle")}
-                      </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        {t("quote.addItemModalSubtitle")}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowAddItemChoiceModal(false)}
-                      className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-500 dark:text-gray-400 flex items-center justify-center transition-colors cursor-pointer"
-                    >
-                      <X size={18} />
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {/* Flow 1: 3D CAD Print / Custom Quote */}
-                    <div className="p-6 rounded-2xl border border-gray-200/90 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:shadow-xs transition-all flex flex-col justify-between space-y-4 bg-[#fbfbfd] dark:bg-white/5">
-                      <div className="space-y-2.5">
-                        <div className="w-11 h-11 rounded-2xl bg-gray-100 dark:bg-white/10 text-[#133827] dark:text-emerald-400 border border-gray-200/60 dark:border-white/10 flex items-center justify-center shadow-2xs">
-                          <Layers size={20} />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-gray-900 dark:text-white text-sm">
-                            {t("quote.flowCadTitle")}
-                          </h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
-                            {t("quote.flowCadSubtitle")}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowAddItemChoiceModal(false);
-                            new3dFileInputRef.current?.click();
-                          }}
-                          className="w-full py-2.5 px-3 rounded-full bg-[#133827] dark:bg-emerald-600 hover:bg-[#1c4d37] dark:hover:bg-emerald-700 text-white text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
-                        >
-                          <Upload size={14} />
-                          <span>{t("quote.browse3dModels")}</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowAddItemChoiceModal(false);
-                            const newIndex = items.length;
-                            addTextOnlyItem();
-                            setEditingItemIndex(newIndex);
-                          }}
-                          className="w-full py-2 px-3 rounded-full bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 text-xs font-semibold transition-all cursor-pointer"
-                        >
-                          {t("quote.addBlankCustomItem")}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Flow 2: HueForge Filament Painting */}
-                    <div className="p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800/40 hover:border-emerald-200 dark:hover:border-emerald-700/60 hover:shadow-xs transition-all flex flex-col justify-between space-y-4 bg-emerald-50/20 dark:bg-emerald-950/20">
-                      <div className="space-y-2.5">
-                        <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center shadow-2xs">
-                          <Sparkles size={20} />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <h4 className="font-bold text-gray-900 dark:text-white text-sm">
-                              {t("quote.flowPaintingTitle")}
-                            </h4>
-                            <span className="text-[9px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold px-1.5 py-0.2 rounded uppercase">
-                              HueForge
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
-                            {t("quote.flowPaintingSubtitle")}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            newPaintingImageInputRef.current?.click();
-                          }}
-                          className="w-full py-2.5 px-3 rounded-full bg-emerald-800 dark:bg-emerald-600 hover:bg-emerald-900 dark:hover:bg-emerald-700 text-white text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
-                        >
-                          <Upload size={14} />
-                          <span>{t("quote.browseImageRender3d")}</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            openFilamentPaintingCreator();
-                          }}
-                          className="w-full py-2 px-3 rounded-full bg-white dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 border border-emerald-200 dark:border-white/10 text-emerald-800 dark:text-emerald-300 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                        >
-                          <Sparkles size={13} />
-                          <span>{t("quote.open2dConfigurator")}</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Flow 3: Custom Request / Need Help */}
-                    <div className="p-6 rounded-2xl border border-amber-100 dark:border-amber-800/40 hover:border-amber-200 dark:hover:border-amber-700/60 hover:shadow-xs transition-all flex flex-col justify-between space-y-4 bg-amber-50/20 dark:bg-amber-950/20">
-                      <div className="space-y-2.5">
-                        <div className="w-11 h-11 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center shadow-2xs">
-                          <HelpCircle size={20} />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-gray-900 dark:text-white text-sm">
-                            {t("quote.flowCustomTitle")}
-                          </h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
-                            {t("quote.flowCustomSubtitle")}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowAddItemChoiceModal(false);
-                            setEditingItemIndex(null);
-                            setActiveCreatorFlow("custom-request");
-                          }}
-                          className="w-full py-2.5 px-3 rounded-full bg-white dark:bg-white/5 hover:bg-amber-50 dark:hover:bg-white/10 border border-amber-200 dark:border-white/10 text-amber-800 dark:text-amber-300 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                        >
-                          <HelpCircle size={14} className="text-amber-600 dark:text-amber-400" />
-                          <span>{t("quote.requestCustomDesign")}</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             )}
 
@@ -4826,7 +3123,10 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
                         <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-white/10 pb-2 mb-4">
                           {t("quote.expressProductionTitle")}
                         </h4>
-                        <div className={`p-5 rounded-2xl border text-sm transition-all ${
+                        <div onClick={() => setIsExpressProduction(!isExpressProduction)}
+                          role="button"
+                          tabIndex={0}
+                          className={`p-5 rounded-2xl border text-sm transition-all cursor-pointer ${
                           isExpressProduction
                             ? "bg-amber-500/10 dark:bg-amber-500/15 border-amber-500/30"
                             : "bg-[#fbfbfd] dark:bg-white/5 border-gray-200/80 dark:border-white/10"
@@ -4919,6 +3219,7 @@ export default function Quote({ initialMode }: QuoteProps = {}) {
               </div>
             )}
           </div>
+        <FarmCatalogModal isOpen={isFarmCatalogOpen} onClose={() => setIsFarmCatalogOpen(false)} />
       </main>
       <Footer />
     </div>
