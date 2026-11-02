@@ -110,28 +110,6 @@ export default function FarmCatalogModal({ isOpen, onClose }: FarmCatalogModalPr
                 </p>
               </div>
             </div>
-            <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200/70 dark:border-white/10 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold shrink-0">
-                ABS
-              </div>
-              <div>
-                <p className="font-bold text-gray-900 dark:text-white">ABS / ASA</p>
-                <p className="text-gray-500 dark:text-gray-400 mt-0.5">
-                  {t("quote.farmCatalogAbsDesc")}
-                </p>
-              </div>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200/70 dark:border-white/10 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold shrink-0">
-                TPU
-              </div>
-              <div>
-                <p className="font-bold text-gray-900 dark:text-white">{t("quote.farmCatalogTpuTitle")}</p>
-                <p className="text-gray-500 dark:text-gray-400 mt-0.5">
-                  {t("quote.farmCatalogTpuDesc")}
-                </p>
-              </div>
-            </div>
           </div>
         </div>
 

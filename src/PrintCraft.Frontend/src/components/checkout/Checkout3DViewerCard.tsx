@@ -135,6 +135,8 @@ export default function Checkout3DViewerCard({
                 filaments={filaments}
                 className="w-full h-full"
                 showHelp={false}
+                autoRotate={false}
+                showGround={true}
                 onDimensionsDetected={onDimensionsDetected}
               />
             </Suspense>

@@ -20,14 +20,14 @@ namespace PrintCraftApi.Tests;
 public class OrdersControllerQuantityTests
 {
     [Fact]
-    public void AppLimits_MaxItemQuantity_IsConfiguredTo25()
+    public void AppLimits_MaxItemQuantity_IsConfiguredTo100()
     {
-        Assert.Equal(25, AppLimits.MaxItemQuantity);
+        Assert.Equal(100, AppLimits.MaxItemQuantity);
     }
 
     [Theory]
-    [InlineData(26)]
-    [InlineData(50)]
+    [InlineData(101)]
+    [InlineData(150)]
     [InlineData(1000)]
     public async Task CreateQuote_WhenItemCountExceedsLimit_ReturnsBadRequest(int excessiveCount)
     {
@@ -42,7 +42,7 @@ public class OrdersControllerQuantityTests
         Assert.NotNull(badRequest.Value);
 
         var json = System.Text.Json.JsonSerializer.Serialize(badRequest.Value);
-        Assert.Contains("Item quantity cannot exceed 25 per item.", json);
+        Assert.Contains("Item quantity cannot exceed 100 per item.", json);
     }
 
     [Theory]
@@ -68,7 +68,7 @@ public class OrdersControllerQuantityTests
     [Theory]
     [InlineData(1)]
     [InlineData(12)]
-    [InlineData(25)]
+    [InlineData(100)]
     public async Task CreateQuote_WhenItemCountWithinLimit_PassesQuantityValidation(int validCount)
     {
         await using var db = CreateDbContext();

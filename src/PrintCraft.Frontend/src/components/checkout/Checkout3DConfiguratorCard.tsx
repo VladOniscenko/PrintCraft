@@ -52,16 +52,9 @@ const QUALITY_OPTIONS = [
   },
 ] as const;
 
-const QUICK_QUANTITIES = [10, 100, 5000] as const;
+const QUICK_QUANTITIES = [5, 10, 25, 50, 100] as const;
 
-const AVAILABLE_MATERIALS = ["PLA", "PETG", "ABS", "TPU"] as const;
-
-const INFILL_OPTIONS = [
-  { value: 15, key: "quote.infill15" },
-  { value: 20, key: "quote.infill20" },
-  { value: 40, key: "quote.infill40" },
-  { value: 100, key: "quote.infill100" },
-] as const;
+const AVAILABLE_MATERIALS = ["PLA", "PETG"] as const;
 
 export default function Checkout3DConfiguratorCard({
   item,
@@ -116,7 +109,7 @@ export default function Checkout3DConfiguratorCard({
   };
 
   const handleCountChange = (newCount: number) => {
-    const clamped = Math.max(1, Math.min(5000, newCount));
+    const clamped = Math.max(1, Math.min(100, newCount));
     onUpdateItem("count", clamped);
   };
 
@@ -222,7 +215,7 @@ export default function Checkout3DConfiguratorCard({
             <input
               type="number"
               min="1"
-              max="5000"
+              max="100"
               value={currentCount}
               onChange={(e) => {
                 const val = parseInt(e.target.value, 10);
@@ -234,7 +227,7 @@ export default function Checkout3DConfiguratorCard({
 
             <button
               type="button"
-              disabled={currentCount >= 5000}
+              disabled={currentCount >= 100}
               onClick={() => handleCountChange(currentCount + 1)}
               className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
               aria-label={t("quote.increaseQuantity")}
@@ -356,26 +349,34 @@ export default function Checkout3DConfiguratorCard({
               </div>
             </div>
 
-            {/* Infill Percentage */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-gray-600 dark:text-gray-300">
-                {t("quote.infillTitle")}
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {INFILL_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => onUpdateItem("infillPercent", opt.value)}
-                    className={`px-3 py-2 rounded-xl border text-xs font-semibold text-center transition-all cursor-pointer ${
-                      currentInfill === opt.value
-                        ? "bg-sky-50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300 border-sky-400 dark:border-sky-700 shadow-2xs"
-                        : "bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-gray-50"
-                    }`}
-                  >
-                    {t(opt.key as any)}
-                  </button>
-                ))}
+            {/* Infill Density Range Slider */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between text-xs font-bold text-gray-600 dark:text-gray-300">
+                <label htmlFor="infill-range-slider" className="cursor-pointer">
+                  {t("quote.infillTitle")}
+                </label>
+                <span className="font-mono text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 px-2.5 py-0.5 rounded-md border border-sky-200/70 dark:border-sky-800/40">
+                  {currentInfill}%
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                <input
+                  id="infill-range-slider"
+                  type="range"
+                  min="5"
+                  max="100"
+                  step="5"
+                  value={currentInfill}
+                  onChange={(e) => onUpdateItem("infillPercent", parseInt(e.target.value, 10))}
+                  className="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-sky-600"
+                  aria-label={t("quote.infillTitle")}
+                />
+                <div className="flex justify-between text-[11px] text-gray-400 font-mono">
+                  <span>5%</span>
+                  <span>20%</span>
+                  <span>50%</span>
+                  <span>100%</span>
+                </div>
               </div>
             </div>
 

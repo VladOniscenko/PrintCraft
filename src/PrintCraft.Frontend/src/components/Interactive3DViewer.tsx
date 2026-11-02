@@ -6,7 +6,6 @@ import {
   AmbientLight,
   DirectionalLight,
   HemisphereLight,
-  GridHelper,
   Group,
   Mesh,
   MeshStandardMaterial,
@@ -61,6 +60,8 @@ import {
 import type { Filament } from "../types";
 import { useI18n } from "../i18n/I18nContext";
 
+import { createBambuBuildPlate } from "../utils/bambuBuildPlate";
+
 export interface Interactive3DViewerProps {
   fileUrl?: string;
   file?: File;
@@ -76,6 +77,8 @@ export interface Interactive3DViewerProps {
   compact?: boolean;
   onExpand?: () => void;
   showHelp?: boolean;
+  autoRotate?: boolean;
+  showGround?: boolean;
 }
 
 import { getFilamentHexColor } from "../utils/filamentColors";
@@ -96,6 +99,8 @@ export default function Interactive3DViewer({
   compact = false,
   onExpand,
   showHelp = false,
+  autoRotate: initialAutoRotate = false,
+  showGround = true,
 }: Interactive3DViewerProps) {
   const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -103,11 +108,11 @@ export default function Interactive3DViewer({
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [autoRotate, setAutoRotate] = useState(true);
+  const [autoRotate, setAutoRotate] = useState(initialAutoRotate);
   const [wireframe, setWireframe] = useState(false);
   const [showTooltips, setShowTooltips] = useState(false);
   const [bgColor, setBgColor] = useState("#0f172a");
-  const [showGrid, setShowGrid] = useState(false);
+  const [showGrid, setShowGrid] = useState(showGround);
 
   const [baseDimensions, setBaseDimensions] = useState<{
     x: number;
@@ -186,7 +191,8 @@ export default function Interactive3DViewer({
     sceneRef.current = scene;
 
     const camera = new PerspectiveCamera(40, width / height, 0.1, 2000);
-    camera.position.set(0, 80, 160);
+    camera.position.set(150, 140, 180);
+    camera.lookAt(0, 20, 0);
     cameraRef.current = camera;
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -194,35 +200,36 @@ export default function Interactive3DViewer({
     controls.dampingFactor = 0.08;
     controls.autoRotate = autoRotate;
     controls.autoRotateSpeed = 1.6;
-    controls.maxPolarAngle = Math.PI / 2 + 0.1; // Don't flip below build plate
+    controls.maxPolarAngle = Math.PI / 2 - 0.02; // Bambu Studio style: Don't flip below build plate ground
+    controls.target.set(0, 20, 0);
     controlsRef.current = controls;
 
     // Lighting - soft, diffuse illumination tuned for realistic matte 3D prints
-    const ambientLight = new AmbientLight(0xffffff, 0.65);
+    const ambientLight = new AmbientLight(0xffffff, 0.70);
     scene.add(ambientLight);
 
-    const dirLight1 = new DirectionalLight(0xffffff, 0.75);
-    dirLight1.position.set(60, 120, 80);
+    const dirLight1 = new DirectionalLight(0xffffff, 0.85);
+    dirLight1.position.set(70, 150, 90);
     if (!isMobile) {
       dirLight1.castShadow = true;
-      dirLight1.shadow.mapSize.width = 512;
-      dirLight1.shadow.mapSize.height = 512;
+      dirLight1.shadow.mapSize.width = 1024;
+      dirLight1.shadow.mapSize.height = 1024;
+      dirLight1.shadow.bias = -0.0005;
     }
     scene.add(dirLight1);
 
-    const dirLight2 = new DirectionalLight(0xb0c4de, 0.35);
-    dirLight2.position.set(-60, 60, -60);
+    const dirLight2 = new DirectionalLight(0xb0c4de, 0.40);
+    dirLight2.position.set(-80, 80, -80);
     scene.add(dirLight2);
 
-    const hemiLight = new HemisphereLight(0xffffff, 0x475569, 0.30);
+    const hemiLight = new HemisphereLight(0xffffff, 0x334155, 0.35);
     scene.add(hemiLight);
 
-    // Build Plate Circular/Grid Plane (Generic 256mm reference)
-    const gridHelper = new GridHelper(256, 32, 0x10b981, 0xe2e8f0);
-    gridHelper.position.y = 0;
-    gridHelper.visible = showGrid;
-    scene.add(gridHelper);
-    gridHelperRef.current = gridHelper;
+    // Authentic Bambu Lab Studio 256x256 Textured PEI Build Plate
+    const buildPlate = createBambuBuildPlate();
+    buildPlate.visible = showGrid;
+    scene.add(buildPlate);
+    gridHelperRef.current = buildPlate;
 
     // Mesh group container
     const meshGroup = new Group();
@@ -294,8 +301,9 @@ export default function Interactive3DViewer({
         disposeHierarchy(originalModelRef.current);
         originalModelRef.current = null;
       }
-      if (gridHelperRef.current?.geometry) {
-        gridHelperRef.current.geometry.dispose();
+      if (gridHelperRef.current) {
+        disposeHierarchy(gridHelperRef.current);
+        gridHelperRef.current = null;
       }
       renderer.dispose();
       mat.dispose();
@@ -678,7 +686,7 @@ export default function Interactive3DViewer({
     const spacingX = sizeVec.x * 1.2 || 10;
     const spacingZ = sizeVec.z * 1.2 || 10;
 
-    const safeCount = Math.max(1, Math.min(25, count || 1));
+    const safeCount = Math.max(1, Math.min(100, count || 1));
     const cols = Math.ceil(Math.sqrt(safeCount));
     const rows = Math.ceil(safeCount / cols);
 
@@ -713,10 +721,11 @@ export default function Interactive3DViewer({
     if (camera && controls) {
       const center = new Vector3();
       groupBox.getCenter(center);
-      const dist = Math.max(40, maxGroupDim * 1.5);
-      controls.target.copy(center);
-      camera.position.set(center.x + dist * 0.7, center.y + dist * 0.75, center.z + dist * 0.95);
-      camera.lookAt(center);
+      const dist = Math.max(120, Math.min(360, maxGroupDim * 1.8));
+      const targetY = Math.max(10, center.y);
+      controls.target.set(center.x, targetY, center.z);
+      camera.position.set(center.x + dist * 0.72, targetY + dist * 0.7, center.z + dist * 0.88);
+      camera.lookAt(controls.target);
       controls.update();
     }
     requestRenderRef.current();
@@ -738,11 +747,11 @@ export default function Interactive3DViewer({
     if (!camera || !controls) return;
 
     const dim = effectiveDim || fitParamsRef.current?.maxDim || 60;
-    const dist = Math.max(40, dim * 2.2);
-    const targetY = fitParamsRef.current?.center?.y ?? (dim * 0.2);
+    const dist = Math.max(140, Math.min(360, dim * 2.2));
+    const targetY = Math.max(10, fitParamsRef.current?.center?.y ?? (dim * 0.35));
 
     controls.target.set(0, targetY, 0);
-    camera.position.set(dist * 0.7, targetY + dist * 0.75, dist * 0.95);
+    camera.position.set(dist * 0.72, targetY + dist * 0.7, dist * 0.88);
     camera.lookAt(controls.target);
     controls.update();
     requestRenderRef.current();

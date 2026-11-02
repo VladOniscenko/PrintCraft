@@ -69,7 +69,7 @@ const MODEL_EXTENSIONS = new Set([
 ]);
 const MAX_FILES_PER_ITEM = 3;
 const MAX_DIMENSION_MM = 256;
-const MAX_ITEM_QUANTITY = 25;
+const MAX_ITEM_QUANTITY = 100;
 
 function getFileExtension(fileName: string): string {
   const dotIndex = fileName.lastIndexOf(".");
