@@ -15,6 +15,9 @@ import {
   SRGBColorSpace,
   DoubleSide,
   BufferAttribute,
+  GridHelper,
+  PlaneGeometry,
+  ShadowMaterial,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
@@ -59,8 +62,6 @@ import {
 } from "../utils/modelDimensions";
 import type { Filament } from "../types";
 import { useI18n } from "../i18n/I18nContext";
-
-import { createBambuBuildPlate } from "../utils/bambuBuildPlate";
 
 export interface Interactive3DViewerProps {
   fileUrl?: string;
@@ -129,6 +130,7 @@ export default function Interactive3DViewer({
   const materialRef = useRef<any>(null);
   const originalModelRef = useRef<any>(null);
   const gridHelperRef = useRef<any>(null);
+  const shadowPlaneRef = useRef<any>(null);
   const fitParamsRef = useRef<{ center: any; maxDim: number } | null>(
     null,
   );
@@ -225,11 +227,29 @@ export default function Interactive3DViewer({
     const hemiLight = new HemisphereLight(0xffffff, 0x334155, 0.35);
     scene.add(hemiLight);
 
-    // Authentic Bambu Lab Studio 256x256 Textured PEI Build Plate
-    const buildPlate = createBambuBuildPlate();
-    buildPlate.visible = showGrid;
-    scene.add(buildPlate);
-    gridHelperRef.current = buildPlate;
+    const isDark =
+      typeof document !== "undefined" &&
+      document.documentElement.classList.contains("dark");
+    const gridCenter = isDark ? 0x2e483e : 0x82a6a0;
+    const gridLines = isDark ? 0x1b2823 : 0xbdd3db;
+
+    // Clean Perspective Ground Grid (matching reference image)
+    const gridHelper = new GridHelper(300, 30, gridCenter, gridLines);
+    gridHelper.position.y = 0;
+    gridHelper.visible = showGrid;
+    scene.add(gridHelper);
+    gridHelperRef.current = gridHelper;
+
+    // Contact drop shadow plane on floor
+    const shadowMat = new ShadowMaterial({
+      opacity: isDark ? 0.35 : 0.18,
+    });
+    const shadowPlane = new Mesh(new PlaneGeometry(300, 300), shadowMat);
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.y = 0.005;
+    shadowPlane.receiveShadow = true;
+    scene.add(shadowPlane);
+    shadowPlaneRef.current = shadowPlane;
 
     // Mesh group container
     const meshGroup = new Group();
@@ -305,6 +325,10 @@ export default function Interactive3DViewer({
         disposeHierarchy(gridHelperRef.current);
         gridHelperRef.current = null;
       }
+      if (shadowPlaneRef.current) {
+        disposeHierarchy(shadowPlaneRef.current);
+        shadowPlaneRef.current = null;
+      }
       renderer.dispose();
       mat.dispose();
     };
@@ -333,7 +357,36 @@ export default function Interactive3DViewer({
       gridHelperRef.current.visible = showGrid;
       requestRenderRef.current();
     }
+    if (shadowPlaneRef.current) {
+      shadowPlaneRef.current.visible = showGrid;
+      requestRenderRef.current();
+    }
   }, [showGrid]);
+
+  // Sync grid line colors with light/dark theme dynamically
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const updateThemeGrid = () => {
+      const isDark = document.documentElement.classList.contains("dark");
+      if (gridHelperRef.current) {
+        const mat = gridHelperRef.current.material as any;
+        if (mat && mat.color) {
+          mat.color.setHex(isDark ? 0x1b2823 : 0xbdd3db);
+        }
+      }
+      if (shadowPlaneRef.current) {
+        shadowPlaneRef.current.material.opacity = isDark ? 0.35 : 0.18;
+      }
+      requestRenderRef.current();
+    };
+
+    const observer = new MutationObserver(() => updateThemeGrid());
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
   // 4. Update wireframe on toggle
   useEffect(() => {

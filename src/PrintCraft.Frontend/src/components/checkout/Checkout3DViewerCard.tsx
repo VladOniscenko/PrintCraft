@@ -76,7 +76,7 @@ export default function Checkout3DViewerCard({
   return (
     <div className="space-y-4">
       {/* 3D Viewport Main Stage */}
-      <div className="rounded-3xl border border-sky-100/90 dark:border-sky-950/60 bg-[#f0f9ff]/75 dark:bg-[#0c1820] h-[460px] sm:h-[500px] relative overflow-hidden flex flex-col justify-between p-4 shadow-xs select-none">
+      <div className="rounded-3xl border border-gray-200/80 dark:border-white/10 bg-gradient-to-b from-[#e8f4f8] via-[#eef8fc] to-[#f4fafd] dark:from-[#0b1411] dark:via-[#0e1814] dark:to-[#11201a] h-[460px] sm:h-[500px] relative overflow-hidden flex flex-col justify-between p-4 shadow-xs select-none">
         {/* Top Badges Overlay */}
         <div className="relative z-10 flex items-center justify-between gap-3 pointer-events-none">
           {/* Status Badge */}
@@ -87,7 +87,7 @@ export default function Checkout3DViewerCard({
                   ? "bg-amber-500 animate-pulse"
                   : fileUrl
                     ? "bg-emerald-500"
-                    : "bg-sky-500"
+                    : "bg-[#133827] dark:bg-emerald-400"
               }`}
             />
             <span className="truncate">
@@ -117,7 +117,7 @@ export default function Checkout3DViewerCard({
             <Suspense
               fallback={
                 <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 gap-2">
-                  <Loader2 className="w-8 h-8 animate-spin text-sky-500" />
+                  <Loader2 className="w-8 h-8 animate-spin text-[#133827] dark:text-emerald-400" />
                   <span className="text-xs font-semibold">
                     {t("quote.loading3dViewer")}
                   </span>
@@ -142,7 +142,7 @@ export default function Checkout3DViewerCard({
             </Suspense>
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center text-gray-400 dark:text-gray-500">
-              <div className="w-16 h-16 rounded-3xl bg-white/80 dark:bg-white/5 border border-sky-200/60 dark:border-white/10 flex items-center justify-center mb-3 text-sky-600 dark:text-sky-400 shadow-xs">
+              <div className="w-16 h-16 rounded-3xl bg-white/80 dark:bg-white/5 border border-emerald-200/60 dark:border-white/10 flex items-center justify-center mb-3 text-[#133827] dark:text-emerald-400 shadow-xs">
                 <Box size={32} />
               </div>
               <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -158,7 +158,7 @@ export default function Checkout3DViewerCard({
         {/* Bottom Helper Overlay */}
         <div className="relative z-10 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pointer-events-none">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 dark:bg-black/50 backdrop-blur-xs shadow-2xs border border-gray-200/40 dark:border-white/10">
-            <RotateCw size={13} className="text-sky-600 dark:text-sky-400" />
+            <RotateCw size={13} className="text-[#133827] dark:text-emerald-400" />
             <span>{t("quote.viewerRotateTip")}</span>
           </div>
         </div>
@@ -172,14 +172,14 @@ export default function Checkout3DViewerCard({
         onDrop={handleDrop}
         className={`rounded-2xl sm:rounded-3xl border bg-white dark:bg-[#0e1512] p-4 sm:p-5 flex items-center justify-between gap-4 shadow-xs transition-all ${
           isDragOver
-            ? "border-sky-500 bg-sky-50/50 dark:bg-sky-950/30 scale-[0.99]"
-            : "border-gray-200/90 dark:border-white/10 hover:border-sky-300 dark:hover:border-sky-700/50"
+            ? "border-[#133827] dark:border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 scale-[0.99]"
+            : "border-gray-200/90 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-600/50"
         } ${isUploading || isProcessing ? "opacity-60 pointer-events-none" : ""}`}
       >
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
           <div className="w-11 h-11 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200/70 dark:border-white/10 flex items-center justify-center shrink-0 text-gray-700 dark:text-gray-300">
             {isUploading || isProcessing ? (
-              <Loader2 size={20} className="animate-spin text-sky-600" />
+              <Loader2 size={20} className="animate-spin text-[#133827] dark:text-emerald-400" />
             ) : (
               <Upload size={20} />
             )}
@@ -198,7 +198,7 @@ export default function Checkout3DViewerCard({
           type="button"
           onClick={onChooseFile}
           disabled={isUploading || isProcessing}
-          className="shrink-0 px-4 sm:px-5 py-2.5 rounded-full border border-gray-300 dark:border-white/20 hover:border-sky-500 dark:hover:border-sky-400 hover:text-sky-600 dark:hover:text-sky-400 bg-white dark:bg-white/5 text-gray-800 dark:text-gray-200 text-xs font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer"
+          className="shrink-0 px-4 sm:px-5 py-2.5 rounded-full border border-gray-300 dark:border-white/20 hover:border-[#133827] dark:hover:border-emerald-400 hover:text-[#133827] dark:hover:text-emerald-400 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/30 bg-white dark:bg-white/5 text-gray-800 dark:text-gray-200 text-xs font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer"
         >
           {t("quote.dropzoneChooseBtn")}
         </button>
@@ -209,7 +209,7 @@ export default function Checkout3DViewerCard({
         <button
           type="button"
           onClick={onLoadSampleModel}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 transition-colors cursor-pointer group"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-[#133827] dark:hover:text-emerald-400 transition-colors cursor-pointer group"
         >
           <Sparkles
             size={13}

@@ -25,7 +25,7 @@ export default function FarmCatalogModal({ isOpen, onClose }: FarmCatalogModalPr
         {/* Header */}
         <div className="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-white/10 pb-5">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-100 dark:border-sky-800/40 flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center shrink-0">
               <Cpu size={22} />
             </div>
             <div>
@@ -50,7 +50,7 @@ export default function FarmCatalogModal({ isOpen, onClose }: FarmCatalogModalPr
         {/* Printer Farm Specs */}
         <div className="space-y-3">
           <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 flex items-center gap-2">
-            <Wrench size={14} className="text-sky-600 dark:text-sky-400" />
+            <Wrench size={14} className="text-[#133827] dark:text-emerald-400" />
             {t("quote.farmCatalogPrintersHeader")}
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -84,7 +84,7 @@ export default function FarmCatalogModal({ isOpen, onClose }: FarmCatalogModalPr
         {/* Supported Filaments */}
         <div className="space-y-3">
           <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 flex items-center gap-2">
-            <Layers size={14} className="text-sky-600 dark:text-sky-400" />
+            <Layers size={14} className="text-[#133827] dark:text-emerald-400" />
             {t("quote.farmCatalogMaterialsHeader")}
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">

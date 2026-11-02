@@ -36,12 +36,12 @@ export default function Checkout3DMultiModelTabs({
             key={idx}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 border cursor-pointer ${
               isActive
-                ? "bg-white dark:bg-[#141e1a] text-sky-800 dark:text-sky-300 border-sky-300 dark:border-sky-700 shadow-2xs"
+                ? "bg-white dark:bg-[#141e1a] text-emerald-900 dark:text-emerald-300 border-emerald-400 dark:border-emerald-600 shadow-2xs font-bold"
                 : "bg-gray-100/80 dark:bg-white/5 text-gray-600 dark:text-gray-400 border-gray-200/60 dark:border-white/10 hover:bg-gray-200/60"
             }`}
             onClick={() => onSelectIndex(idx)}
           >
-            <Box size={13} className={isActive ? "text-sky-600 dark:text-sky-400" : "text-gray-400"} />
+            <Box size={13} className={isActive ? "text-[#133827] dark:text-emerald-400" : "text-gray-400"} />
             <span className="max-w-[130px] truncate">{displayName}</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/5 dark:bg-white/10 text-gray-500">
               ×{item.count}
@@ -68,7 +68,7 @@ export default function Checkout3DMultiModelTabs({
         <button
           type="button"
           onClick={onAddNewModel}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-dashed border-gray-300 dark:border-white/20 text-gray-600 dark:text-gray-400 hover:text-sky-600 hover:border-sky-400 transition-colors shrink-0"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-dashed border-gray-300 dark:border-white/20 text-gray-600 dark:text-gray-400 hover:text-[#133827] dark:hover:text-emerald-400 hover:border-emerald-400 transition-colors shrink-0"
         >
           <Plus size={13} />
           <span>{t("quote.addAnotherModelBtn")}</span>

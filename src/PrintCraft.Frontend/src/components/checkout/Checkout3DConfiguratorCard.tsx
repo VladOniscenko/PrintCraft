@@ -134,9 +134,9 @@ export default function Checkout3DConfiguratorCard({
         <button
           type="button"
           onClick={onOpenFarmCatalog}
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 border border-sky-200/70 dark:border-sky-800/40 hover:bg-sky-100 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors cursor-pointer"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#133827] dark:bg-emerald-400" />
           <span>{t("quote.configuratorFarmCatalog")}</span>
         </button>
       </div>
@@ -160,7 +160,7 @@ export default function Checkout3DConfiguratorCard({
                 onClick={() => handleQualitySelect(opt.id)}
                 className={`p-3.5 sm:p-4 rounded-2xl border text-center transition-all flex flex-col items-center justify-between cursor-pointer select-none ${
                   isSelected
-                    ? "border-sky-500 bg-sky-50/70 dark:bg-sky-950/30 text-gray-900 dark:text-white shadow-2xs"
+                    ? "border-[#133827] dark:border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 text-gray-900 dark:text-white shadow-2xs"
                     : "border-gray-200/80 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 text-gray-700 dark:text-gray-300 bg-[#fbfbfd] dark:bg-white/5"
                 }`}
               >
@@ -177,7 +177,7 @@ export default function Checkout3DConfiguratorCard({
                   <span
                     className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
                       isSelected
-                        ? "border-sky-500 bg-sky-500 text-white"
+                        ? "border-[#133827] bg-[#133827] dark:border-emerald-500 dark:bg-emerald-500 text-white"
                         : "border-gray-300 dark:border-white/20"
                     }`}
                   >
@@ -245,7 +245,7 @@ export default function Checkout3DConfiguratorCard({
                 onClick={() => handleCountChange(qty)}
                 className={`px-3 py-2.5 rounded-xl border text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                   currentCount === qty
-                    ? "border-sky-500 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300"
+                    ? "border-[#133827] dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-bold"
                     : "border-gray-200/80 dark:border-white/10 bg-[#fbfbfd] dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10"
                 }`}
               >
@@ -264,7 +264,7 @@ export default function Checkout3DConfiguratorCard({
           className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-100/50 dark:hover:bg-white/5 transition-colors cursor-pointer"
         >
           <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-gray-900 dark:text-white">
-            <span className="text-sky-600 dark:text-sky-400 font-extrabold text-base">
+            <span className="text-[#133827] dark:text-emerald-400 font-extrabold text-base">
               {paramsExpanded ? "−" : "+"}
             </span>
             <span>{t("quote.printParametersAccordion")}</span>
@@ -293,7 +293,7 @@ export default function Checkout3DConfiguratorCard({
                     onClick={() => handleMaterialChange(mat)}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
                       currentMaterial === mat
-                        ? "bg-sky-50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300 border-sky-300 dark:border-sky-700 shadow-2xs"
+                        ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700 shadow-2xs font-bold"
                         : "bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-gray-50"
                     }`}
                   >
@@ -325,7 +325,7 @@ export default function Checkout3DConfiguratorCard({
                       title={translateColorText(clr, t)}
                       className={`w-7 h-7 rounded-full border-2 transition-all flex items-center justify-center cursor-pointer ${
                         isSelected
-                          ? "border-sky-500 scale-110 shadow-xs"
+                          ? "border-[#133827] dark:border-emerald-400 scale-110 shadow-xs ring-2 ring-emerald-500/20"
                           : "border-gray-300 dark:border-white/20 hover:scale-105"
                       }`}
                       style={{ backgroundColor: hexCss }}
@@ -355,7 +355,7 @@ export default function Checkout3DConfiguratorCard({
                 <label htmlFor="infill-range-slider" className="cursor-pointer">
                   {t("quote.infillTitle")}
                 </label>
-                <span className="font-mono text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 px-2.5 py-0.5 rounded-md border border-sky-200/70 dark:border-sky-800/40">
+                <span className="font-mono text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-800/40">
                   {currentInfill}%
                 </span>
               </div>
@@ -368,7 +368,7 @@ export default function Checkout3DConfiguratorCard({
                   step="5"
                   value={currentInfill}
                   onChange={(e) => onUpdateItem("infillPercent", parseInt(e.target.value, 10))}
-                  className="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-sky-600"
+                  className="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#133827] dark:accent-emerald-500"
                   aria-label={t("quote.infillTitle")}
                 />
                 <div className="flex justify-between text-[11px] text-gray-400 font-mono">
@@ -386,7 +386,7 @@ export default function Checkout3DConfiguratorCard({
                 type="checkbox"
                 checked={currentSupports}
                 onChange={(e) => onUpdateItem("supportsNeeded", e.target.checked)}
-                className="w-4 h-4 rounded-md accent-sky-600 cursor-pointer"
+                className="w-4 h-4 rounded-md accent-[#133827] dark:accent-emerald-500 cursor-pointer"
               />
               <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                 {t("quote.supportsToggle")}
@@ -403,7 +403,7 @@ export default function Checkout3DConfiguratorCard({
                 value={item.notes || ""}
                 onChange={(e) => onUpdateItem("notes", e.target.value)}
                 placeholder={t("quote.notesPlaceholder")}
-                className="w-full text-xs p-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-sky-500 transition-colors resize-none"
+                className="w-full text-xs p-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-[#133827] dark:focus:border-emerald-500 transition-colors resize-none"
               />
             </div>
           </div>
@@ -444,7 +444,7 @@ export default function Checkout3DConfiguratorCard({
             <button
               type="button"
               onClick={onAddNewModel}
-              className="px-3.5 py-2 rounded-full border border-gray-200 dark:border-white/10 hover:border-sky-400 text-gray-700 dark:text-gray-300 hover:text-sky-600 text-xs font-semibold bg-white dark:bg-white/5 transition-colors cursor-pointer shrink-0"
+              className="px-3.5 py-2 rounded-full border border-gray-200 dark:border-white/10 hover:border-[#133827] dark:hover:border-emerald-400 text-gray-700 dark:text-gray-300 hover:text-[#133827] dark:hover:text-emerald-400 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/30 text-xs font-semibold bg-white dark:bg-white/5 transition-colors cursor-pointer shrink-0"
             >
               {t("quote.addAnotherModelBtn")}
             </button>
@@ -461,7 +461,7 @@ export default function Checkout3DConfiguratorCard({
           <button
             type="button"
             onClick={onProceed}
-            className="w-full py-4 rounded-2xl bg-[#133827] dark:bg-emerald-600 hover:bg-[#1a4a34] dark:hover:bg-emerald-500 text-white font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2.5 shadow-sm hover:shadow-md cursor-pointer"
+            className="w-full py-4 rounded-2xl bg-[#133827] hover:bg-[#0f2d1f] dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2.5 shadow-sm hover:shadow-md cursor-pointer"
           >
             <span>{t("quote.ctaProceedCheckout")}</span>
             <ArrowRight size={18} />
@@ -470,7 +470,7 @@ export default function Checkout3DConfiguratorCard({
           <button
             type="button"
             onClick={onUploadTrigger}
-            className="w-full py-4 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2.5 shadow-sm hover:shadow-md cursor-pointer"
+            className="w-full py-4 rounded-2xl bg-[#133827] hover:bg-[#0f2d1f] dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2.5 shadow-sm hover:shadow-md cursor-pointer"
           >
             <Upload size={18} />
             <span>{t("quote.ctaUploadStl")}</span>
